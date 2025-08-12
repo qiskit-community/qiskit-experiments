@@ -1,0 +1,50 @@
+﻿
+
+MitigatedProcessTomography
+================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoexperiment:: MitigatedProcessTomography
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: MitigatedProcessTomography.analysis
+   .. autoattribute:: MitigatedProcessTomography.backend
+   .. autoattribute:: MitigatedProcessTomography.experiment_options
+   .. autoattribute:: MitigatedProcessTomography.experiment_type
+   .. autoattribute:: MitigatedProcessTomography.num_experiments
+   .. autoattribute:: MitigatedProcessTomography.num_qubits
+   .. autoattribute:: MitigatedProcessTomography.physical_qubits
+   .. autoattribute:: MitigatedProcessTomography.run_options
+   .. autoattribute:: MitigatedProcessTomography.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: MitigatedProcessTomography.circuits
+   .. automethod:: MitigatedProcessTomography.component_experiment
+   .. automethod:: MitigatedProcessTomography.config
+   .. automethod:: MitigatedProcessTomography.copy
+   .. automethod:: MitigatedProcessTomography.from_config
+   .. automethod:: MitigatedProcessTomography.job_info
+   .. automethod:: MitigatedProcessTomography.run
+   .. automethod:: MitigatedProcessTomography.set_experiment_options
+   .. automethod:: MitigatedProcessTomography.set_run_options
+   .. automethod:: MitigatedProcessTomography.set_transpile_options
+   
+
+   
+   

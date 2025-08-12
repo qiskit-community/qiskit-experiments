@@ -1,0 +1,1247 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Visualization: Creating figures" href="visualization.html" /><link rel="prev" title="Data Processor: Wrangling data" href="data_processor.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>Curve Analysis: Fitting your data - Qiskit Experiments 0.12.0</title>
+      <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-gallery.css?v=26227f6e" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/customstyles.css?v=5690b376" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #ffffff;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet"></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 2H2C1.73478 2 1.48043 2.10536 1.29289 2.29289C1.10536 2.48043 1 2.73478 1 3V13C1 13.2652 1.10536 13.5196 1.29289 13.7071C1.48043 13.8946 1.73478 14 2 14H14C14.2652 14 14.5196 13.8946 14.7071 13.7071C14.8946 13.5196 15 13.2652 15 13V3C15 2.73478 14.8946 2.48043 14.7071 2.29289C14.5196 2.10536 14.2652 2 14 2V2ZM2 3H10V13H2V3ZM14 13H11V3H14V13Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 3H2V4H14V3Z" fill="currentColor"/>
+      <path d="M14 12H2V13H14V12Z" fill="currentColor"/>
+      <path d="M14 6H2V7H14V6Z" fill="currentColor"/>
+      <path d="M14 9H2V10H14V9Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 8L6.00005 13L5.30005 12.3L9.60005 8L5.30005 3.7L6.00005 3L11 8Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 13H1V14H15V13Z" fill="currentColor"/>
+      <path d="M12.7 4.5C13.1 4.1 13.1 3.5 12.7 3.1L10.9 1.3C10.5 0.9 9.9 0.9 9.5 1.3L2 8.8V12H5.2L12.7 4.5ZM10.2 2L12 3.8L10.5 5.3L8.7 3.5L10.2 2ZM3 11V9.2L8 4.2L9.8 6L4.8 11H3Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 13.0002C11.5523 13.0002 12 12.5525 12 12.0002C12 11.4479 11.5523 11.0002 11 11.0002C10.4477 11.0002 10 11.4479 10 12.0002C10 12.5525 10.4477 13.0002 11 13.0002Z" fill="currentColor"/>
+      <path d="M14.8884 11.7394C14.5795 10.9524 14.0464 10.2734 13.3552 9.78646C12.664 9.29954 11.8451 9.02615 11 9.00017C10.1549 9.02615 9.33604 9.29954 8.64484 9.78646C7.95365 10.2734 7.42052 10.9524 7.11155 11.7394L7 12.0002L7.11155 12.2609C7.42052 13.0479 7.95365 13.727 8.64484 14.2139C9.33604 14.7008 10.1549 14.9742 11 15.0002C11.8451 14.9742 12.664 14.7008 13.3552 14.2139C14.0464 13.727 14.5795 13.0479 14.8884 12.2609L15 12.0002L14.8884 11.7394ZM11 14.0002C10.6044 14.0002 10.2178 13.8829 9.88886 13.6631C9.55996 13.4433 9.30362 13.131 9.15224 12.7655C9.00087 12.4001 8.96126 11.998 9.03843 11.61C9.1156 11.222 9.30608 10.8657 9.58579 10.586C9.86549 10.3063 10.2219 10.1158 10.6098 10.0386C10.9978 9.96143 11.3999 10.001 11.7654 10.1524C12.1308 10.3038 12.4432 10.5601 12.6629 10.889C12.8827 11.2179 13 11.6046 13 12.0002C12.9994 12.5304 12.7885 13.0388 12.4136 13.4137C12.0386 13.7887 11.5303 13.9996 11 14.0002Z" fill="currentColor"/>
+      <path d="M6 14.0002H4V2.00017H8V5.00017C8.00077 5.26515 8.10637 5.51906 8.29374 5.70643C8.48111 5.8938 8.73502 5.99941 9 6.00017H12V8.00017H13V5.00017C13.0018 4.93446 12.9893 4.86913 12.9634 4.80871C12.9375 4.74828 12.8988 4.6942 12.85 4.65017L9.35 1.15017C9.30599 1.10134 9.2519 1.06263 9.19147 1.03674C9.13104 1.01084 9.06572 0.998364 9 1.00017H4C3.73502 1.00094 3.48111 1.10654 3.29374 1.29391C3.10637 1.48128 3.00077 1.73519 3 2.00017V14.0002C3.00077 14.2652 3.10637 14.5191 3.29374 14.7064C3.48111 14.8938 3.73502 14.9994 4 15.0002H6V14.0002ZM9 2.20017L11.8 5.00017H9V2.20017Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.12.0</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">Qiskit Experiments 0.12.0</span>
+  
+</a>
+<form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Qiskit Experiments Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Tutorials</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_processor.html">Data Processor: Wrangling data</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Curve Analysis: Fitting your data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization: Creating figures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_experiment.html">Writing your own experiment</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/artifacts.html">Work with experiment artifacts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/experiment_times.html">Get experiment timing information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/figure_generation.html">Control figure generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/rerun_analysis.html">Rerun analysis for an existing experiment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/runtime_sessions.html">Use Experiments with Sampler</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../manuals/index.html">Experiment Manuals</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Experiment Manuals</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../manuals/verification/quantum_volume.html">Quantum Volume</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manuals/verification/randomized_benchmarking.html">Randomized Benchmarking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manuals/verification/state_tomography.html">Quantum State Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manuals/characterization/t1.html">T1 Characterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manuals/characterization/t2hahn.html">T2 Hahn Characterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manuals/characterization/t2ramsey.html">T2* Ramsey Characterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manuals/characterization/tphi.html">Tφ Characterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manuals/measurement/readout_mitigation.html">Readout Mitigation</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../apidocs/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../apidocs/main.html">Qiskit Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments</span></code>)</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/framework.html">Experiment Framework (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.framework</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Experiment Framework (qiskit_experiments.framework)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html">ExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentStatus.html">ExperimentStatus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisStatus.html">AnalysisStatus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResult.html">AnalysisResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResultData.html">AnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResultTable.html">AnalysisResultTable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentConfig.html">ExperimentConfig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisConfig.html">AnalysisConfig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentEncoder.html">ExperimentEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentDecoder.html">ExperimentDecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ArtifactData.html">ArtifactData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.FigureData.html">FigureData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.Provider.html">Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.Job.html">Job</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.MeasLevel.html">MeasLevel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.MeasReturnType.html">MeasReturnType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.CompositeAnalysis.html">CompositeAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html">BaseExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseAnalysis.html">BaseAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BackendData.html">BackendData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BackendTiming.html">BackendTiming</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary.html">LayerFidelityUnitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.StateTomography.html">StateTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.ProcessTomography.html">ProcessTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.MitigatedStateTomography.html">MitigatedStateTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.MitigatedProcessTomography.html">MitigatedProcessTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.quantum_volume.QuantumVolume.html">QuantumVolume</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1.html">T1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T2Hahn.html">T2Hahn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T2Ramsey.html">T2Ramsey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.Tphi.html">Tphi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.HalfAngle.html">HalfAngle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineAmplitude.html">FineAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineXAmplitude.html">FineXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineSXAmplitude.html">FineSXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.RamseyXY.html">RamseyXY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineFrequency.html">FineFrequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.ReadoutAngle.html">ReadoutAngle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineDrag.html">FineDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineXDrag.html">FineXDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineSXDrag.html">FineSXDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.MultiStateDiscrimination.html">MultiStateDiscrimination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.ZZRamsey.html">ZZRamsey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.LocalReadoutError.html">LocalReadoutError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html">CorrelatedReadoutError</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/data_processing.html">Data Processing (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.data_processing</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Data Processing (qiskit_experiments.data_processing)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataProcessor.html">DataProcessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataAction.html">DataAction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.TrainableDataAction.html">TrainableDataAction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.Probability.html">Probability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.MarginalizeCounts.html">MarginalizeCounts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.ToImag.html">ToImag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.ToReal.html">ToReal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.SVD.html">SVD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DiscriminatorNode.html">DiscriminatorNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.MemoryToCounts.html">MemoryToCounts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.AverageData.html">AverageData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.BasisExpectationValue.html">BasisExpectationValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.MinMaxNormalize.html">MinMaxNormalize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.ShotOrder.html">ShotOrder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html">BaseDiscriminator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.SkLDA.html">SkLDA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.SkQDA.html">SkQDA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.BaseReadoutMitigator.html">BaseReadoutMitigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.LocalReadoutMitigator.html">LocalReadoutMitigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html">CorrelatedReadoutMitigator</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/curve_analysis.html">Curve Analysis (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.curve_analysis</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Curve Analysis (qiskit_experiments.curve_analysis)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.BaseCurveAnalysis.html">BaseCurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html">CurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html">CompositeCurveAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html">ScatterTable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html">CurveFitResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ParameterRepr.html">ParameterRepr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.FitOptions.html">FitOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.BlochTrajectoryAnalysis.html">BlochTrajectoryAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.DecayAnalysis.html">DecayAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.DampedOscillationAnalysis.html">DampedOscillationAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.OscillationAnalysis.html">OscillationAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.GaussianAnalysis.html">GaussianAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis.html">ErrorAmplificationAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.fit_function.cos.html">cos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.fit_function.cos_decay.html">cos_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.fit_function.exponential_decay.html">exponential_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.fit_function.gaussian.html">gaussian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.fit_function.sqrt_lorentzian.html">sqrt_lorentzian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.fit_function.sin.html">sin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.fit_function.sin_decay.html">sin_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.guess.constant_sinusoidal_offset.html">constant_sinusoidal_offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.guess.constant_spectral_offset.html">constant_spectral_offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.guess.exp_decay.html">exp_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.guess.rb_decay.html">rb_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.guess.full_width_half_max.html">full_width_half_max</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.guess.frequency.html">frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.guess.max_height.html">max_height</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.guess.min_height.html">min_height</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.guess.oscillation_exp_decay.html">oscillation_exp_decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.utils.analysis_result_to_repr.html">analysis_result_to_repr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.utils.convert_lmfit_result.html">convert_lmfit_result</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.utils.eval_with_uncertainties.html">eval_with_uncertainties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.utils.inverse_weighted_variance.html">inverse_weighted_variance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.utils.is_error_not_significant.html">is_error_not_significant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.utils.level2_probability.html">level2_probability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.utils.probability.html">probability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.utils.sample_average.html">sample_average</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.utils.shot_weighted_average.html">shot_weighted_average</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/database_service.html">Database Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.database_service</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Database Service (qiskit_experiments.database_service)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.DeviceComponent.html">DeviceComponent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.Qubit.html">Qubit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/visualization.html">Visualization (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.visualization</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Visualization (qiskit_experiments.visualization)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.visualization.BasePlotter.html">BasePlotter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.visualization.CurvePlotter.html">CurvePlotter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.visualization.IQPlotter.html">IQPlotter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.visualization.BaseDrawer.html">BaseDrawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.visualization.MplDrawer.html">MplDrawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.visualization.PlotStyle.html">PlotStyle</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/test.html">Test Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.test</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of Test Utilities (qiskit_experiments.test)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.test.MockIQBackend.html">MockIQBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.test.MockIQParallelBackend.html">MockIQParallelBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.test.T2HahnBackend.html">T2HahnBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.test.NoisyDelayAerBackend.html">NoisyDelayAerBackend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.test.MockIQExperimentHelper.html">MockIQExperimentHelper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.test.MockIQParallelExperimentHelper.html">MockIQParallelExperimentHelper</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/mod_characterization.html">Characterization Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.characterization</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of Characterization Experiments (qiskit_experiments.library.characterization)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1.html">T1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T2Ramsey.html">T2Ramsey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T2Hahn.html">T2Hahn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.Tphi.html">Tphi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.HalfAngle.html">HalfAngle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineAmplitude.html">FineAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineXAmplitude.html">FineXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineSXAmplitude.html">FineSXAmplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.RamseyXY.html">RamseyXY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineFrequency.html">FineFrequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.ReadoutAngle.html">ReadoutAngle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineDrag.html">FineDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineXDrag.html">FineXDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineSXDrag.html">FineSXDrag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.LocalReadoutError.html">LocalReadoutError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutError.html">CorrelatedReadoutError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.MultiStateDiscrimination.html">MultiStateDiscrimination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.ZZRamsey.html">ZZRamsey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1Analysis.html">T1Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T1KerneledAnalysis.html">T1KerneledAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T2RamseyAnalysis.html">T2RamseyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.T2HahnAnalysis.html">T2HahnAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.TphiAnalysis.html">TphiAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.FineAmplitudeAnalysis.html">FineAmplitudeAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.RamseyXYAnalysis.html">RamseyXYAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.ReadoutAngleAnalysis.html">ReadoutAngleAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.LocalReadoutErrorAnalysis.html">LocalReadoutErrorAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutErrorAnalysis.html">CorrelatedReadoutErrorAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.ZZRamseyAnalysis.html">ZZRamseyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.characterization.MultiStateDiscriminationAnalysis.html">MultiStateDiscriminationAnalysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/mod_randomized_benchmarking.html">Randomized Benchmarking Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.randomized_benchmarking</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of Randomized Benchmarking Experiments (qiskit_experiments.library.randomized_benchmarking)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary.html">LayerFidelityUnitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html">RBAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRBAnalysis.html">InterleavedRBAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis.html">LayerFidelityAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis.html">RBDefaultCliffordSynthesis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.RBUtils.html">RBUtils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.randomized_benchmarking.CliffordUtils.html">CliffordUtils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/mod_tomography.html">Tomography Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.tomography</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of Tomography Experiments (qiskit_experiments.library.tomography)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.StateTomography.html">StateTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.ProcessTomography.html">ProcessTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.MitigatedStateTomography.html">MitigatedStateTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.MitigatedProcessTomography.html">MitigatedProcessTomography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.TomographyAnalysis.html">TomographyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.StateTomographyAnalysis.html">StateTomographyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.ProcessTomographyAnalysis.html">ProcessTomographyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.MitigatedTomographyAnalysis.html">MitigatedTomographyAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.fitters.linear_inversion.html">linear_inversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq.html">cvxpy_gaussian_lstsq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.fitters.cvxpy_linear_lstsq.html">cvxpy_linear_lstsq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.basis.PauliMeasurementBasis.html">PauliMeasurementBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.basis.PauliPreparationBasis.html">PauliPreparationBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.basis.Pauli6PreparationBasis.html">Pauli6PreparationBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.html">LocalMeasurementBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.basis.LocalPreparationBasis.html">LocalPreparationBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.basis.MeasurementBasis.html">MeasurementBasis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.tomography.basis.PreparationBasis.html">PreparationBasis</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/mod_quantum_volume.html">Quantum Volume Experiment (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.quantum_volume</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle navigation of Quantum Volume Experiment (qiskit_experiments.library.quantum_volume)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.quantum_volume.QuantumVolume.html">QuantumVolume</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.quantum_volume.QuantumVolumeAnalysis.html">QuantumVolumeAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html">QuantumVolumePlotter</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Qiskit-Community/qiskit-experiments">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://qiskit-community.github.io/qiskit-experiments/dev/">Development Branch Docs</a></li>
+</ul>
+
+</div><div class="qiskit-previous-releases-container">
+    <input id="previous-releases-checkbox" name="previous-releases-checkbox" role="switch" type="checkbox">
+    <div class="qiskit-previous-releases-header-container"><label for="previous-releases-checkbox">
+            <p role="note">Previous Releases</p>
+            <div class="qiskit-previous-releases-toggle-container">
+                <div class="visually-hidden">Toggle navigation of Previous Releases</div>
+                <i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i>
+            </div>
+        </label>
+    </div>
+    <div class="qiskit-previous-releases-list-container">
+        <ul>
+        
+            <li><a href="/qiskit-experiments/stable/0.9/index.html" rel="nofollow noindex">0.9</a></li>
+        
+            <li><a href="/qiskit-experiments/stable/0.8/index.html" rel="nofollow noindex">0.8</a></li>
+        
+            <li><a href="/qiskit-experiments/stable/0.7/index.html" rel="nofollow noindex">0.7</a></li>
+        
+            <li><a href="/qiskit-experiments/stable/0.6/index.html" rel="nofollow noindex">0.6</a></li>
+        
+            <li><a href="/qiskit-experiments/stable/0.5/index.html" rel="nofollow noindex">0.5</a></li>
+        
+            <li><a href="/qiskit-experiments/stable/0.11/index.html" rel="nofollow noindex">0.11</a></li>
+        
+            <li><a href="/qiskit-experiments/stable/0.10/index.html" rel="nofollow noindex">0.10</a></li>
+        
+        </ul>
+    </div>
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/tutorials/curve_analysis.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="curve-analysis-fitting-your-data">
+<h1>Curve Analysis: Fitting your data<a class="headerlink" href="#curve-analysis-fitting-your-data" title="Link to this heading">¶</a></h1>
+<p>For most experiments, we are interested in fitting our results to a pre-defined
+mathematical model.
+The Curve Analysis module provides the analysis base class for a variety of experiments with
+a single experimental parameter sweep. Analysis subclasses can override
+several class attributes to customize the behavior from data processing to post-processing,
+including providing systematic initial guesses for parameters tailored to the experiment.
+Here we describe how the Curve Analysis module works and how you can create new
+analyses that inherit from the base class.</p>
+<section id="curve-analysis-overview">
+<span id="id1"></span><h2>Curve Analysis overview<a class="headerlink" href="#curve-analysis-overview" title="Link to this heading">¶</a></h2>
+<p>The base class <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> implements the multi-objective optimization on
+different sets of experiment results. A single experiment can define sub-experiments
+consisting of multiple circuits which are tagged with common metadata,
+and curve analysis sorts the experiment results based on the circuit metadata.</p>
+<p>This is an example showing the abstract data flow of a typical curve analysis experiment:</p>
+<figure class="align-center">
+<img alt="../_images/curve_analysis_structure.png" class="no-scaled-link" src="../_images/curve_analysis_structure.png" style="width: 600px;" />
+</figure>
+<p>Here the experiment runs two subsets of experiments, namely, series A and series B.
+The analysis defines corresponding fit models <span class="math notranslate nohighlight">\(f_A(x_A)\)</span> and <span class="math notranslate nohighlight">\(f_B(x_B)\)</span>.
+Data extraction function in the analysis creates two datasets, <span class="math notranslate nohighlight">\((x_A, y_A)\)</span>
+for the series A and <span class="math notranslate nohighlight">\((x_B, y_B)\)</span> for the series B, from the experiment data.
+Optionally, the curve analysis can fix certain parameters during the fitting.
+In this example, <span class="math notranslate nohighlight">\(p_1 = v\)</span> remains unchanged during the fitting.</p>
+<p>The curve analysis aims at solving the following optimization problem:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\Theta_{\mbox{opt}} = \arg\min_{\Theta_{\rm fit}} \sigma^{-2} (F(X, \Theta)-Y)^2,\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(F\)</span> is the composite objective function defined on the full experiment data
+<span class="math notranslate nohighlight">\((X, Y)\)</span>, where <span class="math notranslate nohighlight">\(X = x_A \oplus x_B\)</span> and <span class="math notranslate nohighlight">\(Y = y_A \oplus y_B\)</span>.
+This objective function can be described by two fit functions as follows.</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[F(X, \Theta) = f_A(x_A, \theta_A) \oplus f_B(x_B, \theta_B).\]</div>
+</div>
+<p>The solver conducts the least square curve fitting against this objective function
+and returns the estimated parameters <span class="math notranslate nohighlight">\(\Theta_{\mbox{opt}}\)</span>
+that minimize the reduced chi-squared value.
+The parameters to be evaluated are <span class="math notranslate nohighlight">\(\Theta = \Theta_{\rm fit} \cup \Theta_{\rm fix}\)</span>,
+where <span class="math notranslate nohighlight">\(\Theta_{\rm fit} = \theta_A \cup \theta_B\)</span>.
+Since series A and B share the parameters in this example, <span class="math notranslate nohighlight">\(\Theta_{\rm fit} = \{p_0, p_2\}\)</span>,
+and the fixed parameters are <span class="math notranslate nohighlight">\(\Theta_{\rm fix} = \{ p_1 \}\)</span> as mentioned.
+Thus, <span class="math notranslate nohighlight">\(\Theta = \{ p_0, p_1, p_2 \}\)</span>.</p>
+<p>Experiment for each series can perform individual parameter sweep for <span class="math notranslate nohighlight">\(x_A\)</span> and
+<span class="math notranslate nohighlight">\(x_B\)</span>, and experiment data yields outcomes <span class="math notranslate nohighlight">\(y_A\)</span> and <span class="math notranslate nohighlight">\(y_B\)</span>, which might
+be of different size. Data processing functions may also compute <span class="math notranslate nohighlight">\(\sigma_A\)</span> and
+<span class="math notranslate nohighlight">\(\sigma_B\)</span>, which are the uncertainty of outcomes arising from the sampling error
+or measurement error.</p>
+<p>More specifically, the curve analysis defines the following data model.</p>
+<ul class="simple">
+<li><p>Model: Definition of a single curve that is a function of a reserved parameter “x”.</p></li>
+<li><p>Group: List of models. Fit functions defined under the same group must share the
+fit parameters. Fit functions in the group are simultaneously fit to
+generate a single fit result.</p></li>
+</ul>
+<p>Once the group is assigned, a curve analysis instance builds
+a proper internal optimization routine.
+Finally, the analysis outputs a set of <a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResultData.html#qiskit_experiments.framework.AnalysisResultData" title="qiskit_experiments.framework.AnalysisResultData"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResultData</span></code></a> entries
+for important fit outcomes along with a single figure of the fit curves
+with the measured data points.</p>
+<p>With this base class, a developer can avoid writing boilerplate code in
+various curve analyses subclasses and can quickly write up
+the analysis code for a particular experiment.</p>
+</section>
+<section id="defining-new-models">
+<span id="curve-analysis-define-group"></span><h2>Defining new models<a class="headerlink" href="#defining-new-models" title="Link to this heading">¶</a></h2>
+<p>The fit model is defined by the <a class="reference external" href="https://lmfit.github.io/lmfit-py/intro.html">LMFIT</a> <code class="docutils literal notranslate"><span class="pre">Model</span></code>. If you are familiar with this
+package, you can skip this section. The LMFIT package manages complicated fit functions
+and offers several algorithms to solve non-linear least-square problems. Curve Analysis
+delegates the core fitting functionality to this package.</p>
+<p>You can intuitively write the definition of a model, as shown below:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
+
+<span class="n">models</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
+        <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;amp * exp(-alpha * x) + base&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;exp_decay&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">x</span></code> is the reserved name to represent a parameter
+that is scanned during the experiment. In above example, the fit function
+consists of three parameters (<code class="docutils literal notranslate"><span class="pre">amp</span></code>, <code class="docutils literal notranslate"><span class="pre">alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">base</span></code>), and <code class="docutils literal notranslate"><span class="pre">exp</span></code> indicates
+a universal function in Python’s math module.
+Alternatively, you can take a callable to define the model object.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">exp_decay</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">amp</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">amp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">base</span>
+
+<span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">exp_decay</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>See the <a class="reference external" href="https://lmfit.github.io/lmfit-py/intro.html">LMFIT</a> documentation for detailed user guide. They also provide preset models.</p>
+<p>If the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> object is instantiated with multiple models,
+it internally builds a cost function to simultaneously minimize the residuals of
+all fit functions.
+The names of the parameters in the fit function are important since they are used
+in the analysis result, and potentially in your experiment database as a fit result.</p>
+<p>Here is another example on how to implement a multi-objective optimization task:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
+
+<span class="n">models</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
+        <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;amp * exp(-alpha1 * x) + base&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_experiment1&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
+        <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;amp * exp(-alpha2 * x) + base&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_experiment2&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>In addition, you need to provide <code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code> analysis option, which may look like</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_subfit_map</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;my_experiment1&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="s2">&quot;my_experiment2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>This option specifies the metadata of your experiment circuit
+that is tied to the fit model. If multiple models are provided without this option,
+the curve fitter cannot prepare the data for fitting.
+In this model, you have four parameters (<code class="docutils literal notranslate"><span class="pre">amp</span></code>, <code class="docutils literal notranslate"><span class="pre">alpha1</span></code>, <code class="docutils literal notranslate"><span class="pre">alpha2</span></code>, <code class="docutils literal notranslate"><span class="pre">base</span></code>)
+and the two curves share <code class="docutils literal notranslate"><span class="pre">amp</span></code> (<code class="docutils literal notranslate"><span class="pre">base</span></code>) for the amplitude (baseline) in
+the exponential decay function.
+Here one should expect the experiment data will have two classes of data with metadata
+<code class="docutils literal notranslate"><span class="pre">&quot;tag&quot;:</span> <span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;tag&quot;:</span> <span class="pre">2</span></code> for <code class="docutils literal notranslate"><span class="pre">my_experiment1</span></code> and <code class="docutils literal notranslate"><span class="pre">my_experiment2</span></code>, respectively.</p>
+<p>By using this model, you can flexibly set up your fit model. Here is another example:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
+
+<span class="n">models</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
+        <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;amp * cos(2 * pi * freq * x + phi) + base&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_experiment1&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
+        <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;amp * sin(2 * pi * freq * x + phi) + base&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_experiment2&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>You have the same set of fit parameters in the two models, but now you fit two datasets
+with different trigonometric functions.</p>
+</section>
+<section id="fitting-with-fixed-parameters">
+<span id="curve-analysis-fixed-param"></span><h2>Fitting with fixed parameters<a class="headerlink" href="#fitting-with-fixed-parameters" title="Link to this heading">¶</a></h2>
+<p>You can also keep certain parameters unchanged during the fitting by specifying the
+parameter names in the analysis option <code class="docutils literal notranslate"><span class="pre">fixed_parameters</span></code>. This feature is useful
+especially when you want to define a subclass of a particular analysis class.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">AnalysisA</span><span class="p">(</span><span class="n">CurveAnalysis</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">models</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
+                    <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;amp * exp(-alpha * x) + base&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_model&quot;</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AnalysisB</span><span class="p">(</span><span class="n">AnalysisA</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">fixed_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">options</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>The parameter specified in <code class="docutils literal notranslate"><span class="pre">fixed_parameters</span></code> is excluded from the fitting.
+This code will give you identical fit model to the one defined in the following class:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">AnalysisB</span><span class="p">(</span><span class="n">CurveAnalysis</span><span class="p">):</span>
+
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="n">models</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
+                <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;3.0 * exp(-alpha * x) + base&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_model&quot;</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>However, note that you can also inherit other features, e.g. the algorithm to
+generate initial guesses for parameters, from the <code class="docutils literal notranslate"><span class="pre">AnalysisA</span></code> class in the first example.
+On the other hand, in the latter case, you need to manually copy and paste
+every logic defined in <code class="docutils literal notranslate"><span class="pre">AnalysisA</span></code>.</p>
+</section>
+<section id="managing-intermediate-data">
+<span id="data-management-with-scatter-table"></span><h2>Managing intermediate data<a class="headerlink" href="#managing-intermediate-data" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> is the single source of truth for the data used in curve
+fit analysis.
+Curve analysis primarily involves working with <cite>curves</cite>, which consist of a
+series of x and y values along with a series of standard error values for the y
+values.
+<a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> gathers all of the data from all of the curves together
+into a single table with one row for each x, y value.</p>
+<p>Since analysis can involve several curves, a system is needed for labeling them.
+<a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> uses three labels for identifying curves.
+In order of narrowest to broadest scope, these labels are <cite>series</cite> (represented
+by <cite>series_id</cite> and <cite>series_name</cite> columns in the table; see below), <cite>category</cite>,
+and <cite>analysis</cite>.</p>
+<ul class="simple">
+<li><p>A <cite>series</cite> is a set of x and y values for which the y values are expected to
+follow a single function of x with fixed values for any other parameters of
+the function.
+For example, a series could consist of x and correpsonding y values for the
+model <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">*</span> <span class="pre">cos(w</span> <span class="pre">*</span> <span class="pre">x)</span></code> for specific <code class="docutils literal notranslate"><span class="pre">a</span></code> and <code class="docutils literal notranslate"><span class="pre">w</span></code> values.
+However, if the data set had values for <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">0.5</span></code>, it would
+contain two series rather than one.
+In the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a>, a series is specified with the <cite>series_id</cite>
+(integer) and <cite>series_name</cite> (string) columns (see below).
+Some methods like <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.filter" title="qiskit_experiments.curve_analysis.ScatterTable.filter"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ScatterTable.filter()</span></code></a> accept <cite>series</cite> as an argument
+that could be either <cite>series_name</cite> or <cite>series_id</cite> so we use <cite>series</cite> when the
+distinction is not important.</p></li>
+<li><p>A <cite>category</cite> is a label for a group of series that correspond to a particular
+stage of processing.
+For example, the series data received from quantum circuit execution and
+prepared for fitting could be labeled with the category <cite>“formatted”</cite> while
+the series data produced using fitted model parameters could be labeled with
+the category <cite>“fitted”</cite>.</p></li>
+<li><p>The <cite>analysis</cite> label holds the name of the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclass
+associated with each series.
+For a simple <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclass, all series would have the same
+<cite>analysis</cite> label.
+However, for <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html#qiskit_experiments.curve_analysis.CompositeCurveAnalysis" title="qiskit_experiments.curve_analysis.CompositeCurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompositeCurveAnalysis</span></code></a>, multiple
+<a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclasses can be associated with a single
+experiment, and this label can help distinguish curves that have the same
+<cite>series</cite> and <cite>category</cite>.</p></li>
+</ul>
+<p>Here we review the default behavior of <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> and
+<a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html#qiskit_experiments.curve_analysis.CompositeCurveAnalysis" title="qiskit_experiments.curve_analysis.CompositeCurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompositeCurveAnalysis</span></code></a> regarding the assignment of <cite>series_id</cite>,
+<cite>series_name</cite>, <cite>category</cite>, and <cite>analysis</cite>.</p>
+<p>The data set provided to the analysis by <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.data" title="qiskit_experiments.framework.ExperimentData.data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.data()</span></code></a> is
+processed using the <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataProcessor.html#qiskit_experiments.data_processing.DataProcessor" title="qiskit_experiments.data_processing.DataProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataProcessor</span></code></a> set with the <cite>data_processor</cite>
+analysis option.
+When no <cite>data_processor</cite> option is set, the default behavior is to convert
+counts to probability for level 2 data.
+For level 1 data, the default behavior is to project the complex values to real
+values using singular value decomposition, average the values if individual
+shot data were returned, and then normalize the results.
+This processed data set is then given the <cite>category</cite> <cite>“raw”</cite>.
+This data set is classified into series using the <code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code> analysis
+option as described above with the <cite>series_name</cite> set to the matched key in
+<code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code> (which matches a fit model name) and the <cite>series_id</cite> set to
+the corresponding index for that fit model in the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis.models" title="qiskit_experiments.curve_analysis.CurveAnalysis.models"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CurveAnalysis.models</span></code></a>
+list.
+If the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclass has a single unnamed model, the
+<cite>series_name</cite> is set to <cite>model-0</cite>.
+If a data point does not match any key, it is given a null value for
+<cite>series_name</cite> and <cite>series_id</cite>.
+These operations are performed in the
+<code class="docutils literal notranslate"><span class="pre">CurveAnalysis._run_data_processing()</span></code> method.</p>
+<p>The <cite>“raw”</cite> data are then fed into the <code class="docutils literal notranslate"><span class="pre">CurveAnalysis._format_data</span></code> method
+for which the default behavior is to average all of the y values within a
+series with the same x value.
+The formatted data are added to the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> with the same
+<cite>series</cite> labels and the category of <cite>“formatted”</cite>.
+The <cite>“formatted”</cite> data set is then queried from the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> and
+passed to the <code class="docutils literal notranslate"><span class="pre">CurveAnalysis._run_curve_fit()</span></code> method which performs the
+fitting.
+Afterward new curves for each series are generated using the fit models and
+fitting parameters and added to the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> with the category
+<cite>“fitted”</cite>.</p>
+<p>The preceding steps are performed by <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> and all of the
+entries in the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> are given the name of the analysis class
+for the <cite>analysis</cite> column.
+For <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html#qiskit_experiments.curve_analysis.CompositeCurveAnalysis" title="qiskit_experiments.curve_analysis.CompositeCurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompositeCurveAnalysis</span></code></a>, the same procedure is repeated for each
+component <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> class and the series are given the name of
+that class for the <cite>analysis</cite> column, so the results from different component
+analysis classes can be distinguished.</p>
+<p>Note that <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.add_row" title="qiskit_experiments.curve_analysis.ScatterTable.add_row"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ScatterTable.add_row()</span></code></a> allows for curve analysis subclasses to
+set arbitrary values for <cite>series_name</cite>, <cite>series_id</cite>, and <cite>category</cite> as
+appropriate.  An analysis class may override some of the default curve analysis
+methods and add additional <cite>category</cite> labels or define other <cite>series</cite> not named
+after a model.  For example, an analysis class can define define some <cite>series</cite>
+labels in its <code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code> option  that differ from the names of the
+<code class="docutils literal notranslate"><span class="pre">models</span></code> passed to <code class="docutils literal notranslate"><span class="pre">CurveAnalysis.__init__()</span></code> by overriding the
+<code class="docutils literal notranslate"><span class="pre">CurveAnalysis._format_data()</span></code> method and adding its own series to the
+<a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> with series labels to match its fit model names.  These
+added series  can be given a custom <code class="docutils literal notranslate"><span class="pre">category</span></code> which matches what is set for
+the <code class="docutils literal notranslate"><span class="pre">fit_category</span></code> analysis option so that normal curve fitting is performed
+on this custom series data instead of the series in <code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code>.</p>
+<p>The (<cite>series</cite>, <cite>category</cite>, <cite>analysis</cite>) triplet can be used to extract data
+points that belong to a particular categorized series. For example,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mini_table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;my_experiment1&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="s2">&quot;AnalysisA&quot;</span><span class="p">)</span>
+<span class="n">mini_x</span> <span class="o">=</span> <span class="n">mini_table</span><span class="o">.</span><span class="n">x</span>
+<span class="n">mini_y</span> <span class="o">=</span> <span class="n">mini_table</span><span class="o">.</span><span class="n">y</span>
+</pre></div>
+</div>
+<p>This operation is equivalent to</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mini_x</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">xvals</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;my_experiment1&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="s2">&quot;AnalysisA&quot;</span><span class="p">)</span>
+<span class="n">mini_y</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">yvals</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;my_experiment1&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="s2">&quot;AnalysisA&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When a <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclass only has a single model and the table
+is created from a single analysis instance, the <cite>series_id</cite> and <cite>analysis</cite> are
+trivial, and you only need to specify the <cite>category</cite> to get subset data of
+interest.</p>
+<p>The full description of <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> columns is as follows:</p>
+<ul class="simple">
+<li><p><cite>xval</cite>: Parameter scanned in the experiment. This value must be defined in the circuit metadata.</p></li>
+<li><p><cite>yval</cite>: Nominal part of the outcome. The outcome is, for example, an expectation value
+computed from the experiment results with a data processor.</p></li>
+<li><p><cite>yerr</cite>: Standard error of the outcome, which is mainly due to sampling error.</p></li>
+<li><p><cite>series_name</cite>: Human readable name of the data series. This is defined by the <code class="docutils literal notranslate"><span class="pre">data_subfit_map</span></code> option in the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a>.</p></li>
+<li><p><cite>series_id</cite>: Integer corresponding to the name of data series. This number is automatically assigned.</p></li>
+<li><p><cite>category</cite>: A category that could group several series. This is defined by a
+developer of the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a> subclass and usually corresponds to
+a stage of data processing like <cite>“raw”</cite> or <cite>“formatted”</cite>.</p></li>
+<li><p><cite>shots</cite>: Number of measurement shots used to acquire a data point. This value can be defined in the circuit metadata.</p></li>
+<li><p><cite>analysis</cite>: The name of the curve analysis instance that generated a data point.</p></li>
+</ul>
+<p><a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> helps an analysis developer to write a custom analysis class
+without the overhead of complex data management.
+It also helps end-users to retrieve and reuse the intermediate data from an
+experiment in their custom fitting workflow outside our curve fitting
+framework.
+Note that a <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> instance may be saved in the <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> as an artifact.
+See the <a class="reference internal" href="../howtos/artifacts.html"><span class="doc">Artifacts how-to</span></a> for more information.</p>
+</section>
+<section id="curve-analysis-workflow">
+<span id="id2"></span><h2>Curve Analysis workflow<a class="headerlink" href="#curve-analysis-workflow" title="Link to this heading">¶</a></h2>
+<p>Typically curve analysis performs fitting as follows.
+This workflow is defined in the method <code class="xref py py-meth docutils literal notranslate"><span class="pre">CurveAnalysis._run_analysis()</span></code>.</p>
+<section id="initialization">
+<h3>1. Initialization<a class="headerlink" href="#initialization" title="Link to this heading">¶</a></h3>
+<p>Curve analysis calls the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_initialization()</span></code> method, where it initializes
+some internal states and optionally populates analysis options
+with the input experiment data.
+In some cases it may train the data processor with fresh outcomes,
+or dynamically generate the fit models (<code class="docutils literal notranslate"><span class="pre">self._models</span></code>) with fresh analysis options.
+A developer can override this method to perform initialization of analysis-specific variables.</p>
+</section>
+<section id="data-processing">
+<h3>2. Data processing<a class="headerlink" href="#data-processing" title="Link to this heading">¶</a></h3>
+<p>Curve analysis calls the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_run_data_processing()</span></code> method, where
+the data processor in the analysis option is internally called.
+This consumes input experiment results and creates the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> dataframe.
+This table may look like:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_run_data_processing</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>    xval      yval      yerr  series_name  series_id  category  shots     analysis
+0    0.1  0.153659  0.011258            A          0      raw    1024   MyAnalysis
+1    0.1  0.590732  0.015351            B          1      raw    1024   MyAnalysis
+2    0.1  0.315610  0.014510            A          0      raw    1024   MyAnalysis
+3    0.1  0.376098  0.015123            B          1      raw    1024   MyAnalysis
+4    0.2  0.937073  0.007581            A          0      raw    1024   MyAnalysis
+5    0.2  0.323415  0.014604            B          1      raw    1024   MyAnalysis
+6    0.2  0.538049  0.015565            A          0      raw    1024   MyAnalysis
+7    0.2  0.530244  0.015581            B          1      raw    1024   MyAnalysis
+8    0.3  0.143902  0.010958            A          0      raw    1024   MyAnalysis
+9    0.3  0.261951  0.013727            B          1      raw    1024   MyAnalysis
+10   0.3  0.830732  0.011707            A          0      raw    1024   MyAnalysis
+11   0.3  0.874634  0.010338            B          1      raw    1024   MyAnalysis
+</pre></div>
+</div>
+</div>
+</div>
+<p>where the experiment consists of two subset series A and B, and the experiment parameter (xval)
+is scanned from 0.1 to 0.3 in each subset. In this example, the experiment is run twice
+for each condition.
+See <a class="reference internal" href="#data-management-with-scatter-table"><span class="std std-ref">Managing intermediate data</span></a> for the details of columns.</p>
+</section>
+<section id="formatting">
+<h3>3. Formatting<a class="headerlink" href="#formatting" title="Link to this heading">¶</a></h3>
+<p>Next, the processed dataset is converted into another format suited for the fitting.
+By default, the formatter takes average of the outcomes in the processed dataset
+over the same x values, followed by the sorting in the ascending order of x values.
+This allows the analysis to easily estimate the slope of the curves to
+create algorithmic initial guess of fit parameters.
+A developer can inject extra data processing, for example, filtering, smoothing,
+or elimination of outliers for better fitting.
+The new <cite>series_id</cite> is given here so that its value corresponds to the fit model index
+defined in this analysis class. This index mapping is done based upon the correspondence of
+the <cite>series_name</cite> and the fit model name.</p>
+<p>This is done by calling <code class="xref py py-meth docutils literal notranslate"><span class="pre">_format_data()</span></code> method.
+This may return new scatter table object with the addition of rows like the following below.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_format_data</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>    xval      yval      yerr  series_name  series_id   category  shots     analysis
+...
+12   0.1  0.234634  0.009183            A          0  formatted   2048   MyAnalysis
+13   0.2  0.737561  0.008656            A          0  formatted   2048   MyAnalysis
+14   0.3  0.487317  0.008018            A          0  formatted   2048   MyAnalysis
+15   0.1  0.483415  0.010774            B          1  formatted   2048   MyAnalysis
+16   0.2  0.426829  0.010678            B          1  formatted   2048   MyAnalysis
+17   0.3  0.568293  0.008592            B          1  formatted   2048   MyAnalysis
+</pre></div>
+</div>
+</div>
+</div>
+<p>The default <code class="xref py py-meth docutils literal notranslate"><span class="pre">_format_data()</span></code> method adds its output data with the category “formatted”.
+This category name must be also specified in the analysis option <code class="docutils literal notranslate"><span class="pre">fit_category</span></code>.
+If overriding this method to do additional processing after the default formatting,
+the <code class="docutils literal notranslate"><span class="pre">fit_category</span></code> analysis option can be set to choose a different category name to use to
+select the data to pass to the fitting routine.
+The (xval, yval) value in each row is passed to the corresponding fit model object
+to compute residual values for the least square optimization.</p>
+</section>
+<section id="fitting">
+<h3>3. Fitting<a class="headerlink" href="#fitting" title="Link to this heading">¶</a></h3>
+<p>Curve analysis calls the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_run_curve_fit()</span></code> method with the formatted subset of the scatter table.
+This internally calls <code class="xref py py-meth docutils literal notranslate"><span class="pre">_generate_fit_guesses()</span></code> to prepare
+the initial guess and parameter boundary with respect to the formatted dataset.
+Developers usually override this method to provide better initial guesses
+tailored to the defined fit model or type of the associated experiment.
+See <a class="reference internal" href="#curve-analysis-init-guess"><span class="std std-ref">Providing initial guesses</span></a> for more details.
+Developers can also override the entire <code class="xref py py-meth docutils literal notranslate"><span class="pre">_run_curve_fit()</span></code> method to apply
+custom fitting algorithms. This method must return a <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html#qiskit_experiments.curve_analysis.CurveFitResult" title="qiskit_experiments.curve_analysis.CurveFitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveFitResult</span></code></a> dataclass.</p>
+</section>
+<section id="post-processing">
+<h3>4. Post processing<a class="headerlink" href="#post-processing" title="Link to this heading">¶</a></h3>
+<p>Curve analysis runs several postprocessing against the fit outcome.
+When the fit is successful, it calls <code class="xref py py-meth docutils literal notranslate"><span class="pre">_create_analysis_results()</span></code> to create the <a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResultData.html#qiskit_experiments.framework.AnalysisResultData" title="qiskit_experiments.framework.AnalysisResultData"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResultData</span></code></a> objects
+for the fitting parameters of interest. A developer can inject custom code to
+compute custom quantities based on the raw fit parameters.
+See <a class="reference internal" href="#curve-analysis-results"><span class="std std-ref">Curve Analysis Results</span></a> for details.
+Afterwards, fit curves are computed with the fit models and optimal parameters, and the scatter table is
+updated with the computed (x, y) values. This dataset is stored under the <cite>“fitted”</cite> category.</p>
+<p>Finally, the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_create_figures()</span></code> method is called with the entire scatter table data
+to initialize the curve plotter instance accessible via the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis.plotter" title="qiskit_experiments.curve_analysis.CurveAnalysis.plotter"><code class="xref py py-attr docutils literal notranslate"><span class="pre">plotter</span></code></a> attribute.
+The visualization is handed over to the <a class="reference internal" href="visualization.html"><span class="doc">Visualization</span></a> module,
+which provides a standardized image format for curve fit results.
+A developer can overwrite this method to draw custom images.</p>
+</section>
+</section>
+<section id="providing-initial-guesses">
+<span id="curve-analysis-init-guess"></span><h2>Providing initial guesses<a class="headerlink" href="#providing-initial-guesses" title="Link to this heading">¶</a></h2>
+<p>Fitting without initial guesses for parameters often results in a bad fit. Users can
+provide initial guesses and boundaries for the fit parameters through analysis options
+<code class="docutils literal notranslate"><span class="pre">p0</span></code> and <code class="docutils literal notranslate"><span class="pre">bounds</span></code>. These values are the dictionary keyed on the parameter name, and
+one can get the list of parameters with the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis.parameters" title="qiskit_experiments.curve_analysis.CurveAnalysis.parameters"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CurveAnalysis.parameters</span></code></a>. Each
+boundary value can be a tuple of floats representing minimum and maximum values.</p>
+<p>Apart from user provided guesses, the analysis can systematically generate those values
+with the method <code class="xref py py-meth docutils literal notranslate"><span class="pre">_generate_fit_guesses()</span></code>, which is called with the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a>
+class. If the analysis contains multiple model definitions, we can get the subset
+of curve data with <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.filter" title="qiskit_experiments.curve_analysis.ScatterTable.filter"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ScatterTable.filter()</span></code></a> by passing the name of the
+series to the <code class="docutils literal notranslate"><span class="pre">series</span></code> argument. A developer can implement the algorithm to
+generate initial guesses and boundaries by using this curve data object, which
+will be provided to the fitter. Note that there are several common initial
+guess estimators available in <code class="xref py py-mod docutils literal notranslate"><span class="pre">curve_analysis.guess</span></code>.</p>
+<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">_generate_fit_guesses()</span></code> also receives the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.FitOptions.html#qiskit_experiments.curve_analysis.FitOptions" title="qiskit_experiments.curve_analysis.FitOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitOptions</span></code></a> instance
+<code class="docutils literal notranslate"><span class="pre">user_opt</span></code>, which contains user provided guesses and boundaries. This is a
+dictionary-like object consisting of sub-dictionaries for initial guess <code class="docutils literal notranslate"><span class="pre">.p0</span></code>,
+boundary <code class="docutils literal notranslate"><span class="pre">.bounds</span></code>, and extra options for the fitter. See the API
+documentation for available options.</p>
+<p>The <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.FitOptions.html#qiskit_experiments.curve_analysis.FitOptions" title="qiskit_experiments.curve_analysis.FitOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitOptions</span></code></a> class implements convenient method <code class="xref py py-meth docutils literal notranslate"><span class="pre">set_if_empty()</span></code> to manage
+conflict with user provided values, i.e. user provided values have higher priority,
+thus systematically generated values cannot override user values.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_generate_fit_guesses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_opt</span><span class="p">,</span> <span class="n">curve_data</span><span class="p">):</span>
+
+    <span class="n">opt1</span> <span class="o">=</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">opt1</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span><span class="n">p1</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">opt1</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">set_if_empty</span><span class="p">(</span><span class="n">p1</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="n">opt1</span><span class="o">.</span><span class="n">add_extra_options</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;lm&quot;</span><span class="p">)</span>
+
+    <span class="n">opt2</span> <span class="o">=</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">opt2</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span><span class="n">p1</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">opt1</span><span class="p">,</span> <span class="n">opt2</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Here you created two options with different <code class="docutils literal notranslate"><span class="pre">p1</span></code> values. If multiple options are
+returned like this, the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_run_curve_fit()</span></code> method attempts to fit with all provided
+options and finds the best outcome with the minimum reduced chi-square value. When the
+fit model contains some parameter that cannot be easily estimated from the curve data,
+you can create multiple options by varying the initial guess to let the fitter find
+the most reasonable parameters to explain the model. This allows you to avoid analysis
+failure with the poor initial guesses.</p>
+</section>
+<section id="evaluate-fit-quality">
+<span id="curve-analysis-quality"></span><h2>Evaluate Fit Quality<a class="headerlink" href="#evaluate-fit-quality" title="Link to this heading">¶</a></h2>
+<p>A subclass can override <code class="xref py py-meth docutils literal notranslate"><span class="pre">_evaluate_quality()</span></code> method to
+provide an algorithm to evaluate quality of the fitting.
+This method is called with the <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html#qiskit_experiments.curve_analysis.CurveFitResult" title="qiskit_experiments.curve_analysis.CurveFitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveFitResult</span></code></a> object which contains
+fit parameters and the reduced chi-squared value,
+in addition to the several statistics on the fitting.
+Qiskit Experiments often uses the empirical criterion chi-squared &lt; 3 as a good fitting.</p>
+</section>
+<section id="curve-analysis-results">
+<span id="id3"></span><h2>Curve Analysis Results<a class="headerlink" href="#curve-analysis-results" title="Link to this heading">¶</a></h2>
+<p>Once the best fit parameters are found, the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_create_analysis_results()</span></code> method is
+called with the same <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html#qiskit_experiments.curve_analysis.CurveFitResult" title="qiskit_experiments.curve_analysis.CurveFitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveFitResult</span></code></a> object.</p>
+<p>If you want to create an analysis result entry for the particular parameter,
+you can override the analysis options <code class="docutils literal notranslate"><span class="pre">result_parameters</span></code>.
+By using <a class="reference internal" href="../stubs/qiskit_experiments.curve_analysis.ParameterRepr.html#qiskit_experiments.curve_analysis.ParameterRepr" title="qiskit_experiments.curve_analysis.ParameterRepr"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParameterRepr</span></code></a> representation, you can rename the parameter in the entry.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.curve_analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParameterRepr</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">ParameterRepr</span><span class="p">(</span><span class="s2">&quot;p0&quot;</span><span class="p">,</span> <span class="s2">&quot;amp&quot;</span><span class="p">,</span> <span class="s2">&quot;Hz&quot;</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">options</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Here the first argument <code class="docutils literal notranslate"><span class="pre">p0</span></code> is the target parameter defined in the series definition,
+<code class="docutils literal notranslate"><span class="pre">amp</span></code> is the representation of <code class="docutils literal notranslate"><span class="pre">p0</span></code> in the result entry,
+and <code class="docutils literal notranslate"><span class="pre">Hz</span></code> is the optional string for the unit of the value if available.</p>
+<p>In addition to returning the fit parameters, you can also compute new quantities
+by combining multiple fit parameters.
+This can be done by overriding the <code class="xref py py-meth docutils literal notranslate"><span class="pre">_create_analysis_results()</span></code> method.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisResultData</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_analysis_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_data</span><span class="p">,</span> <span class="n">quality</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">):</span>
+
+    <span class="n">outcomes</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_analysis_results</span><span class="p">(</span><span class="n">fit_data</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span>
+
+    <span class="n">p0</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;p0&quot;</span><span class="p">]</span>
+    <span class="n">p1</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;p1&quot;</span><span class="p">]</span>
+
+    <span class="n">extra_entry</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;p01&quot;</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="n">p0</span> <span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+        <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
+        <span class="n">extra</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">outcomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extra_entry</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">outcomes</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Note that both <code class="docutils literal notranslate"><span class="pre">p0</span></code> and <code class="docutils literal notranslate"><span class="pre">p1</span></code> are <a class="reference external" href="https://pythonhosted.org/uncertainties/user_guide.html">UFloat</a> objects consisting of
+a nominal value and an error value which assumes the standard deviation.
+Since this object natively supports error propagation,
+you don’t have to manually recompute the error of the new value.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<p>API documentation: <a class="reference internal" href="../apidocs/curve_analysis.html"><span class="doc">Curve Analysis Module</span></a></p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="visualization.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Visualization: Creating figures</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="data_processor.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Data Processor: Wrangling data</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021-2025, Qiskit Development Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            <div class="last-updated">
+              Last updated on 2025/08/12</div>
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Curve Analysis: Fitting your data</a><ul>
+<li><a class="reference internal" href="#curve-analysis-overview">Curve Analysis overview</a></li>
+<li><a class="reference internal" href="#defining-new-models">Defining new models</a></li>
+<li><a class="reference internal" href="#fitting-with-fixed-parameters">Fitting with fixed parameters</a></li>
+<li><a class="reference internal" href="#managing-intermediate-data">Managing intermediate data</a></li>
+<li><a class="reference internal" href="#curve-analysis-workflow">Curve Analysis workflow</a><ul>
+<li><a class="reference internal" href="#initialization">1. Initialization</a></li>
+<li><a class="reference internal" href="#data-processing">2. Data processing</a></li>
+<li><a class="reference internal" href="#formatting">3. Formatting</a></li>
+<li><a class="reference internal" href="#fitting">3. Fitting</a></li>
+<li><a class="reference internal" href="#post-processing">4. Post processing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#providing-initial-guesses">Providing initial guesses</a></li>
+<li><a class="reference internal" href="#evaluate-fit-quality">Evaluate Fit Quality</a></li>
+<li><a class="reference internal" href="#curve-analysis-results">Curve Analysis Results</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=61ccb1f1"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>
