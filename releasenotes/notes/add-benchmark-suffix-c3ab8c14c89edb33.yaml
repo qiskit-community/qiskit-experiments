@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    A new ``benchmark_suffix`` argument for the :class:`~.LayerFidelity`
+    and :class:`~.LayerFidelityUnitary` classes has been added which enables
+    users to append a descriptive suffix to the names of the analysis results in
+    these experiments, which makes bookkeeping for different types of gates easier.

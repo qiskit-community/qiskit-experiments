@@ -135,6 +135,7 @@ class LayerFidelityUnitary(BaseExperiment):
         one_qubit_basis_gates: Optional[Sequence[str]] = None,
         layer_barrier: Optional[bool] = True,
         min_delay: Optional[Sequence[int]] = None,
+        benchmark_suffix: Optional[str] = "",
     ):
         """Initialize a unitary layer fidelity experiment.
 
@@ -170,6 +171,9 @@ class LayerFidelityUnitary(BaseExperiment):
                 this options requires at least one 1Q edge (a qubit in physical_qubits but
                 not in two_qubit_layers) to be applied. Also will not have an impact on the 2Q gates
                 if layer_barrier=False.
+            benchmark_suffix (str): Optional. Suffix string to be appended to the end of the names of the
+                associated analysis results. Intended to allow for easier bookeeping if multiple types of
+                gates are being tracked.
 
         Raises:
             QiskitError: If any invalid argument is supplied.
@@ -190,6 +194,8 @@ class LayerFidelityUnitary(BaseExperiment):
         super().__init__(
             physical_qubits, analysis=LayerFidelityAnalysis(full_layers), backend=backend
         )
+
+        self.analysis.benchmark_suffix = benchmark_suffix
         # assert isinstance(backend, BackendV2)
 
         # Verify parameters
