@@ -1,6 +1,0 @@
----
-prelude: >
-    Qiskit Experiments 0.12 introduces a new option for labeling results of
-    layer fidelity experiments. Additionally, it addresses an incompatibility
-    with :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` version
-    0.41 that prevents experiments from running.
