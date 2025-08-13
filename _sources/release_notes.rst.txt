@@ -5,6 +5,139 @@ Release Notes
 .. release-notes::
    :earliest-version: 0.11.0
 
+.. _Release Notes_0.11.0:
+
+0.11.0
+======
+
+.. _Release Notes_0.11.0_Prelude:
+
+Prelude
+-------
+
+.. releasenotes/notes/prepare-0.11-60824b2999706860.yaml @ b'837ac0e5930a80e1c07196ac95d34a42da00136f'
+
+Qiskit Experiments 0.11.0 introduces new device benchmarking features, namely a new layer fidelity variant (:class:`.LayerFidelityUnitary`) and a new Clifford synthesis option for the various benchmarking experiments. It also removes several previously deprecated functions and classes and provides some minor fixes and changes in behavior.
+
+
+.. _Release Notes_0.11.0_New Features:
+
+New Features
+------------
+
+.. releasenotes/notes/add_layer_fidelity_unitary-bad3cc81c0c5f959.yaml @ b'837ac0e5930a80e1c07196ac95d34a42da00136f'
+
+- A new class :class:`.LayerFidelityUnitary` which allows for layer style RB with arbitrary
+  two-qubit gates or circuits in the 2Q layer was added. A list of qiskit :class:`qiskit.circuit.Gate` 
+  or :class:`qiskit.circuit.CircuitInstruction` objects can be passed into the class and then each layer is 
+  randomly sampled from that list. A final SU(2) inversion gate is appended so that the full 
+  circuit is the identity and this is analyzed using the same
+  :class:`.LayerFidelityAnalysis` analysis class as :class:`.LayerFidelity`.
+
+.. releasenotes/notes/fixed_1q_decomp-9a295d248c04b862.yaml @ b'837ac0e5930a80e1c07196ac95d34a42da00136f'
+
+- For benchmarking classes (such as :class:`.LayerFidelity`) that use the
+  helper methods of :class:`.CliffordUtils`,
+  a synthesis option was added to decompose the 1Q cliffords into
+  a fixed gate structure using the syntax
+  ``rb_obj.experiment_options.clifford_synthesis_method = '1Q_fixed'``
+  using :class:`qiskit.synthesis.OneQubitEulerDecomposer`
+
+
+.. _Release Notes_0.11.0_Upgrade Notes:
+
+Upgrade Notes
+-------------
+
+.. releasenotes/notes/qv-deprecation-6b13e5cb7bc7be3b.yaml @ b'837ac0e5930a80e1c07196ac95d34a42da00136f'
+
+- The minimum version of Qiskit was raised from 0.45 to 1.3.
+
+.. releasenotes/notes/qv-deprecation-6b13e5cb7bc7be3b.yaml @ b'837ac0e5930a80e1c07196ac95d34a42da00136f'
+
+- :class:`~.QuantumVolume` was updated to avoid using the deprecated
+  :class:`qiskit.circuit.library.QuantumVolume` class. The experiment should
+  continue to behave as it has before.
+
+.. releasenotes/notes/rb_transpiler_fix-8a0a3eb1daa9a0a2.yaml @ b'837ac0e5930a80e1c07196ac95d34a42da00136f'
+
+- An extra transpilation step was added to the 2Q Clifford generation
+  code which reduces the number of single qubit gates per two qubit
+  Clifford in the :class:`.StandardRB` and :class:`.InterleavedRB` experiments.
+
+.. releasenotes/notes/remove-0.9-deprecations-de44a7bf4a6225fb.yaml @ b'2a60acf8aba9a0a20b3d002c6efc460ca6d876ec'
+
+- Curve analysis utility functions
+  ``filter_data``,
+  ``mean_xy_data``, ``multi_mean_xy_data``, and
+  :func:`.data_sort` deprecated in 0.9 have been
+  removed. These methods were written to work with the previous
+  representation of curve data. Curve analysis now works with
+  ``ScatterTable`` which provides a ``filter`` method which can be used
+  with functions like :func:`.shot_weighted_average` to achieve similar
+  results to the deprecated functions.
+
+.. releasenotes/notes/remove-0.9-deprecations-de44a7bf4a6225fb.yaml @ b'2a60acf8aba9a0a20b3d002c6efc460ca6d876ec'
+
+- The ``.ScatterTable` properties ``data_allocation`` and
+  ``labels`` and method ``get_subset_of`` deprecated in 0.9 have been removed.
+  ``data_allocation`` was renamed to ``series_id``. ``labels`` can be found
+  by looking at the ``series_name`` of the scatter table's ``dataframe``.
+  Data subsets can be obtained using ``ScatterTable.filter`` in place of
+  ``get_subset_of``.
+
+.. releasenotes/notes/remove-0.9-deprecations-de44a7bf4a6225fb.yaml @ b'2a60acf8aba9a0a20b3d002c6efc460ca6d876ec'
+
+- The data processing nodes ``RestlessNode``,
+  ``RestlessToCounts``, and ``RestlessToIQ`` deprecated in 0.9 have been
+  deprecated. Qiskit Experiments no longer has restless measurement support
+  code, though it still supports custom data processing nodes which could be
+  designed to process restless measurements.
+
+.. releasenotes/notes/remove-0.9-deprecations-de44a7bf4a6225fb.yaml @ b'2a60acf8aba9a0a20b3d002c6efc460ca6d876ec'
+
+- ``FineZXAmplitude`` deprecated in 0.9 has been removed. Since it relied on
+  a uncommon gate, (``RZX(pi/2)``), it was difficult to use without pulse
+  gate calibrations which are no longer supported with Qiskit 2.0.
+
+.. releasenotes/notes/remove-0.9-deprecations-de44a7bf4a6225fb.yaml @ b'2a60acf8aba9a0a20b3d002c6efc460ca6d876ec'
+
+- ``PulseBackend`` and ``SingleTransmonTestBackend`` deprecated in 0.9 have been
+  removed. These backend classes used `Qiskit Dynamics
+  <https://github.com/qiskit-community/qiskit-dynamics>`_ to simulate quantum
+  circuits using Qiskit Pulse with pulse-level simulation and were mainly
+  intended for testing purposes. With the removal of pulse features in Qiskit
+  2.0, these classes could no longer be maintained.
+
+.. releasenotes/notes/uncertainties-stddev0-warning-aea55aada131d8b1.yaml @ b'837ac0e5930a80e1c07196ac95d34a42da00136f'
+
+- Warnings from the `Uncertainties
+  <https://uncertainties.readthedocs.io/en/latest/>`__ library related to a
+  standard deviation of zero have been suppressed where a standard deviation
+  of zero is expected and can not be avoided. One case involves the fixed fit
+  parameters included in :class:`.CurveFitResult`. Since these are fixed
+  parameters, they have no uncertainty. The other case involves the `lmfit
+  <https://lmfit.github.io/lmfit-py/>`__ library's handling of fixed fit
+  parameters and will be addressed by lmfit directly in the future. In some
+  cases, Uncertainties will propagate the error in a variable and produce a
+  non-finite result when the error should be zero since the variable zero
+  error. For example, the operation ``y ** 0.5`` could lead to 0 with ``inf``
+  standard deviation rather than 0 standard deviation when the nominal value
+  and standard deviation of ``y`` are both 0.
+
+
+.. _Release Notes_0.11.0_Bug Fixes:
+
+Bug Fixes
+---------
+
+.. releasenotes/notes/add_layer_fidelity_unitary-bad3cc81c0c5f959.yaml @ b'837ac0e5930a80e1c07196ac95d34a42da00136f'
+
+- The validation function for both :class:`.LayerFidelityUnitary` and
+  :class:`.LayerFidelity` was updated to fix a slowdown for :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` versions
+  less than 0.40.0
+
+
 .. _Release Notes_0.10.0:
 
 0.10.0
