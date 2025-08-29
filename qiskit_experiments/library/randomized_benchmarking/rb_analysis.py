@@ -50,6 +50,14 @@ class RBAnalysis(curve.CurveAnalysis):
 
             F(x) = a \alpha^x + b
 
+        .. note::
+
+            The string expression model used by the class is implemented using
+            :math:`(\alpha^{(x / 10)})^{10}` in order to allow :math:`x` to vary up
+            to 100,000 without hitting an exponentiation limit of 10,000
+            imposed by the `LMFIT
+            <https://lmfit.github.io/lmfit-py/intro.html>`__ fitting framework.
+
     # section: fit_parameters
         defpar a:
             desc: Height of decay curve.
@@ -73,7 +81,14 @@ class RBAnalysis(curve.CurveAnalysis):
         super().__init__(
             models=[
                 lmfit.models.ExpressionModel(
-                    expr="a * alpha ** x + b",
+                    # NOTE: the `/10` and then `** 10` are done because asteval
+                    # (used by lmfit to evaluate the model expression) limits
+                    # exponents to 10,000 as a security precaution. For gates
+                    # with errors around 1e-4, it is desirable to go beyond
+                    # 10,000 Cliffords. By splitting out the factors of 10 like
+                    # this, we can have `x` go up to 100,000 Cliffords without
+                    # hitting the asteval limit.
+                    expr="a * (alpha ** (x/10)) ** 10 + b",
                     name="rb_decay",
                 )
             ]
