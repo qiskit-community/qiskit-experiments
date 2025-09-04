@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="QuantumVolumePlotter" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Release Notes - Qiskit Experiments 0.12.0-3-gfcafed819</title>
+        <title>Release Notes - Qiskit Experiments 0.12.0-4-g109e31768</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit Experiments 0.12.0-3-gfcafed819</div></a>
+      <a href="index.html"><div class="brand">Qiskit Experiments 0.12.0-4-g109e31768</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.12.0-3-gfcafed819</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.12.0-4-g109e31768</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -918,7 +918,7 @@ change in the next three months (the shortest allowed deprecation cycle).</p>
 <p>which makes use of implicit returning the result directly instead of a list
 when there is only one match. With <code class="docutils literal notranslate"><span class="pre">dataframe=True</span></code>, the dataframe is not
 implicitly truncated so the first match must be selected.
-<a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iloc.html#pandas.DataFrame.iloc" title="(in pandas v2.3.1)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">pandas.DataFrame.iloc</span></code></a> can be used to select the first match. The
+<a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iloc.html#pandas.DataFrame.iloc" title="(in pandas v2.3.2)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">pandas.DataFrame.iloc</span></code></a> can be used to select the first match. The
 following block is equivalent to the previous example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T1 is </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1334,10 +1334,10 @@ required dependency of Qiskit Experiments.</p></li>
 <span id="id44"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-6-0-prelude" title="Link to this heading">¶</a></h3>
 <p>Qiskit Experiments 0.6 introduces numerous features and improvements. It is
 compatible with Qiskit 1.0. Notable changes include: refactoring the analysis
-results to a pandas <a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>-based
+results to a pandas <a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>-based
 <a class="reference internal" href="stubs/qiskit_experiments.framework.AnalysisResultTable.html#qiskit_experiments.framework.AnalysisResultTable" title="qiskit_experiments.framework.AnalysisResultTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResultTable</span></code></a>, the ability to add artifacts of serializable data
 to <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a>, and refactoring curve fit data into a new
-<a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>-based <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> container that is
+<a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>-based <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> container that is
 stored by default as an artifact in <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> along with the
 summary of fit results. New experiments include <code class="xref py py-class docutils literal notranslate"><span class="pre">StarkP1Spectroscopy</span></code>,
 <code class="xref py py-class docutils literal notranslate"><span class="pre">StarkRamseyXY</span></code>, and <code class="xref py py-class docutils literal notranslate"><span class="pre">StarkRamseyXYAmpScan</span></code>.
@@ -1503,7 +1503,7 @@ to and loaded from the cloud service.</p></li>
 <ul>
 <li><p><a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> has been introduced as a drop-in replacement of <code class="xref py py-class docutils literal notranslate"><span class="pre">CurveData</span></code>.</p>
 <p>This is a data format to store intermediate data in curve analysis built on top of
-the pandas <a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>. Each table row corresponds to a single data point,
+the pandas <a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>. Each table row corresponds to a single data point,
 and the table contains all data points generated by the <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a>.
 All properties and methods of <code class="xref py py-class docutils literal notranslate"><span class="pre">CurveData</span></code> are implemented for backward compatibility,
 but these will be removed in the future release.</p>
@@ -3451,7 +3451,7 @@ figures by setting
 desired canvas. Note that it has to be a canvas for one of the
 <a class="reference external" href="https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends">non-interactive backend</a>.
 For example, you can set <code class="docutils literal notranslate"><span class="pre">default_figure_canvas</span></code> to
-<a class="reference external" href="https://matplotlib.org/stable/api/backend_agg_api.html#matplotlib.backends.backend_agg.FigureCanvasAgg" title="(in Matplotlib v3.10.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">FigureCanvasAgg</span></code></a> to use the
+<a class="reference external" href="https://matplotlib.org/stable/api/backend_agg_api.html#matplotlib.backends.backend_agg.FigureCanvasAgg" title="(in Matplotlib v3.10.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">FigureCanvasAgg</span></code></a> to use the
 <code class="docutils literal notranslate"><span class="pre">AGG</span></code> backend.</p></li>
 </ul>
 <ul>
@@ -4042,7 +4042,7 @@ stored in the experiments analysis result extra field.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/08/13</div>
+              Last updated on 2025/09/04</div>
           </div>
           <div class="right-details">
             
@@ -4247,7 +4247,7 @@ stored in the experiments analysis result extra field.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=7117ed0f"></script>
+</div><script src="_static/documentation_options.js?v=effb92c0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
