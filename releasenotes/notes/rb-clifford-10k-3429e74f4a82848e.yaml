@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    A workaround was added for a limit on exponentiation imposed by `LMFIT
+    <https://lmfit.github.io/lmfit-py/intro.html>`__ which prevented
+    :class:`.RBAnalysis` from working on experiments with Clifford lengths
+    longer than 10,000. See `#1594
+    <https://github.com/qiskit-community/qiskit-experiments/issues/1594>`__.
