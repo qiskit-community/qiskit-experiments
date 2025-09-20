@@ -1,14 +1,18 @@
-name: Tests
+name: CI
+
 on:
-  push:
-    branches: [ 'stable/*' ]
   pull_request:
     branches: [ main, 'stable/*' ]
   merge_group:
     branches: [ main ]
+  schedule:
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}
   cancel-in-progress: true
+
 jobs:
   tests:
     if: github.repository_owner == 'Qiskit-Community'
@@ -48,12 +52,18 @@ jobs:
             stestr-${{ runner.os }}-
             stestr-
       - name: Install and Run Tests
-        run: uvx --with tox-uv tox --override testenv.package=external run -e py
+        run: |
+          if [[ "${{ github.event_name }}" == "schedule" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            uvx --with tox-uv tox -e qiskit-main
+          else
+            uvx --with tox-uv tox --override testenv.package=external run -e py
+          fi
       - name: Clean up stestr cache
+        if: ${{ github.event_name != 'schedule' && github.event_name != 'workflow_dispatch' }}
         run: uvx --with tox-uv tox exec -epy -- stestr history remove all
 
   lint:
-    if: github.repository_owner == 'Qiskit-Community'
+    if: github.repository_owner == 'Qiskit-Community' && github.event_name != 'schedule' && github.event_name != 'workflow_dispatch'
     name: lint
     runs-on: ubuntu-latest
     steps:
@@ -72,6 +82,7 @@ jobs:
           cache-suffix: lint
       - name: Run lint
         run: uvx --with tox-uv tox run -elint
+
   docs:
     if: github.repository_owner == 'Qiskit-Community'
     name: docs
@@ -91,12 +102,17 @@ jobs:
           cache-dependency-glob: |
             **/tox.ini
             **/pyproject.toml
-          cache-suffix: docstest
+          cache-suffix: docs
       - name: Install Deps
         run: |
           sudo apt-get install -y pandoc graphviz
       - name: Build Docs
-        run: uvx --with tox-uv tox run -edocs-parallel
+        run: |
+          if [[ "${{ github.event_name }}" == "schedule" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            uvx --with tox-uv tox -edocs-qiskit-main
+          else
+            uvx --with tox-uv tox run -edocs-parallel
+          fi
       - name: Compress Artifacts
         run: |
           mkdir artifacts
