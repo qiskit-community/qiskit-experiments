@@ -1,14 +1,21 @@
-name: Tests
+name: CI
+
 on:
-  push:
-    branches: [ 'stable/*' ]
   pull_request:
     branches: [ main, 'stable/*' ]
   merge_group:
     branches: [ main ]
+  schedule:
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}
   cancel-in-progress: true
+
+env:
+  qiskitmain: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+
 jobs:
   tests:
     if: github.repository_owner == 'Qiskit-Community'
@@ -26,11 +33,14 @@ jobs:
           echo -e "\033[31;1;4mConcurrency Group\033[0m"
           echo -e "$CONCURRENCY_GROUP\n"
         shell: bash
+
       - uses: actions/checkout@v5
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
         with:
@@ -38,22 +48,41 @@ jobs:
           cache-dependency-glob: |
             **/tox.ini
             **/pyproject.toml
-          cache-suffix: tests
-      - name: Stestr cache
-        uses: actions/cache@v4
+          cache-suffix: tests${{ env.qiskitmain == 'true' && '-qiskitmain' || '' }}
+
+      # Restore stestr cache (shared between Qiskit main and PR runs)
+      - name: Restore stestr cache
+        id: stestr-restore
+        uses: actions/cache/restore@v4
         with:
           path: .stestr
           key: stestr-${{ runner.os }}-${{ matrix.python-version }}
           restore-keys: |
             stestr-${{ runner.os }}-
             stestr-
-      - name: Install and Run Tests
+
+      - name: Install and Run Tests (Qiskit main run)
+        if: env.qiskitmain == 'true'
+        run: uvx --with tox-uv tox -e qiskit-main
+
+      - name: Install and Run Tests (normal PR run)
+        if: env.qiskitmain != 'true'
         run: uvx --with tox-uv tox --override testenv.package=external run -e py
-      - name: Clean up stestr cache
+
+      # Always prune history (avoid unbounded growth)
+      - name: Prune stestr history
         run: uvx --with tox-uv tox exec -epy -- stestr history remove all
 
+      # Only save cache on normal PR runs (avoid growing Qiskit main cache)
+      - name: Save stestr cache
+        if: env.qiskitmain != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .stestr
+          key: ${{ steps.stestr-restore.outputs.cache-primary-key }}
+
   lint:
-    if: github.repository_owner == 'Qiskit-Community'
+    if: github.repository_owner == 'Qiskit-Community' && github.event_name != 'schedule' && github.event_name != 'workflow_dispatch'
     name: lint
     runs-on: ubuntu-latest
     steps:
@@ -72,6 +101,7 @@ jobs:
           cache-suffix: lint
       - name: Run lint
         run: uvx --with tox-uv tox run -elint
+
   docs:
     if: github.repository_owner == 'Qiskit-Community'
     name: docs
@@ -80,10 +110,12 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
       - name: Set up Python 3.13
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
+
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
         with:
@@ -91,17 +123,25 @@ jobs:
           cache-dependency-glob: |
             **/tox.ini
             **/pyproject.toml
-          cache-suffix: docstest
+          cache-suffix: docs${{ env.qiskitmain == 'true' && '-qiskitmain' || '' }}
+
       - name: Install Deps
-        run: |
-          sudo apt-get install -y pandoc graphviz
-      - name: Build Docs
+        run: sudo apt-get install -y pandoc graphviz
+
+      - name: Build Docs (Qiskit main run)
+        if: env.qiskitmain == 'true'
+        run: uvx --with tox-uv tox -edocs-qiskit-main
+
+      - name: Build Docs (normal PR run)
+        if: env.qiskitmain != 'true'
         run: uvx --with tox-uv tox run -edocs-parallel
+
       - name: Compress Artifacts
         run: |
           mkdir artifacts
           tar -Jcvf html_docs.tar.xz docs/_build/html
           mv html_docs.tar.xz artifacts/.
+
       - uses: actions/upload-artifact@v4
         with:
           name: html_docs
