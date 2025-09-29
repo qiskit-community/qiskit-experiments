@@ -50,8 +50,10 @@ jobs:
             **/pyproject.toml
           cache-suffix: tests${{ env.qiskitmain == 'true' && '-qiskitmain' || '' }}
 
-      - name: Stestr cache
-        uses: actions/cache@v4
+      # Restore stestr cache (shared between Qiskit main and PR runs)
+      - name: Restore stestr cache
+        id: stestr-restore
+        uses: actions/cache/restore@v4
         with:
           path: .stestr
           key: stestr-${{ runner.os }}-${{ matrix.python-version }}
@@ -59,7 +61,6 @@ jobs:
             stestr-${{ runner.os }}-
             stestr-
 
-      # Separate steps instead of a single bash conditional
       - name: Install and Run Tests (Qiskit main run)
         if: env.qiskitmain == 'true'
         run: uvx --with tox-uv tox -e qiskit-main
@@ -68,9 +69,17 @@ jobs:
         if: env.qiskitmain != 'true'
         run: uvx --with tox-uv tox --override testenv.package=external run -e py
 
-      - name: Clean up stestr cache
-        if: env.qiskitmain != 'true'
+      # Always prune history (avoid unbounded growth)
+      - name: Prune stestr history
         run: uvx --with tox-uv tox exec -epy -- stestr history remove all
+
+      # Only save cache on normal PR runs (avoid growing Qiskit main cache)
+      - name: Save stestr cache
+        if: env.qiskitmain != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .stestr
+          key: ${{ steps.stestr-restore.outputs.cache-primary-key }}
 
   lint:
     if: github.repository_owner == 'Qiskit-Community' && github.event_name != 'schedule' && github.event_name != 'workflow_dispatch'
@@ -119,7 +128,6 @@ jobs:
       - name: Install Deps
         run: sudo apt-get install -y pandoc graphviz
 
-      # Split into separate steps instead of conditional script
       - name: Build Docs (Qiskit main run)
         if: env.qiskitmain == 'true'
         run: uvx --with tox-uv tox -edocs-qiskit-main
