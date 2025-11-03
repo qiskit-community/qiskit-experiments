@@ -1099,11 +1099,17 @@ class ExperimentData:
                     if testres.data:
                         joined_data = testres.join_data()
                         outer_shape = testres.data.shape
-                        if outer_shape:
+                        average_params = (
+                            result[i]
+                            .metadata.get("circuit_metadata", {})
+                            .get("average_params", False)
+                        )
+                        if outer_shape and not average_params:
                             raise QiskitError(
                                 f"Outer PUB dimensions {outer_shape} found in result. "
                                 "Only unparameterized PUBs are currently supported by "
-                                "qiskit-experiments."
+                                "qiskit-experiments unless the circuit metadata "
+                                "indicates to average them."
                             )
                     else:
                         joined_data = None
