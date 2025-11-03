@@ -5,6 +5,70 @@ Release Notes
 .. release-notes::
    :earliest-version: 0.12.0
 
+.. _Release Notes_0.12.0:
+
+0.12.0
+======
+
+.. _Release Notes_0.12.0_New Features:
+
+Prelude
+-------
+
+.. releasenotes/notes/add-benchmark-suffix-c3ab8c14c89edb33.yaml @ b'08dcd543ef9082c3dcf2d643a73585b18cacc829'
+
+Qiskit Experiments 0.12 introduces a new option for labeling results of layer fidelity experiments. Additionally, it addresses an incompatibility with :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` version 0.41 that prevents experiments from running.
+
+
+New Features
+------------
+
+.. releasenotes/notes/add-benchmark-suffix-c3ab8c14c89edb33.yaml @ b'08dcd543ef9082c3dcf2d643a73585b18cacc829'
+
+- A new ``benchmark_suffix`` argument for the :class:`~.LayerFidelity`
+  and :class:`~.LayerFidelityUnitary` classes has been added which enables
+  users to append a descriptive suffix to the names of the analysis results in
+  these experiments, which makes bookkeeping for different types of gates easier.
+
+
+.. _Release Notes_0.12.0_Upgrade Notes:
+
+Upgrade Notes
+-------------
+
+.. releasenotes/notes/fix_hgp_bug-e131e03f71459029.yaml @ b'f321b6c5749ef0ebfb66dd762c9a8dc09360c5f6'
+
+- The automatic retrieval of hub, group, and project information from a
+  backend for storage in an :class:`~.ExperimentData` instance has been
+  removed  as these properties are no longer a part of the access model in
+  the new IBM Quantum Platform on IBM Cloud. The new model has instances with
+  "plans" and "names" but these do not map directly to the hub, group, and
+  project information. Currently, no attempt is made to capture this
+  information in an equivalent way.
+
+
+.. _Release Notes_0.12.0_Bug Fixes:
+
+Bug Fixes
+---------
+
+.. releasenotes/notes/fix_hgp_bug-e131e03f71459029.yaml @ b'f321b6c5749ef0ebfb66dd762c9a8dc09360c5f6'
+
+- As described in the Upgrade Notes, automatic retrieval of hub, group, and
+  project information is no longer attempted when the backend is set on an
+  :class:`~.ExperimentData` instance. Avoiding this retrieval avoids an
+  exception being raised when working with
+  :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` version 0.41
+  which changed the behavior of the interface that had been used for
+  accessing the hub, group, and project information.
+
+.. releasenotes/notes/from-config-dict-6629c37d2572cfbc.yaml @ b'5eb4b5bc8b71eb271ebf19023d948fa0943ed7ec'
+
+- A bug that prevented passing a ``dict`` to
+  :meth:`.BaseExperiment.from_config` from working has been fixed (`#1577
+  <https://github.com/qiskit-community/qiskit-experiments/issues/1577>`__).
+
+
 .. _Release Notes_0.11.0:
 
 0.11.0

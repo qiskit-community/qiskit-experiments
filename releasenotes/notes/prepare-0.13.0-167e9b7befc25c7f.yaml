@@ -1,0 +1,3 @@
+---
+prelude: >
+    Qiskit Experiments 0.13.0 is a small update with a fix for long randomized benchmarking sequences and a new niche feature for averaging parameterized PUBs.
