@@ -1104,10 +1104,8 @@ class ExperimentData:
                             .metadata.get("circuit_metadata", {})
                             .get("average_params", False)
                         )
-                        if (
-                            outer_shape
-                            and not average_params
-                            and not isinstance(joined_data, BitArray)
+                        if outer_shape and not (
+                            average_params and isinstance(joined_data, BitArray)
                         ):
                             raise QiskitError(
                                 f"Outer PUB dimensions {outer_shape} found in result. "
