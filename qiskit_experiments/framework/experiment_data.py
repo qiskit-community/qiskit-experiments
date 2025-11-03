@@ -1099,11 +1099,19 @@ class ExperimentData:
                     if testres.data:
                         joined_data = testres.join_data()
                         outer_shape = testres.data.shape
-                        if outer_shape:
+                        average_params = (
+                            result[i]
+                            .metadata.get("circuit_metadata", {})
+                            .get("average_params", False)
+                        )
+                        if outer_shape and not (
+                            average_params and isinstance(joined_data, BitArray)
+                        ):
                             raise QiskitError(
                                 f"Outer PUB dimensions {outer_shape} found in result. "
                                 "Only unparameterized PUBs are currently supported by "
-                                "qiskit-experiments."
+                                "qiskit-experiments unless the circuit metadata "
+                                "indicates to average them and it used meas_level=2."
                             )
                     else:
                         joined_data = None
@@ -1124,7 +1132,7 @@ class ExperimentData:
                         data["counts"] = testres.join_data(testres.data.keys()).get_counts()
                         data["memory"] = testres.join_data(testres.data.keys()).get_bitstrings()
                         # number of shots
-                        data["shots"] = joined_data.num_shots
+                        data["shots"] = len(data["memory"])
                     elif isinstance(joined_data, np.ndarray):
                         data["meas_level"] = 1
                         if joined_data.ndim == 1:

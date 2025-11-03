@@ -1,0 +1,6 @@
+---
+
+features:
+  - |
+    Enable averaging PUB parameters in :class:`~.ExperimentData` when 
+    the circuit metadata contain "average_params".
