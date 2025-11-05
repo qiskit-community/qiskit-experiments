@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="How-To Guides" href="../howtos/index.html" /><link rel="prev" title="Visualization: Creating figures" href="visualization.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Writing your own experiment - Qiskit Experiments 0.12.0</title>
+        <title>Writing your own experiment - Qiskit Experiments 0.13.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.12.0</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.12.0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -491,6 +491,8 @@
         
             <li><a href="/qiskit-experiments/stable/0.5/index.html" rel="nofollow noindex">0.5</a></li>
         
+            <li><a href="/qiskit-experiments/stable/0.12/index.html" rel="nofollow noindex">0.12</a></li>
+        
             <li><a href="/qiskit-experiments/stable/0.11/index.html" rel="nofollow noindex">0.11</a></li>
         
             <li><a href="/qiskit-experiments/stable/0.10/index.html" rel="nofollow noindex">0.10</a></li>
@@ -546,7 +548,7 @@ the <a class="reference internal" href="../stubs/qiskit_experiments.framework.Ba
 <p>In general, to subclass the <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a> class, you should:</p>
 <ul class="simple">
 <li><p>Implement the abstract <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.circuits" title="qiskit_experiments.framework.BaseExperiment.circuits"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment.circuits()</span></code></a> method.
-This should return a list of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> objects defining
+This should return a list of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> objects defining
 the experiment payload.</p></li>
 <li><p>Call the <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment.__init__()</span></code> method during the subclass
 constructor with a list of physical qubits. The length of this list must
@@ -560,7 +562,7 @@ be initialized with some experiment configuration.</p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment._default_experiment_options()</span></code>
 to set default values for configurable option parameters for the experiment.</p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment._default_transpile_options()</span></code>
-to set custom default values for the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/compiler#qiskit.compiler.transpile" title="(in Qiskit v2.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit.compiler.transpile()</span></code></a> method used to
+to set custom default values for the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/compiler#qiskit.compiler.transpile" title="(in Qiskit v2.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit.compiler.transpile()</span></code></a> method used to
 transpile the generated circuits before execution.</p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment._default_run_options()</span></code>
 to set default backend options for running the transpiled circuits on a backend.</p></li>
@@ -607,7 +609,7 @@ after instantiating the experiment object <code class="docutils literal notransl
 <p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseAnalysis._run_analysis()</span></code> method should return a pair
 <code class="code docutils literal notranslate"><span class="pre">(results,</span> <span class="pre">figures)</span></code>, where <code class="docutils literal notranslate"><span class="pre">results</span></code> is a list of
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResultData.html#qiskit_experiments.framework.AnalysisResultData" title="qiskit_experiments.framework.AnalysisResultData"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResultData</span></code></a> objects and <code class="docutils literal notranslate"><span class="pre">figures</span></code> is a list of
-<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> objects.</p>
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> objects.</p>
 <p>The <a class="reference internal" href="data_processor.html"><span class="doc">Data Processor</span></a> module contains classes for
 building data processor workflows to help with advanced analysis of
 experiment data.</p>
@@ -846,7 +848,7 @@ classical registers. Note that the circuits themselves are always built on qubit
 </div>
 </div>
 <p>In the last line of the above code block, we used the
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/quantum_info#qiskit.quantum_info.random_pauli_list" title="(in Qiskit v2.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">random_pauli_list()</span></code></a> function from the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/quantum_info#module-qiskit.quantum_info" title="(in Qiskit v2.1)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit.quantum_info</span></code></a>
+<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/quantum_info#qiskit.quantum_info.random_pauli_list" title="(in Qiskit v2.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">random_pauli_list()</span></code></a> function from the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/quantum_info#module-qiskit.quantum_info" title="(in Qiskit v2.2)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit.quantum_info</span></code></a>
 module to generate random Paulis. This returns <code class="docutils literal notranslate"><span class="pre">num_samples</span></code> Paulis, each
 across <code class="docutils literal notranslate"><span class="pre">meas_nc</span></code> qubits.</p>
 <p>Now we construct the circuits by composing the original circuit with a Pauli frame then
@@ -1049,7 +1051,7 @@ perfect symmetrical results between <span class="math notranslate nohighlight">\
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;1111&#39;: 49951, &#39;0000&#39;: 50049}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;0000&#39;: 49778, &#39;1111&#39;: 50222}
 </pre></div>
 </div>
 </div>
@@ -1146,7 +1148,7 @@ unaffected by the added randomized measurements, which use its own classical reg
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/08/13</div>
+              Last updated on 2025/11/05</div>
           </div>
           <div class="right-details">
             
@@ -1183,7 +1185,7 @@ unaffected by the added randomized measurements, which use its own classical reg
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=61ccb1f1"></script>
+</div><script src="../_static/documentation_options.js?v=1019fba8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
