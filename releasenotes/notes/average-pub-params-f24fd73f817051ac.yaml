@@ -3,4 +3,8 @@
 features:
   - |
     Enable averaging PUB parameters in :class:`~.ExperimentData` when 
-    the circuit metadata contain "average_params".
+    the circuit metadata contain "average_params". This feature is undocumented
+    for now since it is niche. It requires the user to submit parameterized
+    circuits to a sampler outside of an experiment and then add the results to
+    an :class:`.ExperimentData` object since Qiskit Experiments does not
+    currently support running parameterized PUBs directly.
