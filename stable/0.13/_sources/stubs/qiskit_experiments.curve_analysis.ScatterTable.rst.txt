@@ -1,0 +1,73 @@
+﻿
+
+ScatterTable
+==============================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoclass:: ScatterTable
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: ScatterTable.COLUMNS
+   .. autoattribute:: ScatterTable.DTYPES
+   .. autoattribute:: ScatterTable.analysis
+   .. autoattribute:: ScatterTable.category
+   .. autoattribute:: ScatterTable.dataframe
+   .. autoattribute:: ScatterTable.series_id
+   .. autoattribute:: ScatterTable.series_name
+   .. autoattribute:: ScatterTable.shots
+   .. autoattribute:: ScatterTable.x
+   .. autoattribute:: ScatterTable.y
+   .. autoattribute:: ScatterTable.y_err
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ScatterTable.__len__
+   .. automethod:: ScatterTable.add_row
+   .. automethod:: ScatterTable.filter
+   .. automethod:: ScatterTable.from_dataframe
+   .. automethod:: ScatterTable.iter_by_series_id
+   .. automethod:: ScatterTable.iter_groups
+   .. automethod:: ScatterTable.xvals
+   .. automethod:: ScatterTable.yerrs
+   .. automethod:: ScatterTable.yvals
+
+   

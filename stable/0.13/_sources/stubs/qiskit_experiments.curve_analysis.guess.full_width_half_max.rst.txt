@@ -1,0 +1,8 @@
+﻿
+
+full_width_half_max
+===========================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.guess
+
+.. autofunction:: full_width_half_max

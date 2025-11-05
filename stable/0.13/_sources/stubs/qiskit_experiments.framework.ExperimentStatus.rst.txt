@@ -1,0 +1,55 @@
+﻿
+
+ExperimentStatus
+=============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: ExperimentStatus
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: ExperimentStatus.EMPTY
+   .. autoattribute:: ExperimentStatus.INITIALIZING
+   .. autoattribute:: ExperimentStatus.VALIDATING
+   .. autoattribute:: ExperimentStatus.QUEUED
+   .. autoattribute:: ExperimentStatus.RUNNING
+   .. autoattribute:: ExperimentStatus.CANCELLED
+   .. autoattribute:: ExperimentStatus.POST_PROCESSING
+   .. autoattribute:: ExperimentStatus.DONE
+   .. autoattribute:: ExperimentStatus.ERROR
+   
+
+
+
+
+   
+   
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ExperimentStatus.__getitem__
+   .. automethod:: ExperimentStatus.__len__
+
+   
