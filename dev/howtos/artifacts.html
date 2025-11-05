@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Save and load experiment data with the cloud service" href="cloud_service.html" /><link rel="prev" title="How-To Guides" href="index.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Work with experiment artifacts - Qiskit Experiments 0.12.0-9-gca1cad6fa</title>
+        <title>Work with experiment artifacts - Qiskit Experiments 0.12.0-10-g19b06b47d</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.12.0-9-gca1cad6fa</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.12.0-10-g19b06b47d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.12.0-9-gca1cad6fa</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.12.0-10-g19b06b47d</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -577,10 +577,10 @@ artifacts as a list of <a class="reference internal" href="../stubs/qiskit_exper
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[ArtifactData(name=curve_data, dtype=ScatterTable, uid=755dbfea-caed-44a1-865c-89982210d4e7, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
- ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=4672f831-e86b-4cab-bb90-5b7af9ea09df, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
- ArtifactData(name=curve_data, dtype=ScatterTable, uid=9cb9e7a7-f4e1-4c64-92c9-65b03cc4472a, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;]),
- ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=43a1a15a-bf33-4db0-94b0-d77ef2fd1e86, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;])]
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[ArtifactData(name=curve_data, dtype=ScatterTable, uid=6ad83416-06a0-4191-9a5f-8960fe87f641, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
+ ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=8e3ba98e-169e-46d5-b25a-5586cb489056, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
+ ArtifactData(name=curve_data, dtype=ScatterTable, uid=e455e909-6539-41e9-b599-940b040a6e23, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;]),
+ ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=4d0ec98d-8c9e-45a0-ba33-b40c4926ee64, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;])]
 </pre></div>
 </div>
 </div>
@@ -638,8 +638,8 @@ The first curve_data artifact:
     <tr>
       <th>0</th>
       <td>0.000001</td>
-      <td>0.954634</td>
-      <td>0.006497</td>
+      <td>0.951707</td>
+      <td>0.006693</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -649,8 +649,8 @@ The first curve_data artifact:
     <tr>
       <th>1</th>
       <td>0.000051</td>
-      <td>0.41122</td>
-      <td>0.015362</td>
+      <td>0.405366</td>
+      <td>0.015328</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -660,8 +660,8 @@ The first curve_data artifact:
     <tr>
       <th>2</th>
       <td>0.000101</td>
-      <td>0.197561</td>
-      <td>0.01243</td>
+      <td>0.193659</td>
+      <td>0.012337</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -671,8 +671,8 @@ The first curve_data artifact:
     <tr>
       <th>3</th>
       <td>0.000151</td>
-      <td>0.097073</td>
-      <td>0.009243</td>
+      <td>0.095122</td>
+      <td>0.009159</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -682,8 +682,8 @@ The first curve_data artifact:
     <tr>
       <th>4</th>
       <td>0.000201</td>
-      <td>0.054146</td>
-      <td>0.007065</td>
+      <td>0.046341</td>
+      <td>0.006563</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -691,74 +691,216 @@ The first curve_data artifact:
       <td>T1Analysis</td>
     </tr>
     <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>119</th>
-      <td>0.000529</td>
-      <td>0.027845</td>
-      <td>0.002098</td>
+      <th>5</th>
+      <td>0.000251</td>
+      <td>0.032683</td>
+      <td>0.005551</td>
       <td>exp_decay</td>
       <td>0</td>
-      <td>fitted</td>
-      <td>&lt;NA&gt;</td>
+      <td>raw</td>
+      <td>1024</td>
       <td>T1Analysis</td>
     </tr>
     <tr>
-      <th>120</th>
-      <td>0.000534</td>
-      <td>0.027836</td>
-      <td>0.002099</td>
+      <th>6</th>
+      <td>0.000301</td>
+      <td>0.030732</td>
+      <td>0.005388</td>
       <td>exp_decay</td>
       <td>0</td>
-      <td>fitted</td>
-      <td>&lt;NA&gt;</td>
+      <td>raw</td>
+      <td>1024</td>
       <td>T1Analysis</td>
     </tr>
     <tr>
-      <th>121</th>
-      <td>0.00054</td>
-      <td>0.027827</td>
-      <td>0.0021</td>
+      <th>7</th>
+      <td>0.000351</td>
+      <td>0.027805</td>
+      <td>0.005133</td>
       <td>exp_decay</td>
       <td>0</td>
-      <td>fitted</td>
-      <td>&lt;NA&gt;</td>
+      <td>raw</td>
+      <td>1024</td>
       <td>T1Analysis</td>
     </tr>
     <tr>
-      <th>122</th>
-      <td>0.000545</td>
-      <td>0.027819</td>
-      <td>0.002101</td>
+      <th>8</th>
+      <td>0.000401</td>
+      <td>0.027805</td>
+      <td>0.005133</td>
       <td>exp_decay</td>
       <td>0</td>
-      <td>fitted</td>
-      <td>&lt;NA&gt;</td>
+      <td>raw</td>
+      <td>1024</td>
       <td>T1Analysis</td>
     </tr>
     <tr>
-      <th>123</th>
+      <th>9</th>
+      <td>0.000451</td>
+      <td>0.030732</td>
+      <td>0.005388</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>raw</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>0.000501</td>
+      <td>0.029756</td>
+      <td>0.005305</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>raw</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>11</th>
       <td>0.000551</td>
-      <td>0.027812</td>
-      <td>0.002102</td>
+      <td>0.02878</td>
+      <td>0.00522</td>
       <td>exp_decay</td>
       <td>0</td>
-      <td>fitted</td>
-      <td>&lt;NA&gt;</td>
+      <td>raw</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.000001</td>
+      <td>0.951707</td>
+      <td>0.006693</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>formatted</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>0.000051</td>
+      <td>0.405366</td>
+      <td>0.015328</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>formatted</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>0.000101</td>
+      <td>0.193659</td>
+      <td>0.012337</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>formatted</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>0.000151</td>
+      <td>0.095122</td>
+      <td>0.009159</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>formatted</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>0.000201</td>
+      <td>0.046341</td>
+      <td>0.006563</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>formatted</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>0.000251</td>
+      <td>0.032683</td>
+      <td>0.005551</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>formatted</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>0.000301</td>
+      <td>0.030732</td>
+      <td>0.005388</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>formatted</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>0.000351</td>
+      <td>0.027805</td>
+      <td>0.005133</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>formatted</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>0.000401</td>
+      <td>0.027805</td>
+      <td>0.005133</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>formatted</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>0.000451</td>
+      <td>0.030732</td>
+      <td>0.005388</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>formatted</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>0.000501</td>
+      <td>0.029756</td>
+      <td>0.005305</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>formatted</td>
+      <td>1024</td>
+      <td>T1Analysis</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>0.000551</td>
+      <td>0.02878</td>
+      <td>0.00522</td>
+      <td>exp_decay</td>
+      <td>0</td>
+      <td>formatted</td>
+      <td>1024</td>
       <td>T1Analysis</td>
     </tr>
   </tbody>
 </table>
-<p>124 rows × 8 columns</p>
 </div></div></div>
 </div>
 <p>In composite experiments, artifacts behave like analysis results and figures in that if
@@ -813,7 +955,7 @@ Qiskit Experiments.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ArtifactData(name=experiment_notes, dtype=dict, uid=504aba2e-c7cb-4034-9eb7-0ff442bb6809, experiment=None, device_components=[])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ArtifactData(name=experiment_notes, dtype=dict, uid=e0eb588c-7395-469f-b193-9e56535cea3e, experiment=None, device_components=[])
 </pre></div>
 </div>
 </div>
@@ -847,13 +989,13 @@ by their unique artifact ID:</p>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>fit_summary.zip
-|- 4672f831-e86b-4cab-bb90-5b7af9ea09df.json
-|- 43a1a15a-bf33-4db0-94b0-d77ef2fd1e86.json
+|- 8e3ba98e-169e-46d5-b25a-5586cb489056.json
+|- 4d0ec98d-8c9e-45a0-ba33-b40c4926ee64.json
 curve_data.zip
-|- 755dbfea-caed-44a1-865c-89982210d4e7.json
-|- 9cb9e7a7-f4e1-4c64-92c9-65b03cc4472a.json
+|- 6ad83416-06a0-4191-9a5f-8960fe87f641.json
+|- e455e909-6539-41e9-b599-940b040a6e23.json
 experiment_notes.zip
-|- 504aba2e-c7cb-4034-9eb7-0ff442bb6809.json
+|- e0eb588c-7395-469f-b193-9e56535cea3e.json
 </pre></div>
 </div>
 </div>
@@ -914,7 +1056,7 @@ these artifacts.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/11/03</div>
+              Last updated on 2025/11/05</div>
           </div>
           <div class="right-details">
             
@@ -955,7 +1097,7 @@ these artifacts.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=0c5b367f"></script>
+</div><script src="../_static/documentation_options.js?v=761222ee"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
