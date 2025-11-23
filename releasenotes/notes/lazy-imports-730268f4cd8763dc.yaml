@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Importing of optional dependencies has been made delayed until first use.
+    In particular, ``cvxpy`` is now not imported until a tomography fitter that
+    uses it is used. Additionally, ``qiskit_ibm_runtime`` is not imported an
+    experiment is run without being passed a sampler argument. Previously, both
+    packages were imported when ``qiskit_experiments`` was imported (``cvxpy``
+    is optional, but it was always imported if it was available).

@@ -10,29 +10,59 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-# pylint: disable=unused-argument, unused-variable
-"""Test warning helper."""
+"""Test behavior related package dependencies."""
 
 import subprocess
 import sys
 import textwrap
 from test.base import QiskitExperimentsTestCase
 
-from qiskit_experiments.framework import BaseExperiment
+
+class TestOptionalDependencies(QiskitExperimentsTestCase):
+    """Test handling of optional dependencies
+
+    Note: these tests use subprocesses in order to test import handling. That
+    is an expensive operation compared to running code within a process that
+    has already imported everything (importing qiskit_experiments takes about 3
+    seconds), so the amount of this kind of test should be kept to a minimum.
+    """
+
+    def test_no_optional_dependencies(self):
+        """Test that optional dependencies not imported by 'import qiskit_experiments'"""
+        script = """
+        import sys
+
+        import qiskit_experiments
 
 
-class TempExperiment(BaseExperiment):
-    """Fake experiment."""
+        top_level_modules = {m.partition(".")[0] for m in sys.modules}
 
-    def __init__(self, physical_qubits):
-        super().__init__(physical_qubits)
+        optional_deps = [
+            "cvxpy",
+            "qiskit_aer",
+            "qiskit_ibm_runtime",
+            "sklearn",
+        ]
 
-    def circuits(self):
-        pass
+        unexpected = [d for d in optional_deps if d in top_level_modules]
+        if unexpected:
+            print(", ".join(unexpected))
+        """
+        script = textwrap.dedent(script)
 
+        proc = subprocess.run(
+            [sys.executable, "-c", script], check=False, text=True, capture_output=True
+        )
 
-class TestWarningsHelper(QiskitExperimentsTestCase):
-    """Test case for warnings decorator with tricky behavior."""
+        self.assertTrue(
+            proc.stdout == "",
+            msg=f"Unexpected dependency imports: {proc.stdout}",
+        )
+        self.assertEqual(
+            proc.returncode,
+            0,
+            msg=f"Test script failed:\n{proc.stderr}",
+        )
 
     def test_warn_sklearn(self):
         """Test that a suggestion to import scikit-learn is given when appropriate"""

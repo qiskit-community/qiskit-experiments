@@ -23,7 +23,6 @@ from qiskit.providers import Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.providers.options import Options
 from qiskit.primitives.base import BaseSamplerV2
-from qiskit_ibm_runtime import SamplerV2 as Sampler
 from qiskit_experiments.framework import BackendData, MeasLevel
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
@@ -380,7 +379,9 @@ class BaseExperiment(ABC, StoreInitArgs):
         if not self._backend_run:
             if sampler is None:
                 # instantiate a sampler from the backend
-                sampler = Sampler(self.backend)
+                from qiskit_ibm_runtime import SamplerV2
+
+                sampler = SamplerV2(self.backend)
 
                 # have to hand set some of these options
                 # see https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime
