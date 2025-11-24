@@ -166,7 +166,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 database as a dedicated entry. This is a list of parameter representation
                 which is either string or ParameterRepr object. If you provide more
                 information other than name, you can specify
-                ``[ParameterRepr("alpha", "\u03B1", "a.u.")]`` for example.
+                ``[ParameterRepr("alpha", "\u03b1", "a.u.")]`` for example.
                 The parameter name should be defined in the series definition.
                 Representation should be printable in standard output, i.e. no latex syntax.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries

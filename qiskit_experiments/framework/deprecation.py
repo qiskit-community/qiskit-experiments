@@ -152,9 +152,9 @@ def _write_deprecation_msg(
     removal_timeline: str,
 ) -> tuple[str, Type[DeprecationWarning] | Type[PendingDeprecationWarning]]:
     if pending:
-        category: Type[DeprecationWarning] | Type[
+        category: Type[DeprecationWarning] | Type[PendingDeprecationWarning] = (
             PendingDeprecationWarning
-        ] = PendingDeprecationWarning
+        )
         deprecation_status = "pending deprecation"
         removal_desc = f"marked deprecated in a future release, and then removed {removal_timeline}"
     else:

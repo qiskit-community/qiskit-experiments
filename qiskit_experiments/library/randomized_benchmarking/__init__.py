@@ -64,14 +64,14 @@ Synthesis Methods
 
 There are a few built-in options for the Clifford synthesis method:
 
-* ``rb_default`` (default) for n<=2 Cliffords this methods will transpile using ``optimization_level=1``. 
+* ``rb_default`` (default) for n<=2 Cliffords this methods will transpile using ``optimization_level=1``.
   For 3 or more qubits the behavior is similar but a custom transpilation sequence is used to avoid
   the transpiler changing the layout of the circuit.
 
 * ``clifford_synthesis_method='basis_only'`` will use ``optimization_level=0``.
 
-* ``clifford_synthesis_method='1Q_fixed`` will use a ``rz-sx-rz-sx-rz`` decomposition for the 1Q 
-  Cliffords and the default for the 2Q cliffords. This is most relevant for :class:`.LayerFidelity` 
+* ``clifford_synthesis_method='1Q_fixed`` will use a ``rz-sx-rz-sx-rz`` decomposition for the 1Q
+  Cliffords and the default for the 2Q cliffords. This is most relevant for :class:`.LayerFidelity`
   experiments because it will keep a fixed structure.
 
 """

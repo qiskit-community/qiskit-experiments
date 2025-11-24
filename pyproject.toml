@@ -60,7 +60,7 @@ extras = [
 "clifford.rb_default" = "qiskit_experiments.library.randomized_benchmarking.clifford_synthesis:RBDefaultCliffordSynthesis"
 
 [dependency-groups]
-formatting = ["black~=22.0"]
+formatting = ["black~=25.1"]
 devbase = []
 testing = [
     {include-group = "devbase"},
@@ -89,8 +89,7 @@ docs = [
 ]
 linting = [
     # Linters
-    "pylint~=3.3.1",
-    "astroid~=3.3.4",  # Must be kept aligned to what pylint wants
+    "pylint~=4.0.3",
     # Test dependencies needed because the test files are linted
     {include-group = "testing"},
 ]

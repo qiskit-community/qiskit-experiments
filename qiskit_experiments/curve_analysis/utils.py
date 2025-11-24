@@ -100,9 +100,9 @@ def analysis_result_to_repr(result: AnalysisResultData) -> str:
         if result.value.std_dev is not None and np.isfinite(result.value.std_dev):
             s_repr, s_unit = _format_val(result.value.std_dev)
             if n_unit == s_unit:
-                value_repr = f" {n_repr} \u00B1 {s_repr}{n_unit}"
+                value_repr = f" {n_repr} \u00b1 {s_repr}{n_unit}"
             else:
-                value_repr = f" {n_repr + n_unit} \u00B1 {s_repr + s_unit}"
+                value_repr = f" {n_repr + n_unit} \u00b1 {s_repr + s_unit}"
         else:
             value_repr = n_repr + n_unit
 
