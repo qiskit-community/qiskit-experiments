@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Quantum Volume Experiment (qiskit_experiments.library.quantum_volume)" href="../apidocs/mod_quantum_volume.html" /><link rel="prev" title="MeasurementBasis" href="qiskit_experiments.library.tomography.basis.MeasurementBasis.html" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>PreparationBasis - Qiskit Experiments 0.13.0-2-g418eab785</title>
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>PreparationBasis - Qiskit Experiments 0.13.0-3-g139102ce3</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-2-g418eab785</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-3-g139102ce3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-2-g418eab785</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-3-g139102ce3</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -546,7 +546,7 @@ released.</p>
 <h1>PreparationBasis<a class="headerlink" href="#preparationbasis" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.basis.PreparationBasis">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PreparationBasis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/tomography/basis/base_basis.html#PreparationBasis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.tomography.basis.PreparationBasis" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PreparationBasis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/tomography/basis/base_basis.html#PreparationBasis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.tomography.basis.PreparationBasis" title="Link to this definition">¶</a></dt>
 <dd><p>Abstract base class for a tomography preparation basis.</p>
 <p>Subclasses should implement the following abstract methods to
 define a preparation basis:</p>
@@ -579,7 +579,7 @@ dimensions of the density matrix state on the specified qubits.</p></li>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.basis.PreparationBasis.circuit">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.basis.PreparationBasis.circuit" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.basis.PreparationBasis.circuit" title="Link to this definition">¶</a></dt>
 <dd><p>Return the basis preparation circuit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -607,7 +607,7 @@ during experiment transpilation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.basis.PreparationBasis.index_shape">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.basis.PreparationBasis.index_shape" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.library.tomography.basis.PreparationBasis.index_shape" title="Link to this definition">¶</a></dt>
 <dd><p>Return the shape for the specified number of indices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -624,7 +624,7 @@ during experiment transpilation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.basis.PreparationBasis.matrix">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/tomography/basis/base_basis.html#PreparationBasis.matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.tomography.basis.PreparationBasis.matrix" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/tomography/basis/base_basis.html#PreparationBasis.matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.tomography.basis.PreparationBasis.matrix" title="Link to this definition">¶</a></dt>
 <dd><p>Return the density matrix data array for the index and qubits.</p>
 <p>This state is used by tomography fitters for reconstruction and should
 correspond to the target state for the corresponding preparation
@@ -649,7 +649,7 @@ length N index.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.library.tomography.basis.PreparationBasis.matrix_shape">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">matrix_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/tomography/basis/base_basis.html#PreparationBasis.matrix_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.tomography.basis.PreparationBasis.matrix_shape" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">matrix_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/library/tomography/basis/base_basis.html#PreparationBasis.matrix_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.library.tomography.basis.PreparationBasis.matrix_shape" title="Link to this definition">¶</a></dt>
 <dd><p>Return the shape of subsystem dimensions of the state <a class="reference internal" href="#qiskit_experiments.library.tomography.basis.PreparationBasis.matrix" title="qiskit_experiments.library.tomography.basis.PreparationBasis.matrix"><code class="xref py py-attr docutils literal notranslate"><span class="pre">matrix</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -703,7 +703,7 @@ length N index.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/11/21</div>
+              Last updated on 2025/12/12</div>
           </div>
           <div class="right-details">
             
@@ -744,7 +744,7 @@ length N index.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=259ceb44"></script>
+</div><script src="../_static/documentation_options.js?v=1d4fc124"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
