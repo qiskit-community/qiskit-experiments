@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.framework.base_experiment - Qiskit Experiments 0.13.0-4-gf7ec23b34</title>
+        <title>qiskit_experiments.framework.base_experiment - Qiskit Experiments 0.13.0-6-g308dc9dd6</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-4-gf7ec23b34</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-6-g308dc9dd6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-4-gf7ec23b34</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-6-g308dc9dd6</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -556,7 +556,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.options</span><span class="w"> </span><span class="kn">import</span> <span class="n">Options</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.primitives.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseSamplerV2</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_ibm_runtime</span><span class="w"> </span><span class="kn">import</span> <span class="n">SamplerV2</span> <span class="k">as</span> <span class="n">Sampler</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendData</span><span class="p">,</span> <span class="n">MeasLevel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.store_init_args</span><span class="w"> </span><span class="kn">import</span> <span class="n">StoreInitArgs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.base_analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseAnalysis</span>
@@ -930,7 +929,9 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_run</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">sampler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># instantiate a sampler from the backend</span>
-                <span class="n">sampler</span> <span class="o">=</span> <span class="n">Sampler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_ibm_runtime</span><span class="w"> </span><span class="kn">import</span> <span class="n">SamplerV2</span>
+
+                <span class="n">sampler</span> <span class="o">=</span> <span class="n">SamplerV2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
 
                 <span class="c1"># have to hand set some of these options</span>
                 <span class="c1"># see https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime</span>
@@ -1150,7 +1151,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=eac54bdb"></script>
+</div><script src="../../../_static/documentation_options.js?v=64f8a398"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
