@@ -12,31 +12,23 @@
 """
 Utility functions for CVXPy module
 """
+from __future__ import annotations
 
-from typing import Callable, List, Tuple, Optional, Union
 import functools
+from typing import Callable, List, TYPE_CHECKING, Tuple, Optional, Union
+
 import numpy as np
 import scipy.sparse as sps
 
 from qiskit_experiments.exceptions import AnalysisError
 
-# Check if CVXPY package is installed
-try:
-    import cvxpy
+# NOTE: this module gets eagerly imported with `qiskit_experiments/__init__.py`
+# so it should not eagerly import cvxpy (a bit expensive to import when not
+# needed). Any function outside of this module importing cvxpy or using a
+# function from this module should be decorated with `requires_cvxpy`.
+if TYPE_CHECKING:
     from cvxpy import Problem, Variable
     from cvxpy.constraints.constraint import Constraint
-
-    HAS_CVXPY = True
-
-except ImportError:
-    cvxpy = None
-
-    HAS_CVXPY = False
-
-    # Used for type hints
-    Problem = None
-    Variable = None
-    Constraint = None
 
 
 def requires_cvxpy(func: Callable) -> Callable:
@@ -49,16 +41,18 @@ def requires_cvxpy(func: Callable) -> Callable:
         The decorated function.
 
     Raises:
-        QiskitError: If CVXPy is not installed.
+        ImportError: If CVXPy is not installed.
     """
 
     @functools.wraps(func)
     def decorated_func(*args, **kwargs):
-        if not HAS_CVXPY:
+        try:
+            import cvxpy  # pylint: disable=unused-import
+        except ImportError as err:
             raise ImportError(
-                f"The CVXPY package is required to for {func}."
+                f"The CVXPY package is required for {func}."
                 "You can install it with 'pip install cvxpy'."
-            )
+            ) from err
         return func(*args, **kwargs)
 
     return decorated_func
@@ -127,6 +121,8 @@ def complex_matrix_variable(
         A tuple ``(mat.real, mat.imag, constraints)`` of two real CVXPY
         matrix variables, and constraints.
     """
+    import cvxpy
+
     mat_r = cvxpy.Variable((dim, dim))
     mat_i = cvxpy.Variable((dim, dim))
     cons = []
@@ -163,6 +159,8 @@ def psd_constraint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
     Returns:
         A list of constraints on the real and imaginary parts.
     """
+    import cvxpy
+
     bmat = cvxpy.bmat([[mat_r, -mat_i], [mat_i, mat_r]])
     return [bmat >> 0]
 
@@ -187,9 +185,11 @@ def trace_constraint(
     Raises:
         TypeError: If input variables are not valid.
     """
+    import cvxpy
+
     if isinstance(mat_r, (list, tuple)):
         arg_r = cvxpy.sum(mat_r)
-    elif isinstance(mat_r, Variable):
+    elif isinstance(mat_r, cvxpy.Variable):
         arg_r = mat_r
     else:
         raise TypeError("Input must be a cvxpy variable or list of variables")
@@ -201,7 +201,7 @@ def trace_constraint(
     # If not hermitian add imaginary trace constraint
     if isinstance(mat_i, (list, tuple)):
         arg_i = cvxpy.sum(mat_i)
-    elif isinstance(mat_i, Variable):
+    elif isinstance(mat_i, cvxpy.Variable):
         arg_i = mat_i
     else:
         raise TypeError("Input must be a cvxpy variable or list of variables")
@@ -228,6 +228,8 @@ def partial_trace_constaint(
     Raises:
         TypeError: If input variables are not valid.
     """
+    import cvxpy
+
     sdim = mat_r.shape[0]
     output_dim = constraint.shape[0]
     input_dim = sdim // output_dim
@@ -261,10 +263,12 @@ def trace_preserving_constaint(
     Raises:
         TypeError: If input variables are not valid.
     """
+    import cvxpy
+
     if isinstance(mat_r, (tuple, list)):
         sdim = mat_r[0].shape[0]
         arg_r = cvxpy.sum(mat_r)
-    elif isinstance(mat_r, Variable):
+    elif isinstance(mat_r, cvxpy.Variable):
         sdim = mat_r.shape[0]
         arg_r = mat_r
     else:
@@ -282,7 +286,7 @@ def trace_preserving_constaint(
     # If not hermitian add imaginary partial trace constraint
     if isinstance(mat_i, (tuple, list)):
         arg_i = cvxpy.sum(mat_i)
-    elif isinstance(mat_i, Variable):
+    elif isinstance(mat_i, cvxpy.Variable):
         arg_i = mat_i
     else:
         raise TypeError("Input must be a cvxpy variable or list of variables")

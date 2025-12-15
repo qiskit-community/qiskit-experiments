@@ -22,7 +22,6 @@ from qiskit_experiments.library.tomography.basis import (
     PreparationBasis,
 )
 from . import cvxpy_utils
-from .cvxpy_utils import cvxpy
 from . import lstsq_utils
 from .fitter_data import _basis_dimensions
 
@@ -136,6 +135,8 @@ def cvxpy_linear_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
+    import cvxpy
+
     t_start = time.time()
 
     if measurement_basis and measurement_qubits is None:
