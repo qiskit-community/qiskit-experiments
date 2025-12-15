@@ -1296,7 +1296,10 @@ class ExperimentData:
             else:
                 fig_name = figure_names[idx]
             if not fig_name.endswith(".svg"):
-                LOG.info("File name %s does not have an SVG extension. A '.svg' is added.")
+                LOG.info(
+                    "File name %s does not have an SVG extension. A '.svg' is added.",
+                    fig_name,
+                )
                 fig_name += ".svg"
 
             existing_figure = fig_name in self._figures
