@@ -54,9 +54,7 @@ class BaseBasis(ABC):
         """
 
     @abstractmethod
-    def circuit(
-        self, index: Sequence[int], qubits: Sequence[int] | None = None
-    ) -> QuantumCircuit:
+    def circuit(self, index: Sequence[int], qubits: Sequence[int] | None = None) -> QuantumCircuit:
         """Return the basis preparation circuit.
 
         Args:

@@ -103,8 +103,8 @@ class Tphi(BatchExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        delays_t1: list[list[float] | np.array],
-        delays_t2: list[list[float] | np.array],
+        delays_t1: list[list[float] | np.ndarray],
+        delays_t2: list[list[float] | np.ndarray],
         t2type: str = "hahn",
         osc_freq: float = 0.0,
         num_echoes: int = 1,

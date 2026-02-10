@@ -13,7 +13,7 @@
 """Drawer abstract class."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Union
+from typing import Any
 from collections.abc import Sequence
 
 import numpy as np
@@ -23,7 +23,7 @@ from qiskit_experiments.framework import Options
 from ..style import PlotStyle
 from ..utils import ExtentTuple
 
-SeriesName = Union[str, int, float]
+SeriesName = str | int | float
 
 
 class BaseDrawer(ABC):

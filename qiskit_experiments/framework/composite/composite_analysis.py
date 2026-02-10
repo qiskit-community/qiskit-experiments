@@ -77,9 +77,7 @@ class CompositeAnalysis(BaseAnalysis):
 
         self._set_generate_figures(generate_figures)
 
-    def component_analysis(
-        self, index: int | None = None
-    ) -> BaseAnalysis | list[BaseAnalysis]:
+    def component_analysis(self, index: int | None = None) -> BaseAnalysis | list[BaseAnalysis]:
         """Return the component experiment Analysis instance.
 
         Args:

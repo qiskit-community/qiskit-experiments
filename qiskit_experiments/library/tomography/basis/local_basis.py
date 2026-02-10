@@ -12,7 +12,6 @@
 """
 Circuit basis for tomography preparation and measurement circuits
 """
-from typing import Union
 from collections.abc import Sequence
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Instruction
@@ -27,8 +26,8 @@ from .cache_method import cache_method, _method_cache_name
 
 
 # Typing
-Povm = Union[list[Statevector], list[DensityMatrix], QuantumChannel]
-States = Union[list[QuantumState], dict[tuple[int, ...], QuantumState]]
+Povm = list[Statevector] | list[DensityMatrix] | QuantumChannel
+States = list[QuantumState] | dict[tuple[int, ...] | QuantumState]
 
 
 class LocalPreparationBasis(PreparationBasis):
@@ -115,9 +114,7 @@ class LocalPreparationBasis(PreparationBasis):
             dims += self._qubit_dim.get((i,), (self._default_dim,))
         return dims
 
-    def circuit(
-        self, index: Sequence[int], qubits: Sequence[int] | None = None
-    ) -> QuantumCircuit:
+    def circuit(self, index: Sequence[int], qubits: Sequence[int] | None = None) -> QuantumCircuit:
         # pylint: disable = unused-argument
         if not self._instructions:
             raise NotImplementedError(

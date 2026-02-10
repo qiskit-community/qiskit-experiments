@@ -178,9 +178,7 @@ class BackendTiming:
 
         return samples_out
 
-    def delay_time(
-        self, *, time: float | None = None, samples: int | float | None = None
-    ) -> float:
+    def delay_time(self, *, time: float | None = None, samples: int | float | None = None) -> float:
         """The closest valid delay time in seconds to the input
 
         If the backend reports ``dt``, this method uses

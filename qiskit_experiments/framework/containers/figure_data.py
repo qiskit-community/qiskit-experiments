@@ -14,7 +14,7 @@
 
 import copy
 import io
-from typing import Any, Union
+from typing import Any
 
 from matplotlib.figure import Figure as MatplotlibFigure
 
@@ -97,4 +97,4 @@ class FigureData:
         return None
 
 
-FigureType = Union[str, bytes, MatplotlibFigure, FigureData]
+FigureType = str | bytes | MatplotlibFigure | FigureData

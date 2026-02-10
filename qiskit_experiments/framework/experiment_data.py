@@ -17,12 +17,11 @@ from __future__ import annotations
 import logging
 import re
 from typing import Any, TYPE_CHECKING
-from collections.abc import Callable
+from collections import deque, defaultdict
+from collections.abc import Callable, Iterable
 from datetime import datetime, timezone
 from concurrent import futures
 from functools import wraps
-from collections import deque, defaultdict
-from collections.abc import Iterable
 import contextlib
 import copy
 import uuid

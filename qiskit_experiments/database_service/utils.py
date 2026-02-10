@@ -19,9 +19,9 @@ import threading
 import traceback
 from abc import ABC, abstractmethod
 from collections import OrderedDict
+from collections.abc import Callable, Iterator
 from datetime import datetime, timezone
 from typing import Any
-from collections.abc import Callable, Iterator
 import json
 
 import dateutil.parser

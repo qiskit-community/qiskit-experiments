@@ -196,9 +196,7 @@ class BasePlotter(ABC):
         """
         return list(self._series_data.get(series_name, []))
 
-    def data_for(
-        self, series_name: SeriesName, data_keys: str | list[str]
-    ) -> tuple[Any | None]:
+    def data_for(self, series_name: SeriesName, data_keys: str | list[str]) -> tuple[Any | None]:
         """Returns data associated with the given series.
 
         The returned tuple contains the data, associated with ``data_keys``, in the same

@@ -77,7 +77,7 @@ class T1(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        delays: list[float] | np.array,
+        delays: list[float] | np.ndarray,
         backend: Backend | None = None,
     ):
         """

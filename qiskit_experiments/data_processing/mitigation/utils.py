@@ -98,9 +98,7 @@ def counts_to_vector(counts: Counts, num_qubits: int) -> tuple[np.ndarray, int]:
     return vec, shots
 
 
-def remap_qubits(
-    vec: np.ndarray, num_qubits: int, qubits: list[int] | None = None
-) -> np.ndarray:
+def remap_qubits(vec: np.ndarray, num_qubits: int, qubits: list[int] | None = None) -> np.ndarray:
     """Remapping the qubits"""
     if qubits is not None:
         if len(qubits) != num_qubits:

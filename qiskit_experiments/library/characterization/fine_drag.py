@@ -185,9 +185,7 @@ class FineDrag(BaseExperiment):
 
         return options
 
-    def __init__(
-        self, physical_qubits: Sequence[int], gate: Gate, backend: Backend | None = None
-    ):
+    def __init__(self, physical_qubits: Sequence[int], gate: Gate, backend: Backend | None = None):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:

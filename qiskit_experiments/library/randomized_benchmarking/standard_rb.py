@@ -15,9 +15,9 @@ Standard RB Experiment class.
 import functools
 import logging
 from collections import defaultdict
-from numbers import Integral
-from typing import Union, Any
 from collections.abc import Iterable, Sequence
+from numbers import Integral
+from typing import Any
 
 import numpy as np
 import rustworkx as rx
@@ -56,7 +56,7 @@ from .rb_analysis import RBAnalysis
 LOG = logging.getLogger(__name__)
 
 
-SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
+SequenceElementType = Clifford | Integral | QuantumCircuit
 STANDARD_GATE_NAMES = set(get_standard_gate_name_mapping())
 
 

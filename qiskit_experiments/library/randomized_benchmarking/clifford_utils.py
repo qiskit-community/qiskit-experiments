@@ -554,9 +554,7 @@ def num_from_2q_circuit(qc: QuantumCircuit) -> Integral:
     return lhs
 
 
-def _num_from_2q_gate(
-    op: Instruction, qubits: tuple[int, int] | tuple[int] | None = None
-) -> int:
+def _num_from_2q_gate(op: Instruction, qubits: tuple[int, int] | tuple[int] | None = None) -> int:
     """
     Convert a given 1-qubit clifford operation to the corresponding integer.
     Note that supported operations are limited to ones in `_CLIFF_SINGLE_GATE_MAP_2Q` or Rz gate.

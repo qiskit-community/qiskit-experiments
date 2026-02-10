@@ -111,7 +111,7 @@ class T2Ramsey(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        delays: list[float] | np.array,
+        delays: list[float] | np.ndarray,
         backend: Backend | None = None,
         osc_freq: float = 0.0,
     ):

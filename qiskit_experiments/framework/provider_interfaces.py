@@ -21,7 +21,7 @@ experiment results.
 """
 
 from enum import Enum, IntEnum
-from typing import Protocol, Union
+from typing import Protocol
 
 from qiskit.result import Result
 from qiskit.primitives import PrimitiveResult
@@ -60,7 +60,7 @@ class ExtendedJob(BaseJob, Protocol):
         raise NotImplementedError
 
 
-Job = Union[BaseJob, ExtendedJob]
+Job = BaseJob | ExtendedJob
 """Union type of job interfaces supported by Qiskit Experiments"""
 
 
@@ -104,7 +104,7 @@ class IBMProvider(BaseProvider, Protocol):
         raise NotImplementedError
 
 
-Provider = Union[BaseProvider, IBMProvider]
+Provider = BaseProvider | IBMProvider
 """Union type of provider interfaces supported by Qiskit Experiments"""
 
 

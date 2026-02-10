@@ -13,8 +13,8 @@
 Standard RB analysis class.
 """
 from collections import defaultdict
-from typing import Union, TYPE_CHECKING
 from collections.abc import Sequence
+from typing import Union, TYPE_CHECKING
 
 import lmfit
 from pandas import DataFrame

@@ -97,9 +97,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             probabilities_json_file = "qv_ideal_probabilities_qiskit_1_1.json"
         else:
             probabilities_json_file = "qv_ideal_probabilities.json"
-        with open(
-            os.path.join(dir_name, probabilities_json_file), encoding="utf-8"
-        ) as json_file:
+        with open(os.path.join(dir_name, probabilities_json_file), encoding="utf-8") as json_file:
             probabilities = json.load(json_file, cls=ExperimentDecoder)
         self.assertTrue(
             matrix_equal(simulation_probabilities, probabilities),

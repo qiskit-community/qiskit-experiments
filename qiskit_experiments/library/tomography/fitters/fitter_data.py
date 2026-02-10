@@ -14,9 +14,9 @@ Quantum process tomography analysis
 """
 
 
-from collections.abc import Callable, Sequence
 import functools
 from collections import defaultdict
+from collections.abc import Callable, Sequence
 import numpy as np
 
 from qiskit.result import marginal_distribution
