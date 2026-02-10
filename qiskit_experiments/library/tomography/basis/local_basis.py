@@ -13,6 +13,8 @@
 Circuit basis for tomography preparation and measurement circuits
 """
 from collections.abc import Sequence
+from typing import Any
+
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.states.quantum_state import QuantumState
@@ -726,8 +728,8 @@ def _format_qubit_states(
 
 
 def _format_data_dict(
-    data: any | None, instructions: Sequence[Instruction | BaseOperator] | None = None
-) -> dict[tuple[int, ...], any]:
+    data: Any | None, instructions: Sequence[Instruction | BaseOperator] | None = None
+) -> dict[tuple[int, ...], Any]:
     "Format default state data"
     # Parse data into dict to include legacy handling
     if isinstance(data, (list, tuple, np.ndarray)):
