@@ -13,8 +13,6 @@
 Functions for checking and reporting installed package versions.
 """
 
-from __future__ import annotations
-
 import warnings
 from functools import lru_cache
 from importlib.metadata import version as metadata_version

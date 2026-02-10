@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 """Table representation of the x, y data for curve fitting."""
-from __future__ import annotations
 
 import logging
 import warnings

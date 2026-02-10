@@ -11,8 +11,6 @@
 # that they have been altered from the originals.
 """Status of experiment execution."""
 
-from __future__ import annotations
-
 import dataclasses
 import enum
 from threading import Event

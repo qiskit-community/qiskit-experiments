@@ -12,8 +12,6 @@
 
 """Container of experiment data components."""
 
-from __future__ import annotations
-
 import copy
 import io
 from typing import Dict, Optional, Union, Any

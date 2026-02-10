@@ -20,7 +20,6 @@ subset of the interfaces that Qiskit Experiments needs in order to analyze
 experiment results.
 """
 
-from __future__ import annotations
 from enum import Enum, IntEnum
 from typing import Protocol, Union
 
