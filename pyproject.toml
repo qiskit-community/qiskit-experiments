@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "setuptools_scm"]
+requires = ["setuptools>=77.0", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -28,7 +28,6 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: MacOS",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
@@ -41,7 +40,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 requires-python = ">=3.10"
-license = {text = "Apache 2.0"}
+license = "Apache-2.0"
 
 [project.urls]
 Homepage = "https://github.com/Qiskit-Community/qiskit-experiments"
