@@ -15,7 +15,9 @@
 import datetime
 import json
 import pickle
+import uuid
 from itertools import product
+from tempfile import TemporaryDirectory
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 
@@ -24,10 +26,11 @@ from dateutil import tz
 
 from qiskit import QuantumCircuit
 from qiskit.providers.jobstatus import JobStatus
+from qiskit.result import Result
 from qiskit.exceptions import QiskitError
 from qiskit_ibm_runtime.fake_provider import FakeVigoV2
 
-from qiskit_experiments.database_service import Qubit
+from qiskit_experiments.database_service import LocalExperimentService, Qubit
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import (
     ExperimentData,
@@ -40,7 +43,7 @@ from qiskit_experiments.framework import (
     AnalysisStatus,
 )
 from qiskit_experiments.test.fake_backend import FakeBackend
-from qiskit_experiments.test.utils import FakeJob
+from qiskit_experiments.test.utils import FakeJob, FakeProvider
 
 
 @ddt.ddt
@@ -174,6 +177,41 @@ class TestFramework(QiskitExperimentsTestCase):
         expdata2 = json.loads(json.dumps(expdata1, cls=ExperimentEncoder), cls=ExperimentDecoder)
         result2 = next(expdata2.analysis_results(dataframe=True).itertuples())
         self.assertEqual(result1, result2)
+
+    def test_run_analysis_experiment_data_experiment_service_roundtrip(self):
+        """Test ExperimentData after experiment service roundtrip"""
+        provider = FakeProvider()
+        backend = FakeBackend()
+        job = FakeJob(
+            backend,
+            Result.from_dict(
+                {
+                    "backend_name": backend.name,
+                    "job_id": uuid.uuid4().hex,
+                    "success": True,
+                    "results": [{"shots": 100, "success": True, "data": {"counts": {"0": 100}}}],
+                }
+            ),
+        )
+        provider.add_job(job)
+        expdata1 = ExperimentData()
+        analysis = FakeAnalysis()
+        expdata1.add_jobs([job])
+        # Set physical qubit for more complete comparison
+        expdata1.metadata["physical_qubits"] = (1,)
+        expdata1 = analysis.run(expdata1, seed=54321)
+        self.assertExperimentDone(expdata1)
+
+        with TemporaryDirectory() as tmpdir:
+            service = LocalExperimentService(db_dir=tmpdir)
+            expdata1.service = service
+            expdata1.save()
+
+            expdata2 = ExperimentData.load(
+                expdata1.experiment_id, provider=provider, service=service
+            )
+
+        self.assertEqualExtended(expdata1, expdata2)
 
     def test_analysis_replace_results_true(self):
         """Test running analysis with replace_results=True"""

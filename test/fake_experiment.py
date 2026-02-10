@@ -13,7 +13,6 @@
 """A FakeExperiment for testing."""
 
 import numpy as np
-import pandas as pd
 from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit import QuantumCircuit
 from qiskit_experiments.framework import (
@@ -41,7 +40,18 @@ class FakeAnalysis(BaseAnalysis):
         analysis_results = [
             AnalysisResultData(f"result_{i}", value) for i, value in enumerate(rng.random(3))
         ]
-        scatter_table = ScatterTable.from_dataframe(pd.DataFrame(columns=ScatterTable.COLUMNS))
+        scatter_table = ScatterTable()
+        for val in range(3):
+            scatter_table.add_row(
+                xval=float(val),
+                yval=0.1 * val,
+                yerr=0.1,
+                series_name="model1",
+                series_id=0,
+                category="raw",
+                shots=1000,
+                analysis="FakeAnalysis",
+            )
         fit_data = CurveFitResult(
             method="some_method",
             model_repr={"s1": "par0 * x + par1"},

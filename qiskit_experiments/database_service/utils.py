@@ -27,11 +27,6 @@ import json
 import dateutil.parser
 from dateutil import tz
 
-from qiskit_ibm_experiment import (
-    IBMExperimentEntryExists,
-    IBMExperimentEntryNotFound,
-)
-
 from .exceptions import ExperimentEntryNotFound, ExperimentEntryExists, ExperimentDataError
 
 LOG = logging.getLogger(__name__)
@@ -91,7 +86,7 @@ def objs_to_zip(
             zip_file.writestr(f"{filename}.json", json.dumps(data, cls=json_encoder))
 
     zip_buffer.seek(0)
-    return zip_buffer
+    return zip_buffer.read()
 
 
 def zip_to_objs(zip_bytes: bytes, json_decoder: json.JSONDecoder | None = None) -> Iterator[any]:
@@ -163,8 +158,6 @@ def save_data(
         ExperimentDataError: If unable to determine whether the entry exists.
     """
     attempts = 0
-    no_entry_exception = (ExperimentEntryNotFound, IBMExperimentEntryNotFound)
-    dup_entry_exception = (ExperimentEntryExists, IBMExperimentEntryExists)
 
     try:
         kwargs = {}
@@ -180,13 +173,13 @@ def save_data(
                     kwargs.update(new_data)
                     kwargs.update(update_data)
                     return True, new_func(**kwargs)
-                except dup_entry_exception:
+                except ExperimentEntryExists:
                     is_new = False
             else:
                 try:
                     kwargs.update(update_data)
                     return True, update_func(**kwargs)
-                except no_entry_exception:
+                except ExperimentEntryNotFound:
                     is_new = True
         raise ExperimentDataError("Unable to determine the existence of the entry.")
     except Exception:  # pylint: disable=broad-except

@@ -32,7 +32,7 @@ class ArtifactData:
     fit status, and any other JSON-based data needed to serialize experiments and experiment data.
 
     Attributes:
-        name: The name of the artifact. When saved to the cloud service, this will be the name
+        name: The name of the artifact. When saved in an experiment service, this will be the name
             of the zipfile this artifact object is stored in.
         data: The artifact payload.
         artifact_id: Artifact ID. Must be unique inside an :class:`ExperimentData` object.

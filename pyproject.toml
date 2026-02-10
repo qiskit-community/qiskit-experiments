@@ -10,8 +10,7 @@ dependencies = [
     "numpy>=1.17",
     "scipy>=1.4",
     "qiskit>=1.3",
-    "qiskit-ibm-experiment>=0.4.6",
-    "qiskit_ibm_runtime>=0.34.0",
+    "qiskit-ibm-runtime>=0.34.0",
     "matplotlib>=3.4",
     "uncertainties",
     "lmfit",
@@ -51,8 +50,9 @@ Documentation = "https://qiskit-community.github.io/qiskit-experiments"
 [project.optional-dependencies]
 extras = [
     "cvxpy>=1.3.2", # for tomography
+    "pyyaml>=6.0.0",  # for storing yaml files in local experiment service
+    "qiskit-aer>=0.13.2",  # for simulating QV circuits or using test backends
     "scikit-learn", # for discriminators
-    "qiskit-aer>=0.13.2",
 ]
 
 [project.entry-points."qiskit.synthesis"]

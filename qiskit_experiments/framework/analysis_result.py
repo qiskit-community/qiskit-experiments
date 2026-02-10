@@ -21,8 +21,6 @@ from typing import Any
 
 import uncertainties
 
-from qiskit_ibm_experiment import IBMExperimentService, AnalysisResultData
-from qiskit_ibm_experiment import ResultQuality
 from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.framework.json import (
@@ -30,10 +28,15 @@ from qiskit_experiments.framework.json import (
     ExperimentDecoder,
     _serialize_safe_float,
 )
-
-from qiskit_experiments.database_service.device_component import DeviceComponent, to_component
-from qiskit_experiments.database_service.exceptions import ExperimentDataError
+from qiskit_experiments.database_service import (
+    DbAnalysisResultData,
+    DeviceComponent,
+    ExperimentDataError,
+    ResultQuality,
+    to_component,
+)
 from qiskit_experiments.framework.package_deps import qiskit_version
+from qiskit_experiments.framework.provider_interfaces import ExperimentService
 
 LOG = logging.getLogger(__name__)
 
@@ -78,12 +81,6 @@ class AnalysisResult:
 
     _extra_data = {}
 
-    RESULT_QUALITY_TO_TEXT = {
-        ResultQuality.GOOD: "good",
-        ResultQuality.BAD: "bad",
-        ResultQuality.UNKNOWN: "unknown",
-    }
-
     def __init__(
         self,
         name: str = None,
@@ -92,11 +89,11 @@ class AnalysisResult:
         experiment_id: str = None,
         result_id: str | None = None,
         chisq: float | None = None,
-        quality: str | None = RESULT_QUALITY_TO_TEXT[ResultQuality.UNKNOWN],
+        quality: str | None = ResultQuality.UNKNOWN.value,
         extra: dict[str, Any] | None = None,
         verified: bool = False,
         tags: list[str] | None = None,
-        service: IBMExperimentService | None = None,
+        service: ExperimentService | None = None,
         source: dict[str, str] | None = None,
     ) -> "AnalysisResult":
         """AnalysisResult constructor.
@@ -120,12 +117,12 @@ class AnalysisResult:
             The AnalysisResult object.
         """
         # Data to be stored in DB.
-        self._db_data = AnalysisResultData(
+        self._db_data = DbAnalysisResultData(
             experiment_id=experiment_id,
             result_id=result_id or str(uuid.uuid4()),
             result_type=name,
             chisq=chisq,
-            quality=quality,
+            quality=ResultQuality.from_str(quality),
             verified=verified,
             tags=tags or [],
         )
@@ -145,12 +142,11 @@ class AnalysisResult:
             except AttributeError:
                 pass
 
-    def set_data(self, data: AnalysisResultData):
+    def set_data(self, data: DbAnalysisResultData):
         """Sets the analysis data stored in the class"""
         self._db_data = data
         new_device_components = [to_component(comp) for comp in self._db_data.device_components]
         self._db_data.device_components = new_device_components
-        self._db_data.quality = self.RESULT_QUALITY_TO_TEXT.get(self._db_data.quality, "unknown")
 
     @classmethod
     def default_source(cls) -> dict[str, str]:
@@ -189,7 +185,7 @@ class AnalysisResult:
         return result_data
 
     @classmethod
-    def load(cls, result_id: str, service: IBMExperimentService) -> "AnalysisResult":
+    def load(cls, result_id: str, service: ExperimentService) -> "AnalysisResult":
         """Load a saved analysis result from a database service.
 
         Args:
@@ -399,7 +395,7 @@ class AnalysisResult:
             self.save()
 
     @property
-    def service(self) -> IBMExperimentService | None:
+    def service(self) -> ExperimentService | None:
         """Return the database service.
 
         Returns:
@@ -409,7 +405,7 @@ class AnalysisResult:
         return self._service
 
     @service.setter
-    def service(self, service: IBMExperimentService) -> None:
+    def service(self, service: ExperimentService) -> None:
         """Set the service to be used for storing result data in a database.
 
         Args:
