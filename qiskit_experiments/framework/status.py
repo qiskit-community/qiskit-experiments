@@ -14,7 +14,6 @@
 import dataclasses
 import enum
 from threading import Event
-from typing import Optional
 
 
 class ExperimentStatus(enum.Enum):
@@ -62,7 +61,7 @@ class AnalysisCallback:
     name: str = ""
     callback_id: str = ""
     status: AnalysisStatus = AnalysisStatus.QUEUED
-    error_msg: Optional[str] = None
+    error_msg: str | None = None
     event: Event = dataclasses.field(default_factory=Event)
 
     def __getstate__(self):

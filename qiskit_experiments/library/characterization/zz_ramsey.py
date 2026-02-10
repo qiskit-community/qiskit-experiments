@@ -13,7 +13,6 @@
 ZZ Ramsey experiment
 """
 
-from typing import List, Tuple, Union
 
 import numpy as np
 
@@ -147,8 +146,8 @@ class ZZRamsey(BaseExperiment):
 
     def __init__(
         self,
-        physical_qubits: Tuple[int, int],
-        backend: Union[Backend, None] = None,
+        physical_qubits: tuple[int, int],
+        backend: Backend | None = None,
         **experiment_options,
     ):
         """Create new experiment.
@@ -191,7 +190,7 @@ class ZZRamsey(BaseExperiment):
 
         return options
 
-    def delays(self) -> List[float]:
+    def delays(self) -> list[float]:
         """Delay values to use in circuits
 
         Returns:
@@ -225,8 +224,8 @@ class ZZRamsey(BaseExperiment):
 
     def _template_circuits(
         self,
-        frequency: Union[None, float, ParameterExpression] = None,
-    ) -> Tuple[QuantumCircuit, QuantumCircuit]:
+        frequency: None | float | ParameterExpression = None,
+    ) -> tuple[QuantumCircuit, QuantumCircuit]:
         """Template circuits for series 0 and 1 parameterized by delay
 
         The generated circuits have the length of the delay instructions as the
@@ -311,7 +310,7 @@ class ZZRamsey(BaseExperiment):
 
         return circ0, circ1
 
-    def parametrized_circuits(self) -> Tuple[QuantumCircuit, QuantumCircuit]:
+    def parametrized_circuits(self) -> tuple[QuantumCircuit, QuantumCircuit]:
         r"""Create circuits with parameters for numerical quantities
 
         This method is primarily intended for generating template circuits that
@@ -336,7 +335,7 @@ class ZZRamsey(BaseExperiment):
 
         return circs
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Create circuits
 
         Returns:

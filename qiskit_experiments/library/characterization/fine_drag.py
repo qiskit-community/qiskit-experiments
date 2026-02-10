@@ -12,7 +12,7 @@
 
 """Fine DRAG characterization experiment."""
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -186,7 +186,7 @@ class FineDrag(BaseExperiment):
         return options
 
     def __init__(
-        self, physical_qubits: Sequence[int], gate: Gate, backend: Optional[Backend] = None
+        self, physical_qubits: Sequence[int], gate: Gate, backend: Backend | None = None
     ):
         """Setup a fine amplitude experiment on the given qubit.
 
@@ -224,7 +224,7 @@ class FineDrag(BaseExperiment):
         circ.sx(0)
         return circ
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Create the circuits for the fine DRAG calibration experiment.
 
         Returns:
@@ -315,7 +315,7 @@ class FineXDrag(FineDrag):
             exp_data.analysis_results(dataframe=True)
     """
 
-    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
+    def __init__(self, physical_qubits: Sequence[int], backend: Backend | None = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, XGate(), backend=backend)
 
@@ -379,7 +379,7 @@ class FineSXDrag(FineDrag):
             exp_data.analysis_results(dataframe=True)
     """
 
-    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
+    def __init__(self, physical_qubits: Sequence[int], backend: Backend | None = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, SXGate(), backend=backend)
 

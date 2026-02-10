@@ -13,7 +13,6 @@
 """A collection of functions that return various data processors."""
 
 import warnings
-from typing import Union, Optional, List
 
 from qiskit_experiments.framework import ExperimentData, MeasLevel, MeasReturnType, Options
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -24,10 +23,10 @@ from qiskit_experiments.data_processing import nodes
 
 
 def get_kerneled_processor(
-    dimensionality_reduction: Union[ProjectorType, str],
+    dimensionality_reduction: ProjectorType | str,
     meas_return: str,
     normalize: bool,
-    pre_nodes: Optional[List[DataAction]] = None,
+    pre_nodes: list[DataAction] | None = None,
 ) -> DataProcessor:
     """Get a DataProcessor for `meas_level=1` data that returns a one-dimensional signal.
 

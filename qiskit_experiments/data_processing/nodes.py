@@ -15,7 +15,7 @@
 from abc import abstractmethod
 from enum import Enum
 from numbers import Number
-from typing import List, Union, Sequence, Set
+from collections.abc import Sequence
 from collections import defaultdict
 
 import numpy as np
@@ -455,7 +455,7 @@ class DiscriminatorNode(DataAction):
 
     def __init__(
         self,
-        discriminators: Union[BaseDiscriminator, List[BaseDiscriminator]],
+        discriminators: BaseDiscriminator | list[BaseDiscriminator],
         validate: bool = True,
     ):
         """Initialize the node with an object that can discriminate.
@@ -652,7 +652,7 @@ class MarginalizeCounts(CountsAction):
         experiments the counts marginalization is already done in the data container.
     """
 
-    def __init__(self, qubits_to_keep: Set[int], validate: bool = True):
+    def __init__(self, qubits_to_keep: set[int], validate: bool = True):
         """Initialize a counts marginalization node.
 
         Args:
@@ -731,7 +731,7 @@ class Probability(CountsAction):
     def __init__(
         self,
         outcome: str,
-        alpha_prior: Union[float, Sequence[float]] = 0.5,
+        alpha_prior: float | Sequence[float] = 0.5,
         validate: bool = True,
     ):
         """Initialize a counts to probability data conversion.

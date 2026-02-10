@@ -13,7 +13,6 @@
 Tphi Analysis class.
 """
 
-from typing import List, Tuple
 
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData
 from qiskit_experiments.framework.composite.composite_analysis import CompositeAnalysis
@@ -53,7 +52,7 @@ class TphiAnalysis(CompositeAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> tuple[list[AnalysisResultData], list["matplotlib.figure.Figure"]]:
         r"""Run analysis for :math:`T_\phi` experiment.
         It invokes CompositeAnalysis._run_analysis that will invoke
         _run_analysis for the two sub-experiments.

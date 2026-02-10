@@ -17,7 +17,6 @@ import os
 import sys
 import warnings
 from collections.abc import Callable
-from typing import Type
 
 
 def warn_from_qe(message: str, category: Warning, stacklevel: int = 2):
@@ -148,9 +147,9 @@ def _write_deprecation_msg(
     pending: bool,
     additional_msg: str,
     removal_timeline: str,
-) -> tuple[str, Type[DeprecationWarning] | Type[PendingDeprecationWarning]]:
+) -> tuple[str, type[DeprecationWarning] | type[PendingDeprecationWarning]]:
     if pending:
-        category: Type[DeprecationWarning] | Type[PendingDeprecationWarning] = (
+        category: type[DeprecationWarning] | type[PendingDeprecationWarning] = (
             PendingDeprecationWarning
         )
         deprecation_status = "pending deprecation"

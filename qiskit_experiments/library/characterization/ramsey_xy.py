@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """Ramsey XY frequency characterization experiment."""
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Parameter
@@ -120,8 +120,8 @@ class RamseyXY(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        backend: Optional[Backend] = None,
-        delays: Optional[List] = None,
+        backend: Backend | None = None,
+        delays: list | None = None,
         osc_freq: float = 2e6,
     ):
         """Create new experiment.
@@ -148,7 +148,7 @@ class RamseyXY(BaseExperiment):
         """
         return QuantumCircuit(1)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Create the circuits for the Ramsey XY characterization experiment.
 
         Returns:

@@ -12,7 +12,8 @@
 
 """A mock IQ backend for testing."""
 import datetime
-from typing import Sequence, List, Tuple, Dict, Union, Any
+from typing import Any
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -144,7 +145,7 @@ class MockIQBackend(BaseMockBackend):
         self._experiment_helper = value
 
     @staticmethod
-    def _verify_parameters(output_length: int, prob_dict: Dict[str, float]):
+    def _verify_parameters(output_length: int, prob_dict: dict[str, float]):
         if output_length < 1:
             raise ValueError(f"The output length {output_length} is smaller than 1.")
 
@@ -198,8 +199,8 @@ class MockIQBackend(BaseMockBackend):
         return np.squeeze(np.array(samples), axis=1)
 
     def _scale_samples_for_widths(
-        self, samples: List[np.ndarray], widths: List[float]
-    ) -> List[np.ndarray]:
+        self, samples: list[np.ndarray], widths: list[float]
+    ) -> list[np.ndarray]:
         """Scales `samples` by `widths` so that the data has the necessary std-dev.
 
         `samples` contains `n_shots` elements, each being :math:`n\times{}2` float values, representing
@@ -217,8 +218,8 @@ class MockIQBackend(BaseMockBackend):
         return [circ_samples * np.tile(widths, (2, 1)).T for circ_samples in samples]
 
     def _probability_dict_to_probability_array(
-        self, prob_dict: Dict[str, float], num_qubits: int
-    ) -> List[float]:
+        self, prob_dict: dict[str, float], num_qubits: int
+    ) -> list[float]:
         prob_list = [0] * (2**num_qubits)
         for output_str, probability in prob_dict.items():
             index = int(output_str, 2)
@@ -227,13 +228,13 @@ class MockIQBackend(BaseMockBackend):
 
     def _draw_iq_shots(
         self,
-        prob: List[float],
+        prob: list[float],
         shots: int,
         circ_qubits: Sequence[int],
-        iq_cluster_centers: List[Tuple[IQPoint, IQPoint]],
-        iq_cluster_width: List[float],
+        iq_cluster_centers: list[tuple[IQPoint, IQPoint]],
+        iq_cluster_width: list[float],
         phase: float = 0.0,
-    ) -> List[List[List[Union[float, complex]]]]:
+    ) -> list[list[list[float | complex]]]:
         """
         Produce an IQ shot.
 
@@ -295,8 +296,8 @@ class MockIQBackend(BaseMockBackend):
         return memory
 
     def _generate_data(
-        self, prob_dict: Dict[str, float], circuit: QuantumCircuit
-    ) -> Dict[str, Any]:
+        self, prob_dict: dict[str, float], circuit: QuantumCircuit
+    ) -> dict[str, Any]:
         """
         Generate data for the circuit.
 
@@ -349,7 +350,7 @@ class MockIQBackend(BaseMockBackend):
             run_result["memory"] = memory
         return run_result
 
-    def run(self, run_input: List[QuantumCircuit], **run_options) -> FakeJob:
+    def run(self, run_input: list[QuantumCircuit], **run_options) -> FakeJob:
         """
         Run the IQ backend.
 
@@ -452,11 +453,11 @@ class MockIQParallelBackend(MockIQBackend):
 
     def _parallel_draw_iq_shots(
         self,
-        list_exp_dict: List[Dict[str, Union[List, int]]],
+        list_exp_dict: list[dict[str, list | int]],
         shots: int,
-        circ_qubits: List[int],
+        circ_qubits: list[int],
         circ_idx: int,
-    ) -> List[List[List[Union[float, complex]]]]:
+    ) -> list[list[list[float | complex]]]:
         """
         Produce an IQ shot.
         Args:
@@ -542,9 +543,9 @@ class MockIQParallelBackend(MockIQBackend):
 
     def _parallel_generate_data(
         self,
-        list_exp_dict: List[Dict[str, Union[List, int]]],
+        list_exp_dict: list[dict[str, list | int]],
         circ_idx: int,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate data for the circuit.
         Args:
@@ -580,7 +581,7 @@ class MockIQParallelBackend(MockIQBackend):
 
         return run_result
 
-    def run(self, run_input: List[QuantumCircuit], **run_options) -> FakeJob:
+    def run(self, run_input: list[QuantumCircuit], **run_options) -> FakeJob:
         """
         Run the IQ backend.
 
@@ -695,7 +696,7 @@ class MockMultiStateBackend(BaseMockBackend):
             meas_return="single",
         )
 
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[List[float]]:
+    def compute_probabilities(self, circuits: list[QuantumCircuit]) -> list[list[float]]:
         """Return the probability of being in the various states for each circuit"""
         output_dict_list = []
         for circuit in circuits:
@@ -724,7 +725,7 @@ class MockMultiStateBackend(BaseMockBackend):
         return output_dict_list
 
     @staticmethod
-    def _verify_parameters(output_length: int, prob_list: List[float]):
+    def _verify_parameters(output_length: int, prob_list: list[float]):
         if output_length != 1:
             raise ValueError(
                 f"The output length {output_length} is not 1 (only one measurement supported)."
@@ -735,9 +736,9 @@ class MockMultiStateBackend(BaseMockBackend):
 
     def _draw_iq_shots(
         self,
-        prob: List[float],
+        prob: list[float],
         shots: int,
-    ) -> List[List[float]]:
+    ) -> list[list[float]]:
         """
         Produce an IQ shot.
 
@@ -760,8 +761,8 @@ class MockMultiStateBackend(BaseMockBackend):
         return memory
 
     def _generate_data(
-        self, prob_list: Dict[str, float], circuit: QuantumCircuit
-    ) -> Dict[str, Any]:
+        self, prob_list: dict[str, float], circuit: QuantumCircuit
+    ) -> dict[str, Any]:
         """
         Generate data for the circuit.
 
@@ -790,7 +791,7 @@ class MockMultiStateBackend(BaseMockBackend):
         run_result["memory"] = memory
         return run_result
 
-    def run(self, run_input: List[QuantumCircuit], **run_options) -> FakeJob:
+    def run(self, run_input: list[QuantumCircuit], **run_options) -> FakeJob:
         """
         Run the IQ backend.
 

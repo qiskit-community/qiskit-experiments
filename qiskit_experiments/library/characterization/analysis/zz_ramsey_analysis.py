@@ -13,7 +13,6 @@
 Analysis class for ZZ Ramsey experiment
 """
 
-from typing import List, Tuple, Union
 
 import lmfit
 import numpy as np
@@ -127,7 +126,7 @@ class ZZRamseyAnalysis(CurveAnalysis):
         self,
         user_opt: FitOptions,
         curve_data: ScatterTable,
-    ) -> Union[FitOptions, List[FitOptions]]:
+    ) -> FitOptions | list[FitOptions]:
         """Compute the initial guesses.
 
         Args:
@@ -173,7 +172,7 @@ class ZZRamseyAnalysis(CurveAnalysis):
         ]
 
         def rough_sinusoidal_decay_constant(
-            x_data: np.ndarray, y_data: np.ndarray, bounds: Tuple[float, float]
+            x_data: np.ndarray, y_data: np.ndarray, bounds: tuple[float, float]
         ) -> float:
             """Estimate the decay constant of y_data vs x_data
 
@@ -222,7 +221,7 @@ class ZZRamseyAnalysis(CurveAnalysis):
 
         return user_opt
 
-    def _evaluate_quality(self, fit_data: CurveFitResult) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: CurveFitResult) -> str | None:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:

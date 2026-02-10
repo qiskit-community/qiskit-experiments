@@ -17,8 +17,7 @@ A class to recursively collect option documentation from current class.
 import copy
 import inspect
 import re
-from typing import Any, Set, List, Tuple
-from typing import Type, Optional
+from typing import Any
 
 import numpy as np
 from sphinx.application import Sphinx
@@ -41,12 +40,12 @@ class QiskitExperimentsOptionsDocstring(GoogleDocstring):
 
     def _format_docutils_params(
         self,
-        fields: List[Tuple[str, str, List[str]]],
+        fields: list[tuple[str, str, list[str]]],
         field_role: str = "param",
         type_role: str = "type",
         default_role: str = "default_val",
         source_role: str = "source",
-    ) -> List[str]:
+    ) -> list[str]:
         lines = []
         for _name, _type, _desc in fields:
             _desc = self._strip_empty(_desc)
@@ -69,13 +68,13 @@ class QiskitExperimentsOptionsDocstring(GoogleDocstring):
 
 
 def process_default_options(
-    current_class: Type,
+    current_class: type,
     default_option_method: str,
     section_repr: str,
     app: Sphinx,
     options: SphinxOptions,
     config: NapoleonConfig,
-    indent: Optional[str] = "",
+    indent: str | None = "",
 ):
     """A helper function to generate docstring for default options."""
     default_clsmethod = getattr(current_class, default_option_method, None)
@@ -133,8 +132,8 @@ def process_default_options(
 def _flatten_option_docs(
     docstring: str,
     section_repr: str,
-    target_args: Optional[Set[str]] = None,
-) -> Tuple[List[str], Set[str]]:
+    target_args: set[str] | None = None,
+) -> tuple[list[str], set[str]]:
     """A helper function to convert multi-line description into single line."""
     if not docstring:
         return [], set()

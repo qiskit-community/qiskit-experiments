@@ -13,7 +13,7 @@
 Quantum Tomography experiment
 """
 
-from typing import Union, Optional, Iterable, List, Tuple, Sequence
+from collections.abc import Iterable, Sequence
 from itertools import product
 from qiskit.circuit import QuantumCircuit, Instruction, ClassicalRegister, Clbit
 from qiskit.circuit.library import PermutationGate
@@ -49,16 +49,16 @@ class TomographyExperiment(BaseExperiment):
 
     def __init__(
         self,
-        circuit: Union[QuantumCircuit, Instruction, BaseOperator],
-        backend: Optional[Backend] = None,
-        physical_qubits: Optional[Sequence[int]] = None,
-        measurement_basis: Optional[MeasurementBasis] = None,
-        measurement_indices: Optional[Sequence[int]] = None,
-        preparation_basis: Optional[PreparationBasis] = None,
-        preparation_indices: Optional[Sequence[int]] = None,
-        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
-        basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
-        analysis: Union[BaseAnalysis, None, str] = "default",
+        circuit: QuantumCircuit | Instruction | BaseOperator,
+        backend: Backend | None = None,
+        physical_qubits: Sequence[int] | None = None,
+        measurement_basis: MeasurementBasis | None = None,
+        measurement_indices: Sequence[int] | None = None,
+        preparation_basis: PreparationBasis | None = None,
+        preparation_indices: Sequence[int] | None = None,
+        conditional_circuit_clbits: bool | Sequence[int] | Sequence[Clbit] = False,
+        basis_indices: Iterable[tuple[list[int], list[int]]] | None = None,
+        analysis: BaseAnalysis | None | str = "default",
     ):
         """Initialize a tomography experiment.
 

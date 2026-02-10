@@ -12,7 +12,7 @@
 
 """Fine amplitude characterization experiment."""
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -128,7 +128,7 @@ class FineAmplitude(BaseExperiment):
         self,
         physical_qubits: Sequence[int],
         gate: Gate,
-        backend: Optional[Backend] = None,
+        backend: Backend | None = None,
         measurement_qubits: Sequence[int] = None,
     ):
         """Setup a fine amplitude experiment on the given qubit.
@@ -149,7 +149,7 @@ class FineAmplitude(BaseExperiment):
         else:
             self._measurement_qubits = range(self.num_qubits)
 
-    def _spam_cal_circuits(self, meas_circuit: QuantumCircuit) -> List[QuantumCircuit]:
+    def _spam_cal_circuits(self, meas_circuit: QuantumCircuit) -> list[QuantumCircuit]:
         """This method returns the calibration circuits.
 
         Calibration circuits allow the experiment to overcome state preparation and
@@ -205,7 +205,7 @@ class FineAmplitude(BaseExperiment):
 
         return circuit
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Create the circuits for the fine amplitude calibration experiment.
 
         Returns:
@@ -292,7 +292,7 @@ class FineXAmplitude(FineAmplitude):
             exp_data.analysis_results(dataframe=True)
     """
 
-    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
+    def __init__(self, physical_qubits: Sequence[int], backend: Backend | None = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, XGate(), backend=backend)
         # Set default analysis options
@@ -360,7 +360,7 @@ class FineSXAmplitude(FineAmplitude):
             exp_data.analysis_results(dataframe=True)
     """
 
-    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
+    def __init__(self, physical_qubits: Sequence[int], backend: Backend | None = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, SXGate(), backend=backend)
         # Set default analysis options

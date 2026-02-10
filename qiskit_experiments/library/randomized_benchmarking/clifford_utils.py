@@ -17,7 +17,7 @@ import itertools
 import os
 from functools import lru_cache
 from numbers import Integral
-from typing import Optional, Union, Tuple, Sequence, Iterable
+from collections.abc import Sequence, Iterable
 
 import numpy as np
 
@@ -98,7 +98,7 @@ def _apply_qubit_layout(circuit: QuantumCircuit, physical_qubits: Sequence[int])
 
 
 def _circuit_compose(
-    self: QuantumCircuit, other: QuantumCircuit, qubits: Sequence[Union[Qubit, int]]
+    self: QuantumCircuit, other: QuantumCircuit, qubits: Sequence[Qubit | int]
 ) -> QuantumCircuit:
     # Simplified QuantumCircuit.compose with clbits=None, front=False, inplace=True, wrap=False
     # without any validation, parameter_table/calibrations updates and copy of operations
@@ -120,8 +120,8 @@ def _circuit_compose(
 
 def _synthesize_clifford(
     clifford: Clifford,
-    basis_gates: Optional[Tuple[str]],
-    coupling_tuple: Optional[Tuple[Tuple[int, int]]] = None,
+    basis_gates: tuple[str] | None,
+    coupling_tuple: tuple[tuple[int, int]] | None = None,
     synthesis_method: str = DEFAULT_SYNTHESIS_METHOD,
 ) -> QuantumCircuit:
     """Synthesize a circuit of a Clifford element. The resulting circuit contains only
@@ -148,8 +148,8 @@ def _synthesize_clifford(
 
 def _synthesize_clifford_circuit(
     circuit: QuantumCircuit,
-    basis_gates: Optional[Tuple[str]],
-    coupling_tuple: Optional[Tuple[Tuple[int, int]]] = None,
+    basis_gates: tuple[str] | None,
+    coupling_tuple: tuple[tuple[int, int]] | None = None,
     synthesis_method: str = DEFAULT_SYNTHESIS_METHOD,
 ) -> QuantumCircuit:
     """Convert a Clifford circuit into one composed of ``basis_gates`` with
@@ -203,7 +203,7 @@ def _synthesize_clifford_circuit(
 @lru_cache(maxsize=256)
 def _clifford_1q_int_to_instruction(
     num: Integral,
-    basis_gates: Optional[Tuple[str]],
+    basis_gates: tuple[str] | None,
     synthesis_method: str = DEFAULT_SYNTHESIS_METHOD,
 ) -> Instruction:
     return CliffordUtils.clifford_1_qubit_circuit(
@@ -214,8 +214,8 @@ def _clifford_1q_int_to_instruction(
 @lru_cache(maxsize=11520)
 def _clifford_2q_int_to_instruction(
     num: Integral,
-    basis_gates: Optional[Tuple[str]],
-    coupling_tuple: Optional[Tuple[Tuple[int, int]]],
+    basis_gates: tuple[str] | None,
+    coupling_tuple: tuple[tuple[int, int]] | None,
     synthesis_method: str = DEFAULT_SYNTHESIS_METHOD,
 ) -> Instruction:
     return CliffordUtils.clifford_2_qubit_circuit(
@@ -237,8 +237,8 @@ def _dehash_cliff(cliff_hash):
 
 def _clifford_to_instruction(
     clifford: Clifford,
-    basis_gates: Optional[Tuple[str]],
-    coupling_tuple: Optional[Tuple[Tuple[int, int]]],
+    basis_gates: tuple[str] | None,
+    coupling_tuple: tuple[tuple[int, int]] | None,
     synthesis_method: str = DEFAULT_SYNTHESIS_METHOD,
 ) -> Instruction:
     return _cached_clifford_to_instruction(
@@ -251,9 +251,9 @@ def _clifford_to_instruction(
 
 @lru_cache(maxsize=256)
 def _cached_clifford_to_instruction(
-    cliff_hash: Tuple[str, Tuple[int, int]],
-    basis_gates: Optional[Tuple[str]],
-    coupling_tuple: Optional[Tuple[Tuple[int, int]]],
+    cliff_hash: tuple[str, tuple[int, int]],
+    basis_gates: tuple[str] | None,
+    coupling_tuple: tuple[tuple[int, int]] | None,
     synthesis_method: str = DEFAULT_SYNTHESIS_METHOD,
 ) -> Instruction:
     return _synthesize_clifford(
@@ -330,7 +330,7 @@ class CliffordUtils:
     def clifford_1_qubit_circuit(
         cls,
         num,
-        basis_gates: Optional[Tuple[str, ...]] = None,
+        basis_gates: tuple[str, ...] | None = None,
         synthesis_method: str = DEFAULT_SYNTHESIS_METHOD,
     ):
         """Return the 1-qubit clifford circuit corresponding to ``num``,
@@ -367,8 +367,8 @@ class CliffordUtils:
     def clifford_2_qubit_circuit(
         cls,
         num,
-        basis_gates: Optional[Tuple[str, ...]] = None,
-        coupling_tuple: Optional[Tuple[Tuple[int, int]]] = None,
+        basis_gates: tuple[str, ...] | None = None,
+        coupling_tuple: tuple[tuple[int, int]] | None = None,
         synthesis_method: str = DEFAULT_SYNTHESIS_METHOD,
     ):
         """Return the 2-qubit clifford circuit corresponding to `num`
@@ -555,7 +555,7 @@ def num_from_2q_circuit(qc: QuantumCircuit) -> Integral:
 
 
 def _num_from_2q_gate(
-    op: Instruction, qubits: Optional[Union[Tuple[int, int], Tuple[int]]] = None
+    op: Instruction, qubits: tuple[int, int] | tuple[int] | None = None
 ) -> int:
     """
     Convert a given 1-qubit clifford operation to the corresponding integer.
@@ -694,8 +694,8 @@ _CLIFFORD_LAYER_NUMS = [
 def _transformed_clifford_layer(
     layer: int,
     index: Integral,
-    basis_gates: Tuple[str, ...],
-    coupling_tuple: Optional[Tuple[Tuple[int, int]]],
+    basis_gates: tuple[str, ...],
+    coupling_tuple: tuple[tuple[int, int]] | None,
     synthesis_method: str = DEFAULT_SYNTHESIS_METHOD,
 ) -> QuantumCircuit:
     # Return the index-th quantum circuit of the layer translated with the basis_gates.
@@ -708,13 +708,13 @@ def _transformed_clifford_layer(
     )
 
 
-def _num_from_layer_indices(triplet: Tuple[Integral, Integral, Integral]) -> Integral:
+def _num_from_layer_indices(triplet: tuple[Integral, Integral, Integral]) -> Integral:
     """Return the clifford number corresponding to the input triplet."""
     num = triplet[0] * _NUM_LAYER_1 * _NUM_LAYER_2 + triplet[1] * _NUM_LAYER_2 + triplet[2]
     return num
 
 
-def _layer_indices_from_num(num: Integral) -> Tuple[Integral, Integral, Integral]:
+def _layer_indices_from_num(num: Integral) -> tuple[Integral, Integral, Integral]:
     """Return the triplet of layer indices corresponding to the input number."""
     idx2 = num % _NUM_LAYER_2
     num = num // _NUM_LAYER_2

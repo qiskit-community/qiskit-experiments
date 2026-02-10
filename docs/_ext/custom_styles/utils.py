@@ -16,7 +16,7 @@ A collection of utilities to generate documentation.
 import inspect
 import re
 import collections
-from typing import List, Callable, Type, Iterator
+from collections.abc import Callable, Iterator
 
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.docstring import GoogleDocstring
@@ -29,7 +29,7 @@ _parameter_regex = re.compile(r'(.+?)\(\s*(.*[^\s]+)\s*\):(.*[^\s]+)')
 _rest_role_regex = re.compile(r':(.+?) (.+?):\s*(.*[^\s]+)')
 
 
-def _trim_empty_lines(docstring_lines: List[str]) -> List[str]:
+def _trim_empty_lines(docstring_lines: list[str]) -> list[str]:
     """A helper function to remove redundant line feeds."""
     i_start = 0
     lines_iter = iter(docstring_lines)
@@ -48,7 +48,7 @@ def _generate_analysis_ref(
     current_class: object,
     config: SphinxConfig = None,
     indent: str = "",
-) -> List[str]:
+) -> list[str]:
     """Automatically generate analysis class reference with recursive ref to superclass."""
 
     if not issubclass(current_class, BaseExperiment):
@@ -92,7 +92,7 @@ def _generate_analysis_ref(
 def _check_no_indent(method: Callable) -> Callable:
     """Check indent of lines and return if this block is correctly indented."""
 
-    def wraps(self, lines: List[str], *args, **kwargs):
+    def wraps(self, lines: list[str], *args, **kwargs):
         if all(l.startswith(" ") for l in lines):
             text_block = "\n".join(lines)
             raise ValueError(
@@ -104,7 +104,7 @@ def _check_no_indent(method: Callable) -> Callable:
     return wraps
 
 
-def _get_superclass(current_class: Type, base_class: Type = None):
+def _get_superclass(current_class: type, base_class: type = None):
     """Get a list of restructured text of super classes of current class."""
 
     doc_classes = []

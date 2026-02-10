@@ -12,7 +12,6 @@
 """
 Pauli preparation and measurement tomography bases.
 """
-from typing import Optional
 import numpy as np
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import HGate, XGate, ZGate, SGate, SdgGate
@@ -49,7 +48,7 @@ class PauliMeasurementBasis(LocalMeasurementBasis):
 
     """
 
-    def __init__(self, mitigator: Optional[LocalReadoutMitigator] = None):
+    def __init__(self, mitigator: LocalReadoutMitigator | None = None):
         """Initialize Pauli measurement basis"""
         # Z-meas rotation
         meas_z = QuantumCircuit(1, name="PauliMeasZ")
@@ -68,7 +67,7 @@ class PauliMeasurementBasis(LocalMeasurementBasis):
         )
 
     @staticmethod
-    def _mitigator_povm(mitigator: Optional[LocalReadoutMitigator] = None):
+    def _mitigator_povm(mitigator: LocalReadoutMitigator | None = None):
         """Construct LocalMeasurementBasis qubit_povm from mitigator."""
         if mitigator is None:
             return None

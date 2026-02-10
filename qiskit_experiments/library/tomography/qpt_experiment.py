@@ -13,7 +13,7 @@
 Quantum Process Tomography experiment
 """
 
-from typing import Union, Optional, List, Tuple, Sequence
+from collections.abc import Sequence
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Instruction, Clbit
 from qiskit.providers.backend import Backend
@@ -95,17 +95,17 @@ class ProcessTomography(TomographyExperiment):
 
     def __init__(
         self,
-        circuit: Union[QuantumCircuit, Instruction, BaseOperator],
-        backend: Optional[Backend] = None,
-        physical_qubits: Optional[Sequence[int]] = None,
+        circuit: QuantumCircuit | Instruction | BaseOperator,
+        backend: Backend | None = None,
+        physical_qubits: Sequence[int] | None = None,
         measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
-        measurement_indices: Optional[Sequence[int]] = None,
+        measurement_indices: Sequence[int] | None = None,
         preparation_basis: basis.PreparationBasis = basis.PauliPreparationBasis(),
-        preparation_indices: Optional[Sequence[int]] = None,
-        basis_indices: Optional[Sequence[Tuple[List[int], List[int]]]] = None,
-        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
-        analysis: Union[BaseAnalysis, None, str] = "default",
-        target: Union[Statevector, DensityMatrix, None, str] = "default",
+        preparation_indices: Sequence[int] | None = None,
+        basis_indices: Sequence[tuple[list[int], list[int]]] | None = None,
+        conditional_circuit_clbits: bool | Sequence[int] | Sequence[Clbit] = False,
+        analysis: BaseAnalysis | None | str = "default",
+        target: Statevector | DensityMatrix | None | str = "default",
     ):
         """Initialize a quantum process tomography experiment.
 
@@ -165,7 +165,7 @@ class ProcessTomography(TomographyExperiment):
                 target = self._target_quantum_channel()
             self.analysis.set_options(target=target)
 
-    def _target_quantum_channel(self) -> Union[Choi, Operator]:
+    def _target_quantum_channel(self) -> Choi | Operator:
         """Return the process tomography target"""
         # Check if circuit contains measure instructions
         # If so we cannot return target state

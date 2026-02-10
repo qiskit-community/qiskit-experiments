@@ -13,7 +13,8 @@
 Interleaved RB Experiment class.
 """
 import itertools
-from typing import Union, Iterable, Optional, List, Sequence, Dict, Any
+from typing import Any
+from collections.abc import Iterable, Sequence
 
 from numpy.random import Generator
 from numpy.random.bit_generator import BitGenerator, SeedSequence
@@ -90,12 +91,12 @@ class InterleavedRB(StandardRB):
 
     def __init__(
         self,
-        interleaved_element: Union[QuantumCircuit, Gate, Delay, Clifford],
+        interleaved_element: QuantumCircuit | Gate | Delay | Clifford,
         physical_qubits: Sequence[int],
         lengths: Iterable[int],
-        backend: Optional[Backend] = None,
+        backend: Backend | None = None,
         num_samples: int = 3,
-        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
+        seed: int | SeedSequence | BitGenerator | Generator | None = None,
         full_sampling: bool = False,
         circuit_order: str = "RIRIRI",
     ):
@@ -208,7 +209,7 @@ class InterleavedRB(StandardRB):
         )
         return options
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Return a list of RB circuits.
 
         Returns:
@@ -253,7 +254,7 @@ class InterleavedRB(StandardRB):
     def _to_instruction(
         self,
         elem: SequenceElementType,
-        synthesis_options: Dict[str, Optional[Any]],
+        synthesis_options: dict[str, Any | None],
     ) -> Instruction:
         if elem is self._interleaved_cliff:
             return self._interleaved_op

@@ -16,7 +16,7 @@ Test IQ plotter.
 import warnings
 from itertools import product
 from test.base import QiskitExperimentsTestCase
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import ddt
 import numpy as np
@@ -53,7 +53,7 @@ class MockDiscriminator(BaseDiscriminator):
         self.predict_was_called = False
         """Whether :meth:`predict` was called at least once."""
 
-    def predict(self, data: List):
+    def predict(self, data: list):
         """Returns dummy predictions with random labels."""
         self.predict_was_called = True
         if self._raise_predict_not_trained and not self.is_trained():
@@ -62,7 +62,7 @@ class MockDiscriminator(BaseDiscriminator):
             return np.random.choice([f"{i}" for i in range(self._n_states)], len(data)).tolist()
         return np.random.choice([f"{i}" for i in range(self._n_states)], data.shape[0])
 
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         return {
             "predict_was_called": self.predict_was_called,
             "is_trained": self._is_trained,
@@ -84,7 +84,7 @@ class TestIQPlotter(QiskitExperimentsTestCase):
         n_series: int = 3,
         raise_predict_not_trained: bool = False,
         factor: float = 1,
-    ) -> Tuple[List, List, BaseDiscriminator]:
+    ) -> tuple[list, list, BaseDiscriminator]:
         """Create dummy data for the tests.
 
         Args:

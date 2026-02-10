@@ -12,7 +12,7 @@
 
 """Data processor tests."""
 
-from typing import Any, Dict, List
+from typing import Any
 from test.base import QiskitExperimentsTestCase
 
 import json
@@ -435,11 +435,11 @@ class FakeDiscriminator(BaseDiscriminator):
         """
         self._threshold = threshold
 
-    def predict(self, data: List[List[float]]) -> List[str]:
+    def predict(self, data: list[list[float]]) -> list[str]:
         """Discriminate the data"""
         return ["1" if iq[0] > self._threshold else "0" for iq in data]
 
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Config method."""
         return {}
 
@@ -451,7 +451,7 @@ class FakeDiscriminator(BaseDiscriminator):
 class FakeQutritDiscriminator(BaseDiscriminator):
     """A fake qutrit discriminator class for testing."""
 
-    def predict(self, data: List[List[float]]) -> List[str]:
+    def predict(self, data: list[list[float]]) -> list[str]:
         """Discriminate the data. I < 0 then |0>"""
         labels = []
         for iq in data:
@@ -462,7 +462,7 @@ class FakeQutritDiscriminator(BaseDiscriminator):
 
         return labels
 
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Config method."""
         return {}
 

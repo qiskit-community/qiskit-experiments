@@ -12,7 +12,7 @@
 
 """Half angle characterization."""
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -154,7 +154,7 @@ class HalfAngle(BaseExperiment):
         options.repetitions = list(range(15))
         return options
 
-    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
+    def __init__(self, physical_qubits: Sequence[int], backend: Backend | None = None):
         """Setup a half angle experiment on the given qubit.
 
         Args:
@@ -185,7 +185,7 @@ class HalfAngle(BaseExperiment):
         """Return the preparation circuit for the experiment."""
         return QuantumCircuit(1)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Create the circuits for the half angle calibration experiment."""
 
         circuits = []

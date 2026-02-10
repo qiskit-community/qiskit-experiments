@@ -15,7 +15,7 @@ from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeExperiment
 
 import warnings
-from typing import Any, List
+from typing import Any
 
 import qiskit.version
 from qiskit.result import Result
@@ -61,7 +61,7 @@ class BaseDataProcessorTest(QiskitExperimentsTestCase):
                 "metadata": {"experiment_type": "fake_test_experiment"},
             }
 
-    def create_experiment_data(self, iq_data: List[Any], single_shot: bool = False):
+    def create_experiment_data(self, iq_data: list[Any], single_shot: bool = False):
         """Populate avg_iq_data to use it for testing.
 
         Args:

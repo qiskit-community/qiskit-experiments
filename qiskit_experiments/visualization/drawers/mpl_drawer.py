@@ -13,7 +13,8 @@
 """Curve drawer for matplotlib backend."""
 
 import numbers
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any
+from collections.abc import Sequence
 
 import numpy as np
 from matplotlib.axes import Axes
@@ -109,7 +110,7 @@ class MplDrawer(BaseDrawer):
             )
 
             # Check that the heights and widths are lists.
-            if (not isinstance(inset_ax_h_list, List)) or (not isinstance(inset_ax_w_list, List)):
+            if (not isinstance(inset_ax_h_list, list)) or (not isinstance(inset_ax_w_list, list)):
                 raise QiskitError(
                     "Sub-plots heights and widths list need to be a list of floats that sum"
                     " up to 1"
@@ -324,7 +325,7 @@ class MplDrawer(BaseDrawer):
                 fontsize=self.style["axis_label_size"],
             )
 
-    def _get_axis(self, index: Optional[int] = None) -> Axes:
+    def _get_axis(self, index: int | None = None) -> Axes:
         """A helper method to get inset axis.
 
         Args:
@@ -348,7 +349,7 @@ class MplDrawer(BaseDrawer):
         else:
             return self._axis
 
-    def _get_default_color(self, name: SeriesName) -> Tuple[float, ...]:
+    def _get_default_color(self, name: SeriesName) -> tuple[float, ...]:
         """A helper method to get default color for the series.
 
         Args:
@@ -384,9 +385,9 @@ class MplDrawer(BaseDrawer):
 
     def _update_label_in_options(
         self,
-        options: Dict[str, any],
-        name: Optional[SeriesName],
-        label: Optional[str] = None,
+        options: dict[str, any],
+        name: SeriesName | None,
+        label: str | None = None,
         legend: bool = False,
     ):
         """Helper function to set the label entry in ``options`` based on given
@@ -415,10 +416,10 @@ class MplDrawer(BaseDrawer):
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        x_err: Optional[Sequence[float]] = None,
-        y_err: Optional[Sequence[float]] = None,
-        name: Optional[SeriesName] = None,
-        label: Optional[str] = None,
+        x_err: Sequence[float] | None = None,
+        y_err: Sequence[float] | None = None,
+        name: SeriesName | None = None,
+        label: str | None = None,
         legend: bool = False,
         **options,
     ):
@@ -470,8 +471,8 @@ class MplDrawer(BaseDrawer):
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        name: Optional[SeriesName] = None,
-        label: Optional[str] = None,
+        name: SeriesName | None = None,
+        label: str | None = None,
         legend: bool = False,
         **options,
     ):
@@ -491,8 +492,8 @@ class MplDrawer(BaseDrawer):
     def hline(
         self,
         y_value: float,
-        name: Optional[SeriesName] = None,
-        label: Optional[str] = None,
+        name: SeriesName | None = None,
+        label: str | None = None,
         legend: bool = False,
         **options,
     ):
@@ -514,8 +515,8 @@ class MplDrawer(BaseDrawer):
         x_data: Sequence[float],
         y_ub: Sequence[float],
         y_lb: Sequence[float],
-        name: Optional[SeriesName] = None,
-        label: Optional[str] = None,
+        name: SeriesName | None = None,
+        label: str | None = None,
         legend: bool = False,
         **options,
     ):
@@ -536,8 +537,8 @@ class MplDrawer(BaseDrawer):
         x_ub: Sequence[float],
         x_lb: Sequence[float],
         y_data: Sequence[float],
-        name: Optional[SeriesName] = None,
-        label: Optional[str] = None,
+        name: SeriesName | None = None,
+        label: str | None = None,
         legend: bool = False,
         **options,
     ):
@@ -556,7 +557,7 @@ class MplDrawer(BaseDrawer):
     def textbox(
         self,
         description: str,
-        rel_pos: Optional[Tuple[float, float]] = None,
+        rel_pos: tuple[float, float] | None = None,
         **options,
     ):
         bbox_props = {
@@ -583,8 +584,8 @@ class MplDrawer(BaseDrawer):
         text_box_handler.set_bbox(bbox_props)
 
     def _series_names_to_cmap(
-        self, series_names: List[SeriesName]
-    ) -> Tuple[Colormap, Dict[str, float]]:
+        self, series_names: list[SeriesName]
+    ) -> tuple[Colormap, dict[str, float]]:
         """Create a :class:`Colormap` instance of series colours.
 
         This method creates a :class:`Colormap` instance that can be used to plot an
@@ -647,10 +648,10 @@ class MplDrawer(BaseDrawer):
     def image(
         self,
         data: np.ndarray,
-        extent: Optional[ExtentTuple] = None,
-        name: Optional[SeriesName] = None,
-        label: Optional[str] = None,
-        cmap: Optional[Union[str, Any]] = None,
+        extent: ExtentTuple | None = None,
+        name: SeriesName | None = None,
+        label: str | None = None,
+        cmap: str | Any | None = None,
         cmap_use_series_colors: bool = False,
         colorbar: bool = False,
         **options,

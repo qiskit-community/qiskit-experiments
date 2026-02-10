@@ -16,7 +16,6 @@ from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
 from datetime import datetime
-from typing import List, Tuple, Union, Dict
 import warnings
 
 from dateutil import tz
@@ -71,7 +70,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
         )
 
     @classmethod
-    def from_config(cls, config: Union[AnalysisConfig, Dict]) -> "BaseAnalysis":
+    def from_config(cls, config: AnalysisConfig | dict) -> "BaseAnalysis":
         """Initialize an analysis class from analysis config"""
         if isinstance(config, dict):
             config = AnalysisConfig(**config)
@@ -248,7 +247,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
+    ) -> tuple[list[AnalysisResultData | ArtifactData], list[FigureType]]:
         """Run analysis on circuit data.
 
         Args:

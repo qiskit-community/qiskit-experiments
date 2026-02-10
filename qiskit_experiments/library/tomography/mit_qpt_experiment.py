@@ -13,7 +13,7 @@
 Quantum Process Tomography experiment
 """
 
-from typing import Union, Optional, Iterable, List, Tuple, Sequence
+from collections.abc import Iterable, Sequence
 from qiskit.providers.backend import Backend
 from qiskit.circuit import QuantumCircuit, Instruction, Clbit
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -99,14 +99,14 @@ class MitigatedProcessTomography(BatchExperiment):
 
     def __init__(
         self,
-        circuit: Union[QuantumCircuit, Instruction, BaseOperator],
-        backend: Optional[Backend] = None,
-        physical_qubits: Optional[Sequence[int]] = None,
-        measurement_indices: Optional[Sequence[int]] = None,
-        preparation_indices: Optional[Sequence[int]] = None,
-        basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
-        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
-        analysis: Union[BaseAnalysis, None, str] = "default",
+        circuit: QuantumCircuit | Instruction | BaseOperator,
+        backend: Backend | None = None,
+        physical_qubits: Sequence[int] | None = None,
+        measurement_indices: Sequence[int] | None = None,
+        preparation_indices: Sequence[int] | None = None,
+        basis_indices: Iterable[tuple[list[int], list[int]]] | None = None,
+        conditional_circuit_clbits: bool | Sequence[int] | Sequence[Clbit] = False,
+        analysis: BaseAnalysis | None | str = "default",
     ):
         """Initialize a quantum process tomography experiment.
 

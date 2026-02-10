@@ -13,7 +13,6 @@
 """MockIQBackend tests."""
 
 from test.base import QiskitExperimentsTestCase
-from typing import Dict, List, Optional, Tuple
 from itertools import product
 import numpy as np
 from qiskit import QuantumCircuit
@@ -22,10 +21,10 @@ from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper
 
 # Define an IQ point typing class.
-IQPoint = Tuple[float, float]
+IQPoint = tuple[float, float]
 
 
-def compute_probabilities_output(prob_list_output: List[Dict]) -> Dict[str, float]:
+def compute_probabilities_output(prob_list_output: list[dict]) -> dict[str, float]:
     """
     A function to compute the probability for parallel experiment on two qubits.
     Args:
@@ -45,7 +44,7 @@ def compute_probabilities_output(prob_list_output: List[Dict]) -> Dict[str, floa
 class MockIQReadoutAngleParallelHelper(MockIQExperimentHelper):
     """functions needed for Ramsey XY experiment on mock IQ backend"""
 
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: list[QuantumCircuit]) -> list[dict[str, float]]:
         """Return the probability of being in the excited state."""
         num_qubits = 2
         output_dict_list = []
@@ -63,7 +62,7 @@ class MockIQReadoutAngleParallelHelper(MockIQExperimentHelper):
 class MockIQBellStateHelper(MockIQExperimentHelper):
     """functions needed for Ramsey XY experiment on mock IQ backend"""
 
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: list[QuantumCircuit]) -> list[dict[str, float]]:
         """Return the probability of being in the excited state."""
         output_dict_list = []
         for _ in circuits:
@@ -78,10 +77,10 @@ class MockIQReadoutAmplitudeHelper(MockIQExperimentHelper):
 
     def __init__(
         self,
-        alter_centers: Optional[bool] = True,
-        alter_widths: Optional[bool] = True,
-        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
-        iq_cluster_width: Optional[List[float]] = None,
+        alter_centers: bool | None = True,
+        alter_widths: bool | None = True,
+        iq_cluster_centers: list[tuple[IQPoint, IQPoint]] | None = None,
+        iq_cluster_width: list[float] | None = None,
     ) -> None:
         """Construct a MockIQReadoutAmplitudeHelper instance.
 
@@ -98,7 +97,7 @@ class MockIQReadoutAmplitudeHelper(MockIQExperimentHelper):
         self.alter_centers = alter_centers
         self.alter_widths = alter_widths
 
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: list[QuantumCircuit]) -> list[dict[str, float]]:
         probabilities = []
         for circ in circuits:
             probabilities.append({circ.metadata["prep"]: 1.0})
@@ -106,8 +105,8 @@ class MockIQReadoutAmplitudeHelper(MockIQExperimentHelper):
 
     def iq_clusters(
         self,
-        circuits: List[QuantumCircuit],
-    ) -> Tuple[List[Tuple[IQPoint, IQPoint]], List[float]]:
+        circuits: list[QuantumCircuit],
+    ) -> tuple[list[tuple[IQPoint, IQPoint]], list[float]]:
         """Multiplies the cluster centers by the circuits' 'xval' values."""
         output = []
         for circuit in circuits:

@@ -15,7 +15,6 @@ Test visualization utilities.
 
 import itertools as it
 from test.base import QiskitExperimentsTestCase
-from typing import List, Tuple
 
 import numpy as np
 from ddt import data, ddt
@@ -32,10 +31,10 @@ class TestDataExtentCalculator(QiskitExperimentsTestCase):
     @classmethod
     def _dummy_data(
         cls,
-        extent: Tuple[float, float, float, float] = (-1, 1, -5, 0),
+        extent: tuple[float, float, float, float] = (-1, 1, -5, 0),
         n_data: int = 5,
         n_points: int = 16,
-    ) -> List[np.ndarray]:
+    ) -> list[np.ndarray]:
         # Create a list of bin edges by which to divide the target extent
         bin_edges = [
             np.histogram_bin_edges(extent[0:2], bins=n_data).tolist(),

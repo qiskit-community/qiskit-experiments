@@ -26,7 +26,8 @@ import zlib
 from datetime import datetime
 from functools import lru_cache
 from types import FunctionType, MethodType
-from typing import Any, Dict, Type, Optional, Union, Callable
+from typing import Any
+from collections.abc import Callable
 
 import lmfit
 import numpy as np
@@ -37,7 +38,7 @@ from qiskit.circuit import ParameterExpression, QuantumCircuit, Instruction
 from qiskit_experiments.version import __version__
 
 
-@lru_cache()
+@lru_cache
 def get_module_version(mod_name: str) -> str:
     """Return the __version__ of a module if defined.
 
@@ -65,7 +66,7 @@ def get_module_version(mod_name: str) -> str:
         return None
 
 
-@lru_cache()
+@lru_cache
 def get_object_version(obj: Any) -> str:
     """Return the module version of an object, class, or function.
 
@@ -86,11 +87,11 @@ def get_object_version(obj: Any) -> str:
 
 
 def _show_warning(
-    msg: Optional[str] = None,
-    traceback_msg: Optional[str] = None,
-    mod_name: Optional[str] = None,
-    save_version: Optional[str] = None,
-    load_version: Optional[str] = None,
+    msg: str | None = None,
+    traceback_msg: str | None = None,
+    mod_name: str | None = None,
+    save_version: str | None = None,
+    load_version: str | None = None,
 ):
     """Show warning for partial deserialization"""
     warning_msg = f"{msg} " if msg else ""
@@ -116,7 +117,7 @@ def _deprecation_warning(name: str, version: str):
     )
 
 
-def _serialize_bytes(data: bytes, compress: bool = True) -> Dict[str, Any]:
+def _serialize_bytes(data: bytes, compress: bool = True) -> dict[str, Any]:
     """Serialize binary data.
 
     Args:
@@ -135,7 +136,7 @@ def _serialize_bytes(data: bytes, compress: bool = True) -> Dict[str, Any]:
     return {"__type__": "b64encoded", "__value__": value}
 
 
-def _deserialize_bytes(value: Dict) -> str:
+def _deserialize_bytes(value: dict) -> str:
     """Deserialize binary encoded data.
 
     Args:
@@ -179,7 +180,7 @@ def _serialize_and_encode(
     return _serialize_bytes(serialized_data, compress=compress)
 
 
-def _decode_and_deserialize(value: Dict, deserializer: Callable, name: Optional[str] = None) -> Any:
+def _decode_and_deserialize(value: dict, deserializer: Callable, name: str | None = None) -> Any:
     """Decode and deserialize input data.
 
     Args:
@@ -231,7 +232,7 @@ def istype(obj: Any) -> bool:
     return inspect.isclass(obj) or inspect.isfunction(obj) or inspect.ismethod(obj)
 
 
-def _serialize_type(type_name: Union[Type, FunctionType, MethodType]):
+def _serialize_type(type_name: type | FunctionType | MethodType):
     """Serialize a type, function, or class method"""
     mod = type_name.__module__
     value = {
@@ -242,7 +243,7 @@ def _serialize_type(type_name: Union[Type, FunctionType, MethodType]):
     return {"__type__": "type", "__value__": value}
 
 
-def _deserialize_type(value: Dict):
+def _deserialize_type(value: dict):
     """Deserialize a type, function, or class method"""
     traceback_msg = None
     load_version = None
@@ -285,7 +286,7 @@ def _deserialize_type(value: Dict):
     return value
 
 
-def _serialize_object(obj: Any, settings: Optional[Dict] = None, safe_float: bool = True) -> Dict:
+def _serialize_object(obj: Any, settings: dict | None = None, safe_float: bool = True) -> dict:
     """Serialize a class instance from its init args and kwargs.
 
     Args:
@@ -315,7 +316,7 @@ def _serialize_object(obj: Any, settings: Optional[Dict] = None, safe_float: boo
     return {"__type__": "object", "__value__": value}
 
 
-def _deserialize_object(value: Dict) -> Any:
+def _deserialize_object(value: dict) -> Any:
     """Deserialize class instance saved as settings"""
     cls = value.get("class", {})
     if isinstance(cls, dict):
@@ -355,7 +356,7 @@ def _deserialize_object(value: Dict) -> Any:
     return value
 
 
-def _deserialize_object_legacy(value: Dict) -> Any:
+def _deserialize_object_legacy(value: dict) -> Any:
     """Deserialize a class object from its init args and kwargs."""
     try:
         class_name = value["__name__"]

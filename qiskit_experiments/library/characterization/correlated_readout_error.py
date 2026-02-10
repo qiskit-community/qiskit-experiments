@@ -12,7 +12,7 @@
 """
 Correlated readout error calibration experiment class.
 """
-from typing import Iterable, List, Optional
+from collections.abc import Iterable
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import BackendV2, Backend
 from qiskit.exceptions import QiskitError
@@ -102,8 +102,8 @@ class CorrelatedReadoutError(BaseExperiment):
 
     def __init__(
         self,
-        physical_qubits: Optional[Iterable[int]] = None,
-        backend: Optional[Backend] = None,
+        physical_qubits: Iterable[int] | None = None,
+        backend: Backend | None = None,
     ):
         """Initialize a correlated readout error characterization experiment.
 
@@ -131,7 +131,7 @@ class CorrelatedReadoutError(BaseExperiment):
         super().__init__(physical_qubits, backend=backend)
         self.analysis = CorrelatedReadoutErrorAnalysis()
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Returns the experiment's circuits"""
         labels = [bin(j)[2:].zfill(self.num_qubits) for j in range(2**self.num_qubits)]
         return [calibration_circuit(self.num_qubits, label) for label in labels]

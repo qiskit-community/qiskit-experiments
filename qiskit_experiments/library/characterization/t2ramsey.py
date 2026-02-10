@@ -14,7 +14,7 @@ T2Ramsey Experiment class.
 
 """
 
-from typing import List, Union, Optional, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 import qiskit
@@ -111,8 +111,8 @@ class T2Ramsey(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        delays: Union[List[float], np.array],
-        backend: Optional[Backend] = None,
+        delays: list[float] | np.array,
+        backend: Backend | None = None,
         osc_freq: float = 0.0,
     ):
         """
@@ -129,7 +129,7 @@ class T2Ramsey(BaseExperiment):
         super().__init__(physical_qubits, analysis=T2RamseyAnalysis(), backend=backend)
         self.set_experiment_options(delays=delays, osc_freq=osc_freq)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Return a list of experiment circuits.
 
         Each circuit consists of a Hadamard gate, followed by a fixed delay,

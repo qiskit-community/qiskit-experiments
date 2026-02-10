@@ -12,7 +12,7 @@
 
 """Discriminators that wrap SKLearn."""
 
-from typing import Any, List, Dict, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.framework.package_deps import HAS_SKLEARN
@@ -64,11 +64,11 @@ class SkLDA(BaseDiscriminator):
         """Return True if the discriminator has been trained on data."""
         return not getattr(self._lda, "classes_", None) is None
 
-    def predict(self, data: List):
+    def predict(self, data: list):
         """Wrap the predict method of the LDA."""
         return self._lda.predict(data)
 
-    def fit(self, data: List, labels: List):
+    def fit(self, data: list, labels: list):
         """Fit the LDA.
 
         Args:
@@ -77,14 +77,14 @@ class SkLDA(BaseDiscriminator):
         """
         self._lda.fit(data, labels)
 
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Return the configuration of the LDA."""
         attr_conf = {attr: getattr(self._lda, attr, None) for attr in self.attributes}
         return {"params": self._lda.get_params(), "attributes": attr_conf}
 
     @classmethod
     @HAS_SKLEARN.require_in_call
-    def from_config(cls, config: Dict[str, Any]) -> "SkLDA":
+    def from_config(cls, config: dict[str, Any]) -> "SkLDA":
         """Deserialize from an object."""
         from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
@@ -139,11 +139,11 @@ class SkQDA(BaseDiscriminator):
         """Return True if the discriminator has been trained on data."""
         return not getattr(self._qda, "classes_", None) is None
 
-    def predict(self, data: List):
+    def predict(self, data: list):
         """Wrap the predict method of the QDA."""
         return self._qda.predict(data)
 
-    def fit(self, data: List, labels: List):
+    def fit(self, data: list, labels: list):
         """Fit the QDA.
 
         Args:
@@ -152,14 +152,14 @@ class SkQDA(BaseDiscriminator):
         """
         self._qda.fit(data, labels)
 
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Return the configuration of the QDA."""
         attr_conf = {attr: getattr(self._qda, attr, None) for attr in self.attributes}
         return {"params": self._qda.get_params(), "attributes": attr_conf}
 
     @classmethod
     @HAS_SKLEARN.require_in_call
-    def from_config(cls, config: Dict[str, Any]) -> "SkQDA":
+    def from_config(cls, config: dict[str, Any]) -> "SkQDA":
         """Deserialize from an object."""
         from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 

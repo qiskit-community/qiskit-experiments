@@ -15,7 +15,7 @@ Layer Fidelity RB Experiment class.
 import functools
 import logging
 import warnings
-from typing import Union, Iterable, Optional, List, Sequence, Tuple, Dict
+from collections.abc import Iterable, Sequence
 
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
@@ -130,16 +130,16 @@ class LayerFidelity(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        two_qubit_layers: Sequence[Sequence[Tuple[int, int]]],
+        two_qubit_layers: Sequence[Sequence[tuple[int, int]]],
         lengths: Iterable[int],
-        backend: Optional[Backend] = None,
+        backend: Backend | None = None,
         num_samples: int = 6,
-        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-        two_qubit_gate: Optional[str] = None,
-        one_qubit_basis_gates: Optional[Sequence[str]] = None,
-        layer_barrier: Optional[bool] = True,
-        min_delay: Optional[Sequence[int]] = None,
-        benchmark_suffix: Optional[str] = "",
+        seed: int | SeedSequence | BitGenerator | Generator | None = None,
+        two_qubit_gate: str | None = None,
+        one_qubit_basis_gates: Sequence[str] | None = None,
+        layer_barrier: bool | None = True,
+        min_delay: Sequence[int] | None = None,
+        benchmark_suffix: str | None = "",
     ):
         """Initialize a layer fidelity experiment.
 
@@ -375,7 +375,7 @@ class LayerFidelity(BaseExperiment):
         qubits_in_layer = {q for qpair in two_qubit_layer for q in qpair}
         return [q for q in self.physical_qubits if q not in qubits_in_layer]
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         r"""Return a list of physical circuits to measure layer fidelity.
 
         Returns:
@@ -564,7 +564,7 @@ class LayerFidelity(BaseExperiment):
             circ._append(_to_gate_1q(inv), (circ.qubits[q],), ())
         return circ
 
-    def _transpiled_circuits(self) -> List[QuantumCircuit]:
+    def _transpiled_circuits(self) -> list[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         transpiled = [_decompose_clifford_ops(circ) for circ in self.circuits()]
 
@@ -576,7 +576,7 @@ class LayerFidelity(BaseExperiment):
         return metadata
 
     @classmethod
-    def from_config(cls, config: Union[ExperimentConfig, Dict]) -> "LayerFidelity":
+    def from_config(cls, config: ExperimentConfig | dict) -> "LayerFidelity":
         """Initialize an experiment from experiment config"""
         if isinstance(config, dict):
             config = ExperimentConfig(**config)

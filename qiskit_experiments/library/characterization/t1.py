@@ -13,7 +13,7 @@
 T1 Experiment class.
 """
 
-from typing import List, Optional, Union, Sequence
+from collections.abc import Sequence
 
 import numpy as np
 from qiskit.circuit import QuantumCircuit
@@ -77,8 +77,8 @@ class T1(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        delays: Union[List[float], np.array],
-        backend: Optional[Backend] = None,
+        delays: list[float] | np.array,
+        backend: Backend | None = None,
     ):
         """
         Initialize the T1 experiment class.
@@ -98,7 +98,7 @@ class T1(BaseExperiment):
         # Set experiment options
         self.set_experiment_options(delays=delays)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """
         Return a list of experiment circuits
 

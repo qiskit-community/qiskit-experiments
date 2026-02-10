@@ -13,7 +13,8 @@
 Standard RB analysis class.
 """
 from collections import defaultdict
-from typing import Dict, List, Sequence, Tuple, Union, Optional, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
+from collections.abc import Sequence
 
 import lmfit
 from pandas import DataFrame
@@ -28,7 +29,7 @@ if TYPE_CHECKING:
     from uncertainties import UFloat
 
 # A dictionary key of qubit aware quantum instruction; type alias for better readability
-QubitGateTuple = Tuple[Tuple[int, ...], str]
+QubitGateTuple = tuple[tuple[int, ...], str]
 
 
 class RBAnalysis(curve.CurveAnalysis):
@@ -128,7 +129,7 @@ class RBAnalysis(curve.CurveAnalysis):
         self,
         user_opt: curve.FitOptions,
         curve_data: curve.ScatterTable,
-    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+    ) -> curve.FitOptions | list[curve.FitOptions]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
@@ -161,7 +162,7 @@ class RBAnalysis(curve.CurveAnalysis):
         fit_data: curve.CurveFitResult,
         quality: str,
         **metadata,
-    ) -> List[AnalysisResultData]:
+    ) -> list[AnalysisResultData]:
         """Create analysis results for important fit parameters.
 
         Args:
@@ -282,7 +283,7 @@ class RBAnalysis(curve.CurveAnalysis):
         self._physical_qubits = experiment_data.metadata["physical_qubits"]
 
 
-def _lookup_epg_ratio(gate: str, n_qubits: int) -> Union[None, int]:
+def _lookup_epg_ratio(gate: str, n_qubits: int) -> None | int:
     """A helper method to look-up preset gate error ratio for given basis gate name.
 
     In the table the error ratio is defined based on the count of
@@ -367,9 +368,9 @@ def _lookup_epg_ratio(gate: str, n_qubits: int) -> Union[None, int]:
 def _calculate_epg(
     epc: Union[float, "UFloat"],
     qubits: Sequence[int],
-    gate_error_ratio: Dict[str, float],
-    gate_counts_per_clifford: Dict[QubitGateTuple, float],
-) -> Dict[str, Union[float, "UFloat"]]:
+    gate_error_ratio: dict[str, float],
+    gate_counts_per_clifford: dict[QubitGateTuple, float],
+) -> dict[str, Union[float, "UFloat"]]:
     """A helper method to compute EPGs of basis gates from fit EPC value.
 
     Args:
@@ -394,9 +395,9 @@ def _calculate_epg(
 
 def _exclude_1q_error(
     epc: Union[float, "UFloat"],
-    qubits: Tuple[int, int],
-    gate_counts_per_clifford: Dict[QubitGateTuple, float],
-    extra_analyses: Optional[Union[List[AnalysisResult], DataFrame]],
+    qubits: tuple[int, int],
+    gate_counts_per_clifford: dict[QubitGateTuple, float],
+    extra_analyses: list[AnalysisResult] | DataFrame | None,
 ) -> Union[float, "UFloat"]:
     """A helper method to exclude contribution of single qubit gates from 2Q EPC.
 

@@ -13,7 +13,7 @@
 Fitter basis classes for tomography analysis.
 """
 from abc import ABC, abstractmethod
-from typing import Sequence, Tuple, Optional
+from collections.abc import Sequence
 import numpy as np
 from qiskit import QuantumCircuit
 
@@ -43,7 +43,7 @@ class BaseBasis(ABC):
         return self._name
 
     @abstractmethod
-    def index_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
+    def index_shape(self, qubits: Sequence[int]) -> tuple[int, ...]:
         """Return the shape for the specified number of indices.
 
         Args:
@@ -55,7 +55,7 @@ class BaseBasis(ABC):
 
     @abstractmethod
     def circuit(
-        self, index: Sequence[int], qubits: Optional[Sequence[int]] = None
+        self, index: Sequence[int], qubits: Sequence[int] | None = None
     ) -> QuantumCircuit:
         """Return the basis preparation circuit.
 
@@ -99,7 +99,7 @@ class PreparationBasis(BaseBasis):
     """
 
     @abstractmethod
-    def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
+    def matrix_shape(self, qubits: Sequence[int]) -> tuple[int, ...]:
         """Return the shape of subsystem dimensions of the state :attr:`~matrix`.
 
         Args:
@@ -110,7 +110,7 @@ class PreparationBasis(BaseBasis):
         """
 
     @abstractmethod
-    def matrix(self, index: Sequence[int], qubits: Optional[Sequence[int]] = None) -> np.ndarray:
+    def matrix(self, index: Sequence[int], qubits: Sequence[int] | None = None) -> np.ndarray:
         """Return the density matrix data array for the index and qubits.
 
         This state is used by tomography fitters for reconstruction and should
@@ -158,7 +158,7 @@ class MeasurementBasis(BaseBasis):
     """
 
     @abstractmethod
-    def outcome_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
+    def outcome_shape(self, qubits: Sequence[int]) -> tuple[int, ...]:
         """Return the shape of allowed measurement outcomes on specified qubits.
 
         Args:
@@ -169,7 +169,7 @@ class MeasurementBasis(BaseBasis):
         """
 
     @abstractmethod
-    def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
+    def matrix_shape(self, qubits: Sequence[int]) -> tuple[int, ...]:
         """Return the shape of subsystem dimensions of a POVM :attr:`~matrix`.
 
         Args:
@@ -181,7 +181,7 @@ class MeasurementBasis(BaseBasis):
 
     @abstractmethod
     def matrix(
-        self, index: Sequence[int], outcome: int, qubits: Optional[Sequence[int]] = None
+        self, index: Sequence[int], outcome: int, qubits: Sequence[int] | None = None
     ) -> np.ndarray:
         """Return the POVM element for the basis index and outcome.
 

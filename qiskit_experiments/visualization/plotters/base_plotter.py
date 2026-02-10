@@ -13,7 +13,7 @@
 
 import warnings
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 from qiskit_experiments.framework import Options
 from qiskit_experiments.visualization.drawers import BaseDrawer, SeriesName
@@ -134,9 +134,9 @@ class BasePlotter(ABC):
             drawer: The drawer to use when creating the figure.
         """
         # Data to be plotted, such as scatter points, interpolated fits, and confidence intervals
-        self._series_data: Dict[SeriesName, Dict[str, Any]] = {}
+        self._series_data: dict[SeriesName, dict[str, Any]] = {}
         # Data that isn't directly associated with a single series, such as text or fit reports.
-        self._supplementary_data: Dict[str, Any] = {}
+        self._supplementary_data: dict[str, Any] = {}
 
         # Options for the plotter
         self._options = self._default_options()
@@ -151,7 +151,7 @@ class BasePlotter(ABC):
         self.drawer: BaseDrawer = drawer
 
     @property
-    def supplementary_data(self) -> Dict[str, Any]:
+    def supplementary_data(self) -> dict[str, Any]:
         """Additional data for the figure being plotted, that isn't associated with a
         series.
 
@@ -162,7 +162,7 @@ class BasePlotter(ABC):
         return self._supplementary_data
 
     @property
-    def series_data(self) -> Dict[SeriesName, Dict[str, Any]]:
+    def series_data(self) -> dict[SeriesName, dict[str, Any]]:
         """Data for series being plotted.
 
         Series data includes data such as scatter points, interpolated fit values, and
@@ -178,11 +178,11 @@ class BasePlotter(ABC):
         return self._series_data
 
     @property
-    def series(self) -> List[SeriesName]:
+    def series(self) -> list[SeriesName]:
         """Series names that have been added to this plotter."""
         return list(self._series_data.keys())
 
-    def data_keys_for(self, series_name: SeriesName) -> List[str]:
+    def data_keys_for(self, series_name: SeriesName) -> list[str]:
         """Returns a list of data keys for the given series.
 
         Args:
@@ -197,8 +197,8 @@ class BasePlotter(ABC):
         return list(self._series_data.get(series_name, []))
 
     def data_for(
-        self, series_name: SeriesName, data_keys: Union[str, List[str]]
-    ) -> Tuple[Optional[Any]]:
+        self, series_name: SeriesName, data_keys: str | list[str]
+    ) -> tuple[Any | None]:
         """Returns data associated with the given series.
 
         The returned tuple contains the data, associated with ``data_keys``, in the same
@@ -266,7 +266,7 @@ class BasePlotter(ABC):
             self._series_data[series_name] = {}
         self._series_data[series_name].update(**data_kwargs)
 
-    def clear_series_data(self, series_name: Optional[SeriesName] = None):
+    def clear_series_data(self, series_name: SeriesName | None = None):
         """Clear series data for this plotter.
 
         Args:
@@ -310,7 +310,7 @@ class BasePlotter(ABC):
         """Clears supplementary data."""
         self._supplementary_data = {}
 
-    def data_exists_for(self, series_name: SeriesName, data_keys: Union[str, List[str]]) -> bool:
+    def data_exists_for(self, series_name: SeriesName, data_keys: str | list[str]) -> bool:
         """Returns whether the given data keys exist for the given series.
 
         Args:
@@ -368,12 +368,12 @@ class BasePlotter(ABC):
 
     @classmethod
     @abstractmethod
-    def expected_series_data_keys(cls) -> List[str]:
+    def expected_series_data_keys(cls) -> list[str]:
         """Returns the expected series data keys supported by this plotter."""
 
     @classmethod
     @abstractmethod
-    def expected_supplementary_data_keys(cls) -> List[str]:
+    def expected_supplementary_data_keys(cls) -> list[str]:
         """Returns the expected supplementary data keys supported by this plotter."""
 
     @property
@@ -553,7 +553,7 @@ class BasePlotter(ABC):
         # Use drawer.set_figure_options so figure options are serialized.
         self.drawer.set_figure_options(**_drawer_figure_options)
 
-    def config(self) -> Dict:
+    def config(self) -> dict:
         """Return the config dictionary for this drawing."""
         options = dict((key, getattr(self._options, key)) for key in self._set_options)
         figure_options = dict(

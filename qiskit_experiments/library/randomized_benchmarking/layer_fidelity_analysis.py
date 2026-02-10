@@ -12,7 +12,6 @@
 """
 Analysis classes for Layer Fidelity RB.
 """
-from typing import List, Tuple, Union
 
 import logging
 import traceback
@@ -107,7 +106,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         self,
         user_opt: curve.FitOptions,
         curve_data: curve.ScatterTable,
-    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+    ) -> curve.FitOptions | list[curve.FitOptions]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
@@ -140,7 +139,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
         fit_data: curve.CurveFitResult,
         quality: str,
         **metadata,
-    ) -> List[AnalysisResultData]:
+    ) -> list[AnalysisResultData]:
         """Create analysis results for important fit parameters.
 
         Args:
@@ -188,7 +187,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData
-    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
+    ) -> tuple[list[AnalysisResultData | ArtifactData], list[FigureType]]:
         try:
             return super()._run_analysis(experiment_data)
         except Exception:  # pylint: disable=broad-except
@@ -213,7 +212,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
     def _evaluate_quality_with_reason(
         self,
         fit_data: curve.CurveFitResult,
-    ) -> Tuple[str, Union[str, None]]:
+    ) -> tuple[str, str | None]:
         """Evaluate quality of the fit result and the reason if it is no good.
 
         Args:
@@ -278,7 +277,7 @@ class _SingleLayerFidelityAnalysis(CompositeAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData
-    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
+    ) -> tuple[list[AnalysisResultData | ArtifactData], list[FigureType]]:
         try:
             # Run composite analysis and extract sub-experiments results
             analysis_results, figures = super()._run_analysis(experiment_data)
@@ -361,7 +360,7 @@ class LayerFidelityAnalysis(CompositeAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData
-    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
+    ) -> tuple[list[AnalysisResultData | ArtifactData], list[FigureType]]:
         r"""Run analysis for Layer Fidelity experiment.
 
         It invokes :meth:`CompositeAnalysis._run_analysis` that will recursively invoke

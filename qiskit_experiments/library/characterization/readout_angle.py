@@ -13,7 +13,7 @@
 Readout Angle Experiment class.
 """
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
@@ -85,7 +85,7 @@ class ReadoutAngle(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        backend: Optional[Backend] = None,
+        backend: Backend | None = None,
     ):
         """
         Initialize the readout angle experiment class
@@ -98,7 +98,7 @@ class ReadoutAngle(BaseExperiment):
         # Initialize base experiment
         super().__init__(physical_qubits, analysis=ReadoutAngleAnalysis(), backend=backend)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """
         Return a list of experiment circuits
 

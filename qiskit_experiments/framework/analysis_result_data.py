@@ -14,7 +14,7 @@
 
 import dataclasses
 import logging
-from typing import Optional, Dict, Any, List
+from typing import Any
 
 from qiskit_experiments.database_service.device_component import DeviceComponent
 
@@ -29,31 +29,31 @@ class AnalysisResultData:
     name: str
     value: Any
     experiment: str = None
-    chisq: Optional[float] = None
-    quality: Optional[str] = None
-    experiment_id: Optional[str] = None
-    result_id: Optional[str] = None
-    tags: List = dataclasses.field(default_factory=list)
-    backend: Optional[str] = None
-    run_time: Optional[str] = None
-    created_time: Optional[str] = None
-    extra: Dict[str, Any] = dataclasses.field(default_factory=dict, hash=False, compare=False)
-    device_components: List = dataclasses.field(default_factory=list)
+    chisq: float | None = None
+    quality: str | None = None
+    experiment_id: str | None = None
+    result_id: str | None = None
+    tags: list = dataclasses.field(default_factory=list)
+    backend: str | None = None
+    run_time: str | None = None
+    created_time: str | None = None
+    extra: dict[str, Any] = dataclasses.field(default_factory=dict, hash=False, compare=False)
+    device_components: list = dataclasses.field(default_factory=list)
 
     @classmethod
     def from_table_element(
         cls,
         name: str,
         value: Any,
-        experiment: Optional[str] = None,
-        components: Optional[List[DeviceComponent]] = None,
-        quality: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        result_id: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        backend: Optional[str] = None,
-        run_time: Optional[str] = None,
-        created_time: Optional[str] = None,
+        experiment: str | None = None,
+        components: list[DeviceComponent] | None = None,
+        quality: str | None = None,
+        experiment_id: str | None = None,
+        result_id: str | None = None,
+        tags: list[str] | None = None,
+        backend: str | None = None,
+        run_time: str | None = None,
+        created_time: str | None = None,
         **extra,
     ):
         """A factory method of AnalysisResultData from a single element in AnalysisResultTable.
@@ -107,7 +107,7 @@ class AnalysisResultData:
         """Return iterator of data fields (attr, value)"""
         return iter((field.name, getattr(self, field.name)) for field in dataclasses.fields(self))
 
-    def as_table_element(self) -> Dict[str, Any]:
+    def as_table_element(self) -> dict[str, Any]:
         """Python dataclass as_dict-like function to return
         canonical data for analysis AnalysisResultTable.
 

@@ -16,7 +16,8 @@ Experiment Data class
 from __future__ import annotations
 import logging
 import re
-from typing import Dict, Optional, List, Union, Any, Callable, Tuple, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
+from collections.abc import Callable
 from datetime import datetime, timezone
 from concurrent import futures
 from functools import wraps
@@ -157,16 +158,16 @@ class ExperimentData:
 
     def __init__(
         self,
-        experiment: Optional["BaseExperiment"] = None,
-        backend: Optional[Backend] = None,
-        service: Optional[IBMExperimentService] = None,
-        provider: Optional[Provider] = None,
-        parent_id: Optional[str] = None,
-        job_ids: Optional[List[str]] = None,
-        child_data: Optional[List[ExperimentData]] = None,
-        verbose: Optional[bool] = True,
-        db_data: Optional[ExperimentDataclass] = None,
-        start_datetime: Optional[datetime] = None,
+        experiment: BaseExperiment | None = None,
+        backend: Backend | None = None,
+        service: IBMExperimentService | None = None,
+        provider: Provider | None = None,
+        parent_id: str | None = None,
+        job_ids: list[str] | None = None,
+        child_data: list[ExperimentData] | None = None,
+        verbose: bool | None = True,
+        db_data: ExperimentDataclass | None = None,
+        start_datetime: datetime | None = None,
         **kwargs,
     ):
         """Initialize experiment data.
@@ -303,7 +304,7 @@ class ExperimentData:
         return self._experiment
 
     @property
-    def completion_times(self) -> Dict[str, datetime]:
+    def completion_times(self) -> dict[str, datetime]:
         """Returns the completion times of the jobs."""
         job_times = {}
         for job_id, job in self._jobs.items():
@@ -331,7 +332,7 @@ class ExperimentData:
         return job_times
 
     @property
-    def tags(self) -> List[str]:
+    def tags(self) -> list[str]:
         """Return tags assigned to this experiment data.
 
         Returns:
@@ -341,7 +342,7 @@ class ExperimentData:
         return self._db_data.tags
 
     @tags.setter
-    def tags(self, new_tags: List[str]) -> None:
+    def tags(self, new_tags: list[str]) -> None:
         """Set tags for this experiment."""
         if not isinstance(new_tags, list):
             raise ExperimentDataError(f"The `tags` field of {type(self).__name__} must be a list.")
@@ -350,7 +351,7 @@ class ExperimentData:
             self.save_metadata()
 
     @property
-    def metadata(self) -> Dict:
+    def metadata(self) -> dict:
         """Return experiment metadata.
 
         Returns:
@@ -496,7 +497,7 @@ class ExperimentData:
         self._db_data.parent_id = new_id
 
     @property
-    def job_ids(self) -> List[str]:
+    def job_ids(self) -> list[str]:
         """Return experiment job IDs.
 
         Returns: IDs of jobs submitted for this experiment.
@@ -504,7 +505,7 @@ class ExperimentData:
         return self._db_data.job_ids
 
     @property
-    def figure_names(self) -> List[str]:
+    def figure_names(self) -> list[str]:
         """Return names of the figures associated with this experiment.
 
         Returns:
@@ -633,7 +634,7 @@ class ExperimentData:
         self._db_data.figure_names.clear()
 
     @property
-    def service(self) -> Optional[IBMExperimentService]:
+    def service(self) -> IBMExperimentService | None:
         """Return the database service.
 
         Returns:
@@ -721,7 +722,7 @@ class ExperimentData:
         return None
 
     @property
-    def provider(self) -> Optional[Provider]:
+    def provider(self) -> Provider | None:
         """Return the backend provider.
 
         Returns:
@@ -762,7 +763,7 @@ class ExperimentData:
             data.auto_save = save_val
 
     @property
-    def source(self) -> Dict:
+    def source(self) -> dict:
         """Return the class name and version."""
         return self._db_data.metadata["_source"]
 
@@ -770,7 +771,7 @@ class ExperimentData:
 
     def add_data(
         self,
-        data: Union[Result, PrimitiveResult, List[Result | PrimitiveResult], Dict, List[Dict]],
+        data: Result | PrimitiveResult | list[Result | PrimitiveResult] | dict | list[dict],
     ) -> None:
         """Add experiment data.
 
@@ -805,8 +806,8 @@ class ExperimentData:
 
     def add_jobs(
         self,
-        jobs: Union[Job, List[Job]],
-        timeout: Optional[float] = None,
+        jobs: Job | list[Job],
+        timeout: float | None = None,
     ) -> None:
         """Add experiment data.
 
@@ -903,7 +904,7 @@ class ExperimentData:
     def _add_job_data(
         self,
         job: Job,
-    ) -> Tuple[str, bool]:
+    ) -> tuple[str, bool]:
         """Wait for a job to finish and add job result data.
 
         Args:
@@ -1044,7 +1045,7 @@ class ExperimentData:
     def _add_result_data(
         self,
         result: Result | PrimitiveResult,
-        job_id: Optional[str] = None,
+        job_id: str | None = None,
     ) -> None:
         """Add data from a Result object
 
@@ -1208,8 +1209,8 @@ class ExperimentData:
 
     def data(
         self,
-        index: Optional[Union[int, slice, str]] = None,
-    ) -> Union[Dict, List[Dict]]:
+        index: int | slice | str | None = None,
+    ) -> dict | list[dict]:
         """Return the experiment data at the specified index.
 
         Args:
@@ -1239,11 +1240,11 @@ class ExperimentData:
     @do_auto_save
     def add_figures(
         self,
-        figures: Union[FigureType, List[FigureType]],
-        figure_names: Optional[Union[str, List[str]]] = None,
+        figures: FigureType | list[FigureType],
+        figure_names: str | list[str] | None = None,
         overwrite: bool = False,
-        save_figure: Optional[bool] = None,
-    ) -> Union[str, List[str]]:
+        save_figure: bool | None = None,
+    ) -> str | list[str]:
         """Add the experiment figure.
 
         Args:
@@ -1367,7 +1368,7 @@ class ExperimentData:
     @do_auto_save
     def delete_figure(
         self,
-        figure_key: Union[str, int],
+        figure_key: str | int,
     ) -> str:
         """Add the experiment figure.
 
@@ -1414,9 +1415,9 @@ class ExperimentData:
 
     def figure(
         self,
-        figure_key: Union[str, int],
-        file_name: Optional[str] = None,
-    ) -> Union[int, FigureData]:
+        figure_key: str | int,
+        file_name: str | None = None,
+    ) -> int | FigureData:
         """Retrieve the specified experiment figure.
 
         Args:
@@ -1451,17 +1452,17 @@ class ExperimentData:
     def add_analysis_result(
         self,
         *,
-        name: Optional[str] = None,
-        value: Optional[Any] = None,
-        quality: Optional[str] = None,
-        components: Optional[List[DeviceComponent]] = None,
-        experiment: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        result_id: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        backend: Optional[str] = None,
-        run_time: Optional[datetime] = None,
-        created_time: Optional[datetime] = None,
+        name: str | None = None,
+        value: Any | None = None,
+        quality: str | None = None,
+        components: list[DeviceComponent] | None = None,
+        experiment: str | None = None,
+        experiment_id: str | None = None,
+        result_id: str | None = None,
+        tags: list[str] | None = None,
+        backend: str | None = None,
+        run_time: datetime | None = None,
+        created_time: datetime | None = None,
         **extra_values,
     ) -> None:
         """Save the analysis result.
@@ -1506,19 +1507,19 @@ class ExperimentData:
     @do_auto_save
     def add_analysis_results(
         self,
-        results: Optional[Union[AnalysisResult, List[AnalysisResult]]] = None,
+        results: AnalysisResult | list[AnalysisResult] | None = None,
         *,
-        name: Optional[str] = None,
-        value: Optional[Any] = None,
-        quality: Optional[str] = None,
-        components: Optional[List[DeviceComponent]] = None,
-        experiment: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        result_id: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        backend: Optional[str] = None,
-        run_time: Optional[datetime] = None,
-        created_time: Optional[datetime] = None,
+        name: str | None = None,
+        value: Any | None = None,
+        quality: str | None = None,
+        components: list[DeviceComponent] | None = None,
+        experiment: str | None = None,
+        experiment_id: str | None = None,
+        result_id: str | None = None,
+        tags: list[str] | None = None,
+        backend: str | None = None,
+        run_time: datetime | None = None,
+        created_time: datetime | None = None,
         **extra_values,
     ) -> None:
         """Save the analysis result.
@@ -1617,7 +1618,7 @@ class ExperimentData:
     @do_auto_save
     def delete_analysis_result(
         self,
-        result_key: Union[int, str],
+        result_key: int | str,
     ) -> list[str]:
         """Delete the analysis result.
 
@@ -2055,7 +2056,7 @@ class ExperimentData:
                 )
                 data.verbose = original_verbose
 
-    def jobs(self) -> List[Job]:
+    def jobs(self) -> list[Job]:
         """Return a list of jobs for the experiment"""
         return self._jobs.values()
 
@@ -2167,7 +2168,7 @@ class ExperimentData:
         jobs_cancelled = self.cancel_jobs()
         return analysis_cancelled and jobs_cancelled
 
-    def block_for_results(self, timeout: Optional[float] = None) -> "ExperimentData":
+    def block_for_results(self, timeout: float | None = None) -> ExperimentData:
         """Block until all pending jobs and analysis callbacks finish.
 
         Args:
@@ -2215,7 +2216,7 @@ class ExperimentData:
         return self
 
     def _wait_for_futures(
-        self, futs: List[futures.Future], name: str = "futures", timeout: Optional[float] = None
+        self, futs: list[futures.Future], name: str = "futures", timeout: float | None = None
     ) -> bool:
         """Wait for jobs to finish running.
 
@@ -2458,8 +2459,8 @@ class ExperimentData:
         self.metadata["child_data_ids"] = self._child_data.keys()
 
     def child_data(
-        self, index: Optional[Union[int, slice, str]] = None
-    ) -> Union[ExperimentData, List[ExperimentData]]:
+        self, index: int | slice | str | None = None
+    ) -> ExperimentData | list[ExperimentData]:
         """Return child experiment data.
 
         Args:
@@ -2490,9 +2491,9 @@ class ExperimentData:
     def load(
         cls,
         experiment_id: str,
-        service: Optional[IBMExperimentService] = None,
-        provider: Optional[Provider] = None,
-    ) -> "ExperimentData":
+        service: IBMExperimentService | None = None,
+        provider: Provider | None = None,
+    ) -> ExperimentData:
         """Load a saved experiment data from a database service.
 
         Args:
@@ -2553,7 +2554,7 @@ class ExperimentData:
 
         return expdata
 
-    def copy(self, copy_results: bool = True) -> "ExperimentData":
+    def copy(self, copy_results: bool = True) -> ExperimentData:
         """Make a copy of the experiment data with a new experiment ID.
 
         Args:
@@ -2633,14 +2634,14 @@ class ExperimentData:
         new_instance._set_child_data(child_data)
         return new_instance
 
-    def _set_child_data(self, child_data: List[ExperimentData]):
+    def _set_child_data(self, child_data: list[ExperimentData]):
         """Set child experiment data for the current experiment."""
         self._child_data = ThreadSafeOrderedDict()
         for data in child_data:
             self.add_child_data(data)
         self._db_data.metadata["child_data_ids"] = self._child_data.keys()
 
-    def add_tags_recursive(self, tags2add: List[str]) -> None:
+    def add_tags_recursive(self, tags2add: list[str]) -> None:
         """Add tags to this experiment itself and its descendants
 
         Args:
@@ -2650,7 +2651,7 @@ class ExperimentData:
         for data in self._child_data.values():
             data.add_tags_recursive(tags2add)
 
-    def remove_tags_recursive(self, tags2remove: List[str]) -> None:
+    def remove_tags_recursive(self, tags2remove: list[str]) -> None:
         """Remove tags from this experiment itself and its descendants
 
         Args:
@@ -2931,7 +2932,7 @@ def _series_to_service_result(
     series: pd.Series,
     service: IBMExperimentService,
     auto_save: bool,
-    source: Optional[Dict[str, Any]] = None,
+    source: dict[str, Any] | None = None,
 ) -> AnalysisResult:
     """Helper function to convert dataframe to AnalysisResult payload for IBM experiment service.
 

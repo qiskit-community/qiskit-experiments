@@ -15,7 +15,7 @@ Test integration of plotter with Matplotlib drawer.
 
 from itertools import combinations, product
 from test.base import QiskitExperimentsTestCase
-from typing import Any, Dict, List
+from typing import Any
 
 import ddt
 import matplotlib
@@ -115,7 +115,7 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
         {str: ["0", "1", "2"], int: [0, 1, 2]},
         {str: [str(0.0), str(1.0), str(2.0)], float: [0.0, 1.0, 2.0]},
     )
-    def test_series_names_different_types(self, series_names: Dict[type, List[Any]]):
+    def test_series_names_different_types(self, series_names: dict[type, list[Any]]):
         """Test whether plotter with MplDrawer draws the correct figure regardless of series-name type.
 
         This test creates a MockPlotter for types ``str`` and ``int``. The series-names are integers but

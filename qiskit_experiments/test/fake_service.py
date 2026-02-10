@@ -12,7 +12,7 @@
 
 """Fake service class for tests."""
 
-from typing import Optional, List, Dict, Type, Any, Union, Tuple
+from typing import Any
 import json
 from datetime import datetime, timedelta
 import uuid
@@ -74,13 +74,13 @@ class FakeService:
         self,
         experiment_type: str,
         backend_name: str,
-        metadata: Optional[Dict] = None,
-        experiment_id: Optional[str] = None,
-        parent_id: Optional[str] = None,
-        job_ids: Optional[List[str]] = None,
-        tags: Optional[List[str]] = None,
-        notes: Optional[str] = None,
-        json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
+        metadata: dict | None = None,
+        experiment_id: str | None = None,
+        parent_id: str | None = None,
+        job_ids: list[str] | None = None,
+        tags: list[str] | None = None,
+        notes: str | None = None,
+        json_encoder: type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
         """Creates a new experiment"""
@@ -149,10 +149,10 @@ class FakeService:
     def update_experiment(
         self,
         experiment_id: str,
-        metadata: Optional[Dict] = None,
-        job_ids: Optional[List[str]] = None,
-        notes: Optional[str] = None,
-        tags: Optional[List[str]] = None,
+        metadata: dict | None = None,
+        job_ids: list[str] | None = None,
+        notes: str | None = None,
+        tags: list[str] | None = None,
         **kwargs: Any,
     ) -> None:
         """Updates an existing experiment"""
@@ -174,8 +174,8 @@ class FakeService:
                 self.exps.loc[row, field_name] = kwargs[field_name]
 
     def experiment(
-        self, experiment_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
-    ) -> Dict:
+        self, experiment_id: str, json_decoder: type[json.JSONDecoder] = json.JSONDecoder
+    ) -> dict:
         """Returns an experiment by experiment_id"""
         # pylint: disable = unused-argument
         if experiment_id not in self.exps.experiment_id.values:
@@ -185,16 +185,16 @@ class FakeService:
 
     def experiments(
         self,
-        limit: Optional[int] = 10,
-        json_decoder: Type[json.JSONDecoder] = json.JSONDecoder,
-        device_components: Optional[Union[str, DeviceComponent]] = None,
-        experiment_type: Optional[str] = None,
-        backend_name: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        parent_id: Optional[str] = None,
-        tags_operator: Optional[str] = "OR",
+        limit: int | None = 10,
+        json_decoder: type[json.JSONDecoder] = json.JSONDecoder,
+        device_components: str | DeviceComponent | None = None,
+        experiment_type: str | None = None,
+        backend_name: str | None = None,
+        tags: list[str] | None = None,
+        parent_id: str | None = None,
+        tags_operator: str | None = "OR",
         **filters: Any,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Returns a list of experiments filtered by given criteria"""
         # pylint: disable = unused-argument
         df = self.exps
@@ -273,14 +273,14 @@ class FakeService:
     def create_analysis_result(
         self,
         experiment_id: str,
-        result_data: Dict,
+        result_data: dict,
         result_type: str,
-        device_components: Optional[Union[str, DeviceComponent]] = None,
-        tags: Optional[List[str]] = None,
-        quality: Optional[str] = None,
+        device_components: str | DeviceComponent | None = None,
+        tags: list[str] | None = None,
+        quality: str | None = None,
         verified: bool = False,
-        result_id: Optional[str] = None,
-        json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
+        result_id: str | None = None,
+        json_encoder: type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
         """Creates an analysis result"""
@@ -348,9 +348,9 @@ class FakeService:
     def update_analysis_result(
         self,
         result_id: str,
-        result_data: Optional[Dict] = None,
-        tags: Optional[List[str]] = None,
-        quality: Optional[str] = None,
+        result_data: dict | None = None,
+        tags: list[str] | None = None,
+        quality: str | None = None,
         verified: bool = None,
         **kwargs: Any,
     ) -> None:
@@ -371,8 +371,8 @@ class FakeService:
             self.results.loc[row, "chisq"] = kwargs["chisq"]
 
     def analysis_result(
-        self, result_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
-    ) -> Dict:
+        self, result_id: str, json_decoder: type[json.JSONDecoder] = json.JSONDecoder
+    ) -> dict:
         """Gets an analysis result by result_id"""
         # pylint: disable = unused-argument
         if result_id not in self.results.result_id.values:
@@ -384,18 +384,18 @@ class FakeService:
 
     def analysis_results(
         self,
-        limit: Optional[int] = 10,
-        json_decoder: Type[json.JSONDecoder] = json.JSONDecoder,
-        device_components: Optional[Union[str, DeviceComponent]] = None,
-        experiment_id: Optional[str] = None,
-        result_type: Optional[str] = None,
-        backend_name: Optional[str] = None,
-        quality: Optional[str] = None,
-        verified: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
-        tags_operator: Optional[str] = "OR",
+        limit: int | None = 10,
+        json_decoder: type[json.JSONDecoder] = json.JSONDecoder,
+        device_components: str | DeviceComponent | None = None,
+        experiment_id: str | None = None,
+        result_type: str | None = None,
+        backend_name: str | None = None,
+        quality: str | None = None,
+        verified: bool | None = None,
+        tags: list[str] | None = None,
+        tags_operator: str | None = "OR",
         **filters: Any,
-    ) -> List[AnalysisResultData]:
+    ) -> list[AnalysisResultData]:
         """Returns a list of analysis results filtered by the given criteria"""
         # pylint: disable = unused-argument
         df = self.results
@@ -463,20 +463,20 @@ class FakeService:
         self.results.drop(index, inplace=True)
 
     def create_figure(
-        self, experiment_id: str, figure: Union[str, bytes], figure_name: Optional[str]
-    ) -> Tuple[str, int]:
+        self, experiment_id: str, figure: str | bytes, figure_name: str | None
+    ) -> tuple[str, int]:
         """Creates a figure"""
         pass
 
     def update_figure(
-        self, experiment_id: str, figure: Union[str, bytes], figure_name: str
-    ) -> Tuple[str, int]:
+        self, experiment_id: str, figure: str | bytes, figure_name: str
+    ) -> tuple[str, int]:
         """Updates a figure"""
         pass
 
     def figure(
-        self, experiment_id: str, figure_name: str, file_name: Optional[str] = None
-    ) -> Union[int, bytes]:
+        self, experiment_id: str, figure_name: str, file_name: str | None = None
+    ) -> int | bytes:
         """Returns a figure by experiment id and figure name"""
         pass
 
@@ -489,6 +489,6 @@ class FakeService:
         pass
 
     @property
-    def preferences(self) -> Dict:
+    def preferences(self) -> dict:
         """Returns the db service preferences"""
         return {"auto_save": False}

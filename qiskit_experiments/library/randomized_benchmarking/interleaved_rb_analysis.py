@@ -12,7 +12,6 @@
 """
 Interleaved RB analysis class.
 """
-from typing import List, Union
 
 import lmfit
 import numpy as np
@@ -121,7 +120,7 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         self,
         user_opt: curve.FitOptions,
         curve_data: curve.ScatterTable,
-    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+    ) -> curve.FitOptions | list[curve.FitOptions]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
@@ -166,7 +165,7 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         fit_data: curve.CurveFitResult,
         quality: str,
         **metadata,
-    ) -> List[AnalysisResultData]:
+    ) -> list[AnalysisResultData]:
         """Create analysis results for important fit parameters.
 
         Args:

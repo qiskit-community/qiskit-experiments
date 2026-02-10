@@ -77,7 +77,7 @@ class TestLocalBasis(QiskitExperimentsTestCase):
                     )
 
     def _outcome_tup_to_int(self, outcome):
-        return int("".join((str(i) for i in reversed(outcome))), 2)
+        return int("".join(str(i) for i in reversed(outcome)), 2)
 
     def test_pauli_mbasis_1q(self):
         """Test 1-qubit PauliMeasurementBasis ideal circuits and states"""
