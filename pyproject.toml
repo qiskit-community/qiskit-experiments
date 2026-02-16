@@ -1,4 +1,7 @@
 [build-system]
+# build is not used by the build system but listing it here is the only way to
+# get it installed in a tox package_env environment.
+# See https://github.com/tox-dev/tox/pull/3687#issuecomment-3906846614
 requires = ["setuptools", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
