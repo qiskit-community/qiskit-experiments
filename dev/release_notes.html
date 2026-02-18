@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="QuantumVolumePlotter" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Release Notes - Qiskit Experiments 0.13.0-6-g308dc9dd6</title>
+        <title>Release Notes - Qiskit Experiments 0.13.0-7-g0b38c31c6</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit Experiments 0.13.0-6-g308dc9dd6</div></a>
+      <a href="index.html"><div class="brand">Qiskit Experiments 0.13.0-7-g0b38c31c6</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-6-g308dc9dd6</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-7-g0b38c31c6</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -544,10 +544,10 @@ released.</p>
 </div>
 <section id="release-notes">
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
-<section id="relnotes-0-13-0-6">
-<span id="id1"></span><h2>0.13.0-6<a class="headerlink" href="#relnotes-0-13-0-6" title="Link to this heading">¶</a></h2>
+<section id="relnotes-0-13-0-7">
+<span id="id1"></span><h2>0.13.0-7<a class="headerlink" href="#relnotes-0-13-0-7" title="Link to this heading">¶</a></h2>
 <section id="new-features">
-<span id="relnotes-0-13-0-6-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-13-0-7-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Importing of optional dependencies has been made delayed until first use.
 In particular, <code class="docutils literal notranslate"><span class="pre">cvxpy</span></code> is now not imported until a tomography fitter that
@@ -638,8 +638,8 @@ accessing the hub, group, and project information.</p></li>
 <span id="id10"></span><h3>New Features<a class="headerlink" href="#release-notes-0-11-0-new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>A new class <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary" title="qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerFidelityUnitary</span></code></a> which allows for layer style RB with arbitrary
-two-qubit gates or circuits in the 2Q layer was added. A list of qiskit <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.Gate" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.circuit.Gate</span></code></a>
-or <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.CircuitInstruction" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.circuit.CircuitInstruction</span></code></a> objects can be passed into the class and then each layer is
+two-qubit gates or circuits in the 2Q layer was added. A list of qiskit <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.Gate" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.circuit.Gate</span></code></a>
+or <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.CircuitInstruction" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.circuit.CircuitInstruction</span></code></a> objects can be passed into the class and then each layer is
 randomly sampled from that list. A final SU(2) inversion gate is appended so that the full
 circuit is the identity and this is analyzed using the same
 <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis" title="qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerFidelityAnalysis</span></code></a> analysis class as <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity" title="qiskit_experiments.library.randomized_benchmarking.LayerFidelity"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerFidelity</span></code></a>.</p></li>
@@ -650,7 +650,7 @@ helper methods of <a class="reference internal" href="stubs/qiskit_experiments.l
 a synthesis option was added to decompose the 1Q cliffords into
 a fixed gate structure using the syntax
 <code class="docutils literal notranslate"><span class="pre">rb_obj.experiment_options.clifford_synthesis_method</span> <span class="pre">=</span> <span class="pre">'1Q_fixed'</span></code>
-using <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.synthesis.OneQubitEulerDecomposer" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.synthesis.OneQubitEulerDecomposer</span></code></a></p></li>
+using <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.synthesis.OneQubitEulerDecomposer" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.synthesis.OneQubitEulerDecomposer</span></code></a></p></li>
 </ul>
 </section>
 <section id="release-notes-0-11-0-upgrade-notes">
@@ -660,7 +660,7 @@ using <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api
 </ul>
 <ul class="simple">
 <li><p><a class="reference internal" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolume.html#qiskit_experiments.library.quantum_volume.QuantumVolume" title="qiskit_experiments.library.quantum_volume.QuantumVolume"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumVolume</span></code></a> was updated to avoid using the deprecated
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.library.QuantumVolume" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.circuit.library.QuantumVolume</span></code></a> class. The experiment should
+<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.library.QuantumVolume" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.circuit.library.QuantumVolume</span></code></a> class. The experiment should
 continue to behave as it has before.</p></li>
 </ul>
 <ul class="simple">
@@ -733,7 +733,7 @@ less than 0.40.0</p></li>
 <span id="id13"></span><h2>0.10.0<a class="headerlink" href="#release-notes-0-10-0" title="Link to this heading">¶</a></h2>
 <section id="release-notes-0-10-0-prelude">
 <span id="id14"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-10-0-prelude" title="Link to this heading">¶</a></h3>
-<p>The Qiskit Experiments 0.10.0 release adds new features to <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity" title="qiskit_experiments.library.randomized_benchmarking.LayerFidelity"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerFidelity</span></code></a> that allow it to be used as a parallel direct randomized benchmarking experiment as well. It also includes some small changes to address the way <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/compiler#qiskit.compiler.transpile" title="(in Qiskit v2.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">transpile()</span></code></a> handles the <code class="docutils literal notranslate"><span class="pre">basis_gates</span></code> argument in Qiskit 2.0.</p>
+<p>The Qiskit Experiments 0.10.0 release adds new features to <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity" title="qiskit_experiments.library.randomized_benchmarking.LayerFidelity"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerFidelity</span></code></a> that allow it to be used as a parallel direct randomized benchmarking experiment as well. It also includes some small changes to address the way <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/compiler#qiskit.compiler.transpile" title="(in Qiskit v2.3)"><code class="xref py py-func docutils literal notranslate"><span class="pre">transpile()</span></code></a> handles the <code class="docutils literal notranslate"><span class="pre">basis_gates</span></code> argument in Qiskit 2.0.</p>
 </section>
 <section id="release-notes-0-10-0-new-features">
 <span id="id15"></span><h3>New Features<a class="headerlink" href="#release-notes-0-10-0-new-features" title="Link to this heading">¶</a></h3>
@@ -839,7 +839,7 @@ that does not the require readout error properties.</p></li>
 </ul>
 <ul class="simple">
 <li><p><a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> was updated to handle changes to
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.result.Result</span></code></a> in Qiskit 2.0. With Qiskit 2.0, the result
+<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.result.Result</span></code></a> in Qiskit 2.0. With Qiskit 2.0, the result
 header is a dict instead of a custom class. Qiskit Experiments uses this
 header to store metadata about experiments’ circuits and now handles both
 the dict and class forms.</p></li>
@@ -850,7 +850,7 @@ Aer is installed, <a class="reference internal" href="stubs/qiskit_experiments.l
 <a class="reference external" href="https://qiskit.github.io/qiskit-aer/stubs/qiskit_aer.AerSimulator.html#qiskit_aer.AerSimulator" title="(in Qiskit Aer v0.17.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_aer.AerSimulator</span></code></a> to simulate the outcomes of the quantum
 volume circuits to determine the heavy output probabilities. In its default
 instantiation, <code class="docutils literal notranslate"><span class="pre">AerSimulator</span></code> regenerates its
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.Target" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.transpiler.Target</span></code></a> every time it is accessed and this
+<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.Target" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.transpiler.Target</span></code></a> every time it is accessed and this
 generation takes an appreciable amount of time. Because the target was
 being accessed separately for every circuit, this overhead could accumulate
 to over a minute in the standard 100 circuit experiment. This overhead was
@@ -960,7 +960,7 @@ change in the next three months (the shortest allowed deprecation cycle).</p>
 <p>which makes use of implicit returning the result directly instead of a list
 when there is only one match. With <code class="docutils literal notranslate"><span class="pre">dataframe=True</span></code>, the dataframe is not
 implicitly truncated so the first match must be selected.
-<a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iloc.html#pandas.DataFrame.iloc" title="(in pandas v2.3.3)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">pandas.DataFrame.iloc</span></code></a> can be used to select the first match. The
+<a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iloc.html#pandas.DataFrame.iloc" title="(in pandas v3.0.1)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">pandas.DataFrame.iloc</span></code></a> can be used to select the first match. The
 following block is equivalent to the previous example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T1 is </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1054,7 +1054,7 @@ the job is of type <a class="reference external" href="https://quantum.cloud.ibm
 <section id="release-notes-0-8-2-api-changes-for-experiment-authors">
 <span id="id25"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#release-notes-0-8-2-api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Added a function that returns the job status as <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.providers.jobstatus.JobStatus</span></code></a>:
+<li><p>Added a function that returns the job status as <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.providers.jobstatus.JobStatus</span></code></a>:
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_job_status()</span></code>.</p></li>
 </ul>
 </section>
@@ -1106,7 +1106,7 @@ help with inferring the credentials.</p></li>
 </ul>
 <ul class="simple">
 <li><p>Fixed a bug where <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_data" title="qiskit_experiments.framework.ExperimentData.add_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_data()</span></code></a> would not work when
-passed a single <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.PrimitiveResult" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.primitives.PrimitiveResult</span></code></a> object.</p></li>
+passed a single <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.PrimitiveResult" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.primitives.PrimitiveResult</span></code></a> object.</p></li>
 </ul>
 </section>
 <section id="release-notes-0-8-1-api-changes-for-experiment-authors">
@@ -1168,7 +1168,7 @@ such as, <code class="docutils literal notranslate"><span class="pre">SingleTran
 <li><p>When only a <code class="docutils literal notranslate"><span class="pre">backend</span></code> is set on an experiment, <a class="reference internal" href="stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.run" title="qiskit_experiments.framework.BaseExperiment.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit_experiments.framework.BaseExperiment.run()</span></code></a>
 now defaults to wrapping the <code class="docutils literal notranslate"><span class="pre">backend</span></code> in a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/sampler-v2" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_ibm_runtime.SamplerV2</span></code></a> and
 using that to execute the circuits. A new <code class="docutils literal notranslate"><span class="pre">sampler</span></code> argument is also
-accepted by <code class="docutils literal notranslate"><span class="pre">run()</span></code> to allow for a custom <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.primitives.BaseSamplerV2</span></code></a>
+accepted by <code class="docutils literal notranslate"><span class="pre">run()</span></code> to allow for a custom <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.primitives.BaseSamplerV2</span></code></a>
 instance to be used for circuit execution. <code class="docutils literal notranslate"><span class="pre">run()</span></code> also accepts a <code class="docutils literal notranslate"><span class="pre">backend_run</span></code>
 option which will cause the old <code class="docutils literal notranslate"><span class="pre">backend.run</span></code> path to be used for circuit execution.
 However, the <code class="docutils literal notranslate"><span class="pre">backend.run()</span></code> method is scheduled to be removed from
@@ -1376,10 +1376,10 @@ required dependency of Qiskit Experiments.</p></li>
 <span id="id50"></span><h3>Prelude<a class="headerlink" href="#release-notes-0-6-0-prelude" title="Link to this heading">¶</a></h3>
 <p>Qiskit Experiments 0.6 introduces numerous features and improvements. It is
 compatible with Qiskit 1.0. Notable changes include: refactoring the analysis
-results to a pandas <a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>-based
+results to a pandas <a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>-based
 <a class="reference internal" href="stubs/qiskit_experiments.framework.AnalysisResultTable.html#qiskit_experiments.framework.AnalysisResultTable" title="qiskit_experiments.framework.AnalysisResultTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResultTable</span></code></a>, the ability to add artifacts of serializable data
 to <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a>, and refactoring curve fit data into a new
-<a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>-based <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> container that is
+<a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>-based <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> container that is
 stored by default as an artifact in <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> along with the
 summary of fit results. New experiments include <code class="xref py py-class docutils literal notranslate"><span class="pre">StarkP1Spectroscopy</span></code>,
 <code class="xref py py-class docutils literal notranslate"><span class="pre">StarkRamseyXY</span></code>, and <code class="xref py py-class docutils literal notranslate"><span class="pre">StarkRamseyXYAmpScan</span></code>.
@@ -1422,7 +1422,7 @@ perform custom analysis on the spectroscopy data.</p></li>
 <li><p>Added a new experiment option <code class="docutils literal notranslate"><span class="pre">clifford_synthesis_method</span></code> to RB experiments,
 e.g. <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html#qiskit_experiments.library.randomized_benchmarking.StandardRB" title="qiskit_experiments.library.randomized_benchmarking.StandardRB"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardRB</span></code></a> and <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html#qiskit_experiments.library.randomized_benchmarking.InterleavedRB" title="qiskit_experiments.library.randomized_benchmarking.InterleavedRB"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterleavedRB</span></code></a> so that users can
 plug in a custom Clifford synthesis algorithm used for generating RB circuits.
-Such a plugin should be implemented as a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.passes.synthesis.plugin.HighLevelSynthesisPlugin" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">HighLevelSynthesisPlugin</span></code></a>
+Such a plugin should be implemented as a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.passes.synthesis.plugin.HighLevelSynthesisPlugin" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">HighLevelSynthesisPlugin</span></code></a>
 (see <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis.html#qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis" title="qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis"><code class="xref py py-class docutils literal notranslate"><span class="pre">RBDefaultCliffordSynthesis</span></code></a> for example).</p></li>
 </ul>
 <ul class="simple">
@@ -1545,7 +1545,7 @@ to and loaded from the cloud service.</p></li>
 <ul>
 <li><p><a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable" title="qiskit_experiments.curve_analysis.ScatterTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScatterTable</span></code></a> has been introduced as a drop-in replacement of <code class="xref py py-class docutils literal notranslate"><span class="pre">CurveData</span></code>.</p>
 <p>This is a data format to store intermediate data in curve analysis built on top of
-the pandas <a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>. Each table row corresponds to a single data point,
+the pandas <a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>. Each table row corresponds to a single data point,
 and the table contains all data points generated by the <a class="reference internal" href="stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis" title="qiskit_experiments.curve_analysis.CurveAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CurveAnalysis</span></code></a>.
 All properties and methods of <code class="xref py py-class docutils literal notranslate"><span class="pre">CurveData</span></code> are implemented for backward compatibility,
 but these will be removed in the future release.</p>
@@ -1722,7 +1722,7 @@ changed to <code class="docutils literal notranslate"><span class="pre">True</sp
 </ul>
 <ul class="simple">
 <li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">BackendData.is_simulator</span></code> has been deprecated.
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.BackendV2" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendV2</span></code></a> does not provide a standard interface
+<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.BackendV2" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendV2</span></code></a> does not provide a standard interface
 for determining if a backend uses a simulator. Calling code must determine
 if a backend uses a simulator through some other means. Qiskit Experiments
 does not treat simulator-backed backends differently from hardware backed
@@ -1949,13 +1949,13 @@ This update might slightly change the outcome of fit.</p></li>
 </ul>
 <ul class="simple">
 <li><p>Changed <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html#qiskit_experiments.library.randomized_benchmarking.StandardRB" title="qiskit_experiments.library.randomized_benchmarking.StandardRB"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardRB</span></code></a> to treat two qubit operations in the
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.Target" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.transpiler.Target</span></code></a> as having all-to-all connectivity if
+<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.Target" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.transpiler.Target</span></code></a> as having all-to-all connectivity if
 there is no set of specific pairs of coupled qubits. Most importantly, this
 change allows <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html#qiskit_experiments.library.randomized_benchmarking.StandardRB" title="qiskit_experiments.library.randomized_benchmarking.StandardRB"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardRB</span></code></a> to work with
 <a class="reference external" href="https://qiskit.github.io/qiskit-aer/stubs/qiskit_aer.AerSimulator.html#qiskit_aer.AerSimulator" title="(in Qiskit Aer v0.17.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_aer.AerSimulator</span></code></a> for multi-qubit benchmarking after
 <code class="docutils literal notranslate"><span class="pre">qiskit-aer</span></code> 0.13.0. Version 0.13.0 of <code class="docutils literal notranslate"><span class="pre">qiskit-aer</span></code> changed
 the default <a class="reference external" href="https://qiskit.github.io/qiskit-aer/stubs/qiskit_aer.AerSimulator.html#qiskit_aer.AerSimulator" title="(in Qiskit Aer v0.17.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_aer.AerSimulator</span></code></a> to have such a
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.Target" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.transpiler.Target</span></code></a> without specific coupled pairs.
+<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.Target" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.transpiler.Target</span></code></a> without specific coupled pairs.
 See <a class="reference external" href="https://github.com/Qiskit-Community/qiskit-experiments/issues/1292">#1292</a>.</p></li>
 </ul>
 </section>
@@ -2399,9 +2399,9 @@ results will be cleared before running <code class="xref py py-meth docutils lit
 empty analysis result will be saved to the database service.</p></li>
 </ul>
 <ul class="simple">
-<li><p>Updated querying of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code></a> metadata to support
+<li><p>Updated querying of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code></a> metadata to support
 the look up of qubit T1 and measurement drive frequency, in order to
-support <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.BackendV2" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendV2</span></code></a> backends. The look up of the
+support <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.BackendV2" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendV2</span></code></a> backends. The look up of the
 latter is <code class="docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code> specific. This change fixed errors
 failing to find these properties when using <code class="xref py py-class docutils literal notranslate"><span class="pre">ResonatorSpectroscopy</span></code>
 (issue <a class="reference external" href="https://github.com/Qiskit/qiskit-experiments/issues/1099">#1099</a>)
@@ -2454,7 +2454,7 @@ instructions. See <a class="reference external" href="https://github.com/Qiskit/
 experiments where if the input circuit contained conditional instructions
 with multiple classical registers the tomography measurement circuits
 would contain incorrect conditionals due to a bug in the
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit#compose" title="(in Qiskit v2.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit.circuit.QuantumCircuit.compose()</span></code></a> method.</p>
+<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit#compose" title="(in Qiskit v2.3)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit.circuit.QuantumCircuit.compose()</span></code></a> method.</p>
 <p>See <a class="reference external" href="https://github.com/Qiskit/qiskit-experiments/issues/943">Issue #942</a>
 for additional details.</p>
 </li>
@@ -2559,7 +2559,7 @@ even if exactly the same arguments are used for their construction.</p></li>
 <ul class="simple">
 <li><p>Added a new class, <a class="reference internal" href="stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData" title="qiskit_experiments.framework.BackendData"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendData</span></code></a>, which provides a common access inferface
 for both <code class="xref py py-class docutils literal notranslate"><span class="pre">BackendV1</span></code> and
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.BackendV2" title="(in Qiskit v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendV2</span></code></a> data fields, since those
+<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.BackendV2" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendV2</span></code></a> data fields, since those
 classes do not share the same interface. The <a class="reference internal" href="stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData" title="qiskit_experiments.framework.BackendData"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendData</span></code></a> can be called
 on a backend and used immediately, and it is also automatically stored as the
 <code class="docutils literal notranslate"><span class="pre">_backend_data</span></code> field of <a class="reference internal" href="stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a>. Note that not all data fields
@@ -4078,13 +4078,13 @@ stored in the experiments analysis result extra field.</p></li>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2025, Qiskit Development Team
+                Copyright &#169; 2021-2026, Qiskit Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/12/15</div>
+              Last updated on 2026/02/18</div>
           </div>
           <div class="right-details">
             
@@ -4106,7 +4106,7 @@ stored in the experiments analysis result extra field.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Release Notes</a><ul>
-<li><a class="reference internal" href="#relnotes-0-13-0-6">0.13.0-6</a><ul>
+<li><a class="reference internal" href="#relnotes-0-13-0-7">0.13.0-7</a><ul>
 <li><a class="reference internal" href="#new-features">New Features</a></li>
 </ul>
 </li>
@@ -4299,7 +4299,7 @@ stored in the experiments analysis result extra field.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=64f8a398"></script>
+</div><script src="_static/documentation_options.js?v=4c5fadc0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
