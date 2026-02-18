@@ -69,7 +69,11 @@ testing = [
     "ddt>=1.6.0",
     "fixtures",
     "stestr",
-    "testtools",
+    # testtools 2.8.3 is incompatible with stestr<=4.2.0. Avoid that version
+    # and hope that the next stestr or testtools release fixes the
+    # incompatibility.
+    # See: https://github.com/testing-cabal/testtools/pull/566
+    "testtools!=2.8.3",
     # Packages only used in tests
     "multimethod",
 ]

@@ -461,7 +461,8 @@ class CurveAnalysis(BaseCurveAnalysis):
             if valid_uncertainty:
                 nonzero_yerr = np.where(
                     np.isclose(sub_data.y_err, 0.0),
-                    np.finfo(float).eps,
+                    # See https://github.com/pylint-dev/pylint/issues/10806
+                    np.finfo(float).eps,  # pylint: disable=no-member
                     sub_data.y_err,
                 )
                 raw_weights = 1 / nonzero_yerr
