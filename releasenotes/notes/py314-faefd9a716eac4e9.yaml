@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    Qiskit Experiments has been marked compatible with Python 3.14.
+    Additionally, Python 3.9 has been dropped from the list of compatible
+    versions.
