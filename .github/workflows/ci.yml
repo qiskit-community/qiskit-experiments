@@ -67,7 +67,7 @@ jobs:
 
       - name: Install and Run Tests (normal PR run)
         if: env.qiskitmain != 'true'
-        run: uvx --with tox-uv tox --override testenv.package=external run -e py
+        run: uvx --with tox-uv tox --override testenv.package=external --override testenv.package_env=.pkg_external run -e py
 
       # Always prune history (avoid unbounded growth)
       - name: Prune stestr history
