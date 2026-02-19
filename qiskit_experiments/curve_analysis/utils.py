@@ -12,7 +12,7 @@
 
 """Utils in curve analysis."""
 
-from typing import Union, Optional, List, Dict, Tuple, Callable
+from collections.abc import Callable
 import time
 
 import asteval
@@ -32,9 +32,9 @@ UNUMPY_FUNCS = {fn: getattr(unumpy, fn) for fn in unumpy.__all__}
 
 
 def is_error_not_significant(
-    val: Union[float, UFloat],
+    val: float | UFloat,
     fraction: float = 1.0,
-    absolute: Optional[float] = None,
+    absolute: float | None = None,
 ) -> bool:
     """Check if the standard error of given value is not significant.
 
@@ -111,7 +111,7 @@ def analysis_result_to_repr(result: AnalysisResultData) -> str:
 
 def convert_lmfit_result(
     result: lmfit.minimizer.MinimizerResult,
-    models: List[lmfit.Model],
+    models: list[lmfit.Model],
     xdata: np.ndarray,
     ydata: np.ndarray,
     residuals: np.ndarray,
@@ -179,7 +179,7 @@ def convert_lmfit_result(
 def eval_with_uncertainties(
     x: np.ndarray,
     model: lmfit.Model,
-    params: Dict[str, UFloat],
+    params: dict[str, UFloat],
 ) -> np.ndarray:
     """Compute Y values with error propagation.
 
@@ -231,7 +231,7 @@ def shot_weighted_average(
     yvals: np.ndarray,
     yerrs: np.ndarray,
     shots: np.ndarray,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """Compute shot based variance and weighted average of the categorized data frame.
 
     Sample is weighted by the shot number.
@@ -264,7 +264,7 @@ def inverse_weighted_variance(
     yvals: np.ndarray,
     yerrs: np.ndarray,
     shots: np.ndarray,
-) -> Tuple[float, float, int]:
+) -> tuple[float, float, int]:
     """Compute inverse weighted variance and weighted average of the categorized data frame.
 
     Sample is weighted by the inverse of the data variance.
@@ -295,7 +295,7 @@ def sample_average(
     yvals: np.ndarray,
     yerrs: np.ndarray,
     shots: np.ndarray,
-) -> Tuple[float, float, int]:
+) -> tuple[float, float, int]:
     """Compute sample based variance and average of the categorized data frame.
 
     Original variance of the data is ignored and variance is computed with the y values.
@@ -319,7 +319,7 @@ def sample_average(
     return avg_yval, avg_yerr, total_shots
 
 
-def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float, float]:
+def level2_probability(data: dict[str, any], outcome: str) -> tuple[float, float]:
     """Return the outcome probability mean and variance.
 
     Args:

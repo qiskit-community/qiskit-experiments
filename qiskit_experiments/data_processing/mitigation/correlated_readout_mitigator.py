@@ -14,7 +14,7 @@ Readout mitigator class based on the A-matrix inversion method
 """
 
 import math
-from typing import Optional, List, Tuple, Iterable, Callable, Union, Dict
+from collections.abc import Iterable, Callable
 import numpy as np
 
 from qiskit.exceptions import QiskitError
@@ -35,7 +35,7 @@ class CorrelatedReadoutMitigator(BaseReadoutMitigator):
     :math:`2^N x 2^N` so the mitigation complexity is :math:`O(4^N)`.
     """
 
-    def __init__(self, assignment_matrix: np.ndarray, qubits: Optional[Iterable[int]] = None):
+    def __init__(self, assignment_matrix: np.ndarray, qubits: Iterable[int] | None = None):
         """Initialize a CorrelatedReadoutMitigator
 
         Args:
@@ -65,18 +65,18 @@ class CorrelatedReadoutMitigator(BaseReadoutMitigator):
         self._mitigation_mats = {}
 
     @property
-    def settings(self) -> Dict:
+    def settings(self) -> dict:
         """Return settings."""
         return {"assignment_matrix": self._assignment_mat, "qubits": self._qubits}
 
     def expectation_value(
         self,
         data: Counts,
-        diagonal: Union[Callable, dict, str, np.ndarray] = None,
+        diagonal: Callable | dict | str | np.ndarray = None,
         qubits: Iterable[int] = None,
-        clbits: Optional[List[int]] = None,
-        shots: Optional[int] = None,
-    ) -> Tuple[float, float]:
+        clbits: list[int] | None = None,
+        shots: int | None = None,
+    ) -> tuple[float, float]:
         r"""Compute the mitigated expectation value of a diagonal observable.
 
         This computes the mitigated estimator of
@@ -133,9 +133,9 @@ class CorrelatedReadoutMitigator(BaseReadoutMitigator):
     def quasi_probabilities(
         self,
         data: Counts,
-        qubits: Optional[List[int]] = None,
-        clbits: Optional[List[int]] = None,
-        shots: Optional[int] = None,
+        qubits: list[int] | None = None,
+        clbits: list[int] | None = None,
+        shots: int | None = None,
     ) -> QuasiDistribution:
         """Compute mitigated quasi probabilities value.
 
@@ -175,7 +175,7 @@ class CorrelatedReadoutMitigator(BaseReadoutMitigator):
 
         return quasi_dist
 
-    def mitigation_matrix(self, qubits: List[int] = None) -> np.ndarray:
+    def mitigation_matrix(self, qubits: list[int] = None) -> np.ndarray:
         r"""Return the readout mitigation matrix for the specified qubits.
 
         The mitigation matrix :math:`A^{-1}` is defined as the inverse of the
@@ -204,7 +204,7 @@ class CorrelatedReadoutMitigator(BaseReadoutMitigator):
 
         return self._mitigation_mats[qubits]
 
-    def assignment_matrix(self, qubits: List[int] = None) -> np.ndarray:
+    def assignment_matrix(self, qubits: list[int] = None) -> np.ndarray:
         r"""Return the readout assignment matrix for specified qubits.
 
         The assignment matrix is the stochastic matrix :math:`A` which assigns
@@ -265,6 +265,6 @@ class CorrelatedReadoutMitigator(BaseReadoutMitigator):
         return gamma / math.sqrt(shots)
 
     @property
-    def qubits(self) -> Tuple[int]:
+    def qubits(self) -> tuple[int]:
         """The device qubits for this mitigator"""
         return self._qubits

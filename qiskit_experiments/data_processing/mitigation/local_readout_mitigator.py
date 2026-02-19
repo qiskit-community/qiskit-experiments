@@ -16,7 +16,7 @@ Readout mitigator class based on the 1-qubit local tensored mitigation method
 
 import math
 import warnings
-from typing import Optional, List, Tuple, Iterable, Callable, Union, Dict
+from collections.abc import Iterable, Callable
 import numpy as np
 
 from qiskit.exceptions import QiskitError
@@ -40,8 +40,8 @@ class LocalReadoutMitigator(BaseReadoutMitigator):
 
     def __init__(
         self,
-        assignment_matrices: Optional[List[np.ndarray]] = None,
-        qubits: Optional[Iterable[int]] = None,
+        assignment_matrices: list[np.ndarray] | None = None,
+        qubits: Iterable[int] | None = None,
         backend=None,
     ):
         """Initialize a LocalReadoutMitigator
@@ -96,18 +96,18 @@ class LocalReadoutMitigator(BaseReadoutMitigator):
             self._mitigation_mats[i] = ainv
 
     @property
-    def settings(self) -> Dict:
+    def settings(self) -> dict:
         """Return settings."""
         return {"assignment_matrices": self._assignment_mats, "qubits": self._qubits}
 
     def expectation_value(
         self,
         data: Counts,
-        diagonal: Union[Callable, dict, str, np.ndarray] = None,
+        diagonal: Callable | dict | str | np.ndarray = None,
         qubits: Iterable[int] = None,
-        clbits: Optional[List[int]] = None,
-        shots: Optional[int] = None,
-    ) -> Tuple[float, float]:
+        clbits: list[int] | None = None,
+        shots: int | None = None,
+    ) -> tuple[float, float]:
         r"""Compute the mitigated expectation value of a diagonal observable.
 
         This computes the mitigated estimator of
@@ -171,9 +171,9 @@ class LocalReadoutMitigator(BaseReadoutMitigator):
     def quasi_probabilities(
         self,
         data: Counts,
-        qubits: Optional[List[int]] = None,
-        clbits: Optional[List[int]] = None,
-        shots: Optional[int] = None,
+        qubits: list[int] | None = None,
+        clbits: list[int] | None = None,
+        shots: int | None = None,
     ) -> QuasiDistribution:
         """Compute mitigated quasi probabilities value.
 
@@ -225,7 +225,7 @@ class LocalReadoutMitigator(BaseReadoutMitigator):
         )
         return quasi_dist
 
-    def mitigation_matrix(self, qubits: Optional[Union[List[int], int]] = None) -> np.ndarray:
+    def mitigation_matrix(self, qubits: list[int] | int | None = None) -> np.ndarray:
         r"""Return the measurement mitigation matrix for the specified qubits.
 
         The mitigation matrix :math:`A^{-1}` is defined as the inverse of the
@@ -249,7 +249,7 @@ class LocalReadoutMitigator(BaseReadoutMitigator):
             mat = np.kron(self._mitigation_mats[i], mat)
         return mat
 
-    def assignment_matrix(self, qubits: List[int] = None) -> np.ndarray:
+    def assignment_matrix(self, qubits: list[int] = None) -> np.ndarray:
         r"""Return the measurement assignment matrix for specified qubits.
 
         The assignment matrix is the stochastic matrix :math:`A` which assigns
@@ -281,7 +281,7 @@ class LocalReadoutMitigator(BaseReadoutMitigator):
             gammas = self._gammas[qubit_indices]
         return np.prod(gammas)
 
-    def stddev_upper_bound(self, shots: int, qubits: List[int] = None):
+    def stddev_upper_bound(self, shots: int, qubits: list[int] = None):
         """Return an upper bound on standard deviation of expval estimator.
 
         Args:
@@ -332,6 +332,6 @@ class LocalReadoutMitigator(BaseReadoutMitigator):
         return amats
 
     @property
-    def qubits(self) -> Tuple[int]:
+    def qubits(self) -> tuple[int]:
         """The device qubits for this mitigator"""
         return self._qubits

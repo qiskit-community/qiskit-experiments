@@ -13,10 +13,8 @@
 Functions for checking and reporting installed package versions.
 """
 
-from __future__ import annotations
-
 import warnings
-from functools import lru_cache
+from functools import cache
 from importlib.metadata import version as metadata_version
 
 from packaging.version import InvalidVersion, Version
@@ -44,7 +42,7 @@ def qiskit_version() -> dict[str, str]:
     return {p: metadata_version(p) for p in ("qiskit", "qiskit-experiments")}
 
 
-@lru_cache(maxsize=None)
+@cache
 def version_is_at_least(package: str, version: str) -> bool:
     """Return True if the installed version of package greater than minimum version
 

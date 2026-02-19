@@ -13,7 +13,6 @@
 """Test utility functions."""
 
 import uuid
-from typing import Optional, Dict
 from datetime import datetime, timezone
 
 from qiskit.providers.job import JobV1 as Job
@@ -25,7 +24,7 @@ from qiskit.result import Result
 class FakeJob(Job):
     """Fake job."""
 
-    def __init__(self, backend: Backend, result: Optional[Result] = None):
+    def __init__(self, backend: Backend, result: Result | None = None):
         """Initialize FakeJob."""
         if result:
             job_id = result.job_id
@@ -43,7 +42,7 @@ class FakeJob(Job):
         pass
 
     @staticmethod
-    def time_per_step() -> Dict[str, datetime]:
+    def time_per_step() -> dict[str, datetime]:
         """Return the completion time."""
         return {"COMPLETED": datetime.now(timezone.utc)}
 

@@ -13,7 +13,8 @@
 """Multi state discrimination experiment."""
 
 import warnings
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
+from collections.abc import Sequence
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
@@ -104,9 +105,9 @@ class MultiStateDiscrimination(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        backend: Optional[Backend] = None,
-        n_states: Optional[int] = None,
-        schedules: Optional[Dict[str, Any]] = None,
+        backend: Backend | None = None,
+        n_states: int | None = None,
+        schedules: dict[str, Any] | None = None,
     ):
         """Setup an experiment to prepare different energy states on a given qubit.
 
@@ -128,7 +129,7 @@ class MultiStateDiscrimination(BaseExperiment):
         if n_states is not None:
             self.set_experiment_options(n_states=n_states)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """
         Create the circuits for the multi state discrimination experiment.
 

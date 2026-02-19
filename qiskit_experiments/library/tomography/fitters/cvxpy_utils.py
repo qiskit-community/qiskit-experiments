@@ -15,7 +15,8 @@ Utility functions for CVXPy module
 from __future__ import annotations
 
 import functools
-from typing import Callable, List, TYPE_CHECKING, Tuple, Optional, Union
+from typing import TYPE_CHECKING
+from collections.abc import Callable
 
 import numpy as np
 import scipy.sparse as sps
@@ -104,8 +105,8 @@ def solve_iteratively(
 
 
 def complex_matrix_variable(
-    dim: int, hermitian: bool = False, psd: bool = False, trace: Optional[complex] = None
-) -> Tuple[Variable, Variable, List[Constraint]]:
+    dim: int, hermitian: bool = False, psd: bool = False, trace: complex | None = None
+) -> tuple[Variable, Variable, list[Constraint]]:
     """Construct a pair of real variables and constraints for a Hermitian matrix
 
     Args:
@@ -136,7 +137,7 @@ def complex_matrix_variable(
     return mat_r, mat_i, cons
 
 
-def hermitian_constraint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
+def hermitian_constraint(mat_r: Variable, mat_i: Variable) -> list[Constraint]:
     """Return CVXPY constraint for a Hermitian matrix variable.
 
     Args:
@@ -149,7 +150,7 @@ def hermitian_constraint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
     return [mat_r == mat_r.T, mat_i == -mat_i.T]
 
 
-def psd_constraint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
+def psd_constraint(mat_r: Variable, mat_i: Variable) -> list[Constraint]:
     """Return CVXPY Hermitian constraints for a complex matrix.
 
     Args:
@@ -166,11 +167,11 @@ def psd_constraint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
 
 
 def trace_constraint(
-    mat_r: Union[Variable, List[Variable]],
-    mat_i: Union[Variable, List[Variable]],
+    mat_r: Variable | list[Variable],
+    mat_i: Variable | list[Variable],
     trace: complex,
     hermitian: bool = False,
-) -> List[Constraint]:
+) -> list[Constraint]:
     """Return CVXPY trace constraints for a complex matrix.
 
     Args:
@@ -214,7 +215,7 @@ def partial_trace_constaint(
     mat_r: Variable,
     mat_i: Variable,
     constraint: np.ndarray,
-) -> List[Constraint]:
+) -> list[Constraint]:
     """Return CVXPY partial trace constraints for a complex matrix.
 
     Args:
@@ -242,11 +243,11 @@ def partial_trace_constaint(
 
 
 def trace_preserving_constaint(
-    mat_r: Union[Variable, List[Variable]],
-    mat_i: Union[Variable, List[Variable]],
-    input_dim: Optional[int] = None,
+    mat_r: Variable | list[Variable],
+    mat_i: Variable | list[Variable],
+    input_dim: int | None = None,
     hermitian: bool = False,
-) -> List[Constraint]:
+) -> list[Constraint]:
     """Return CVXPY trace preserving constraints for a complex matrix.
 
     Args:

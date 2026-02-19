@@ -12,7 +12,6 @@
 """
 Parallel Experiment class.
 """
-from typing import List, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit, ClassicalRegister
@@ -44,11 +43,11 @@ class ParallelExperiment(CompositeExperiment):
 
     def __init__(
         self,
-        experiments: List[BaseExperiment],
-        backend: Optional[Backend] = None,
+        experiments: list[BaseExperiment],
+        backend: Backend | None = None,
         flatten_results: bool = True,
-        analysis: Optional[CompositeAnalysis] = None,
-        experiment_type: Optional[str] = None,
+        analysis: CompositeAnalysis | None = None,
+        experiment_type: str | None = None,
     ):
         """Initialize the analysis object.
 
@@ -83,7 +82,7 @@ class ParallelExperiment(CompositeExperiment):
     def _transpiled_circuits(self):
         return self._combined_circuits(device_layout=True)
 
-    def _combined_circuits(self, device_layout: bool) -> List[QuantumCircuit]:
+    def _combined_circuits(self, device_layout: bool) -> list[QuantumCircuit]:
         """Generate combined parallel circuits from transpiled subcircuits."""
         if not device_layout:
             # Num qubits will be computed from sub experiments

@@ -13,7 +13,7 @@
 Quantum Volume Experiment class.
 """
 
-from typing import Union, Sequence, Optional, List
+from collections.abc import Sequence
 import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
@@ -95,10 +95,10 @@ class QuantumVolume(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        backend: Optional[Backend] = None,
-        trials: Optional[int] = 100,
-        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-        simulation_backend: Optional[Backend] = None,
+        backend: Backend | None = None,
+        trials: int | None = 100,
+        seed: int | SeedSequence | BitGenerator | Generator | None = None,
+        simulation_backend: Backend | None = None,
     ):
         """Initialize a quantum volume experiment.
 
@@ -146,7 +146,7 @@ class QuantumVolume(BaseExperiment):
 
         return options
 
-    def _get_ideal_data(self, circuits: List[QuantumCircuit], **run_options) -> List[List[float]]:
+    def _get_ideal_data(self, circuits: list[QuantumCircuit], **run_options) -> list[list[float]]:
         """Return ideal measurement probabilities.
 
         In case the user does not have Aer installed, use Qiskit's quantum info module
@@ -182,7 +182,7 @@ class QuantumVolume(BaseExperiment):
             probabilities = [Statevector(c).probabilities().tolist() for c in circuits]
         return probabilities
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Return a list of Quantum Volume circuits.
 
         Returns:

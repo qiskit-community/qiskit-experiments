@@ -13,7 +13,6 @@
 Post-process tomography fits
 """
 
-from typing import List, Dict, Tuple, Union, Optional
 from collections import defaultdict
 import numpy as np
 import scipy.linalg as la
@@ -23,12 +22,12 @@ from qiskit_experiments.exceptions import AnalysisError
 
 
 def postprocess_fitter(
-    fits: Union[np.ndarray, List[np.ndarray]],
-    fitter_metadata: Optional[Dict] = None,
+    fits: np.ndarray | list[np.ndarray],
+    fitter_metadata: dict | None = None,
     make_positive: bool = False,
-    trace: Union[float, str, None] = "auto",
-    qpt: Union[bool, str, None] = "auto",
-) -> Tuple[List[np.ndarray], List[Dict[str, any]]]:
+    trace: float | str | None = "auto",
+    qpt: bool | str | None = "auto",
+) -> tuple[list[np.ndarray], list[dict[str, any]]]:
     """Post-process raw fitter result.
 
     Args:
@@ -136,7 +135,7 @@ def postprocess_fitter(
     return states, states_metadata
 
 
-def _state_eigensystem(state: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def _state_eigensystem(state: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Compute the eigensystem of a fitted state.
 
     The eigenvalues are returned as a real array ordered from

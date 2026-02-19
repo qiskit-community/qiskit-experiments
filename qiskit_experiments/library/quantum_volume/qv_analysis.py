@@ -15,7 +15,6 @@ Quantum Volume analysis class.
 
 import math
 import warnings
-from typing import List
 
 import numpy as np
 import uncertainties
@@ -40,7 +39,7 @@ class QuantumVolumePlotter(BasePlotter):
     """
 
     @classmethod
-    def expected_series_data_keys(cls) -> List[str]:
+    def expected_series_data_keys(cls) -> list[str]:
         """Returns the expected series data keys supported by this plotter.
 
         Data Keys:
@@ -49,7 +48,7 @@ class QuantumVolumePlotter(BasePlotter):
         return ["individual"]
 
     @classmethod
-    def expected_supplementary_data_keys(cls) -> List[str]:
+    def expected_supplementary_data_keys(cls) -> list[str]:
         """Returns the expected figures data keys supported by this plotter.
 
         Data Keys:

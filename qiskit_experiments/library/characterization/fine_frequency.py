@@ -12,7 +12,7 @@
 
 """Fine frequency characterization experiment."""
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -74,8 +74,8 @@ class FineFrequency(BaseExperiment):
         self,
         physical_qubits: Sequence[int],
         delay_duration: int,
-        backend: Optional[Backend] = None,
-        repetitions: Optional[List[int]] = None,
+        backend: Backend | None = None,
+        repetitions: list[int] | None = None,
     ):
         """Setup a fine frequency experiment on the given qubit.
 
@@ -123,7 +123,7 @@ class FineFrequency(BaseExperiment):
         """A method that subclasses can override to perform gates before the main sequence."""
         return QuantumCircuit(1)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Return the list of quantum circuits to run."""
 
         circuits = []

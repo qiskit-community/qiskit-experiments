@@ -12,7 +12,6 @@
 """
 Temporary backend to be used to apply T2 and T1 noise.
 """
-from typing import List
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Delay
@@ -29,8 +28,8 @@ class NoisyDelayAerBackend(AerSimulator):
 
     def __init__(
         self,
-        t1: List[float] = None,
-        t2: List[float] = None,
+        t1: list[float] = None,
+        t2: list[float] = None,
         dt: float = None,
         backend=None,
         **backend_options,
@@ -52,7 +51,7 @@ class NoisyDelayAerBackend(AerSimulator):
         self._op_types = [Delay]
 
     # pylint: disable=arguments-differ
-    def run(self, run_input: List[QuantumCircuit], **run_options) -> AerJob:
+    def run(self, run_input: list[QuantumCircuit], **run_options) -> AerJob:
         """
         Add noise pass to all circuits and then run the circuits.
 

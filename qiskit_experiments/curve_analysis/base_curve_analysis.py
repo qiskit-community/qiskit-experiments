@@ -15,7 +15,6 @@ Base class of curve analysis.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Union
 
 import lmfit
 
@@ -106,7 +105,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     @property
     @abstractmethod
-    def parameters(self) -> List[str]:
+    def parameters(self) -> list[str]:
         """Return parameters estimated by this analysis."""
 
     @property
@@ -116,7 +115,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     @property
     @abstractmethod
-    def models(self) -> List[lmfit.Model]:
+    def models(self) -> list[lmfit.Model]:
         """Return fit models."""
 
     @property
@@ -212,7 +211,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     @abstractmethod
     def _run_data_processing(
         self,
-        raw_data: List[Dict],
+        raw_data: list[dict],
         category: str = "raw",
     ) -> ScatterTable:
         """Perform data processing from the experiment result payload.
@@ -258,7 +257,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _evaluate_quality(
         self,
         fit_data: CurveFitResult,
-    ) -> Union[str, None]:
+    ) -> str | None:
         """Evaluate quality of the fit result.
 
         Args:
@@ -276,7 +275,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         fit_data: CurveFitResult,
         quality: str,
         **metadata,
-    ) -> List[AnalysisResultData]:
+    ) -> list[AnalysisResultData]:
         """Create analysis results for important fit parameters.
 
         Args:
@@ -321,7 +320,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         self,
         curve_data: ScatterTable,
         **metadata,
-    ) -> List[AnalysisResultData]:
+    ) -> list[AnalysisResultData]:
         """Create analysis results for raw curve data.
 
         Args:
@@ -352,7 +351,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _create_figures(
         self,
         curve_data: ScatterTable,
-    ) -> List["matplotlib.figure.Figure"]:
+    ) -> list["matplotlib.figure.Figure"]:
         """Create a list of figures from the curve data.
 
         Args:

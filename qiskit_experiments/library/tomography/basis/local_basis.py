@@ -12,7 +12,9 @@
 """
 Circuit basis for tomography preparation and measurement circuits
 """
-from typing import Sequence, Optional, Tuple, Union, List, Dict
+from collections.abc import Sequence
+from typing import Any
+
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.states.quantum_state import QuantumState
@@ -26,8 +28,8 @@ from .cache_method import cache_method, _method_cache_name
 
 
 # Typing
-Povm = Union[List[Statevector], List[DensityMatrix], QuantumChannel]
-States = Union[List[QuantumState], Dict[Tuple[int, ...], QuantumState]]
+Povm = list[Statevector] | list[DensityMatrix] | QuantumChannel
+States = list[QuantumState] | dict[tuple[int, ...] | QuantumState]
 
 
 class LocalPreparationBasis(PreparationBasis):
@@ -40,9 +42,9 @@ class LocalPreparationBasis(PreparationBasis):
     def __init__(
         self,
         name: str,
-        instructions: Optional[Sequence[Instruction]] = None,
-        default_states: Optional[States] = None,
-        qubit_states: Optional[Dict[Tuple[int, ...], States]] = None,
+        instructions: Sequence[Instruction] | None = None,
+        default_states: States | None = None,
+        qubit_states: dict[tuple[int, ...], States] | None = None,
     ):
         """Initialize a fitter preparation basis.
 
@@ -102,10 +104,10 @@ class LocalPreparationBasis(PreparationBasis):
             and self._instructions == getattr(value, "_instructions", None)
         )
 
-    def index_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
+    def index_shape(self, qubits: Sequence[int]) -> tuple[int, ...]:
         return len(qubits) * (self._size,)
 
-    def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
+    def matrix_shape(self, qubits: Sequence[int]) -> tuple[int, ...]:
         qubits = tuple(qubits)
         if len(qubits) > 1 and qubits in self._qubit_dim:
             return self._qubit_dim[qubits]
@@ -114,9 +116,7 @@ class LocalPreparationBasis(PreparationBasis):
             dims += self._qubit_dim.get((i,), (self._default_dim,))
         return dims
 
-    def circuit(
-        self, index: Sequence[int], qubits: Optional[Sequence[int]] = None
-    ) -> QuantumCircuit:
+    def circuit(self, index: Sequence[int], qubits: Sequence[int] | None = None) -> QuantumCircuit:
         # pylint: disable = unused-argument
         if not self._instructions:
             raise NotImplementedError(
@@ -125,7 +125,7 @@ class LocalPreparationBasis(PreparationBasis):
             )
         return _tensor_product_circuit(self._instructions, index, self._name)
 
-    def matrix(self, index: Sequence[int], qubits: Optional[Sequence[int]] = None):
+    def matrix(self, index: Sequence[int], qubits: Sequence[int] | None = None):
         # Convert args to hashable tuples
         if qubits is None:
             qubits = tuple(range(len(index)))
@@ -152,7 +152,7 @@ class LocalPreparationBasis(PreparationBasis):
             raise ValueError(f"Invalid qubits for basis {self.name}") from ex
 
     @cache_method()
-    def _generate_qubits_state(self, index: Tuple[int, ...], qubits: Tuple[int, ...]):
+    def _generate_qubits_state(self, index: tuple[int, ...], qubits: tuple[int, ...]):
         """LRU cached function for returning POVMS"""
         num_qubits = len(qubits)
 
@@ -258,9 +258,9 @@ class LocalMeasurementBasis(MeasurementBasis):
     def __init__(
         self,
         name: str,
-        instructions: Optional[Sequence[Instruction]] = None,
-        default_povms: Optional[Sequence[Povm]] = None,
-        qubit_povms: Optional[Dict[Tuple[int, ...], Sequence[Povm]]] = None,
+        instructions: Sequence[Instruction] | None = None,
+        default_povms: Sequence[Povm] | None = None,
+        qubit_povms: dict[tuple[int, ...], Sequence[Povm]] | None = None,
     ):
         """Initialize a fitter preparation basis.
 
@@ -331,10 +331,10 @@ class LocalMeasurementBasis(MeasurementBasis):
             and self._instructions == getattr(value, "_instructions", None)
         )
 
-    def index_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
+    def index_shape(self, qubits: Sequence[int]) -> tuple[int, ...]:
         return len(qubits) * (self._size,)
 
-    def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
+    def matrix_shape(self, qubits: Sequence[int]) -> tuple[int, ...]:
         qubits = tuple(qubits)
         if len(qubits) > 1 and qubits in self._qubit_dim:
             return self._qubit_dim[qubits]
@@ -343,7 +343,7 @@ class LocalMeasurementBasis(MeasurementBasis):
             dims += self._qubit_dim.get((i,), (self._default_dim,))
         return dims
 
-    def outcome_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
+    def outcome_shape(self, qubits: Sequence[int]) -> tuple[int, ...]:
         qubits = tuple(qubits)
         if qubits in self._qubit_num_outcomes:
             return self._qubit_num_outcomes[qubits]
@@ -352,7 +352,7 @@ class LocalMeasurementBasis(MeasurementBasis):
             shape += self._qubit_num_outcomes.get((i,), (self._default_num_outcomes,))
         return shape
 
-    def circuit(self, index: Sequence[int], qubits: Optional[Sequence[int]] = None):
+    def circuit(self, index: Sequence[int], qubits: Sequence[int] | None = None):
         # pylint: disable = unused-argument
         if not self._instructions:
             raise NotImplementedError(
@@ -363,7 +363,7 @@ class LocalMeasurementBasis(MeasurementBasis):
         circuit.measure_all()
         return circuit
 
-    def matrix(self, index: Sequence[int], outcome: int, qubits: Optional[Sequence[int]] = None):
+    def matrix(self, index: Sequence[int], outcome: int, qubits: Sequence[int] | None = None):
         # Convert args to hashable tuples
         if qubits is None:
             qubits = tuple(range(len(index)))
@@ -465,7 +465,7 @@ class LocalMeasurementBasis(MeasurementBasis):
         )
 
     @cache_method()
-    def _outcome_indices(self, outcome: int, qubits: Tuple[int, ...]) -> Tuple[int, ...]:
+    def _outcome_indices(self, outcome: int, qubits: tuple[int, ...]) -> tuple[int, ...]:
         """Convert an outcome integer to a tuple of single-qubit outcomes"""
         num_outcomes = np.prod(self._qubit_num_outcomes.get(qubits[:1], self._default_num_outcomes))
         try:
@@ -477,7 +477,7 @@ class LocalMeasurementBasis(MeasurementBasis):
             raise ValueError("Invalid qubits for basis") from ex
 
     @cache_method()
-    def _generate_qubits_povm(self, index: Tuple[int, ...], qubits: Tuple[int, ...]):
+    def _generate_qubits_povm(self, index: tuple[int, ...], qubits: tuple[int, ...]):
         """LRU cached function for returning POVMS"""
         num_qubits = len(qubits)
         if qubits in self._qubit_povms:
@@ -537,7 +537,7 @@ def _tensor_product_circuit(
     return circuit
 
 
-def _format_instructions(instructions: Sequence[any]) -> List[Instruction]:
+def _format_instructions(instructions: Sequence[any]) -> list[Instruction]:
     """Parse multiple input formats for list of instructions"""
     ret = []
     if instructions is None:
@@ -561,10 +561,10 @@ def _format_instructions(instructions: Sequence[any]) -> List[Instruction]:
 
 
 def _generate_povm(
-    value: Union[List[DensityMatrix], Instruction, Operator, SuperOp],
-    default_z: Optional[List[DensityMatrix]] = None,
-    dims: Optional[Tuple[int, ...]] = None,
-) -> List[DensityMatrix]:
+    value: list[DensityMatrix] | Instruction | Operator | SuperOp,
+    default_z: list[DensityMatrix] | None = None,
+    dims: tuple[int, ...] | None = None,
+) -> list[DensityMatrix]:
     """Format a POVM into list of density matrix effects"""
     # If already a list convert to DensityMatrix objects
     if isinstance(value, (list, tuple)):
@@ -588,8 +588,8 @@ def _generate_povm(
 
 
 def _format_default_povms(
-    default_povms: any, instructions: Optional[Sequence[Instruction]] = None
-) -> Dict[Tuple[int, ...], List[DensityMatrix]]:
+    default_povms: any, instructions: Sequence[Instruction] | None = None
+) -> dict[tuple[int, ...], list[DensityMatrix]]:
     "Format default POVM data"
     # Parse data into a dict
     # Legacy data handling
@@ -618,7 +618,7 @@ def _format_default_povms(
 
 def _format_qubit_povms(
     qubit_povms: any,
-) -> Dict[Tuple[int, ...], Dict[Tuple[int, ...], List[DensityMatrix]]]:
+) -> dict[tuple[int, ...], dict[tuple[int, ...], list[DensityMatrix]]]:
     """Format qubit POVMs dict"""
     povms = {}
     if not qubit_povms:
@@ -662,9 +662,9 @@ def _format_qubit_povms(
 
 
 def _generate_state(
-    value: Union[Statevector, DensityMatrix, Instruction, Operator, SuperOp],
-    init_state: Optional[QuantumState] = None,
-    dims: Optional[Tuple[int, ...]] = None,
+    value: Statevector | DensityMatrix | Instruction | Operator | SuperOp,
+    init_state: QuantumState | None = None,
+    dims: tuple[int, ...] | None = None,
 ) -> DensityMatrix:
     """Format a state into list of DensityMatrix"""
     # If already a quantum state convert to a density matrix
@@ -688,10 +688,10 @@ def _generate_state(
 
 
 def _format_states(
-    states: Optional[Union[List[any], Dict[Tuple[int, ...], any]]],
-    init_key: Tuple[int, ...] = (0,),
-    instructions: Optional[Sequence[Instruction]] = None,
-) -> Dict[Tuple[int, ...], DensityMatrix]:
+    states: list[any] | dict[tuple[int, ...], any] | None,
+    init_key: tuple[int, ...] = (0,),
+    instructions: Sequence[Instruction] | None = None,
+) -> dict[tuple[int, ...], DensityMatrix]:
     "Format default state data"
     # Parse data into dict to include legacy handling
     states = _format_data_dict(states, instructions)
@@ -709,7 +709,7 @@ def _format_states(
 
 def _format_qubit_states(
     qubit_states: any,
-) -> Dict[Tuple[int, ...], Dict[Tuple[int, ...], DensityMatrix]]:
+) -> dict[tuple[int, ...], dict[tuple[int, ...], DensityMatrix]]:
     """Format qubit POVMs dict"""
     if not qubit_states:
         return {}
@@ -728,8 +728,8 @@ def _format_qubit_states(
 
 
 def _format_data_dict(
-    data: Optional[any], instructions: Optional[Sequence[Union[Instruction, BaseOperator]]] = None
-) -> Dict[Tuple[int, ...], any]:
+    data: Any | None, instructions: Sequence[Instruction | BaseOperator] | None = None
+) -> dict[tuple[int, ...], Any]:
     "Format default state data"
     # Parse data into dict to include legacy handling
     if isinstance(data, (list, tuple, np.ndarray)):

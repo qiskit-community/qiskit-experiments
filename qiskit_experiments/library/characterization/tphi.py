@@ -13,7 +13,7 @@
 Tphi Experiment class.
 """
 
-from typing import List, Optional, Union, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 from qiskit import QiskitError
@@ -103,12 +103,12 @@ class Tphi(BatchExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        delays_t1: List[Union[List[float], np.array]],
-        delays_t2: List[Union[List[float], np.array]],
+        delays_t1: list[list[float] | np.ndarray],
+        delays_t2: list[list[float] | np.ndarray],
         t2type: str = "hahn",
         osc_freq: float = 0.0,
         num_echoes: int = 1,
-        backend: Optional[Backend] = None,
+        backend: Backend | None = None,
     ):
         """Initialize the experiment object.
 

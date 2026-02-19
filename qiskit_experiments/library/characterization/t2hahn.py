@@ -13,7 +13,7 @@
 T2Hahn Echo Experiment class.
 """
 
-from typing import List, Optional, Union, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit, QiskitError
@@ -112,9 +112,9 @@ class T2Hahn(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        delays: Union[List[float], np.array],
+        delays: list[float] | np.ndarray,
         num_echoes: int = 1,
-        backend: Optional[Backend] = None,
+        backend: Backend | None = None,
     ):
         """
         Initialize the T2 - Hahn Echo class.
@@ -150,7 +150,7 @@ class T2Hahn(BaseExperiment):
                 "non-negative elements."
             )
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """
         Return a list of experiment circuits.
 

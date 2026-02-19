@@ -34,7 +34,7 @@ https://pypi.org/project/uncertainties/
 
 """
 
-from typing import Dict, List, Set, Tuple, Union, Any
+from typing import Any
 
 import numpy as np
 from uncertainties import unumpy as unp
@@ -61,7 +61,7 @@ class DataProcessor:
     def __init__(
         self,
         input_key: str,
-        data_actions: List[DataAction] = None,
+        data_actions: list[DataAction] = None,
     ):
         """Create a chain of data processing actions.
 
@@ -93,7 +93,7 @@ class DataProcessor:
 
         return True
 
-    def __call__(self, data: Union[Dict, List[Dict]], **options) -> np.ndarray:
+    def __call__(self, data: dict | list[dict], **options) -> np.ndarray:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum.
@@ -111,8 +111,8 @@ class DataProcessor:
         return self._call_internal(data, **options)
 
     def call_with_history(
-        self, data: Union[Dict, List[Dict]], history_nodes: Set = None
-    ) -> Tuple[np.ndarray, List]:
+        self, data: dict | list[dict], history_nodes: set = None
+    ) -> tuple[np.ndarray, list]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum and also returns the history of the processed data.
@@ -133,11 +133,11 @@ class DataProcessor:
 
     def _call_internal(
         self,
-        data: Union[Dict, List[Dict]],
+        data: dict | list[dict],
         with_history: bool = False,
-        history_nodes: Set = None,
+        history_nodes: set = None,
         call_up_to_node: int = None,
-    ) -> Union[np.ndarray, Tuple[np.ndarray, List]]:
+    ) -> np.ndarray | tuple[np.ndarray, list]:
         """Process the data with or without storing the history of the computation.
 
         Args:
@@ -189,7 +189,7 @@ class DataProcessor:
         else:
             return out_data
 
-    def train(self, data: Union[Dict, List[Dict]]):
+    def train(self, data: dict | list[dict]):
         """Train the nodes of the data processor.
 
         Args:
@@ -201,7 +201,7 @@ class DataProcessor:
                     # Process the data up to the untrained node.
                     node.train(self._call_internal(data, call_up_to_node=index))
 
-    def _data_extraction(self, data: Union[Dict, List[Dict]]) -> np.ndarray:
+    def _data_extraction(self, data: dict | list[dict]) -> np.ndarray:
         """Extracts the data on which to run the nodes.
 
         If the datum is a list of dicts then the data under self._input_key is extracted
@@ -282,7 +282,7 @@ class DataProcessor:
 
         return f"{self.__class__.__name__}(input_key={self._input_key}, nodes=[{names}])"
 
-    def __json_encode__(self) -> Dict[str, Any]:
+    def __json_encode__(self) -> dict[str, Any]:
         """Return the config dict for this data processor."""
         return {
             "cls": type(self),
@@ -291,7 +291,7 @@ class DataProcessor:
         }
 
     @classmethod
-    def __json_decode__(cls, config: Dict[str, Any]) -> "DataProcessor":
+    def __json_decode__(cls, config: dict[str, Any]) -> "DataProcessor":
         """Initialize a data processor from config dict."""
         try:
             return cls(input_key=config["input_key"], data_actions=config["nodes"])

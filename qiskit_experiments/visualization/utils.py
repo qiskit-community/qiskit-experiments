@@ -10,12 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Utilities for visualization."""
-from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from qiskit.exceptions import QiskitError
 
-ExtentTuple = Tuple[float, float, float, float]
+ExtentTuple = tuple[float, float, float, float]
 
 
 class DataExtentCalculator:
@@ -42,7 +41,7 @@ class DataExtentCalculator:
        target aspect ratio is achieved.
     """
 
-    def __init__(self, multiplier: float = 1.0, aspect_ratio: Optional[float] = 1.0):
+    def __init__(self, multiplier: float = 1.0, aspect_ratio: float | None = 1.0):
         """Create an extent calculator.
 
         Args:
@@ -66,7 +65,7 @@ class DataExtentCalculator:
         return self._multiplier
 
     @property
-    def aspect_ratio(self) -> Optional[float]:
+    def aspect_ratio(self) -> float | None:
         """The target aspect ratio.
 
         If None, the :class:`DataExtentCalculator` instance will not modify the computed
@@ -78,7 +77,7 @@ class DataExtentCalculator:
         """
         return self._aspect_ratio
 
-    def register_data(self, data: Union[List, np.ndarray], dim: Optional[int] = None):
+    def register_data(self, data: list | np.ndarray, dim: int | None = None):
         r"""Register data to modify the resulting extent tuple.
 
         Args:
@@ -186,7 +185,7 @@ class DataExtentCalculator:
 
     @classmethod
     def _extent_with_aspect_ratio(
-        cls, extent: np.ndarray, target_aspect_ratio: Optional[float]
+        cls, extent: np.ndarray, target_aspect_ratio: float | None
     ) -> np.ndarray:
         """Expand ``extent`` to have an aspect ratio defined by ``target_aspect_ratio``.
 

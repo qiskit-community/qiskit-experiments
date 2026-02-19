@@ -13,7 +13,7 @@
 Quantum State Tomography experiment
 """
 
-from typing import Union, Optional, List, Sequence
+from collections.abc import Sequence
 from qiskit.providers.backend import Backend
 from qiskit.circuit import QuantumCircuit, Instruction, Clbit
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -81,15 +81,15 @@ class StateTomography(TomographyExperiment):
 
     def __init__(
         self,
-        circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
-        backend: Optional[Backend] = None,
-        physical_qubits: Optional[Sequence[int]] = None,
+        circuit: QuantumCircuit | Instruction | BaseOperator | Statevector,
+        backend: Backend | None = None,
+        physical_qubits: Sequence[int] | None = None,
         measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
-        measurement_indices: Optional[Sequence[int]] = None,
-        basis_indices: Optional[Sequence[List[int]]] = None,
-        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
-        analysis: Union[BaseAnalysis, None, str] = "default",
-        target: Union[Statevector, DensityMatrix, None, str] = "default",
+        measurement_indices: Sequence[int] | None = None,
+        basis_indices: Sequence[list[int]] | None = None,
+        conditional_circuit_clbits: bool | Sequence[int] | Sequence[Clbit] = False,
+        analysis: BaseAnalysis | None | str = "default",
+        target: Statevector | DensityMatrix | None | str = "default",
     ):
         """Initialize a quantum process tomography experiment.
 
@@ -151,7 +151,7 @@ class StateTomography(TomographyExperiment):
                 target = self._target_quantum_state()
             self.analysis.set_options(target=target)
 
-    def _target_quantum_state(self) -> Union[Statevector, DensityMatrix]:
+    def _target_quantum_state(self) -> Statevector | DensityMatrix:
         """Return the state tomography target"""
         # Check if circuit contains measure instructions
         # If so we cannot return target state

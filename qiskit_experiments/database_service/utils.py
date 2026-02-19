@@ -19,8 +19,9 @@ import threading
 import traceback
 from abc import ABC, abstractmethod
 from collections import OrderedDict
+from collections.abc import Callable, Iterator
 from datetime import datetime, timezone
-from typing import Callable, Tuple, Dict, Any, Union, Type, Optional, List, Iterator
+from typing import Any
 import json
 
 import dateutil.parser
@@ -36,7 +37,7 @@ from .exceptions import ExperimentEntryNotFound, ExperimentEntryExists, Experime
 LOG = logging.getLogger(__name__)
 
 
-def parse_timestamp(utc_dt: Union[datetime, str]) -> datetime:
+def parse_timestamp(utc_dt: datetime | str) -> datetime:
     """Parse a UTC ``datetime`` object or string.
 
     Args:
@@ -70,7 +71,7 @@ def utc_to_local(utc_dt: datetime) -> datetime:
 
 
 def objs_to_zip(
-    filenames: List[str], objects: List[any], json_encoder: Optional[json.JSONEncoder] = None
+    filenames: list[str], objects: list[any], json_encoder: json.JSONEncoder | None = None
 ) -> bytes:
     """Serialize a list of objects to JSON and pack into a zipped file buffer.
 
@@ -93,7 +94,7 @@ def objs_to_zip(
     return zip_buffer
 
 
-def zip_to_objs(zip_bytes: bytes, json_decoder: Optional[json.JSONDecoder] = None) -> Iterator[any]:
+def zip_to_objs(zip_bytes: bytes, json_decoder: json.JSONDecoder | None = None) -> Iterator[any]:
     """Extract objects by deserializing JSON files in a zipped buffer.
 
     Args:
@@ -140,10 +141,10 @@ def save_data(
     is_new: bool,
     new_func: Callable,
     update_func: Callable,
-    new_data: Dict,
-    update_data: Dict,
-    json_encoder: Optional[Type[json.JSONEncoder]] = None,
-) -> Tuple[bool, Any]:
+    new_data: dict,
+    update_data: dict,
+    json_encoder: type[json.JSONEncoder] | None = None,
+) -> tuple[bool, Any]:
     """Save data in the database.
 
     Args:

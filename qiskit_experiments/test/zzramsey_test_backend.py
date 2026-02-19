@@ -15,7 +15,7 @@ ZZRamseyTestBackend class.
 Backend for testing the ZZRamsey experiment
 """
 import copy
-from typing import List, Optional, Sequence, Union
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -101,14 +101,14 @@ class ZZRamseyTestBackend(BackendV2):
 
     def __init__(
         self,
-        t2hahn: Union[float, Sequence[float]] = float("inf"),
+        t2hahn: float | Sequence[float] = float("inf"),
         zz_frequency: float = 0.0,
-        initialization_error: Union[float, Sequence[float]] = 0.0,
-        readout0to1: Union[float, Sequence[float]] = 0.0,
-        readout1to0: Union[float, Sequence[float]] = 0.0,
+        initialization_error: float | Sequence[float] = 0.0,
+        readout0to1: float | Sequence[float] = 0.0,
+        readout1to0: float | Sequence[float] = 0.0,
         seed: int = 9000,
         dt: float = 1 / 4.5e9,
-        num_qubits: Optional[int] = None,
+        num_qubits: int | None = None,
     ):
         """
         Initialize the T2Hahn backend
@@ -170,7 +170,7 @@ class ZZRamseyTestBackend(BackendV2):
         return Options()
 
     def run(
-        self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], shots: int = 1024, **options
+        self, run_input: QuantumCircuit | list[QuantumCircuit], shots: int = 1024, **options
     ) -> Job:
         passes = []
 

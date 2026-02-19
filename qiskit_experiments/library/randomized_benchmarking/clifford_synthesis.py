@@ -12,9 +12,8 @@
 """
 Clifford synthesis plugins for randomized benchmarking
 """
-from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from qiskit.circuit import QuantumCircuit, Operation
 from qiskit.circuit.equivalence_library import SessionEquivalenceLibrary as sel

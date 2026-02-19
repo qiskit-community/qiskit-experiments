@@ -15,8 +15,9 @@ Standard RB Experiment class.
 import functools
 import logging
 from collections import defaultdict
+from collections.abc import Iterable, Sequence
 from numbers import Integral
-from typing import Union, Iterable, Optional, List, Sequence, Dict, Any
+from typing import Any
 
 import numpy as np
 import rustworkx as rx
@@ -55,7 +56,7 @@ from .rb_analysis import RBAnalysis
 LOG = logging.getLogger(__name__)
 
 
-SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
+SequenceElementType = Clifford | Integral | QuantumCircuit
 STANDARD_GATE_NAMES = set(get_standard_gate_name_mapping())
 
 
@@ -145,10 +146,10 @@ class StandardRB(BaseExperiment):
         self,
         physical_qubits: Sequence[int],
         lengths: Iterable[int],
-        backend: Optional[Backend] = None,
+        backend: Backend | None = None,
         num_samples: int = 3,
-        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-        full_sampling: Optional[bool] = False,
+        seed: int | SeedSequence | BitGenerator | Generator | None = None,
+        full_sampling: bool | None = False,
     ):
         """Initialize a standard randomized benchmarking experiment.
 
@@ -235,7 +236,7 @@ class StandardRB(BaseExperiment):
         else:
             super()._set_backend(backend)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Return a list of RB circuits.
 
         Returns:
@@ -253,7 +254,7 @@ class StandardRB(BaseExperiment):
             }
         return circuits
 
-    def _sample_sequences(self) -> List[Sequence[SequenceElementType]]:
+    def _sample_sequences(self) -> list[Sequence[SequenceElementType]]:
         """Sample RB sequences
 
         Returns:
@@ -273,7 +274,7 @@ class StandardRB(BaseExperiment):
 
         return sequences
 
-    def _get_synthesis_options(self) -> Dict[str, Optional[Any]]:
+    def _get_synthesis_options(self) -> dict[str, Any | None]:
         """Get options for Clifford synthesis from the backend information as a dictionary.
 
         The options include:
@@ -336,8 +337,8 @@ class StandardRB(BaseExperiment):
         }
 
     def _sequences_to_circuits(
-        self, sequences: List[Sequence[SequenceElementType]]
-    ) -> List[QuantumCircuit]:
+        self, sequences: list[Sequence[SequenceElementType]]
+    ) -> list[QuantumCircuit]:
         """Convert an RB sequence into circuit and append the inverse to the end.
 
         Returns:
@@ -381,7 +382,7 @@ class StandardRB(BaseExperiment):
     def _to_instruction(
         self,
         elem: SequenceElementType,
-        synthesis_options: Dict[str, Optional[Any]],
+        synthesis_options: dict[str, Any | None],
     ) -> Instruction:
         """Return the instruction of a Clifford element.
 
@@ -435,7 +436,7 @@ class StandardRB(BaseExperiment):
             return Clifford.from_circuit(op).adjoint()
         return op.adjoint()
 
-    def _transpiled_circuits(self) -> List[QuantumCircuit]:
+    def _transpiled_circuits(self) -> list[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         has_custom_transpile_option = (
             not set(vars(self.transpile_options)).issubset(

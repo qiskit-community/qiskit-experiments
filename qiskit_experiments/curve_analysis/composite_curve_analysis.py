@@ -15,7 +15,6 @@ Analysis class for multi-group curve fitting.
 """
 # pylint: disable=invalid-name
 import warnings
-from typing import Dict, List, Optional, Tuple, Union
 from collections import defaultdict
 
 import lmfit
@@ -105,8 +104,8 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
     def __init__(
         self,
-        analyses: List[BaseCurveAnalysis],
-        name: Optional[str] = None,
+        analyses: list[BaseCurveAnalysis],
+        name: str | None = None,
     ):
         super().__init__()
 
@@ -114,7 +113,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         self._name = name or self.__class__.__name__
 
     @property
-    def parameters(self) -> List[str]:
+    def parameters(self) -> list[str]:
         """Return parameters of this curve analysis."""
         unite_params = []
         for analysis in self._analyses:
@@ -130,7 +129,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         return self._name
 
     @property
-    def models(self) -> Dict[str, List[lmfit.Model]]:
+    def models(self) -> dict[str, list[lmfit.Model]]:
         """Return fit models."""
         models = {}
         for analysis in self._analyses:
@@ -143,8 +142,8 @@ class CompositeCurveAnalysis(BaseAnalysis):
         return self._options.plotter
 
     def analyses(
-        self, index: Optional[Union[str, int]] = None
-    ) -> Union[BaseCurveAnalysis, List[BaseCurveAnalysis]]:
+        self, index: str | int | None = None
+    ) -> BaseCurveAnalysis | list[BaseCurveAnalysis]:
         """Return curve analysis instance.
 
         Args:
@@ -163,8 +162,8 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
     def _evaluate_quality(
         self,
-        fit_data: Dict[str, CurveFitResult],
-    ) -> Union[str, None]:
+        fit_data: dict[str, CurveFitResult],
+    ) -> str | None:
         """Evaluate quality of the fit result.
 
         Args:
@@ -181,10 +180,10 @@ class CompositeCurveAnalysis(BaseAnalysis):
     # pylint: disable=unused-argument
     def _create_analysis_results(
         self,
-        fit_data: Dict[str, CurveFitResult],
+        fit_data: dict[str, CurveFitResult],
         quality: str,
         **metadata,
-    ) -> List[AnalysisResultData]:
+    ) -> list[AnalysisResultData]:
         """Create analysis results based on all analysis outcomes.
 
         Args:
@@ -199,7 +198,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
     def _create_figures(
         self,
         curve_data: ScatterTable,
-    ) -> List["matplotlib.figure.Figure"]:
+    ) -> list["matplotlib.figure.Figure"]:
         """Create a list of figures from the curve data.
 
         Args:
@@ -283,9 +282,9 @@ class CompositeCurveAnalysis(BaseAnalysis):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
-        result_data: List[Union[AnalysisResultData, ArtifactData]] = []
-        figures: List[FigureType] = []
+    ) -> tuple[list[AnalysisResultData | ArtifactData], list[FigureType]]:
+        result_data: list[AnalysisResultData | ArtifactData] = []
+        figures: list[FigureType] = []
         artifacts: list[ArtifactData] = []
 
         # Flag for plotting can be "always", "never", or "selective"

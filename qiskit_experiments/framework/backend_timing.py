@@ -12,7 +12,6 @@
 """Backend timing helper functions"""
 
 import warnings
-from typing import Optional, Union
 
 from qiskit import QiskitError
 from qiskit.providers.backend import Backend
@@ -82,11 +81,11 @@ class BackendTiming:
         self,
         backend: Backend,
         *,
-        acquire_alignment: Optional[int] = None,
-        granularity: Optional[int] = None,
-        min_length: Optional[int] = None,
-        pulse_alignment: Optional[int] = None,
-        dt: Optional[float] = None,
+        acquire_alignment: int | None = None,
+        granularity: int | None = None,
+        min_length: int | None = None,
+        pulse_alignment: int | None = None,
+        dt: float | None = None,
     ):
         """Initialize backend timing object
 
@@ -132,8 +131,8 @@ class BackendTiming:
         return "s"
 
     def round_delay(
-        self, *, time: Optional[float] = None, samples: Optional[Union[int, float]] = None
-    ) -> Union[int, float]:
+        self, *, time: float | None = None, samples: int | float | None = None
+    ) -> int | float:
         """Delay duration closest to input and consistent with timing constraints
 
         This method produces the value to pass for the ``duration`` of a
@@ -179,9 +178,7 @@ class BackendTiming:
 
         return samples_out
 
-    def delay_time(
-        self, *, time: Optional[float] = None, samples: Optional[Union[int, float]] = None
-    ) -> float:
+    def delay_time(self, *, time: float | None = None, samples: int | float | None = None) -> float:
         """The closest valid delay time in seconds to the input
 
         If the backend reports ``dt``, this method uses

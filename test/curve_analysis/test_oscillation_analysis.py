@@ -87,7 +87,7 @@ class TestOscillationAnalysis(QiskitExperimentsTestCase):
 
         result = experiment_data.analysis_results("rabi_rate", dataframe=True).iloc[0]
         self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(result.value, expected_rate, delta=test_tol)
+        self.assertAlmostEqual(result.value.nominal_value, expected_rate, delta=test_tol)
 
     def test_bad_analysis(self):
         """Test the Rabi analysis."""

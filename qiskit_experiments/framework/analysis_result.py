@@ -17,7 +17,7 @@ import logging
 import math
 import uuid
 import traceback
-from typing import Optional, List, Union, Dict, Any
+from typing import Any
 
 import uncertainties
 
@@ -88,16 +88,16 @@ class AnalysisResult:
         self,
         name: str = None,
         value: Any = None,
-        device_components: List[Union[DeviceComponent, str]] = None,
+        device_components: list[DeviceComponent | str] = None,
         experiment_id: str = None,
-        result_id: Optional[str] = None,
-        chisq: Optional[float] = None,
-        quality: Optional[str] = RESULT_QUALITY_TO_TEXT[ResultQuality.UNKNOWN],
-        extra: Optional[Dict[str, Any]] = None,
+        result_id: str | None = None,
+        chisq: float | None = None,
+        quality: str | None = RESULT_QUALITY_TO_TEXT[ResultQuality.UNKNOWN],
+        extra: dict[str, Any] | None = None,
         verified: bool = False,
-        tags: Optional[List[str]] = None,
-        service: Optional[IBMExperimentService] = None,
-        source: Optional[Dict[str, str]] = None,
+        tags: list[str] | None = None,
+        service: IBMExperimentService | None = None,
+        source: dict[str, str] | None = None,
     ) -> "AnalysisResult":
         """AnalysisResult constructor.
 
@@ -153,7 +153,7 @@ class AnalysisResult:
         self._db_data.quality = self.RESULT_QUALITY_TO_TEXT.get(self._db_data.quality, "unknown")
 
     @classmethod
-    def default_source(cls) -> Dict[str, str]:
+    def default_source(cls) -> dict[str, str]:
         """The default source dictionary to generate"""
         return {
             "class": f"{cls.__module__}.{cls.__name__}",
@@ -271,7 +271,7 @@ class AnalysisResult:
             self.save()
 
     @property
-    def extra(self) -> Dict[str, Any]:
+    def extra(self) -> dict[str, Any]:
         """Return extra analysis result data.
 
         Returns:
@@ -280,7 +280,7 @@ class AnalysisResult:
         return self._db_data.result_data["_extra"]
 
     @extra.setter
-    def extra(self, new_value: Dict[str, Any]) -> None:
+    def extra(self, new_value: dict[str, Any]) -> None:
         """Set the analysis result value."""
         if not isinstance(new_value, dict):
             raise ExperimentDataError(f"The `extra` field of {type(self).__name__} must be a dict.")
@@ -289,7 +289,7 @@ class AnalysisResult:
             self.save()
 
     @property
-    def device_components(self) -> List[DeviceComponent]:
+    def device_components(self) -> list[DeviceComponent]:
         """Return target device components for this analysis result.
 
         Returns:
@@ -298,7 +298,7 @@ class AnalysisResult:
         return self._db_data.device_components
 
     @device_components.setter
-    def device_components(self, components: List[Union[DeviceComponent, str]]):
+    def device_components(self, components: list[DeviceComponent | str]):
         """Set the device components"""
         self._db_data.device_components = []
         for comp in components:
@@ -330,7 +330,7 @@ class AnalysisResult:
         self._db_data.experiment_id = new_id
 
     @property
-    def chisq(self) -> Optional[float]:
+    def chisq(self) -> float | None:
         """Return the reduced χ² of this analysis."""
         return self._db_data.chisq
 
@@ -390,7 +390,7 @@ class AnalysisResult:
         return self._db_data.tags
 
     @tags.setter
-    def tags(self, new_tags: List[str]) -> None:
+    def tags(self, new_tags: list[str]) -> None:
         """Set tags for this result."""
         if not isinstance(new_tags, list):
             raise ExperimentDataError(f"The `tags` field of {type(self).__name__} must be a list.")
@@ -399,7 +399,7 @@ class AnalysisResult:
             self.save()
 
     @property
-    def service(self) -> Optional[IBMExperimentService]:
+    def service(self) -> IBMExperimentService | None:
         """Return the database service.
 
         Returns:
@@ -423,7 +423,7 @@ class AnalysisResult:
         self._service = service
 
     @property
-    def source(self) -> Dict:
+    def source(self) -> dict:
         """Return the class name and version."""
         if "_source" in self._db_data.result_data:
             return self._db_data.result_data["_source"]

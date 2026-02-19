@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Table representation of the x, y data for curve fitting."""
+
 from __future__ import annotations
 
 import logging
@@ -24,6 +25,7 @@ import numpy as np
 import pandas as pd
 
 
+NAType = type(pd.NA)
 LOG = logging.getLogger(__name__)
 
 
@@ -349,14 +351,14 @@ class ScatterTable:
 
     def add_row(
         self,
-        xval: float | pd.NA = pd.NA,
-        yval: float | pd.NA = pd.NA,
-        yerr: float | pd.NA = pd.NA,
-        series_name: str | pd.NA = pd.NA,
-        series_id: int | pd.NA = pd.NA,
-        category: str | pd.NA = pd.NA,
-        shots: float | pd.NA = pd.NA,
-        analysis: str | pd.NA = pd.NA,
+        xval: float | NAType = pd.NA,
+        yval: float | NAType = pd.NA,
+        yerr: float | NAType = pd.NA,
+        series_name: str | NAType = pd.NA,
+        series_id: int | NAType = pd.NA,
+        category: str | NAType = pd.NA,
+        shots: float | NAType = pd.NA,
+        analysis: str | NAType = pd.NA,
     ):
         """Add new data point to the table.
 

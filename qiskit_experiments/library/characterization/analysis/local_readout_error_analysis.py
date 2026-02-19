@@ -12,7 +12,6 @@
 """
 Analysis class to characterize local readout error
 """
-from typing import List, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 from qiskit.result import marginal_distribution
@@ -66,7 +65,7 @@ class LocalReadoutErrorAnalysis(BaseAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> tuple[list[AnalysisResultData], list["matplotlib.figure.Figure"]]:
         data = experiment_data.data()
         qubits = experiment_data.metadata["physical_qubits"]
         matrices = self._generate_matrices(data)
@@ -81,7 +80,7 @@ class LocalReadoutErrorAnalysis(BaseAnalysis):
             figures = None
         return analysis_results, figures
 
-    def _generate_matrices(self, data) -> List[np.array]:
+    def _generate_matrices(self, data) -> list[np.array]:
         num_qubits = len(data[0]["metadata"]["state_label"])
         counts = [None, None]
         for result in data:

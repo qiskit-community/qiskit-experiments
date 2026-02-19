@@ -15,7 +15,6 @@ Test visualization plotter.
 
 from copy import copy
 from test.base import QiskitExperimentsTestCase
-from typing import Tuple
 
 from qiskit_experiments.visualization import PlotStyle
 
@@ -24,7 +23,7 @@ class TestPlotStyle(QiskitExperimentsTestCase):
     """Test PlotStyle"""
 
     @classmethod
-    def _dummy_styles(cls) -> Tuple[PlotStyle, PlotStyle, PlotStyle, PlotStyle]:
+    def _dummy_styles(cls) -> tuple[PlotStyle, PlotStyle, PlotStyle, PlotStyle]:
         """Returns dummy input styles for PlotStyle tests.
 
         Returns:

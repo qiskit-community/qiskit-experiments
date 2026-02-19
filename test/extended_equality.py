@@ -18,7 +18,7 @@ officially implement the equality dunder method.
 """
 
 import dataclasses
-from typing import Any, List, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -107,8 +107,8 @@ def _is_equivalent_dispatcher(
 
 @_is_equivalent_dispatcher.register
 def _check_dicts(
-    data1: Union[dict, ThreadSafeOrderedDict],
-    data2: Union[dict, ThreadSafeOrderedDict],
+    data1: dict | ThreadSafeOrderedDict,
+    data2: dict | ThreadSafeOrderedDict,
     **kwargs,
 ):
     """Check equality of dictionary which may involve Qiskit Experiments classes."""
@@ -119,8 +119,8 @@ def _check_dicts(
 
 @_is_equivalent_dispatcher.register
 def _check_floats(
-    data1: Union[float, np.floating],
-    data2: Union[float, np.floating],
+    data1: float | np.floating,
+    data2: float | np.floating,
     **kwargs,
 ):
     """Check equality of float.
@@ -140,8 +140,8 @@ def _check_floats(
 
 @_is_equivalent_dispatcher.register
 def _check_integer(
-    data1: Union[int, np.integer],
-    data2: Union[int, np.integer],
+    data1: int | np.integer,
+    data2: int | np.integer,
     **kwargs,
 ):
     """Check equality of integer.
@@ -153,8 +153,8 @@ def _check_integer(
 
 @_is_equivalent_dispatcher.register
 def _check_sequences(
-    data1: Union[list, tuple, np.ndarray, ThreadSafeList],
-    data2: Union[list, tuple, np.ndarray, ThreadSafeList],
+    data1: list | tuple | np.ndarray | ThreadSafeList,
+    data2: list | tuple | np.ndarray | ThreadSafeList,
     **kwargs,
 ):
     """Check equality of sequence."""
@@ -197,8 +197,8 @@ def _check_lmfit_models(
 
 @_is_equivalent_dispatcher.register
 def _check_dataprocessing_instances(
-    data1: Union[DataAction, DataProcessor],
-    data2: Union[DataAction, DataProcessor],
+    data1: DataAction | DataProcessor,
+    data2: DataAction | DataProcessor,
     **kwargs,
 ):
     """Check equality of classes in the data_processing module."""
@@ -287,8 +287,8 @@ def _check_artifact_data(
 
 @_is_equivalent_dispatcher.register
 def _check_configurable_classes(
-    data1: Union[BaseExperiment, BaseAnalysis, BaseDrawer],
-    data2: Union[BaseExperiment, BaseAnalysis, BaseDrawer],
+    data1: BaseExperiment | BaseAnalysis | BaseDrawer,
+    data2: BaseExperiment | BaseAnalysis | BaseDrawer,
     **kwargs,
 ):
     """Check equality of Qiskit Experiments class with config method."""
@@ -397,7 +397,7 @@ def _check_experiment_data(
 
 
 def _check_all_attributes(
-    attrs: List[str],
+    attrs: list[str],
     data1: Any,
     data2: Any,
     **kwargs,

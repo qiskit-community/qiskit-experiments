@@ -12,7 +12,6 @@
 """
 Analysis class to characterize correlated readout error
 """
-from typing import List, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 from qiskit_experiments.data_processing import CorrelatedReadoutMitigator
@@ -62,7 +61,7 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> tuple[list[AnalysisResultData], list["matplotlib.figure.Figure"]]:
         data = experiment_data.data()
         qubits = experiment_data.metadata["physical_qubits"]
         labels = [datum["metadata"]["state_label"] for datum in data]

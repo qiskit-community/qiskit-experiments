@@ -13,7 +13,7 @@
 Method decorator for caching regular methods in class instances.
 """
 
-from typing import Dict, Callable, Optional
+from collections.abc import Callable
 import functools
 
 
@@ -22,7 +22,7 @@ def _method_cache_name(instance: any) -> str:
     return "_CACHE_" + type(instance).__name__
 
 
-def _get_method_cache(instance: any) -> Dict:
+def _get_method_cache(instance: any) -> dict:
     """Return instance cache for cached methods"""
     cache_name = _method_cache_name(instance)
     try:
@@ -32,7 +32,7 @@ def _get_method_cache(instance: any) -> Dict:
         return getattr(instance, cache_name)
 
 
-def cache_method(maxsize: Optional[int] = None) -> Callable:
+def cache_method(maxsize: int | None = None) -> Callable:
     """Decorator for caching class instance methods.
 
     Args:

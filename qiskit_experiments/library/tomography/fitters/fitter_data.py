@@ -14,9 +14,9 @@ Quantum process tomography analysis
 """
 
 
-from typing import List, Dict, Tuple, Union, Optional, Callable, Sequence
 import functools
 from collections import defaultdict
+from collections.abc import Callable, Sequence
 import numpy as np
 
 from qiskit.result import marginal_distribution
@@ -26,15 +26,15 @@ from qiskit_experiments.library.tomography.basis import MeasurementBasis, Prepar
 
 
 def tomography_fitter_data(
-    data: List[Dict[str, any]],
-    outcome_shape: Optional[Union[np.ndarray, int]] = None,
+    data: list[dict[str, any]],
+    outcome_shape: np.ndarray | int | None = None,
     m_idx_key: str = "m_idx",
     p_idx_key: str = "p_idx",
     clbits_key: str = "clbits",
-    clbits: Optional[List[int]] = None,
+    clbits: list[int] | None = None,
     cond_clbits_key: str = "cond_clbits",
-    cond_clbits: Optional[List[int]] = None,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    cond_clbits: list[int] | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Return a tuple of tomography data arrays.
 
     Args:
@@ -146,7 +146,7 @@ def tomography_fitter_data(
 
 
 @functools.lru_cache(None)
-def _int_outcome_function(outcome_shape: Tuple[int, ...]) -> Callable:
+def _int_outcome_function(outcome_shape: tuple[int, ...]) -> Callable:
     """Generate function for converting string outcomes to ints"""
     # Recursively extract leading bit(dit)
     if len(set(outcome_shape)) == 1:
@@ -169,10 +169,10 @@ def _int_outcome_function(outcome_shape: Tuple[int, ...]) -> Callable:
 
 
 def _basis_dimensions(
-    basis: Optional[Union[MeasurementBasis, PreparationBasis]] = None,
-    qubits: Optional[Sequence[int]] = None,
-    conditional_indices: Optional[Sequence[int]] = None,
-) -> Tuple[int, ...]:
+    basis: MeasurementBasis | PreparationBasis | None = None,
+    qubits: Sequence[int] | None = None,
+    conditional_indices: Sequence[int] | None = None,
+) -> tuple[int, ...]:
     """Calculate input and output dimensions for basis and qubits"""
     if not qubits:
         return (1,)

@@ -13,7 +13,6 @@
 Composite Experiment Analysis class.
 """
 
-from typing import List, Dict, Union, Optional, Tuple
 import numpy as np
 from qiskit.result import marginal_distribution
 from qiskit.result.postprocess import format_counts_memory
@@ -53,9 +52,9 @@ class CompositeAnalysis(BaseAnalysis):
 
     def __init__(
         self,
-        analyses: List[BaseAnalysis],
+        analyses: list[BaseAnalysis],
         flatten_results: bool = True,
-        generate_figures: Optional[str] = "always",
+        generate_figures: str | None = "always",
     ):
         """Initialize a composite analysis class.
 
@@ -78,9 +77,7 @@ class CompositeAnalysis(BaseAnalysis):
 
         self._set_generate_figures(generate_figures)
 
-    def component_analysis(
-        self, index: Optional[int] = None
-    ) -> Union[BaseAnalysis, List[BaseAnalysis]]:
+    def component_analysis(self, index: int | None = None) -> BaseAnalysis | list[BaseAnalysis]:
         """Return the component experiment Analysis instance.
 
         Args:
@@ -154,7 +151,7 @@ class CompositeAnalysis(BaseAnalysis):
             return analysis_results, figures
         return [], []
 
-    def _component_experiment_data(self, experiment_data: ExperimentData) -> List[ExperimentData]:
+    def _component_experiment_data(self, experiment_data: ExperimentData) -> list[ExperimentData]:
         """Return a list of marginalized experiment data for component experiments.
 
         Args:
@@ -196,7 +193,7 @@ class CompositeAnalysis(BaseAnalysis):
 
         return component_expdata
 
-    def _marginalized_component_data(self, composite_data: List[Dict]) -> List[List[Dict]]:
+    def _marginalized_component_data(self, composite_data: list[dict]) -> list[list[dict]]:
         """Return marginalized data for component experiments.
 
         Args:
@@ -262,7 +259,7 @@ class CompositeAnalysis(BaseAnalysis):
         return [marginalized_data[i] for i in sorted(marginalized_data.keys())]
 
     @staticmethod
-    def _format_memory(datum: Dict, composite_clbits: List):
+    def _format_memory(datum: dict, composite_clbits: list):
         """A helper method to convert level 2 memory (if it exists) to bit-string format."""
         f_memory = None
         if (
@@ -304,7 +301,7 @@ class CompositeAnalysis(BaseAnalysis):
 
     def _initialize_component_experiment_data(
         self, experiment_data: ExperimentData
-    ) -> List[ExperimentData]:
+    ) -> list[ExperimentData]:
         """Initialize empty experiment data containers for component experiments.
 
         Args:
@@ -363,8 +360,8 @@ class CompositeAnalysis(BaseAnalysis):
 
     def _combine_results(
         self,
-        component_experiment_data: List[ExperimentData],
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+        component_experiment_data: list[ExperimentData],
+    ) -> tuple[list[AnalysisResultData], list["matplotlib.figure.Figure"]]:
         """Combine analysis results from component experiment data.
 
         Args:

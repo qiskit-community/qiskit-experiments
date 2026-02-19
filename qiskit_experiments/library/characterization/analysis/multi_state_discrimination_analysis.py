@@ -12,8 +12,6 @@
 
 """Multi state discrimination analysis."""
 
-from typing import List, Tuple, TYPE_CHECKING
-
 import matplotlib
 import numpy as np
 
@@ -22,9 +20,6 @@ from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Exper
 from qiskit_experiments.data_processing import SkQDA
 from qiskit_experiments.visualization import BasePlotter, IQPlotter, MplDrawer, PlotStyle
 from qiskit_experiments.framework.package_deps import HAS_SKLEARN
-
-if TYPE_CHECKING:
-    from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
 
 class MultiStateDiscriminationAnalysis(BaseAnalysis):
@@ -77,7 +72,7 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> tuple[list[AnalysisResultData], list["matplotlib.figure.Figure"]]:
         """Train a discriminator based on the experiment data.
 
         Args:

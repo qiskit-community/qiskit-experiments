@@ -17,7 +17,6 @@ import warnings
 
 # pylint: disable=invalid-name
 
-from typing import Dict, List, Tuple, Union, Optional
 from functools import partial
 
 from copy import deepcopy
@@ -107,8 +106,8 @@ class CurveAnalysis(BaseCurveAnalysis):
 
     def __init__(
         self,
-        models: Optional[List[lmfit.Model]] = None,
-        name: Optional[str] = None,
+        models: list[lmfit.Model] | None = None,
+        name: str | None = None,
     ):
         """Initialize data fields that are privately accessed by methods.
 
@@ -133,7 +132,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         return self._name
 
     @property
-    def parameters(self) -> List[str]:
+    def parameters(self) -> list[str]:
         """Return parameters of this curve analysis."""
         unite_params = []
         for model in self._models:
@@ -143,11 +142,11 @@ class CurveAnalysis(BaseCurveAnalysis):
         return unite_params
 
     @property
-    def models(self) -> List[lmfit.Model]:
+    def models(self) -> list[lmfit.Model]:
         """Return fit models."""
         return self._models
 
-    def model_names(self) -> List[str]:
+    def model_names(self) -> list[str]:
         """Return model names."""
         return [getattr(m, "_name", f"model-{i}") for i, m in enumerate(self._models)]
 
@@ -265,7 +264,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
     def _run_data_processing(
         self,
-        raw_data: List[Dict],
+        raw_data: list[dict],
         category: str = "raw",
     ) -> ScatterTable:
         """Perform data processing from the experiment result payload.
@@ -389,7 +388,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         self,
         user_opt: FitOptions,
         curve_data: ScatterTable,  # pylint: disable=unused-argument
-    ) -> Union[FitOptions, List[FitOptions]]:
+    ) -> FitOptions | list[FitOptions]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
@@ -567,7 +566,7 @@ class CurveAnalysis(BaseCurveAnalysis):
     def _create_figures(
         self,
         curve_data: ScatterTable,
-    ) -> List["matplotlib.figure.Figure"]:
+    ) -> list["matplotlib.figure.Figure"]:
         """Create a list of figures from the curve data.
 
         Args:
@@ -623,9 +622,9 @@ class CurveAnalysis(BaseCurveAnalysis):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
-        figures: List[FigureType] = []
-        result_data: List[Union[AnalysisResultData, ArtifactData]] = []
+    ) -> tuple[list[AnalysisResultData | ArtifactData], list[FigureType]]:
+        figures: list[FigureType] = []
+        result_data: list[AnalysisResultData | ArtifactData] = []
         artifacts: list[ArtifactData] = []
 
         # Flag for plotting can be "always", "never", or "selective"

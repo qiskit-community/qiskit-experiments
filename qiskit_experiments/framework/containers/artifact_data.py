@@ -15,7 +15,7 @@ Entry for artifact data.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Optional, List
+from typing import Any
 from datetime import datetime
 import uuid
 
@@ -44,11 +44,11 @@ class ArtifactData:
 
     name: str
     data: Any
-    artifact_id: Optional[str] = field(default_factory=lambda: str(uuid.uuid4()))
-    experiment_id: Optional[str] = None
-    experiment: Optional[str] = None
-    device_components: List = field(default_factory=list)
-    created_time: Optional[datetime] = field(default_factory=lambda: datetime.now(tz.tzlocal()))
+    artifact_id: str | None = field(default_factory=lambda: str(uuid.uuid4()))
+    experiment_id: str | None = None
+    experiment: str | None = None
+    device_components: list = field(default_factory=list)
+    created_time: datetime | None = field(default_factory=lambda: datetime.now(tz.tzlocal()))
 
     @property
     def dtype(self):
