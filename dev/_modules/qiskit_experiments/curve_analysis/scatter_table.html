@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.curve_analysis.scatter_table - Qiskit Experiments 0.13.0-8-g0e68219c3</title>
+        <title>qiskit_experiments.curve_analysis.scatter_table - Qiskit Experiments 0.13.0-9-g065b2ee0f</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-8-g0e68219c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-9-g065b2ee0f</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-8-g0e68219c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-9-g065b2ee0f</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -544,6 +544,7 @@
 <span class="c1"># that they have been altered from the originals.</span>
 
 <span class="sd">&quot;&quot;&quot;Table representation of the x, y data for curve fitting.&quot;&quot;&quot;</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -557,6 +558,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 
+<span class="n">NAType</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
@@ -907,14 +909,14 @@
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.add_row">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_row</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">xval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
-        <span class="n">yval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
-        <span class="n">yerr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
-        <span class="n">series_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
-        <span class="n">series_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
-        <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
-        <span class="n">shots</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
-        <span class="n">analysis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
+        <span class="n">xval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">NAType</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
+        <span class="n">yval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">NAType</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
+        <span class="n">yerr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">NAType</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
+        <span class="n">series_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">NAType</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
+        <span class="n">series_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">NAType</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
+        <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">NAType</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
+        <span class="n">shots</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">NAType</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
+        <span class="n">analysis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">NAType</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add new data point to the table.</span>
 
@@ -1004,7 +1006,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/02/18</div>
+              Last updated on 2026/02/19</div>
           </div>
           <div class="right-details">
             
@@ -1019,7 +1021,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=e427bc0b"></script>
+</div><script src="../../../_static/documentation_options.js?v=5905ad7c"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.library.tomography.basis.local_basis - Qiskit Experiments 0.13.0-8-g0e68219c3</title>
+        <title>qiskit_experiments.library.tomography.basis.local_basis - Qiskit Experiments 0.13.0-9-g065b2ee0f</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-8-g0e68219c3</div></a>
+      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-9-g065b2ee0f</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-8-g0e68219c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-9-g065b2ee0f</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../../../search.html" role="search">
@@ -545,7 +545,9 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Circuit basis for tomography preparation and measurement circuits</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">Instruction</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.quantum_info.states.quantum_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumState</span>
@@ -559,8 +561,8 @@
 
 
 <span class="c1"># Typing</span>
-<span class="n">Povm</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Statevector</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">DensityMatrix</span><span class="p">],</span> <span class="n">QuantumChannel</span><span class="p">]</span>
-<span class="n">States</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">QuantumState</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">QuantumState</span><span class="p">]]</span>
+<span class="n">Povm</span> <span class="o">=</span> <span class="nb">list</span><span class="p">[</span><span class="n">Statevector</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">DensityMatrix</span><span class="p">]</span> <span class="o">|</span> <span class="n">QuantumChannel</span>
+<span class="n">States</span> <span class="o">=</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumState</span><span class="p">]</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="n">QuantumState</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="LocalPreparationBasis">
@@ -575,9 +577,9 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Instruction</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default_states</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">States</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">qubit_states</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">States</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">instructions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Instruction</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">default_states</span><span class="p">:</span> <span class="n">States</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">qubit_states</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">States</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a fitter preparation basis.</span>
 
@@ -639,13 +641,13 @@
 
 <div class="viewcode-block" id="LocalPreparationBasis.index_shape">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.tomography.basis.LocalPreparationBasis.html#qiskit_experiments.library.tomography.basis.LocalPreparationBasis.index_shape">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">index_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">index_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">,)</span></div>
 
 
 <div class="viewcode-block" id="LocalPreparationBasis.matrix_shape">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.tomography.basis.LocalPreparationBasis.html#qiskit_experiments.library.tomography.basis.LocalPreparationBasis.matrix_shape">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">matrix_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">matrix_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="n">qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">qubits</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_dim</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_dim</span><span class="p">[</span><span class="n">qubits</span><span class="p">]</span>
@@ -657,9 +659,7 @@
 
 <div class="viewcode-block" id="LocalPreparationBasis.circuit">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.tomography.basis.LocalPreparationBasis.html#qiskit_experiments.library.tomography.basis.LocalPreparationBasis.circuit">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">circuit</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
         <span class="c1"># pylint: disable = unused-argument</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instructions</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
@@ -671,7 +671,7 @@
 
 <div class="viewcode-block" id="LocalPreparationBasis.matrix">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.tomography.basis.LocalPreparationBasis.html#qiskit_experiments.library.tomography.basis.LocalPreparationBasis.matrix">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="c1"># Convert args to hashable tuples</span>
         <span class="k">if</span> <span class="n">qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)))</span>
@@ -699,7 +699,7 @@
 
 
     <span class="nd">@cache_method</span><span class="p">()</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_qubits_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_qubits_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">qubits</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;LRU cached function for returning POVMS&quot;&quot;&quot;</span>
         <span class="n">num_qubits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
 
@@ -808,9 +808,9 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Instruction</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default_povms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Povm</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">qubit_povms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Povm</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">instructions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Instruction</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">default_povms</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Povm</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">qubit_povms</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Povm</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a fitter preparation basis.</span>
 
@@ -883,13 +883,13 @@
 
 <div class="viewcode-block" id="LocalMeasurementBasis.index_shape">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.html#qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.index_shape">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">index_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">index_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">,)</span></div>
 
 
 <div class="viewcode-block" id="LocalMeasurementBasis.matrix_shape">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.html#qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.matrix_shape">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">matrix_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">matrix_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="n">qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">qubits</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_dim</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_dim</span><span class="p">[</span><span class="n">qubits</span><span class="p">]</span>
@@ -901,7 +901,7 @@
 
 <div class="viewcode-block" id="LocalMeasurementBasis.outcome_shape">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.html#qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.outcome_shape">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">outcome_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">outcome_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="n">qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">qubits</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_num_outcomes</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_num_outcomes</span><span class="p">[</span><span class="n">qubits</span><span class="p">]</span>
@@ -913,7 +913,7 @@
 
 <div class="viewcode-block" id="LocalMeasurementBasis.circuit">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.html#qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.circuit">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="c1"># pylint: disable = unused-argument</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instructions</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
@@ -927,7 +927,7 @@
 
 <div class="viewcode-block" id="LocalMeasurementBasis.matrix">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.html#qiskit_experiments.library.tomography.basis.LocalMeasurementBasis.matrix">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">outcome</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">outcome</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="c1"># Convert args to hashable tuples</span>
         <span class="k">if</span> <span class="n">qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)))</span>
@@ -1030,7 +1030,7 @@
         <span class="p">)</span>
 
     <span class="nd">@cache_method</span><span class="p">()</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_outcome_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outcome</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_outcome_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outcome</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert an outcome integer to a tuple of single-qubit outcomes&quot;&quot;&quot;</span>
         <span class="n">num_outcomes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qubit_num_outcomes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">qubits</span><span class="p">[:</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_num_outcomes</span><span class="p">))</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1042,7 +1042,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid qubits for basis&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
 
     <span class="nd">@cache_method</span><span class="p">()</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_qubits_povm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_qubits_povm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">qubits</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;LRU cached function for returning POVMS&quot;&quot;&quot;</span>
         <span class="n">num_qubits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">qubits</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_povms</span><span class="p">:</span>
@@ -1103,7 +1103,7 @@
     <span class="k">return</span> <span class="n">circuit</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_format_instructions</span><span class="p">(</span><span class="n">instructions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Instruction</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_instructions</span><span class="p">(</span><span class="n">instructions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Instruction</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse multiple input formats for list of instructions&quot;&quot;&quot;</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">instructions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1127,10 +1127,10 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_generate_povm</span><span class="p">(</span>
-    <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">DensityMatrix</span><span class="p">],</span> <span class="n">Instruction</span><span class="p">,</span> <span class="n">Operator</span><span class="p">,</span> <span class="n">SuperOp</span><span class="p">],</span>
-    <span class="n">default_z</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">DensityMatrix</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DensityMatrix</span><span class="p">]:</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DensityMatrix</span><span class="p">]</span> <span class="o">|</span> <span class="n">Instruction</span> <span class="o">|</span> <span class="n">Operator</span> <span class="o">|</span> <span class="n">SuperOp</span><span class="p">,</span>
+    <span class="n">default_z</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DensityMatrix</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dims</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">DensityMatrix</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Format a POVM into list of density matrix effects&quot;&quot;&quot;</span>
     <span class="c1"># If already a list convert to DensityMatrix objects</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
@@ -1154,8 +1154,8 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_format_default_povms</span><span class="p">(</span>
-    <span class="n">default_povms</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span> <span class="n">instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Instruction</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">DensityMatrix</span><span class="p">]]:</span>
+    <span class="n">default_povms</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span> <span class="n">instructions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Instruction</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">DensityMatrix</span><span class="p">]]:</span>
     <span class="s2">&quot;Format default POVM data&quot;</span>
     <span class="c1"># Parse data into a dict</span>
     <span class="c1"># Legacy data handling</span>
@@ -1184,7 +1184,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_format_qubit_povms</span><span class="p">(</span>
     <span class="n">qubit_povms</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">DensityMatrix</span><span class="p">]]]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">DensityMatrix</span><span class="p">]]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Format qubit POVMs dict&quot;&quot;&quot;</span>
     <span class="n">povms</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">qubit_povms</span><span class="p">:</span>
@@ -1228,9 +1228,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_generate_state</span><span class="p">(</span>
-    <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Statevector</span><span class="p">,</span> <span class="n">DensityMatrix</span><span class="p">,</span> <span class="n">Instruction</span><span class="p">,</span> <span class="n">Operator</span><span class="p">,</span> <span class="n">SuperOp</span><span class="p">],</span>
-    <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">QuantumState</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">Statevector</span> <span class="o">|</span> <span class="n">DensityMatrix</span> <span class="o">|</span> <span class="n">Instruction</span> <span class="o">|</span> <span class="n">Operator</span> <span class="o">|</span> <span class="n">SuperOp</span><span class="p">,</span>
+    <span class="n">init_state</span><span class="p">:</span> <span class="n">QuantumState</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dims</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DensityMatrix</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Format a state into list of DensityMatrix&quot;&quot;&quot;</span>
     <span class="c1"># If already a quantum state convert to a density matrix</span>
@@ -1254,10 +1254,10 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_format_states</span><span class="p">(</span>
-    <span class="n">states</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">any</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">any</span><span class="p">]]],</span>
-    <span class="n">init_key</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,),</span>
-    <span class="n">instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Instruction</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">DensityMatrix</span><span class="p">]:</span>
+    <span class="n">states</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">any</span><span class="p">]</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">init_key</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,),</span>
+    <span class="n">instructions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Instruction</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">DensityMatrix</span><span class="p">]:</span>
     <span class="s2">&quot;Format default state data&quot;</span>
     <span class="c1"># Parse data into dict to include legacy handling</span>
     <span class="n">states</span> <span class="o">=</span> <span class="n">_format_data_dict</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">instructions</span><span class="p">)</span>
@@ -1275,7 +1275,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_format_qubit_states</span><span class="p">(</span>
     <span class="n">qubit_states</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">DensityMatrix</span><span class="p">]]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">DensityMatrix</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Format qubit POVMs dict&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">qubit_states</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{}</span>
@@ -1294,8 +1294,8 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_format_data_dict</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">any</span><span class="p">],</span> <span class="n">instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Instruction</span><span class="p">,</span> <span class="n">BaseOperator</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">any</span><span class="p">]:</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">instructions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Instruction</span> <span class="o">|</span> <span class="n">BaseOperator</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">Any</span><span class="p">]:</span>
     <span class="s2">&quot;Format default state data&quot;</span>
     <span class="c1"># Parse data into dict to include legacy handling</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
@@ -1335,7 +1335,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/02/18</div>
+              Last updated on 2026/02/19</div>
           </div>
           <div class="right-details">
             
@@ -1350,7 +1350,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../_static/documentation_options.js?v=e427bc0b"></script>
+</div><script src="../../../../../_static/documentation_options.js?v=5905ad7c"></script>
     <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../_static/scripts/furo.js?v=5fa4622c"></script>

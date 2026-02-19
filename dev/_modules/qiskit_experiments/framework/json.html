@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.framework.json - Qiskit Experiments 0.13.0-8-g0e68219c3</title>
+        <title>qiskit_experiments.framework.json - Qiskit Experiments 0.13.0-9-g065b2ee0f</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-8-g0e68219c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-9-g065b2ee0f</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-8-g0e68219c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-9-g065b2ee0f</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -559,7 +559,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionType</span><span class="p">,</span> <span class="n">MethodType</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -570,7 +571,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
 
 
-<span class="nd">@lru_cache</span><span class="p">()</span>
+<span class="nd">@lru_cache</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_module_version</span><span class="p">(</span><span class="n">mod_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the __version__ of a module if defined.</span>
 
@@ -598,7 +599,7 @@
         <span class="k">return</span> <span class="kc">None</span>
 
 
-<span class="nd">@lru_cache</span><span class="p">()</span>
+<span class="nd">@lru_cache</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_object_version</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the module version of an object, class, or function.</span>
 
@@ -619,11 +620,11 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_show_warning</span><span class="p">(</span>
-    <span class="n">msg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">traceback_msg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">mod_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">save_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">load_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">traceback_msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mod_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">load_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Show warning for partial deserialization&quot;&quot;&quot;</span>
     <span class="n">warning_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2"> &quot;</span> <span class="k">if</span> <span class="n">msg</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
@@ -649,7 +650,7 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_serialize_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">compress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_serialize_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">compress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Serialize binary data.</span>
 
 <span class="sd">    Args:</span>
@@ -668,7 +669,7 @@
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="s2">&quot;b64encoded&quot;</span><span class="p">,</span> <span class="s2">&quot;__value__&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_bytes</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_bytes</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Deserialize binary encoded data.</span>
 
 <span class="sd">    Args:</span>
@@ -712,7 +713,7 @@
     <span class="k">return</span> <span class="n">_serialize_bytes</span><span class="p">(</span><span class="n">serialized_data</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="n">compress</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_decode_and_deserialize</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">deserializer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_decode_and_deserialize</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">deserializer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Decode and deserialize input data.</span>
 
 <span class="sd">    Args:</span>
@@ -764,7 +765,7 @@
     <span class="k">return</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">or</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">or</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismethod</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_serialize_type</span><span class="p">(</span><span class="n">type_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="n">FunctionType</span><span class="p">,</span> <span class="n">MethodType</span><span class="p">]):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_serialize_type</span><span class="p">(</span><span class="n">type_name</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="n">FunctionType</span> <span class="o">|</span> <span class="n">MethodType</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Serialize a type, function, or class method&quot;&quot;&quot;</span>
     <span class="n">mod</span> <span class="o">=</span> <span class="n">type_name</span><span class="o">.</span><span class="vm">__module__</span>
     <span class="n">value</span> <span class="o">=</span> <span class="p">{</span>
@@ -775,7 +776,7 @@
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;__value__&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_type</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_type</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Deserialize a type, function, or class method&quot;&quot;&quot;</span>
     <span class="n">traceback_msg</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">load_version</span> <span class="o">=</span> <span class="kc">None</span>
@@ -818,7 +819,7 @@
     <span class="k">return</span> <span class="n">value</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_serialize_object</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">safe_float</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_serialize_object</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">safe_float</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Serialize a class instance from its init args and kwargs.</span>
 
 <span class="sd">    Args:</span>
@@ -848,7 +849,7 @@
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="s2">&quot;__value__&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_object</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_object</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Deserialize class instance saved as settings&quot;&quot;&quot;</span>
     <span class="bp">cls</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="p">{})</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -888,7 +889,7 @@
     <span class="k">return</span> <span class="n">value</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_object_legacy</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_object_legacy</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Deserialize a class object from its init args and kwargs.&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">class_name</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">]</span>
@@ -1151,7 +1152,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/02/18</div>
+              Last updated on 2026/02/19</div>
           </div>
           <div class="right-details">
             
@@ -1166,7 +1167,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=e427bc0b"></script>
+</div><script src="../../../_static/documentation_options.js?v=5905ad7c"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

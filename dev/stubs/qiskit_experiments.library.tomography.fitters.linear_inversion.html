@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="cvxpy_gaussian_lstsq" href="qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq.html" /><link rel="prev" title="MitigatedTomographyAnalysis" href="qiskit_experiments.library.tomography.MitigatedTomographyAnalysis.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>linear_inversion - Qiskit Experiments 0.13.0-8-g0e68219c3</title>
+        <title>linear_inversion - Qiskit Experiments 0.13.0-9-g065b2ee0f</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-8-g0e68219c3</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-9-g065b2ee0f</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-8-g0e68219c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-9-g065b2ee0f</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -600,9 +600,9 @@ least-squares optimization.</p>
 <li><p><strong>preparation_data</strong> (<em>ndarray</em>) – preparation basis index data.</p></li>
 <li><p><strong>measurement_basis</strong> (<a class="reference internal" href="qiskit_experiments.library.tomography.basis.MeasurementBasis.html#qiskit_experiments.library.tomography.basis.MeasurementBasis" title="qiskit_experiments.library.tomography.basis.base_basis.MeasurementBasis"><em>MeasurementBasis</em></a><em> | </em><em>None</em>) – the tomography measurement basis.</p></li>
 <li><p><strong>preparation_basis</strong> (<a class="reference internal" href="qiskit_experiments.library.tomography.basis.PreparationBasis.html#qiskit_experiments.library.tomography.basis.PreparationBasis" title="qiskit_experiments.library.tomography.basis.base_basis.PreparationBasis"><em>PreparationBasis</em></a><em> | </em><em>None</em>) – the tomography preparation basis.</p></li>
-<li><p><strong>measurement_qubits</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>) – Optional, the physical qubits that were measured.
+<li><p><strong>measurement_qubits</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>) – Optional, the physical qubits that were measured.
 If None they are assumed to be [0, …, M-1] for M measured qubits.</p></li>
-<li><p><strong>preparation_qubits</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>) – Optional, the physical qubits that were prepared.
+<li><p><strong>preparation_qubits</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>) – Optional, the physical qubits that were prepared.
 If None they are assumed to be [0, …, N-1] forN prepared qubits.</p></li>
 <li><p><strong>conditional_measurement_indices</strong> (<em>ndarray</em><em> | </em><em>None</em>) – Optional, conditional measurement data
 indices. If set this will return a list of fitted states conditioned
@@ -620,7 +620,7 @@ on a fixed basis preparation of these qubits.</p></li>
 <dd class="field-odd"><p>The fitted matrix rho.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Tuple</em>[<em>ndarray</em>, <em>Dict</em>]</p>
+<dd class="field-even"><p>tuple[<em>ndarray</em>, dict]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -662,7 +662,7 @@ on a fixed basis preparation of these qubits.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/02/18</div>
+              Last updated on 2026/02/19</div>
           </div>
           <div class="right-details">
             
@@ -696,7 +696,7 @@ on a fixed basis preparation of these qubits.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=e427bc0b"></script>
+</div><script src="../_static/documentation_options.js?v=5905ad7c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

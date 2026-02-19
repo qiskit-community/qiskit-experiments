@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ExperimentStatus" href="qiskit_experiments.framework.ExperimentStatus.html" /><link rel="prev" title="Experiment Framework (qiskit_experiments.framework)" href="../apidocs/framework.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>ExperimentData - Qiskit Experiments 0.13.0-8-g0e68219c3</title>
+        <title>ExperimentData - Qiskit Experiments 0.13.0-9-g065b2ee0f</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-8-g0e68219c3</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-9-g065b2ee0f</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-8-g0e68219c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-9-g065b2ee0f</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -570,20 +570,20 @@ to the database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>experiment</strong> (<em>Optional</em><em>[</em><em>'BaseExperiment'</em><em>]</em>) – Experiment object that generated the data.</p></li>
-<li><p><strong>backend</strong> (<em>Optional</em><em>[</em><em>Backend</em><em>]</em>) – Backend the experiment runs on. This overrides the
+<li><p><strong>experiment</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><em>BaseExperiment</em></a><em> | </em><em>None</em>) – Experiment object that generated the data.</p></li>
+<li><p><strong>backend</strong> (<em>Backend</em><em> | </em><em>None</em>) – Backend the experiment runs on. This overrides the
 backend in the experiment object.</p></li>
-<li><p><strong>service</strong> (<em>Optional</em><em>[</em><em>IBMExperimentService</em><em>]</em>) – The service that stores the experiment results to the database</p></li>
-<li><p><strong>provider</strong> (<em>Optional</em><em>[</em><em>Provider</em><em>]</em>) – The provider used for the experiments
+<li><p><strong>service</strong> (<em>IBMExperimentService</em><em> | </em><em>None</em>) – The service that stores the experiment results to the database</p></li>
+<li><p><strong>provider</strong> (<em>Provider</em><em> | </em><em>None</em>) – The provider used for the experiments
 (can be used to automatically obtain the service)</p></li>
-<li><p><strong>parent_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – ID of the parent experiment data
+<li><p><strong>parent_id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of the parent experiment data
 in the setting of a composite experiment</p></li>
-<li><p><strong>job_ids</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – IDs of jobs submitted for the experiment.</p></li>
-<li><p><strong>child_data</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><em>ExperimentData</em></a><em>]</em><em>]</em>) – List of child experiment data.</p></li>
-<li><p><strong>verbose</strong> (<em>Optional</em><em>[</em><em>bool</em><em>]</em>) – Whether to print messages.</p></li>
-<li><p><strong>db_data</strong> (<em>Optional</em><em>[</em><em>ExperimentDataclass</em><em>]</em>) – A prepared ExperimentDataclass of the experiment info.
+<li><p><strong>job_ids</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – IDs of jobs submitted for the experiment.</p></li>
+<li><p><strong>child_data</strong> (<em>list</em><em>[</em><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><em>ExperimentData</em></a><em>] </em><em>| </em><em>None</em>) – List of child experiment data.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em> | </em><em>None</em>) – Whether to print messages.</p></li>
+<li><p><strong>db_data</strong> (<em>ExperimentDataclass</em><em> | </em><em>None</em>) – A prepared ExperimentDataclass of the experiment info.
 This overrides other db parameters.</p></li>
-<li><p><strong>start_datetime</strong> (<em>Optional</em><em>[</em><em>datetime</em><em>]</em>) – The time when the experiment started running.
+<li><p><strong>start_datetime</strong> (<em>datetime</em><em> | </em><em>None</em>) – The time when the experiment started running.
 If none, defaults to the current time.</p></li>
 </ul>
 </dd>
@@ -914,11 +914,11 @@ time.</p>
 <li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the result entry.</p></li>
 <li><p><strong>value</strong> (<em>Any</em><em> | </em><em>None</em>) – Analyzed quantity.</p></li>
 <li><p><strong>quality</strong> (<em>str</em><em> | </em><em>None</em>) – Quality of the data.</p></li>
-<li><p><strong>components</strong> (<em>List</em><em>[</em><a class="reference internal" href="qiskit_experiments.database_service.DeviceComponent.html#qiskit_experiments.database_service.DeviceComponent" title="qiskit_experiments.database_service.device_component.DeviceComponent"><em>DeviceComponent</em></a><em>] </em><em>| </em><em>None</em>) – Associated device components.</p></li>
+<li><p><strong>components</strong> (<em>list</em><em>[</em><a class="reference internal" href="qiskit_experiments.database_service.DeviceComponent.html#qiskit_experiments.database_service.DeviceComponent" title="qiskit_experiments.database_service.device_component.DeviceComponent"><em>DeviceComponent</em></a><em>] </em><em>| </em><em>None</em>) – Associated device components.</p></li>
 <li><p><strong>experiment</strong> (<em>str</em><em> | </em><em>None</em>) – String identifier of the associated experiment.</p></li>
 <li><p><strong>experiment_id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of the associated experiment.</p></li>
 <li><p><strong>result_id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of this analysis entry. If not set a random UUID is generated.</p></li>
-<li><p><strong>tags</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – List of arbitrary tags.</p></li>
+<li><p><strong>tags</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – List of arbitrary tags.</p></li>
 <li><p><strong>backend</strong> (<em>str</em><em> | </em><em>None</em>) – Name of associated backend.</p></li>
 <li><p><strong>run_time</strong> (<em>datetime</em><em> | </em><em>None</em>) – The date time when the experiment started to run on the device.</p></li>
 <li><p><strong>created_time</strong> (<em>datetime</em><em> | </em><em>None</em>) – The date time when this analysis is performed.</p></li>
@@ -941,15 +941,15 @@ be created by passing in the individual keyword argument fields.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>results</strong> (<a class="reference internal" href="qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult" title="qiskit_experiments.framework.analysis_result.AnalysisResult"><em>AnalysisResult</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult" title="qiskit_experiments.framework.analysis_result.AnalysisResult"><em>AnalysisResult</em></a><em>] </em><em>| </em><em>None</em>) – Analysis results to be saved.</p></li>
+<li><p><strong>results</strong> (<a class="reference internal" href="qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult" title="qiskit_experiments.framework.analysis_result.AnalysisResult"><em>AnalysisResult</em></a><em> | </em><em>list</em><em>[</em><a class="reference internal" href="qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult" title="qiskit_experiments.framework.analysis_result.AnalysisResult"><em>AnalysisResult</em></a><em>] </em><em>| </em><em>None</em>) – Analysis results to be saved.</p></li>
 <li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the result entry.</p></li>
 <li><p><strong>value</strong> (<em>Any</em><em> | </em><em>None</em>) – Analyzed quantity.</p></li>
 <li><p><strong>quality</strong> (<em>str</em><em> | </em><em>None</em>) – Quality of the data.</p></li>
-<li><p><strong>components</strong> (<em>List</em><em>[</em><a class="reference internal" href="qiskit_experiments.database_service.DeviceComponent.html#qiskit_experiments.database_service.DeviceComponent" title="qiskit_experiments.database_service.device_component.DeviceComponent"><em>DeviceComponent</em></a><em>] </em><em>| </em><em>None</em>) – Associated device components.</p></li>
+<li><p><strong>components</strong> (<em>list</em><em>[</em><a class="reference internal" href="qiskit_experiments.database_service.DeviceComponent.html#qiskit_experiments.database_service.DeviceComponent" title="qiskit_experiments.database_service.device_component.DeviceComponent"><em>DeviceComponent</em></a><em>] </em><em>| </em><em>None</em>) – Associated device components.</p></li>
 <li><p><strong>experiment</strong> (<em>str</em><em> | </em><em>None</em>) – String identifier of the associated experiment.</p></li>
 <li><p><strong>experiment_id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of the associated experiment.</p></li>
 <li><p><strong>result_id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of this analysis entry. If not set a random UUID is generated.</p></li>
-<li><p><strong>tags</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – List of arbitrary tags.</p></li>
+<li><p><strong>tags</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – List of arbitrary tags.</p></li>
 <li><p><strong>backend</strong> (<em>str</em><em> | </em><em>None</em>) – Name of associated backend.</p></li>
 <li><p><strong>run_time</strong> (<em>datetime</em><em> | </em><em>None</em>) – The date time when the experiment started to run on the device.</p></li>
 <li><p><strong>created_time</strong> (<em>datetime</em><em> | </em><em>None</em>) – The date time when this analysis is performed.</p></li>
@@ -988,7 +988,7 @@ New dataframe columns are created in the analysis result table with added keys.<
 <dd><p>Add experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.3)"><em>Result</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.PrimitiveResult" title="(in Qiskit v2.3)"><em>PrimitiveResult</em></a><em> | </em><em>List</em><em>[</em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.3)"><em>Result</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.PrimitiveResult" title="(in Qiskit v2.3)"><em>PrimitiveResult</em></a><em>] </em><em>| </em><em>Dict</em><em> | </em><em>List</em><em>[</em><em>Dict</em><em>]</em>) – <p>Experiment data to add. Several types are accepted for convenience:</p>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.3)"><em>Result</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.PrimitiveResult" title="(in Qiskit v2.3)"><em>PrimitiveResult</em></a><em> | </em><em>list</em><em>[</em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.3)"><em>Result</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.PrimitiveResult" title="(in Qiskit v2.3)"><em>PrimitiveResult</em></a><em>] </em><em>| </em><em>dict</em><em> | </em><em>list</em><em>[</em><em>dict</em><em>]</em>) – <p>Experiment data to add. Several types are accepted for convenience:</p>
 <ul class="simple">
 <li><p>Result: Add data from this <code class="docutils literal notranslate"><span class="pre">Result</span></code> object.</p></li>
 <li><p>List[Result]: Add data from the <code class="docutils literal notranslate"><span class="pre">Result</span></code> objects.</p></li>
@@ -1010,8 +1010,8 @@ New dataframe columns are created in the analysis result table with added keys.<
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>figures</strong> (<em>str</em><em> | </em><em>bytes</em><em> | </em><a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><em>Figure</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.containers.figure_data.FigureData"><em>FigureData</em></a><em> | </em><em>List</em><em>[</em><em>str</em><em> | </em><em>bytes</em><em> | </em><a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><em>Figure</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.containers.figure_data.FigureData"><em>FigureData</em></a><em>]</em>) – Paths of the figure files or figure data.</p></li>
-<li><p><strong>figure_names</strong> (<em>str</em><em> | </em><em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – Names of the figures. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, use the figure file
+<li><p><strong>figures</strong> (<em>str</em><em> | </em><em>bytes</em><em> | </em><a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><em>Figure</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.containers.figure_data.FigureData"><em>FigureData</em></a><em> | </em><em>list</em><em>[</em><em>str</em><em> | </em><em>bytes</em><em> | </em><a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><em>Figure</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.containers.figure_data.FigureData"><em>FigureData</em></a><em>]</em>) – Paths of the figure files or figure data.</p></li>
+<li><p><strong>figure_names</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – Names of the figures. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, use the figure file
 names, if given, or a generated name of the format <code class="docutils literal notranslate"><span class="pre">experiment_type</span></code>, figure
 index, first 5 elements of <code class="docutils literal notranslate"><span class="pre">device_components</span></code>, and first 8 digits of the
 experiment ID connected by underscores, such as <code class="docutils literal notranslate"><span class="pre">T1_Q0_0123abcd.svg</span></code>. If <cite>figures</cite>
@@ -1032,7 +1032,7 @@ the <code class="docutils literal notranslate"><span class="pre">auto-save</span
 <dd class="field-odd"><p><strong>ValueError</strong> – If an input parameter has an invalid value.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>str | <em>List</em>[str]</p>
+<dd class="field-even"><p>str | list[str]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1044,7 +1044,7 @@ the <code class="docutils literal notranslate"><span class="pre">auto-save</span
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>jobs</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseJob.html#qiskit_experiments.framework.BaseJob" title="qiskit_experiments.framework.provider_interfaces.BaseJob"><em>BaseJob</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html#qiskit_experiments.framework.ExtendedJob" title="qiskit_experiments.framework.provider_interfaces.ExtendedJob"><em>ExtendedJob</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="qiskit_experiments.framework.BaseJob.html#qiskit_experiments.framework.BaseJob" title="qiskit_experiments.framework.provider_interfaces.BaseJob"><em>BaseJob</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html#qiskit_experiments.framework.ExtendedJob" title="qiskit_experiments.framework.provider_interfaces.ExtendedJob"><em>ExtendedJob</em></a><em>]</em>) – The Job or list of Jobs to add result data from.</p></li>
+<li><p><strong>jobs</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseJob.html#qiskit_experiments.framework.BaseJob" title="qiskit_experiments.framework.provider_interfaces.BaseJob"><em>BaseJob</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html#qiskit_experiments.framework.ExtendedJob" title="qiskit_experiments.framework.provider_interfaces.ExtendedJob"><em>ExtendedJob</em></a><em> | </em><em>list</em><em>[</em><a class="reference internal" href="qiskit_experiments.framework.BaseJob.html#qiskit_experiments.framework.BaseJob" title="qiskit_experiments.framework.provider_interfaces.BaseJob"><em>BaseJob</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html#qiskit_experiments.framework.ExtendedJob" title="qiskit_experiments.framework.provider_interfaces.ExtendedJob"><em>ExtendedJob</em></a><em>]</em>) – The Job or list of Jobs to add result data from.</p></li>
 <li><p><strong>timeout</strong> (<em>float</em><em> | </em><em>None</em>) – Optional, time in seconds to wait for all jobs to finish
 before cancelling them.</p></li>
 </ul>
@@ -1316,7 +1316,7 @@ Several types are accepted for convenience:</p>
     cannot be found.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.experiment_data.ExperimentData"><em>ExperimentData</em></a> | <em>List</em>[<a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.experiment_data.ExperimentData"><em>ExperimentData</em></a>]</p>
+<dd class="field-even"><p><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.experiment_data.ExperimentData"><em>ExperimentData</em></a> | list[<a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.experiment_data.ExperimentData"><em>ExperimentData</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1367,7 +1367,7 @@ Several types are accepted for convenience:</p>
 <dd class="field-odd"><p><strong>TypeError</strong> – If the input <cite>index</cite> has an invalid type.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Dict</em> | <em>List</em>[<em>Dict</em>]</p>
+<dd class="field-even"><p>dict | list[dict]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1542,7 +1542,7 @@ pending or running jobs. In these cases it may be beneficial to call
 <dd><p>Return a list of jobs for the experiment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference internal" href="qiskit_experiments.framework.BaseJob.html#qiskit_experiments.framework.BaseJob" title="qiskit_experiments.framework.provider_interfaces.BaseJob"><em>BaseJob</em></a> | <a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html#qiskit_experiments.framework.ExtendedJob" title="qiskit_experiments.framework.provider_interfaces.ExtendedJob"><em>ExtendedJob</em></a>]</p>
+<dd class="field-odd"><p>list[<a class="reference internal" href="qiskit_experiments.framework.BaseJob.html#qiskit_experiments.framework.BaseJob" title="qiskit_experiments.framework.provider_interfaces.BaseJob"><em>BaseJob</em></a> | <a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html#qiskit_experiments.framework.ExtendedJob" title="qiskit_experiments.framework.provider_interfaces.ExtendedJob"><em>ExtendedJob</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1705,7 +1705,7 @@ remaining jobs.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/02/18</div>
+              Last updated on 2026/02/19</div>
           </div>
           <div class="right-details">
             
@@ -1802,7 +1802,7 @@ remaining jobs.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=e427bc0b"></script>
+</div><script src="../_static/documentation_options.js?v=5905ad7c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

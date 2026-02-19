@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="MockIQParallelExperimentHelper" href="qiskit_experiments.test.MockIQParallelExperimentHelper.html" /><link rel="prev" title="NoisyDelayAerBackend" href="qiskit_experiments.test.NoisyDelayAerBackend.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>MockIQExperimentHelper - Qiskit Experiments 0.13.0-8-g0e68219c3</title>
+        <title>MockIQExperimentHelper - Qiskit Experiments 0.13.0-9-g065b2ee0f</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-8-g0e68219c3</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-9-g065b2ee0f</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-8-g0e68219c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-9-g065b2ee0f</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -574,10 +574,10 @@ properties are stored appropriately.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>iq_cluster_centers</strong> (<em>List</em><em>[</em><em>Tuple</em><em>[</em><em>Tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em><em>, </em><em>Tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em><em>]</em><em>] </em><em>| </em><em>None</em>) – A list of tuples containing the clusters’ centers in the IQ plane. There
+<li><p><strong>iq_cluster_centers</strong> (<em>list</em><em>[</em><em>tuple</em><em>[</em><em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em><em>, </em><em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em><em>]</em><em>] </em><em>| </em><em>None</em>) – A list of tuples containing the clusters’ centers in the IQ plane. There
 are different centers for different logical values of the qubit. Defaults to a single
 qubit with clusters in quadrants 1 and 3.</p></li>
-<li><p><strong>iq_cluster_width</strong> (<em>List</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – A list of standard deviation values for the sampling of each qubit.
+<li><p><strong>iq_cluster_width</strong> (<em>list</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – A list of standard deviation values for the sampling of each qubit.
 Defaults to widths of 1.0 for each qubit in <a class="reference internal" href="#qiskit_experiments.test.MockIQExperimentHelper.iq_cluster_centers" title="qiskit_experiments.test.MockIQExperimentHelper.iq_cluster_centers"><code class="xref py py-attr docutils literal notranslate"><span class="pre">iq_cluster_centers</span></code></a>.</p></li>
 </ul>
 </dd>
@@ -658,7 +658,7 @@ assume its probability is 0.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<em>Dict</em>[str, <em>Any</em>]]</p>
+<dd class="field-odd"><p>list[dict[str, <em>Any</em>]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -680,7 +680,7 @@ list and in the returned tuples, must match the format of <a class="reference in
 <a class="reference internal" href="#qiskit_experiments.test.MockIQExperimentHelper.iq_cluster_width" title="qiskit_experiments.test.MockIQExperimentHelper.iq_cluster_width"><code class="xref py py-attr docutils literal notranslate"><span class="pre">iq_cluster_width</span></code></a> in <code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit_experiments.test.MockIQExperimentHelper.__init__()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>circuits</strong> (<em>List</em><em>[</em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.3)"><em>QuantumCircuit</em></a><em>]</em>) – The quantum circuits for which the clusters should be modified.</p>
+<dd class="field-odd"><p><strong>circuits</strong> (<em>list</em><em>[</em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.3)"><em>QuantumCircuit</em></a><em>]</em>) – The quantum circuits for which the clusters should be modified.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
@@ -703,7 +703,7 @@ list and in the returned tuples, must match the format of <a class="reference in
 plane has a frequency-dependent phase rotation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[float]</p>
+<dd class="field-odd"><p>list[float]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -747,7 +747,7 @@ plane has a frequency-dependent phase rotation.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/02/18</div>
+              Last updated on 2026/02/19</div>
           </div>
           <div class="right-details">
             
@@ -788,7 +788,7 @@ plane has a frequency-dependent phase rotation.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=e427bc0b"></script>
+</div><script src="../_static/documentation_options.js?v=5905ad7c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

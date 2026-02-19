@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.curve_analysis.composite_curve_analysis - Qiskit Experiments 0.13.0-8-g0e68219c3</title>
+        <title>qiskit_experiments.curve_analysis.composite_curve_analysis - Qiskit Experiments 0.13.0-9-g065b2ee0f</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-8-g0e68219c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-9-g065b2ee0f</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-8-g0e68219c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-9-g065b2ee0f</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -548,7 +548,6 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="c1"># pylint: disable=invalid-name</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
@@ -640,8 +639,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">analyses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseCurveAnalysis</span><span class="p">],</span>
-        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">analyses</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseCurveAnalysis</span><span class="p">],</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -649,7 +648,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return parameters of this curve analysis.&quot;&quot;&quot;</span>
         <span class="n">unite_params</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">:</span>
@@ -665,7 +664,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return fit models.&quot;&quot;&quot;</span>
         <span class="n">models</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">:</span>
@@ -680,8 +679,8 @@
 <div class="viewcode-block" id="CompositeCurveAnalysis.analyses">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html#qiskit_experiments.curve_analysis.CompositeCurveAnalysis.analyses">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">analyses</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">BaseCurveAnalysis</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseCurveAnalysis</span><span class="p">]]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseCurveAnalysis</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseCurveAnalysis</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return curve analysis instance.</span>
 
 <span class="sd">        Args:</span>
@@ -701,8 +700,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_quality</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">fit_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CurveFitResult</span><span class="p">],</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="n">fit_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CurveFitResult</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate quality of the fit result.</span>
 
 <span class="sd">        Args:</span>
@@ -719,10 +718,10 @@
     <span class="c1"># pylint: disable=unused-argument</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_analysis_results</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">fit_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CurveFitResult</span><span class="p">],</span>
+        <span class="n">fit_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CurveFitResult</span><span class="p">],</span>
         <span class="n">quality</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">**</span><span class="n">metadata</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create analysis results based on all analysis outcomes.</span>
 
 <span class="sd">        Args:</span>
@@ -737,7 +736,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_figures</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a list of figures from the curve data.</span>
 
 <span class="sd">        Args:</span>
@@ -824,9 +823,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_analysis</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">,</span> <span class="n">ArtifactData</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="n">FigureType</span><span class="p">]]:</span>
-        <span class="n">result_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">,</span> <span class="n">ArtifactData</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">figures</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">FigureType</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span> <span class="o">|</span> <span class="n">ArtifactData</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">FigureType</span><span class="p">]]:</span>
+        <span class="n">result_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span> <span class="o">|</span> <span class="n">ArtifactData</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">figures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FigureType</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">artifacts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ArtifactData</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Flag for plotting can be &quot;always&quot;, &quot;never&quot;, or &quot;selective&quot;</span>
@@ -915,7 +914,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/02/18</div>
+              Last updated on 2026/02/19</div>
           </div>
           <div class="right-details">
             
@@ -930,7 +929,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=e427bc0b"></script>
+</div><script src="../../../_static/documentation_options.js?v=5905ad7c"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

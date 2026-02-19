@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="AnalysisResultData" href="qiskit_experiments.framework.AnalysisResultData.html" /><link rel="prev" title="AnalysisStatus" href="qiskit_experiments.framework.AnalysisStatus.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>AnalysisResult - Qiskit Experiments 0.13.0-8-g0e68219c3</title>
+        <title>AnalysisResult - Qiskit Experiments 0.13.0-9-g065b2ee0f</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-8-g0e68219c3</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-9-g065b2ee0f</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-8-g0e68219c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-9-g065b2ee0f</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -577,17 +577,17 @@ the <code class="docutils literal notranslate"><span class="pre">result_data</sp
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – analysis result name.</p></li>
 <li><p><strong>value</strong> (<em>Any</em>) – main analysis result value.</p></li>
-<li><p><strong>device_components</strong> (<em>List</em><em>[</em><a class="reference internal" href="qiskit_experiments.database_service.DeviceComponent.html#qiskit_experiments.database_service.DeviceComponent" title="qiskit_experiments.database_service.device_component.DeviceComponent"><em>DeviceComponent</em></a><em> | </em><em>str</em><em>]</em>) – Target device components this analysis is for.</p></li>
+<li><p><strong>device_components</strong> (<em>list</em><em>[</em><a class="reference internal" href="qiskit_experiments.database_service.DeviceComponent.html#qiskit_experiments.database_service.DeviceComponent" title="qiskit_experiments.database_service.device_component.DeviceComponent"><em>DeviceComponent</em></a><em> | </em><em>str</em><em>]</em>) – Target device components this analysis is for.</p></li>
 <li><p><strong>experiment_id</strong> (<em>str</em>) – ID of the experiment.</p></li>
 <li><p><strong>result_id</strong> (<em>str</em><em> | </em><em>None</em>) – Result ID. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, one is generated.</p></li>
 <li><p><strong>chisq</strong> (<em>float</em><em> | </em><em>None</em>) – Reduced chi squared of the fit.</p></li>
 <li><p><strong>quality</strong> (<em>str</em><em> | </em><em>None</em>) – Quality of the analysis. Refer to the experiment service
 provider for valid values.</p></li>
-<li><p><strong>extra</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – Dictionary of extra analysis result data</p></li>
+<li><p><strong>extra</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – Dictionary of extra analysis result data</p></li>
 <li><p><strong>verified</strong> (<em>bool</em>) – Whether the result quality has been verified.</p></li>
-<li><p><strong>tags</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – Tags for this analysis result.</p></li>
+<li><p><strong>tags</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – Tags for this analysis result.</p></li>
 <li><p><strong>service</strong> (<em>IBMExperimentService</em><em> | </em><em>None</em>) – Experiment service to be used to store result in database.</p></li>
-<li><p><strong>source</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>) – Class and Qiskit version information when loading from an
+<li><p><strong>source</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>) – Class and Qiskit version information when loading from an
 experiment service.</p></li>
 </ul>
 </dd>
@@ -758,7 +758,7 @@ value has been verified by a human.</p>
 <dd><p>The default source dictionary to generate</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Dict</em>[str, str]</p>
+<dd class="field-odd"><p>dict[str, str]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -854,7 +854,7 @@ pass them on, potentially aborting the experiment (false).</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/02/18</div>
+              Last updated on 2026/02/19</div>
           </div>
           <div class="right-details">
             
@@ -911,7 +911,7 @@ pass them on, potentially aborting the experiment (false).</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=e427bc0b"></script>
+</div><script src="../_static/documentation_options.js?v=5905ad7c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

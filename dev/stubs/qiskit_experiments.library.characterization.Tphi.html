@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="HalfAngle" href="qiskit_experiments.library.characterization.HalfAngle.html" /><link rel="prev" title="T2Ramsey" href="qiskit_experiments.library.characterization.T2Ramsey.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Tphi - Qiskit Experiments 0.13.0-8-g0e68219c3</title>
+        <title>Tphi - Qiskit Experiments 0.13.0-9-g065b2ee0f</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-8-g0e68219c3</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-9-g065b2ee0f</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-8-g0e68219c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-9-g065b2ee0f</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -656,11 +656,11 @@ to <span class="math notranslate nohighlight">\(T_2\)</span>.</p>
   </thead>
   <tbody>
     <tr>
-      <th>cf7f0b55</th>
+      <th>5e0cd510</th>
       <td>T_phi</td>
       <td>Tphi</td>
       <td>[Q0]</td>
-      <td>0.0004+/-0.0008</td>
+      <td>0.00014+/-0.00009</td>
       <td>bad</td>
       <td>aer_simulator_from(fake_manila)</td>
       <td>None</td>
@@ -668,28 +668,28 @@ to <span class="math notranslate nohighlight">\(T_2\)</span>.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>5da9aaa1</th>
+      <th>831e4b26</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
-      <td>0.000132+/-0.000004</td>
+      <td>0.000125+/-0.000004</td>
       <td>good</td>
       <td>aer_simulator_from(fake_manila)</td>
       <td>None</td>
       <td>s</td>
-      <td>0.699105</td>
+      <td>0.807765</td>
     </tr>
     <tr>
-      <th>3ebfce7f</th>
+      <th>4855c439</th>
       <td>T2</td>
       <td>T2Hahn</td>
       <td>[Q0]</td>
-      <td>0.00016+/-0.00012</td>
+      <td>(9+/-4)e-05</td>
       <td>bad</td>
       <td>aer_simulator_from(fake_manila)</td>
       <td>None</td>
       <td>s</td>
-      <td>1.251275</td>
+      <td>0.862421</td>
     </tr>
   </tbody>
 </table>
@@ -710,8 +710,8 @@ to <span class="math notranslate nohighlight">\(T_2\)</span>.</p>
 <li><p><strong>t2type</strong> (<em>str</em>) – What type of T2/T2* experiment to use. Can be either “ramsey” for
 <a class="reference internal" href="qiskit_experiments.library.characterization.T2Ramsey.html#qiskit_experiments.library.characterization.T2Ramsey" title="qiskit_experiments.library.characterization.T2Ramsey"><code class="xref py py-class docutils literal notranslate"><span class="pre">T2Ramsey</span></code></a> to be used, or “hahn” for <a class="reference internal" href="qiskit_experiments.library.characterization.T2Hahn.html#qiskit_experiments.library.characterization.T2Hahn" title="qiskit_experiments.library.characterization.T2Hahn"><code class="xref py py-class docutils literal notranslate"><span class="pre">T2Hahn</span></code></a>. Defaults
 to “hahn”.</p></li>
-<li><p><strong>delays_t1</strong> (<em>List</em><em>[</em><em>List</em><em>[</em><em>float</em><em>] </em><em>| </em><em>array</em><em>]</em>) – Delay times of the T1 experiment.</p></li>
-<li><p><strong>delays_t2</strong> (<em>List</em><em>[</em><em>List</em><em>[</em><em>float</em><em>] </em><em>| </em><em>array</em><em>]</em>) – Delay times of the T2 experiment.</p></li>
+<li><p><strong>delays_t1</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>float</em><em>] </em><em>| </em><em>ndarray</em><em>]</em>) – Delay times of the T1 experiment.</p></li>
+<li><p><strong>delays_t2</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>float</em><em>] </em><em>| </em><em>ndarray</em><em>]</em>) – Delay times of the T2 experiment.</p></li>
 <li><p><strong>osc_freq</strong> (<em>float</em>) – The oscillation frequency induced for T2Ramsey. Only used when
 <code class="docutils literal notranslate"><span class="pre">t2type</span></code> is set to “ramsey”.</p></li>
 <li><p><strong>num_echoes</strong> (<em>int</em>) – The number of echoes to perform for T2Hahn. Only used when
@@ -998,7 +998,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/02/18</div>
+              Last updated on 2026/02/19</div>
           </div>
           <div class="right-details">
             
@@ -1053,7 +1053,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=e427bc0b"></script>
+</div><script src="../_static/documentation_options.js?v=5905ad7c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
