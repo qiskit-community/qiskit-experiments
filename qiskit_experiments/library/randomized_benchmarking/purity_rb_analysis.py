@@ -165,7 +165,7 @@ class PurityRBAnalysis(RBAnalysis):
 
         outcomes.append(
             AnalysisResultData(
-                name="EPC",
+                name="EPC_pur",
                 value=epc,
                 chisq=fit_data.reduced_chisq,
                 quality=quality,
@@ -183,7 +183,7 @@ class PurityRBAnalysis(RBAnalysis):
             )
             outcomes.append(
                 AnalysisResultData(
-                    name="EPC_corrected",
+                    name="EPC_pur_corrected",
                     value=epc,
                     chisq=fit_data.reduced_chisq,
                     quality=quality,
@@ -203,7 +203,7 @@ class PurityRBAnalysis(RBAnalysis):
                 for gate, epg_val in epg_dict.items():
                     outcomes.append(
                         AnalysisResultData(
-                            name=f"EPG_{gate}",
+                            name=f"EPG_pur_{gate}",
                             value=epg_val,
                             chisq=fit_data.reduced_chisq,
                             quality=quality,
