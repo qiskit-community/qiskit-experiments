@@ -61,8 +61,7 @@ class PurityRBAnalysis(RBAnalysis):
 
     """
 
-    def __init__(self):
-        super().__init__()
+    # Removed __init__ as it only calls super().__init__() with no additional logic
 
     def _run_data_processing(
         self,
