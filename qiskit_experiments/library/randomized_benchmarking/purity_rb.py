@@ -97,9 +97,7 @@ class PurityRB(StandardRB):
             QiskitError: If any invalid argument is supplied.
         """
         # Initialize base experiment (RB)
-        super().__init__(
-            physical_qubits, lengths, backend, num_samples, seed, full_sampling
-        )
+        super().__init__(physical_qubits, lengths, backend, num_samples, seed, full_sampling)
 
         # override the analysis
         self.analysis = PurityRBAnalysis()
@@ -173,9 +171,7 @@ class PurityRB(StandardRB):
                 circ._append(CircuitInstruction(Barrier(self.num_qubits), circ.qubits))
 
             # Compute inverse, compute only the difference from the previous shorter sequence
-            prev_elem = self._StandardRB__compose_clifford_seq(
-                prev_elem, seq[len(prev_seq) :]
-            )
+            prev_elem = self._StandardRB__compose_clifford_seq(prev_elem, seq[len(prev_seq) :])
             prev_seq = seq
             inv = self._StandardRB__adjoint_clifford(prev_elem)
 
@@ -189,3 +185,4 @@ class PurityRB(StandardRB):
                 circuits.append(circ2)
 
         return circuits
+

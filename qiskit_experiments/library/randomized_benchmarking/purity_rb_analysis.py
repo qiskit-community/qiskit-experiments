@@ -109,16 +109,10 @@ class PurityRBAnalysis(RBAnalysis):
             purity = 1 / 2**nq
             if nq == 1:
                 for ii in range(3):
-                    purity += (
-                        sampled_expectation_value(trial_raw[ii]["counts"], "Z") ** 2
-                        / 2**nq
-                    )
+                    purity += sampled_expectation_value(trial_raw[ii]["counts"], "Z") ** 2 / 2**nq
             else:
                 for ii in range(9):
-                    purity += (
-                        sampled_expectation_value(trial_raw[ii]["counts"], "ZZ") ** 2
-                        / 2**nq
-                    )
+                    purity += sampled_expectation_value(trial_raw[ii]["counts"], "ZZ") ** 2 / 2**nq
                     purity += (
                         sampled_expectation_value(trial_raw[ii]["counts"], "IZ") ** 2
                         / 2**nq
@@ -152,9 +146,7 @@ class PurityRBAnalysis(RBAnalysis):
         Returns:
             List of analysis result data.
         """
-        outcomes = curve.CurveAnalysis._create_analysis_results(
-            self, fit_data, quality, **metadata
-        )
+        outcomes = curve.CurveAnalysis._create_analysis_results(self, fit_data, quality, **metadata)
         num_qubits = len(self._physical_qubits)
 
         # Calculate EPC
@@ -235,9 +227,7 @@ class PurityRBAnalysis(RBAnalysis):
 
         b_guess = 1 / 2 ** len(self._physical_qubits)
         if len(curve_data.x) > 3:
-            alpha_guess = curve.guess.rb_decay(
-                curve_data.x[0:3], curve_data.y[0:3], b=b_guess
-            )
+            alpha_guess = curve.guess.rb_decay(curve_data.x[0:3], curve_data.y[0:3], b=b_guess)
         else:
             alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, b=b_guess)
 
@@ -255,4 +245,3 @@ class PurityRBAnalysis(RBAnalysis):
         )
 
         return user_opt
-
