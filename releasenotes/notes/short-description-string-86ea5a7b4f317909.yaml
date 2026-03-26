@@ -1,0 +1,20 @@
+---
+prelude: >
+    This release introduces Purity Randomized Benchmarking (Purity RB), 
+    an alternative approach to standard RB by measuring the purity of quantum 
+    states through post-rotations.
+
+features:
+  - |
+    Added :class:`~.PurityRB` experiment and :class:`~.PurityRBAnalysis` for 
+    performing purity-based randomized benchmarking. Purity RB extends standard 
+    RB by appending post-rotations to the RB sequences to calculate 
+    :math:`\mathrm{Tr}(\rho^2)`, providing an alternative measure of gate 
+    fidelity. The experiment supports both 1-qubit and 2-qubit benchmarking 
+    and estimates the Error Per Clifford (EPC) from the purity decay. The 
+    analysis includes optional correction for single-qubit depolarizing 
+    channels in 2-qubit experiments when ``epg_1_qubit`` is provided, and can 
+    estimate individual gate errors when ``gate_error_ratio`` is specified. 
+    See Ref. [1] for the theoretical background.
+    
+    .. ref_arxiv:: 1 2302.10881
