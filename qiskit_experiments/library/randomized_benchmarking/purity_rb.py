@@ -185,4 +185,3 @@ class PurityRB(StandardRB):
                 circuits.append(circ2)
 
         return circuits
-
