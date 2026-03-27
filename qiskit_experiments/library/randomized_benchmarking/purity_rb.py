@@ -13,11 +13,12 @@
 Purity RB Experiment class.
 """
 
+from numbers import Integral
+from typing import Union, Iterable, Optional, List, Sequence
+
 import numpy as np
 from numpy.random import Generator
 from numpy.random.bit_generator import BitGenerator, SeedSequence
-from numbers import Integral
-from typing import Union, Iterable, Optional, List, Sequence
 
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Clifford
@@ -163,7 +164,10 @@ class PurityRB(StandardRB):
                 self.experiment_options.full_sampling
                 or i % len(self.experiment_options.lengths) == 0
             ):
-                prev_elem, prev_seq = self._StandardRB__identity_clifford(), []
+                prev_elem, prev_seq = (
+                    self._StandardRB__identity_clifford(),
+                    [],
+                )  # pylint: disable=no-member
 
             circ = QuantumCircuit(self.num_qubits)
             for elem in seq:
@@ -171,9 +175,11 @@ class PurityRB(StandardRB):
                 circ._append(CircuitInstruction(Barrier(self.num_qubits), circ.qubits))
 
             # Compute inverse, compute only the difference from the previous shorter sequence
-            prev_elem = self._StandardRB__compose_clifford_seq(prev_elem, seq[len(prev_seq) :])
+            prev_elem = self._StandardRB__compose_clifford_seq(  # pylint: disable=no-member
+                prev_elem, seq[len(prev_seq) :]
+            )
             prev_seq = seq
-            inv = self._StandardRB__adjoint_clifford(prev_elem)
+            inv = self._StandardRB__adjoint_clifford(prev_elem)  # pylint: disable=no-member
 
             circ.append(self._to_instruction(inv, synthesis_opts), circ.qubits)
 
