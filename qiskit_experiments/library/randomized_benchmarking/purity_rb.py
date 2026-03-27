@@ -123,10 +123,13 @@ class PurityRB(StandardRB):
         # trial links all from the same trial
         # needed for post processing the purity RB
         for circ_i, circ in enumerate(circuits):
+            trial_idx = int(circ_i / (3**self.num_qubits))
+            post_rot_idx = circ_i % (3**self.num_qubits)
             circ.metadata = {
-                "xval": len(sequences[int(circ_i / 3**self.num_qubits)]),
-                "trial": int(circ_i / 3**self.num_qubits),
+                "xval": len(sequences[trial_idx]),
+                "trial": trial_idx,
                 "group": "Clifford",
+                "post_rotation_index": post_rot_idx,
             }
         return circuits
 
@@ -186,7 +189,8 @@ class PurityRB(StandardRB):
             # copy the circuit and apply post rotations
             for j in range(3**self.num_qubits):
                 circ2 = circ.copy()
-                circ2.append(post_rot[j], circ.qubits)
+                circ2._append(CircuitInstruction(Barrier(self.num_qubits), circ2.qubits))
+                circ2.append(post_rot[j], circ2.qubits)
                 circ2.measure_all()  # includes insertion of the barrier before measurement
                 circuits.append(circ2)
 
