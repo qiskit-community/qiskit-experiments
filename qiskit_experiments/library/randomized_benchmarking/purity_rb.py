@@ -98,7 +98,7 @@ class PurityRB(StandardRB):
             results = expdata.analysis_results(dataframe=True)
 
             display(expdata.figure(0))
-            print(f"Purity EPC: {results.loc[results['name'] == 'EPC', 'value'].values[0]:.5f}")
+            print(f"Purity EPC: {results.loc[results['name'] == 'EPC_pur', 'value'].values[0]:.5f}")
     """
 
     def __init__(
