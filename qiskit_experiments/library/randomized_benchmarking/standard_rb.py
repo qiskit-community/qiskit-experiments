@@ -352,7 +352,7 @@ class StandardRB(BaseExperiment):
                 self.experiment_options.full_sampling
                 or i % len(self.experiment_options.lengths) == 0
             ):
-                prev_elem, prev_seq = self.__identity_clifford(), []
+                prev_elem, prev_seq = self._identity_clifford(), []
 
             circ = QuantumCircuit(self.num_qubits)
             for elem in seq:
@@ -360,9 +360,9 @@ class StandardRB(BaseExperiment):
                 circ._append(CircuitInstruction(Barrier(self.num_qubits), circ.qubits))
 
             # Compute inverse, compute only the difference from the previous shorter sequence
-            prev_elem = self.__compose_clifford_seq(prev_elem, seq[len(prev_seq) :])
+            prev_elem = self._compose_clifford_seq(prev_elem, seq[len(prev_seq) :])
             prev_seq = seq
-            inv = self.__adjoint_clifford(prev_elem)
+            inv = self._adjoint_clifford(prev_elem)
 
             circ.append(self._to_instruction(inv, synthesis_opts), circ.qubits)
             circ.measure_all()  # includes insertion of the barrier before measurement
@@ -409,12 +409,12 @@ class StandardRB(BaseExperiment):
 
         return _clifford_to_instruction(elem, **synthesis_options)
 
-    def __identity_clifford(self) -> SequenceElementType:
+    def _identity_clifford(self) -> SequenceElementType:
         if self.num_qubits <= 2:
             return 0
         return Clifford(np.eye(2 * self.num_qubits))
 
-    def __compose_clifford_seq(
+    def _compose_clifford_seq(
         self, base_elem: SequenceElementType, elements: Sequence[SequenceElementType]
     ) -> SequenceElementType:
         if self.num_qubits <= 2:
@@ -427,7 +427,7 @@ class StandardRB(BaseExperiment):
             res = res.compose(elem)
         return res
 
-    def __adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
+    def _adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
         if self.num_qubits == 1:
             return inverse_1q(op)
         if self.num_qubits == 2:

@@ -36,6 +36,7 @@ Experiments for verification and validation of quantum devices.
 
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
+    ~randomized_benchmarking.PurityRB
     ~randomized_benchmarking.LayerFidelity
     ~randomized_benchmarking.LayerFidelityUnitary
     ~tomography.TomographyExperiment
@@ -123,6 +124,7 @@ from .characterization import (
 from .randomized_benchmarking import (
     StandardRB,
     InterleavedRB,
+    PurityRB,
     LayerFidelity,
     LayerFidelityUnitary,
 )

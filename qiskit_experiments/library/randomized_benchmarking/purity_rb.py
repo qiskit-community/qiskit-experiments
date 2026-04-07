@@ -68,6 +68,37 @@ class PurityRB(StandardRB):
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887
         .. ref_arxiv:: 3 2302.10881
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, depolarizing_error
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])
+            backend = AerSimulator(noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.library import PurityRB
+
+            # Run a 1-qubit PurityRB experiment on qubit 0
+            lengths = np.arange(1, 50, 10)
+            num_samples = 2
+            seed = 1010
+            qubit = 0
+
+            exp = PurityRB((qubit,), lengths, num_samples=num_samples, seed=seed)
+            expdata = exp.run(backend=backend).block_for_results()
+            results = expdata.analysis_results(dataframe=True)
+
+            display(expdata.figure(0))
+            print(f"Purity EPC: {results.loc[results['name'] == 'EPC', 'value'].values[0]:.5f}")
     """
 
     def __init__(
@@ -168,9 +199,9 @@ class PurityRB(StandardRB):
                 or i % len(self.experiment_options.lengths) == 0
             ):
                 prev_elem, prev_seq = (
-                    self._StandardRB__identity_clifford(),
+                    self._identity_clifford(),
                     [],
-                )  # pylint: disable=no-member
+                )
 
             circ = QuantumCircuit(self.num_qubits)
             for elem in seq:
@@ -178,11 +209,9 @@ class PurityRB(StandardRB):
                 circ._append(CircuitInstruction(Barrier(self.num_qubits), circ.qubits))
 
             # Compute inverse, compute only the difference from the previous shorter sequence
-            prev_elem = self._StandardRB__compose_clifford_seq(  # pylint: disable=no-member
-                prev_elem, seq[len(prev_seq) :]
-            )
+            prev_elem = self._compose_clifford_seq(prev_elem, seq[len(prev_seq) :])
             prev_seq = seq
-            inv = self._StandardRB__adjoint_clifford(prev_elem)  # pylint: disable=no-member
+            inv = self._adjoint_clifford(prev_elem)
 
             circ.append(self._to_instruction(inv, synthesis_opts), circ.qubits)
 
