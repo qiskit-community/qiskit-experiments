@@ -33,7 +33,7 @@ SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
 
 
 class PurityRB(StandardRB):
-    """An experiment to characterize the error rate of a gate set on a device
+    r"""An experiment to characterize the error rate of a gate set on a device
     using purity RB.
 
     # section: overview
