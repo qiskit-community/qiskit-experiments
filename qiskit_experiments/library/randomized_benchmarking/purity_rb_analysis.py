@@ -27,15 +27,15 @@ class PurityRBAnalysis(RBAnalysis):
     r"""A class to analyze purity randomized benchmarking experiments.
 
     # section: overview
-        This analysis takes only single series.
-        This series is fit by the exponential decay function.
-        From the fit :math:`\alpha` value this analysis estimates the error per Clifford (EPC).
+        This analysis extends :class:`RBAnalysis` to handle purity-based randomized
+        benchmarking experiments. This analysis computes the purity :math:`\text{Tr}(\rho^2)`
+        from multiple measurement bases (3 for 1Q, 9 for 2Q). The purity values are then fit to
+        the same exponential decay model as standard RB. The Error Per Clifford (EPC) is extracted
+        from the fit parameter :math:`\alpha` using
+        :math:`\text{EPC} = \frac{2^n - 1}{2^n}(1 - \sqrt{\alpha})`.
 
-        When analysis option ``gate_error_ratio`` is provided, this analysis also estimates
-        errors of individual gates assembling a Clifford gate.
-        In computation of two-qubit EPC, this analysis can also decompose
-        the contribution from the underlying single qubit depolarizing channels when
-        ``epg_1_qubit`` analysis option is provided [1].
+        See :class:`~qiskit_experiments.library.randomized_benchmarking.rb_analysis.RBAnalysis`
+        for the standard RB analysis.
 
     # section: fit_model
         .. math::
@@ -52,12 +52,9 @@ class PurityRBAnalysis(RBAnalysis):
             init_guess: Determined by :math:`(1/2)^n` where :math:`n` is number of qubit.
             bounds: [0, 1]
         defpar \alpha:
-            desc: Depolarizing parameter.
-            init_guess: Determined by :func:`~.guess.rb_decay`.
+            desc: Squared depolarizing parameter (compared to standard RB).
+            init_guess: Determined by :func:`~.guess.rb_decay` and squared.
             bounds: [0, 1]
-
-    # section: reference
-        .. ref_arxiv:: 1 1712.06550
 
     """
 
