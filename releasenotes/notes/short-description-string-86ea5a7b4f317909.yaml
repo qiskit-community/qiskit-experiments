@@ -1,9 +1,4 @@
 ---
-prelude: >
-    This release introduces Purity Randomized Benchmarking (Purity RB), 
-    an alternative approach to standard RB by measuring the purity of quantum 
-    states through post-rotations.
-
 features:
   - |
     Added :class:`~.PurityRB` experiment and :class:`~.PurityRBAnalysis` for 
