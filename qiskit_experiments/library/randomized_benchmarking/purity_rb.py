@@ -51,7 +51,7 @@ class PurityRB(StandardRB):
     the Error Per Clifford (EPC), as described in Refs. [1, 2].
 
     Purity RB extends standard RB by appending post-rotations to the RB sequences
-    to calculate Tr(rho^2), providing an alternative measure of gate fidelity [3].
+    to calculate :math:`\mathrm{Tr}(\rho^2)`, providing an alternative measure of gate fidelity [3].
 
     .. note::
         In 0.5.0, the default value of ``optimization_level`` in ``transpile_options`` changed
@@ -88,8 +88,8 @@ class PurityRB(StandardRB):
             from qiskit_experiments.library import PurityRB
 
             # Run a 1-qubit PurityRB experiment on qubit 0
-            lengths = np.arange(1, 50, 10)
-            num_samples = 2
+            lengths = np.arange(1, 400, 80)
+            num_samples = 3
             seed = 1010
             qubit = 0
 
