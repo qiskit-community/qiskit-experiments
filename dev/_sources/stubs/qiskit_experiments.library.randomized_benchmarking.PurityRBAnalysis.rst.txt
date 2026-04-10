@@ -1,0 +1,42 @@
+﻿
+
+PurityRBAnalysis
+===================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoanalysis:: PurityRBAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: PurityRBAnalysis.models
+   .. autoattribute:: PurityRBAnalysis.name
+   .. autoattribute:: PurityRBAnalysis.options
+   .. autoattribute:: PurityRBAnalysis.parameters
+   .. autoattribute:: PurityRBAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: PurityRBAnalysis.config
+   .. automethod:: PurityRBAnalysis.copy
+   .. automethod:: PurityRBAnalysis.from_config
+   .. automethod:: PurityRBAnalysis.model_names
+   .. automethod:: PurityRBAnalysis.run
+   .. automethod:: PurityRBAnalysis.set_options
+   
+
+   
+   
