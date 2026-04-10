@@ -38,20 +38,12 @@ class PurityRB(StandardRB):
 
     # section: overview
 
-    Randomized Benchmarking (RB) is an efficient and robust method
-    for estimating the average error rate of a set of quantum gate operations.
+    Purity RB extends standard RB by appending post-rotations to the RB sequences
+    to calculate :math:`\mathrm{Tr}(\rho^2)`, providing an alternative measure of gate fidelity [1].
+    
     See `Qiskit Textbook
     <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb>`_
     for an explanation on the RB method.
-
-    A standard RB experiment generates sequences of random Cliffords
-    such that the unitary computed by the sequences is the identity.
-    After running the sequences on a backend, it calculates the probabilities to get back to
-    the ground state, fits an exponentially decaying curve, and estimates
-    the Error Per Clifford (EPC), as described in Refs. [1, 2].
-
-    Purity RB extends standard RB by appending post-rotations to the RB sequences
-    to calculate :math:`\mathrm{Tr}(\rho^2)`, providing an alternative measure of gate fidelity [3].
 
     .. note::
         In 0.5.0, the default value of ``optimization_level`` in ``transpile_options`` changed
@@ -65,9 +57,7 @@ class PurityRB(StandardRB):
         :doc:`/manuals/verification/randomized_benchmarking`
 
     # section: reference
-        .. ref_arxiv:: 1 1009.3639
-        .. ref_arxiv:: 2 1109.6887
-        .. ref_arxiv:: 3 2302.10881
+        .. ref_arxiv:: 1 2302.10881
 
     # section: example
         .. jupyter-execute::
