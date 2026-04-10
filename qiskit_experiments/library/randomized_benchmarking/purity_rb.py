@@ -38,9 +38,10 @@ class PurityRB(StandardRB):
 
     # section: overview
 
-    Purity RB extends standard RB by appending post-rotations to the RB sequences
+    Purity RB extends :class:`~qiskit_experiments.library.randomized_benchmarking.standard_rb.StandardRB`
+    by appending post-rotations to the RB sequences
     to calculate :math:`\mathrm{Tr}(\rho^2)`, providing an alternative measure of gate fidelity [1].
-    
+
     See `Qiskit Textbook
     <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb>`_
     for an explanation on the RB method.
