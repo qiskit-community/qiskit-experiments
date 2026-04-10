@@ -1,0 +1,217 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2026.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+"""
+Purity RB Experiment class.
+"""
+
+from numbers import Integral
+from typing import Union, Iterable, Optional, List, Sequence
+
+import numpy as np
+from numpy.random import Generator
+from numpy.random.bit_generator import BitGenerator, SeedSequence
+
+from qiskit import QuantumCircuit
+from qiskit.quantum_info import Clifford
+from qiskit.providers.backend import Backend
+from qiskit.circuit import CircuitInstruction, Barrier
+
+from .standard_rb import StandardRB
+from .purity_rb_analysis import PurityRBAnalysis
+
+
+SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
+
+
+class PurityRB(StandardRB):
+    r"""An experiment to characterize the error rate of a gate set on a device
+    using purity RB.
+
+    # section: overview
+
+    Purity RB extends :class:`~qiskit_experiments.library.randomized_benchmarking.standard_rb.StandardRB`
+    by appending post-rotations to the RB sequences
+    to calculate :math:`\mathrm{Tr}(\rho^2)`, providing an alternative measure of gate fidelity [1].
+
+    See `Qiskit Textbook
+    <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware/randomized-benchmarking.ipynb>`_
+    for an explanation on the RB method.
+
+    .. note::
+        In 0.5.0, the default value of ``optimization_level`` in ``transpile_options`` changed
+        from ``0`` to ``1`` for RB experiments. That may result in shorter RB circuits
+        hence slower decay curves than before.
+
+    # section: analysis_ref
+        :class:`PurityRBAnalysis`
+
+    # section: manual
+        :doc:`/manuals/verification/randomized_benchmarking`
+
+    # section: reference
+        .. ref_arxiv:: 1 2302.10881
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, depolarizing_error
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])
+            backend = AerSimulator(noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.library import PurityRB
+
+            # Run a 1-qubit PurityRB experiment on qubit 0
+            lengths = np.arange(1, 400, 80)
+            num_samples = 3
+            seed = 1010
+            qubit = 0
+
+            exp = PurityRB((qubit,), lengths, num_samples=num_samples, seed=seed)
+            expdata = exp.run(backend=backend).block_for_results()
+            results = expdata.analysis_results(dataframe=True)
+
+            display(expdata.figure(0))
+            print(f"Purity EPC: {results.loc[results['name'] == 'EPC_pur', 'value'].values[0]:.5f}")
+    """
+
+    def __init__(
+        self,
+        physical_qubits: Sequence[int],
+        lengths: Iterable[int],
+        backend: Optional[Backend] = None,
+        num_samples: int = 3,
+        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
+        full_sampling: Optional[bool] = False,
+    ):
+        """Initialize a purity randomized benchmarking experiment.
+
+        Args:
+            physical_qubits: List of physical qubits for the experiment.
+            lengths: A list of RB sequences lengths.
+            backend: The backend to run the experiment on.
+            num_samples: Number of samples to generate for each sequence length.
+            seed: Optional, seed used to initialize ``numpy.random.default_rng``.
+                  when generating circuits. The ``default_rng`` will be initialized
+                  with this seed value every time :meth:`circuits` is called.
+            full_sampling: If True all Cliffords are independently sampled for all lengths.
+                           If False for sample of lengths longer sequences are constructed
+                           by appending additional samples to shorter sequences.
+                           The default is False.
+
+        Raises:
+            QiskitError: If any invalid argument is supplied.
+        """
+        # Initialize base experiment (RB)
+        super().__init__(physical_qubits, lengths, backend, num_samples, seed, full_sampling)
+
+        # override the analysis
+        self.analysis = PurityRBAnalysis()
+        self.analysis.set_options(outcome="0" * self.num_qubits)
+        self.analysis.plotter.set_figure_options(
+            xlabel="Clifford Length",
+            ylabel="Purity",
+        )
+
+    def circuits(self) -> List[QuantumCircuit]:
+        """Return a list of RB circuits.
+
+        Returns:
+            A list of :class:`QuantumCircuit`.
+        """
+        # Sample random Clifford sequences
+        sequences = self._sample_sequences()
+        # Convert each sequence into circuit and append the inverse to the end.
+        # and the post-rotations
+        circuits = self._sequences_to_circuits(sequences)
+        # Add metadata for each circuit
+        # trial links all from the same trial
+        # needed for post processing the purity RB
+        for circ_i, circ in enumerate(circuits):
+            trial_idx = int(circ_i / (3**self.num_qubits))
+            post_rot_idx = circ_i % (3**self.num_qubits)
+            circ.metadata = {
+                "xval": len(sequences[trial_idx]),
+                "trial": trial_idx,
+                "group": "Clifford",
+                "post_rotation_index": post_rot_idx,
+            }
+        return circuits
+
+    def _sequences_to_circuits(
+        self, sequences: List[Sequence[SequenceElementType]]
+    ) -> List[QuantumCircuit]:
+        """Convert an RB sequence into circuit and append the inverse to the end and
+        then the post rotations for purity RB
+
+        Returns:
+            A list of purity RB circuits.
+        """
+        synthesis_opts = self._get_synthesis_options()
+
+        # post rotations as cliffords
+        post_rot = []
+        for i in range(3**self.num_qubits):
+            ##find clifford
+            qc = QuantumCircuit(self.num_qubits)
+            for j in range(self.num_qubits):
+                qg_ind = np.mod(int(i / 3**j), 3)
+                if qg_ind == 1:
+                    qc.sx(j)
+                elif qg_ind == 2:
+                    qc.sdg(j)
+                    qc.sx(j)
+                    qc.s(j)
+
+            post_rot.append(self._to_instruction(Clifford(qc), synthesis_opts))
+
+        # Circuit generation
+        circuits = []
+        for i, seq in enumerate(sequences):
+            if (
+                self.experiment_options.full_sampling
+                or i % len(self.experiment_options.lengths) == 0
+            ):
+                prev_elem, prev_seq = (
+                    self._identity_clifford(),
+                    [],
+                )
+
+            circ = QuantumCircuit(self.num_qubits)
+            for elem in seq:
+                circ.append(self._to_instruction(elem, synthesis_opts), circ.qubits)
+                circ._append(CircuitInstruction(Barrier(self.num_qubits), circ.qubits))
+
+            # Compute inverse, compute only the difference from the previous shorter sequence
+            prev_elem = self._compose_clifford_seq(prev_elem, seq[len(prev_seq) :])
+            prev_seq = seq
+            inv = self._adjoint_clifford(prev_elem)
+
+            circ.append(self._to_instruction(inv, synthesis_opts), circ.qubits)
+
+            # copy the circuit and apply post rotations
+            for j in range(3**self.num_qubits):
+                circ2 = circ.copy()
+                circ2._append(CircuitInstruction(Barrier(self.num_qubits), circ2.qubits))
+                circ2.append(post_rot[j], circ2.qubits)
+                circ2.measure_all()  # includes insertion of the barrier before measurement
+                circuits.append(circ2)
+
+        return circuits

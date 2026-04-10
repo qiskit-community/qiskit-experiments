@@ -25,6 +25,7 @@ Experiments
 
     StandardRB
     InterleavedRB
+    PurityRB
     LayerFidelity
     LayerFidelityUnitary
 
@@ -38,6 +39,7 @@ Analysis
 
     RBAnalysis
     InterleavedRBAnalysis
+    PurityRBAnalysis
     LayerFidelityAnalysis
 
 Synthesis
@@ -77,8 +79,10 @@ There are a few built-in options for the Clifford synthesis method:
 """
 from .standard_rb import StandardRB
 from .interleaved_rb_experiment import InterleavedRB
+from .purity_rb import PurityRB
 from .rb_analysis import RBAnalysis
 from .interleaved_rb_analysis import InterleavedRBAnalysis
+from .purity_rb_analysis import PurityRBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
 from .clifford_synthesis import RBDefaultCliffordSynthesis
