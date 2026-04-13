@@ -149,27 +149,34 @@ class TestT1(QiskitExperimentsTestCase):
             [[1], [3]],  # Second batch: qubits 1 and 3 in parallel
         ]
 
-        # Create tiled experiment
+        # Create tiled experiment - TiledExperiment uses flatten_results=True by default
+        # but we can check the structure by looking at component experiments
         tiled_exp = TiledExperiment(template_exp, groups)
+
+        # Verify the experiment structure before running
+        self.assertEqual(len(tiled_exp.component_experiment()), 2)  # 2 batches
+        self.assertEqual(
+            len(tiled_exp.component_experiment(0).component_experiment()), 2
+        )  # 2 parallel in first
+        self.assertEqual(
+            len(tiled_exp.component_experiment(1).component_experiment()), 2
+        )  # 2 parallel in second
+
+        # Run the experiment
         res = tiled_exp.run(backend=backend, shots=10000, seed_simulator=1)
         self.assertExperimentDone(res)
 
-        # Verify structure: should have 2 batch components
-        self.assertEqual(len(res.child_data()), 2)
+        # With flatten_results=True (default), all results are flattened
+        # We should have analysis results for all 4 qubits
+        t1_results = res.analysis_results("T1", dataframe=True)
+        self.assertEqual(len(t1_results), 4)
 
-        # Verify each batch has 2 parallel experiments
-        self.assertEqual(len(res.child_data(0).child_data()), 2)
-        self.assertEqual(len(res.child_data(1).child_data()), 2)
-
-        # Verify T1 values for each qubit
-        expected_qubits = [[0, 2], [1, 3]]
-        for batch_idx, qubit_list in enumerate(expected_qubits):
-            batch_data = res.child_data(batch_idx)
-            for parallel_idx, qb in enumerate(qubit_list):
-                parallel_data = batch_data.child_data(parallel_idx)
-                sub_res = parallel_data.analysis_results("T1", dataframe=True).iloc[0]
-                self.assertEqual(sub_res.quality, "good")
-                self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
+        # Verify T1 values - results should be in order: qubits 0, 2, 1, 3
+        expected_qubit_order = [0, 2, 1, 3]
+        for idx, qb in enumerate(expected_qubit_order):
+            sub_res = t1_results.iloc[idx]
+            self.assertEqual(sub_res.quality, "good")
+            self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
 
     def test_t1_parallel_measurement_level_1(self):
         """
