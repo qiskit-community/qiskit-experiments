@@ -125,6 +125,52 @@ class TestT1(QiskitExperimentsTestCase):
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
 
+    def test_t1_batched(self):
+        """
+        Test batched T1 experiments using TiledExperiment.
+
+        This test validates that TiledExperiment correctly remaps circuits
+        to different qubits and produces accurate T1 measurements.
+        """
+        from qiskit_experiments.framework.composite import TiledExperiment
+
+        t1 = [25, 20, 15, 18]
+        t2 = [value / 2 for value in t1]
+        delays = list(range(1, 40, 3))
+
+        backend = NoisyDelayAerBackend(t1, t2)
+
+        # Create a template T1 experiment for qubit 0
+        template_exp = T1(physical_qubits=[0], delays=delays)
+
+        # Define groups for tiling - batch two groups of parallel experiments
+        groups = [
+            [[0], [2]],  # First batch: qubits 0 and 2 in parallel
+            [[1], [3]],  # Second batch: qubits 1 and 3 in parallel
+        ]
+
+        # Create tiled experiment
+        tiled_exp = TiledExperiment(template_exp, groups)
+        res = tiled_exp.run(backend=backend, shots=10000, seed_simulator=1)
+        self.assertExperimentDone(res)
+
+        # Verify structure: should have 2 batch components
+        self.assertEqual(len(res.child_data()), 2)
+
+        # Verify each batch has 2 parallel experiments
+        self.assertEqual(len(res.child_data(0).child_data()), 2)
+        self.assertEqual(len(res.child_data(1).child_data()), 2)
+
+        # Verify T1 values for each qubit
+        expected_qubits = [[0, 2], [1, 3]]
+        for batch_idx, qubit_list in enumerate(expected_qubits):
+            batch_data = res.child_data(batch_idx)
+            for parallel_idx, qb in enumerate(qubit_list):
+                parallel_data = batch_data.child_data(parallel_idx)
+                sub_res = parallel_data.analysis_results("T1", dataframe=True).iloc[0]
+                self.assertEqual(sub_res.quality, "good")
+                self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
+
     def test_t1_parallel_measurement_level_1(self):
         """
         Test parallel experiments of T1 using a simulator.
