@@ -17,7 +17,6 @@ Build composite experiments for entire backends
     without re-transpiling for tiled copies. This approach prioritizes speed over
     correctness in edge cases. Users should be aware that:
 
-    - Pulse calibrations may not be correctly remapped
     - Backend-specific optimizations may not apply to all qubit mappings
     - Connectivity constraints are assumed to be satisfied after remapping
 
@@ -108,7 +107,6 @@ class TiledExperiment(BatchExperiment):
         This approach prioritizes speed over correctness. The transpilation is done once
         and circuits are remapped by changing qubit indices. This may not correctly handle:
 
-        - Pulse-level calibrations
         - Backend-specific gate decompositions
         - Connectivity-dependent optimizations
 
