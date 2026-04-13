@@ -70,23 +70,23 @@ class BasicExperiment(BaseExperiment):
             clbit_indices = {bit: idx for idx, bit in enumerate(circ.clbits)}
             new_circ = QuantumCircuit(1 + max(self.physical_qubits), circ.num_clbits)
 
-            for inst, qargs, cargs in circ.data:
+            for instruction in circ.data:
                 new_qargs = []
                 new_cargs = []
 
-                for qubit in qargs:
+                for qubit in instruction.qubits:
                     original_qubit = qubit_indices[qubit]
                     if original_qubit < len(self.physical_qubits):
                         new_qargs.append(
                             Qubit(new_circ.qregs[0], self.physical_qubits[original_qubit])
                         )
 
-                for clbit in cargs:
+                for clbit in instruction.clbits:
                     original_clbit = clbit_indices[clbit]
                     new_cargs.append(Clbit(new_circ.cregs[0], original_clbit))
 
-                if len(qargs) == len(new_qargs):
-                    new_circ.append(inst, new_qargs, new_cargs)
+                if len(instruction.qubits) == len(new_qargs):
+                    new_circ.append(instruction.operation, new_qargs, new_cargs)
 
             new_circ.metadata = circ.metadata
             res_circs.append(new_circ)
