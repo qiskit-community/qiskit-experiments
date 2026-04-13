@@ -169,5 +169,15 @@ from .composite import (
     BatchExperiment,
     CompositeExperiment,
     CompositeAnalysis,
+    TiledExperiment,
+)
+from .backend_partition import (
+    build_coupling_graph,
+    build_line_graph,
+    build_distance_graph,
+    partition_nodes,
+    partition_edges,
+    partition_qubits,
+    partition_qubit_pairs,
 )
 from .json import ExperimentEncoder, ExperimentDecoder

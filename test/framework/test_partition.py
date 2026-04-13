@@ -20,7 +20,7 @@ import rustworkx as rx
 
 from qiskit_ibm_runtime.fake_provider import FakeGuadalupeV2, FakeLimaV2
 
-from qiskit_experiments.framework.composite.tiled_experiment_utils import (
+from qiskit_experiments.framework.backend_partition import (
     build_coupling_graph,
     build_line_graph,
     build_distance_graph,
@@ -305,4 +305,3 @@ class TestPartition(QiskitExperimentsTestCase):
         node_subset = [0, 1, 2, 4, 5, 6, 7, 8, 9]
         edge_groups_subset = partition_edges(graph, distance, None, node_subset)
         self.verify_edge_groups(graph, edge_groups_subset, distance, None, node_subset)
-

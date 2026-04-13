@@ -132,7 +132,7 @@ class TestT1(QiskitExperimentsTestCase):
         This test validates that TiledExperiment correctly remaps circuits
         to different qubits and produces accurate T1 measurements.
         """
-        from qiskit_experiments.framework.composite import TiledExperiment
+        from qiskit_experiments.framework import TiledExperiment
 
         t1 = [25, 20, 15, 18]
         t2 = [value / 2 for value in t1]
