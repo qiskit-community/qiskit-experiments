@@ -183,6 +183,7 @@ def partition_nodes(graph, distance, node_subset=None):
     minimum distance (number of edges in the shortest path) between nodes is at least `distance`.
 
     Returns a list of list of list of integers, with the following explanation:
+
     - Each node label is encapsulated in a singleton list. This is in order to be consistent with
       groups of multiple nodes, like groups of edges.
     - Each group of nodes constitutes a list.
