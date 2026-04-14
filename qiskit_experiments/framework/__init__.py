@@ -132,6 +132,20 @@ Experiment Configuration Helper Classes
     BackendData
     BackendTiming
 
+Backend Partition Utilities
+****************************
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    build_coupling_graph
+    build_line_graph
+    build_distance_graph
+    partition_nodes
+    partition_edges
+    partition_qubits
+    partition_qubit_pairs
+
 """
 from qiskit.providers.options import Options
 from qiskit_experiments.framework.backend_data import BackendData
