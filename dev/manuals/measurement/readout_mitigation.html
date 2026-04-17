@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="API Reference" href="../../apidocs/index.html" /><link rel="prev" title="Tφ Characterization" href="../characterization/tphi.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Readout Mitigation - Qiskit Experiments 0.13.0-12-gf476ff3a4</title>
+        <title>Readout Mitigation - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.13.0-12-gf476ff3a4</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-12-gf476ff3a4</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -211,7 +211,7 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/artifacts.html">Work with experiment artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../howtos/experiment_service.html">Save and load experiment data with an experiment service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
@@ -247,7 +247,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.Provider.html">Provider</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.ExperimentService.html">ExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
@@ -365,7 +365,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.DbExperimentData.html">DbExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.DbAnalysisResultData.html">DbAnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.ResultQuality.html">ResultQuality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.LocalExperimentService.html">LocalExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.ExperimentDataSaveFailed.html">ExperimentDataSaveFailed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
 </ul>
@@ -671,17 +676,17 @@ the identity.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Qubit: 0
-[[ 1.0225641  -0.02769231]
- [-0.0225641   1.02769231]]
+[[ 1.0300207 -0.0300207]
+ [-0.0300207  1.0300207]]
 Qubit: 1
-[[ 1.03508772 -0.02167183]
- [-0.03508772  1.02167183]]
+[[ 1.0194274  -0.02760736]
+ [-0.0194274   1.02760736]]
 Qubit: 2
-[[ 1.03634476 -0.02699896]
- [-0.03634476  1.02699896]]
+[[ 1.02694301 -0.03419689]
+ [-0.02694301  1.03419689]]
 Qubit: 3
-[[ 1.02453988 -0.02249489]
- [-0.02453988  1.02249489]]
+[[ 1.0268595  -0.03099174]
+ [-0.0268595   1.03099174]]
 </pre></div>
 </div>
 </div>
@@ -757,7 +762,7 @@ Qubit: 3
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7f049247eba0&gt;
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7f0c196c7b60&gt;
 </pre></div>
 </div>
 <img alt="../../_images/readout_mitigation_6_1.png" src="../../_images/readout_mitigation_6_1.png" />
@@ -861,7 +866,7 @@ meas: 2/═════════╩══╩═
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/10</div>
+              Last updated on 2026/04/17</div>
           </div>
           <div class="right-details">
             
@@ -903,7 +908,7 @@ meas: 2/═════════╩══╩═
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=40110689"></script>
+</div><script src="../../_static/documentation_options.js?v=1cfb7f1d"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

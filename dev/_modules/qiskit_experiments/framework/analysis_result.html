@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.framework.analysis_result - Qiskit Experiments 0.13.0-12-gf476ff3a4</title>
+        <title>qiskit_experiments.framework.analysis_result - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-12-gf476ff3a4</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-12-gf476ff3a4</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -211,7 +211,7 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/artifacts.html">Work with experiment artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../howtos/experiment_service.html">Save and load experiment data with an experiment service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
@@ -247,7 +247,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.Provider.html">Provider</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ExperimentService.html">ExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
@@ -365,7 +365,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.DbExperimentData.html">DbExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.DbAnalysisResultData.html">DbAnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.ResultQuality.html">ResultQuality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.LocalExperimentService.html">LocalExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.ExperimentDataSaveFailed.html">ExperimentDataSaveFailed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../stubs/qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
 </ul>
@@ -557,8 +562,6 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">uncertainties</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_ibm_experiment</span><span class="w"> </span><span class="kn">import</span> <span class="n">IBMExperimentService</span><span class="p">,</span> <span class="n">AnalysisResultData</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_ibm_experiment</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResultQuality</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.json</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -566,10 +569,15 @@
     <span class="n">ExperimentDecoder</span><span class="p">,</span>
     <span class="n">_serialize_safe_float</span><span class="p">,</span>
 <span class="p">)</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.database_service.device_component</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceComponent</span><span class="p">,</span> <span class="n">to_component</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.database_service.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExperimentDataError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.database_service</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DbAnalysisResultData</span><span class="p">,</span>
+    <span class="n">DeviceComponent</span><span class="p">,</span>
+    <span class="n">ExperimentDataError</span><span class="p">,</span>
+    <span class="n">ResultQuality</span><span class="p">,</span>
+    <span class="n">to_component</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.package_deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">qiskit_version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework.provider_interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExperimentService</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -616,12 +624,6 @@
 
     <span class="n">_extra_data</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="n">RESULT_QUALITY_TO_TEXT</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">ResultQuality</span><span class="o">.</span><span class="n">GOOD</span><span class="p">:</span> <span class="s2">&quot;good&quot;</span><span class="p">,</span>
-        <span class="n">ResultQuality</span><span class="o">.</span><span class="n">BAD</span><span class="p">:</span> <span class="s2">&quot;bad&quot;</span><span class="p">,</span>
-        <span class="n">ResultQuality</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">:</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
-
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -630,11 +632,11 @@
         <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">result_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">chisq</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">quality</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">RESULT_QUALITY_TO_TEXT</span><span class="p">[</span><span class="n">ResultQuality</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">],</span>
+        <span class="n">quality</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">ResultQuality</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">extra</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">verified</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">tags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">service</span><span class="p">:</span> <span class="n">IBMExperimentService</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">service</span><span class="p">:</span> <span class="n">ExperimentService</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">source</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnalysisResult&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;AnalysisResult constructor.</span>
@@ -658,12 +660,12 @@
 <span class="sd">            The AnalysisResult object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Data to be stored in DB.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span> <span class="o">=</span> <span class="n">DbAnalysisResultData</span><span class="p">(</span>
             <span class="n">experiment_id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
             <span class="n">result_id</span><span class="o">=</span><span class="n">result_id</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()),</span>
             <span class="n">result_type</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">chisq</span><span class="o">=</span><span class="n">chisq</span><span class="p">,</span>
-            <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
+            <span class="n">quality</span><span class="o">=</span><span class="n">ResultQuality</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">quality</span><span class="p">),</span>
             <span class="n">verified</span><span class="o">=</span><span class="n">verified</span><span class="p">,</span>
             <span class="n">tags</span><span class="o">=</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">[],</span>
         <span class="p">)</span>
@@ -685,12 +687,11 @@
 
 <div class="viewcode-block" id="AnalysisResult.set_data">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult.set_data">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">AnalysisResultData</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">DbAnalysisResultData</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the analysis data stored in the class&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="n">new_device_components</span> <span class="o">=</span> <span class="p">[</span><span class="n">to_component</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">device_components</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">device_components</span> <span class="o">=</span> <span class="n">new_device_components</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">quality</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESULT_QUALITY_TO_TEXT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">quality</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_data</span><span class="o">.</span><span class="n">device_components</span> <span class="o">=</span> <span class="n">new_device_components</span></div>
 
 
 <div class="viewcode-block" id="AnalysisResult.default_source">
@@ -738,7 +739,7 @@
 <div class="viewcode-block" id="AnalysisResult.load">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResult.html#qiskit_experiments.framework.AnalysisResult.load">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">result_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">IBMExperimentService</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnalysisResult&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">result_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">ExperimentService</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnalysisResult&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a saved analysis result from a database service.</span>
 
 <span class="sd">        Args:</span>
@@ -955,7 +956,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IBMExperimentService</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExperimentService</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the database service.</span>
 
 <span class="sd">        Returns:</span>
@@ -965,7 +966,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
 
     <span class="nd">@service</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">IBMExperimentService</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">ExperimentService</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the service to be used for storing result data in a database.</span>
 
 <span class="sd">        Args:</span>
@@ -1089,7 +1090,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/10</div>
+              Last updated on 2026/04/17</div>
           </div>
           <div class="right-details">
             
@@ -1104,7 +1105,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=40110689"></script>
+</div><script src="../../../_static/documentation_options.js?v=1cfb7f1d"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

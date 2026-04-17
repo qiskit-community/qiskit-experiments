@@ -17,10 +17,12 @@ AnalysisResultData
          
          
          
+         
 
    
    .. rubric:: Attributes
       
+   .. autoattribute:: AnalysisResultData.quality
    .. autoattribute:: AnalysisResultData.value
    .. autoattribute:: AnalysisResultData.tags
    .. autoattribute:: AnalysisResultData.extra

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ExperimentStatus" href="qiskit_experiments.framework.ExperimentStatus.html" /><link rel="prev" title="Experiment Framework (qiskit_experiments.framework)" href="../apidocs/framework.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>ExperimentData - Qiskit Experiments 0.13.0-12-gf476ff3a4</title>
+        <title>ExperimentData - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-12-gf476ff3a4</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-12-gf476ff3a4</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -211,7 +211,7 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/artifacts.html">Work with experiment artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/experiment_service.html">Save and load experiment data with an experiment service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
@@ -247,7 +247,7 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.Provider.html">Provider</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
-<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExperimentService.html">ExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
@@ -365,7 +365,12 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.DbExperimentData.html">DbExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.DbAnalysisResultData.html">DbAnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ResultQuality.html">ResultQuality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.LocalExperimentService.html">LocalExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentDataSaveFailed.html">ExperimentDataSaveFailed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
 </ul>
@@ -551,12 +556,6 @@ released.</p>
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExperimentData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">provider</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_datetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData" title="Link to this definition">¶</a></dt>
 <dd><p>Experiment data container class.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Saving experiment data to the cloud database is currently a limited access feature. You can
-check whether you have access by logging into the IBM Quantum interface
-and seeing if you can see the <a class="reference external" href="https://quantum.ibm.com/experiments">database</a>.</p>
-</div>
 <p>This class handles the following:</p>
 <ol class="arabic simple">
 <li><p>Storing the data related to an experiment: raw data, metadata, analysis results,
@@ -564,7 +563,7 @@ and figures</p></li>
 <li><p>Managing jobs and adding data from jobs automatically</p></li>
 <li><p>Saving and loading data from the database service</p></li>
 </ol>
-<p>The field <code class="docutils literal notranslate"><span class="pre">db_data</span></code> is a dataclass (<code class="docutils literal notranslate"><span class="pre">ExperimentDataclass</span></code>) containing
+<p>The field <code class="docutils literal notranslate"><span class="pre">db_data</span></code> is a <a class="reference internal" href="qiskit_experiments.database_service.DbExperimentData.html#qiskit_experiments.database_service.DbExperimentData" title="qiskit_experiments.database_service.DbExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">DbExperimentData</span></code></a> dataclass containing
 all the data that can be stored in the database and loaded from it, and
 as such is subject to strict conventions.</p>
 <p>Other data fields can be added and used freely, but they won’t be saved
@@ -576,30 +575,18 @@ to the database.</p>
 <li><p><strong>experiment</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><em>BaseExperiment</em></a><em> | </em><em>None</em>) – Experiment object that generated the data.</p></li>
 <li><p><strong>backend</strong> (<em>Backend</em><em> | </em><em>None</em>) – Backend the experiment runs on. This overrides the
 backend in the experiment object.</p></li>
-<li><p><strong>service</strong> (<em>IBMExperimentService</em><em> | </em><em>None</em>) – The service that stores the experiment results to the database</p></li>
-<li><p><strong>provider</strong> (<em>Provider</em><em> | </em><em>None</em>) – The provider used for the experiments
-(can be used to automatically obtain the service)</p></li>
+<li><p><strong>service</strong> (<a class="reference internal" href="qiskit_experiments.framework.ExperimentService.html#qiskit_experiments.framework.ExperimentService" title="qiskit_experiments.framework.ExperimentService"><em>ExperimentService</em></a><em> | </em><em>None</em>) – The service that stores the experiment results to the database</p></li>
+<li><p><strong>provider</strong> (<em>Provider</em><em> | </em><em>None</em>) – The provider used for the experiment</p></li>
 <li><p><strong>parent_id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of the parent experiment data
 in the setting of a composite experiment</p></li>
 <li><p><strong>job_ids</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – IDs of jobs submitted for the experiment.</p></li>
 <li><p><strong>child_data</strong> (<em>list</em><em>[</em><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><em>ExperimentData</em></a><em>] </em><em>| </em><em>None</em>) – List of child experiment data.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em> | </em><em>None</em>) – Whether to print messages.</p></li>
-<li><p><strong>db_data</strong> (<em>ExperimentDataclass</em><em> | </em><em>None</em>) – A prepared ExperimentDataclass of the experiment info.
+<li><p><strong>db_data</strong> (<a class="reference internal" href="qiskit_experiments.database_service.DbExperimentData.html#qiskit_experiments.database_service.DbExperimentData" title="qiskit_experiments.database_service.DbExperimentData"><em>DbExperimentData</em></a><em> | </em><em>None</em>) – A prepared ExperimentDataclass of the experiment info.
 This overrides other db parameters.</p></li>
 <li><p><strong>start_datetime</strong> (<em>datetime</em><em> | </em><em>None</em>) – The time when the experiment started running.
 If none, defaults to the current time.</p></li>
 </ul>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Additional info:</dt><dd><p>In order to save the experiment data to the cloud service, the class
-needs access to the experiment service provider. It can be obtained
-via three different methods, given here by priority:</p>
-<ol class="arabic simple">
-<li><p>Passing it directly via the <code class="docutils literal notranslate"><span class="pre">service</span></code> parameter.</p></li>
-<li><p>Implicitly obtaining it from the <code class="docutils literal notranslate"><span class="pre">provider</span></code> parameter.</p></li>
-<li><p>Implicitly obtaining it from the <code class="docutils literal notranslate"><span class="pre">backend</span></code> parameter, using that backend’s provider.</p></li>
-</ol>
 </dd>
 </dl>
 <p class="rubric">Attributes</p>
@@ -641,10 +628,15 @@ via three different methods, given here by priority:</p>
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.creation_datetime">
 <span class="sig-name descname"><span class="pre">creation_datetime</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.creation_datetime" title="Link to this definition">¶</a></dt>
 <dd><p>Return the creation datetime of this experiment data.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Typically this value is set within the experiment service. It might
+not be available on a new <a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> instance prior
+to reloading it from the service.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The timestamp when this experiment data was saved to the cloud service
-in the local timezone.</p>
+<dd class="field-odd"><p>The timestamp when this experiment data was saved to the experiment service.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -657,8 +649,7 @@ in the local timezone.</p>
 added without errors; this can change as more jobs finish.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The timestamp when the last job of this experiment finished
-in the local timezone.</p>
+<dd class="field-odd"><p>The timestamp when the last job of this experiment finished</p>
 </dd>
 </dl>
 </dd></dl>
@@ -847,7 +838,7 @@ Qiskit Experiments.</p>
 <dd><p>Return the start datetime of this experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The timestamp when this experiment began running in the local timezone.</p>
+<dd class="field-odd"><p>The timestamp when this experiment began running.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -867,10 +858,15 @@ Qiskit Experiments.</p>
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.updated_datetime">
 <span class="sig-name descname"><span class="pre">updated_datetime</span></span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.updated_datetime" title="Link to this definition">¶</a></dt>
 <dd><p>Return the update datetime of this experiment data.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Typically this value is set within the experiment service. It might
+not be available on a new <a class="reference internal" href="#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> instance prior
+to reloading it from the service.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The timestamp when this experiment data was last updated in the service
-in the local timezone.</p>
+<dd class="field-odd"><p>The timestamp when this experiment data was last updated in the service.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -991,7 +987,7 @@ New dataframe columns are created in the analysis result table with added keys.<
 <dd><p>Add experiment data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.3)"><em>Result</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.PrimitiveResult" title="(in Qiskit v2.3)"><em>PrimitiveResult</em></a><em> | </em><em>list</em><em>[</em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.3)"><em>Result</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.PrimitiveResult" title="(in Qiskit v2.3)"><em>PrimitiveResult</em></a><em>] </em><em>| </em><em>dict</em><em> | </em><em>list</em><em>[</em><em>dict</em><em>]</em>) – <p>Experiment data to add. Several types are accepted for convenience:</p>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.4)"><em>Result</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.PrimitiveResult" title="(in Qiskit v2.4)"><em>PrimitiveResult</em></a><em> | </em><em>list</em><em>[</em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.4)"><em>Result</em></a><em> | </em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.PrimitiveResult" title="(in Qiskit v2.4)"><em>PrimitiveResult</em></a><em>] </em><em>| </em><em>dict</em><em> | </em><em>list</em><em>[</em><em>dict</em><em>]</em>) – <p>Experiment data to add. Several types are accepted for convenience:</p>
 <ul class="simple">
 <li><p>Result: Add data from this <code class="docutils literal notranslate"><span class="pre">Result</span></code> object.</p></li>
 <li><p>List[Result]: Add data from the <code class="docutils literal notranslate"><span class="pre">Result</span></code> objects.</p></li>
@@ -1415,7 +1411,7 @@ Several types are accepted for convenience:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.delete_figure">
 <span class="sig-name descname"><span class="pre">delete_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figure_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.delete_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.delete_figure" title="Link to this definition">¶</a></dt>
-<dd><p>Add the experiment figure.</p>
+<dd><p>Delete the experiment figure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>figure_key</strong> (<em>str</em><em> | </em><em>int</em>) – Name or index of the figure.</p>
@@ -1477,28 +1473,6 @@ content of the figure as a <cite>FigureData</cite> object.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.get_service_from_backend">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_service_from_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.get_service_from_backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.get_service_from_backend" title="Link to this definition">¶</a></dt>
-<dd><p>Initializes the service from the backend data</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>IBMExperimentService</em> | None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.get_service_from_provider">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_service_from_provider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">provider</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.get_service_from_provider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.get_service_from_provider" title="Link to this definition">¶</a></dt>
-<dd><p>Initializes the service from the provider data</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>IBMExperimentService</em> | None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.job_errors">
 <span class="sig-name descname"><span class="pre">job_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.job_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.job_errors" title="Link to this definition">¶</a></dt>
 <dd><p>Return any errors encountered in job execution.</p>
@@ -1513,7 +1487,7 @@ content of the figure as a <cite>FigureData</cite> object.</p>
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentData.job_status">
 <span class="sig-name descname"><span class="pre">job_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/experiment_data.html#ExperimentData.job_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentData.job_status" title="Link to this definition">¶</a></dt>
 <dd><p>Return the experiment job execution status.</p>
-<p>Possible return values for <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.providers.jobstatus.JobStatus</span></code></a> are</p>
+<p>Possible return values for <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.providers.jobstatus.JobStatus</span></code></a> are</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ERROR</span></code> - if any job incurred an error</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CANCELLED</span></code> - if any job is cancelled.</p></li>
@@ -1534,7 +1508,7 @@ pending or running jobs. In these cases it may be beneficial to call
 <dd class="field-odd"><p>The job execution status.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v2.3)"><em>JobStatus</em></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v2.4)"><em>JobStatus</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1558,13 +1532,8 @@ pending or running jobs. In these cases it may be beneficial to call
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>experiment_id</strong> (<em>str</em>) – Experiment ID.</p></li>
-<li><p><strong>service</strong> (<em>IBMExperimentService</em><em> | </em><em>None</em>) – the database service.</p></li>
-<li><p><strong>provider</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseProvider.html#qiskit_experiments.framework.BaseProvider" title="qiskit_experiments.framework.provider_interfaces.BaseProvider"><em>BaseProvider</em></a><em> | </em><a class="reference internal" href="qiskit_experiments.framework.IBMProvider.html#qiskit_experiments.framework.IBMProvider" title="qiskit_experiments.framework.provider_interfaces.IBMProvider"><em>IBMProvider</em></a><em> | </em><em>None</em>) – an IBMProvider required for loading job data and
-can be used to initialize the service. When using
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>,
-this is the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/qiskit-runtime-service" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QiskitRuntimeService</span></code></a> and should
-not be confused with the experiment database service
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit_ibm_experiment.IBMExperimentService()</span></code>.</p></li>
+<li><p><strong>service</strong> (<a class="reference internal" href="qiskit_experiments.framework.ExperimentService.html#qiskit_experiments.framework.ExperimentService" title="qiskit_experiments.framework.provider_interfaces.ExperimentService"><em>ExperimentService</em></a><em> | </em><em>None</em>) – the database service.</p></li>
+<li><p><strong>provider</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseProvider.html#qiskit_experiments.framework.BaseProvider" title="qiskit_experiments.framework.provider_interfaces.BaseProvider"><em>BaseProvider</em></a><em> | </em><em>None</em>) – provider to load job results from</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1607,7 +1576,7 @@ pass them on, potentially aborting the experiment (false)</p></li>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>ExperimentDataSaveFailed</strong> – If no experiment database service</p></li>
+<li><p><a class="reference internal" href="qiskit_experiments.database_service.ExperimentDataSaveFailed.html#qiskit_experiments.database_service.ExperimentDataSaveFailed" title="qiskit_experiments.database_service.ExperimentDataSaveFailed"><strong>ExperimentDataSaveFailed</strong></a> – If no experiment database service</p></li>
 <li><p><strong>was found</strong><strong>, or </strong><strong>the experiment service failed to save</strong> – </p></li>
 </ul>
 </dd>
@@ -1630,8 +1599,8 @@ additional tags or notes) use <a class="reference internal" href="#qiskit_experi
 <p class="admonition-title">Note</p>
 <p>This method does not save analysis results, figures, or artifacts.
 Use <a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> for general saving of all experiment data.</p>
-<p>See <code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit.providers.experiment.IBMExperimentService.create_experiment()</span></code>
-for fields that are saved.</p>
+<p>This method uses
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">qiskit_experiments.database_service.ExperimentService.create_or_update_experiment()</span></code></p>
 </div>
 <dl class="field-list simple">
 </dl>
@@ -1708,7 +1677,7 @@ remaining jobs.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/10</div>
+              Last updated on 2026/04/17</div>
           </div>
           <div class="right-details">
             
@@ -1782,8 +1751,6 @@ remaining jobs.</p>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.delete_figure"><code class="docutils literal notranslate"><span class="pre">ExperimentData.delete_figure()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.errors"><code class="docutils literal notranslate"><span class="pre">ExperimentData.errors()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.figure"><code class="docutils literal notranslate"><span class="pre">ExperimentData.figure()</span></code></a></li>
-<li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.get_service_from_backend"><code class="docutils literal notranslate"><span class="pre">ExperimentData.get_service_from_backend()</span></code></a></li>
-<li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.get_service_from_provider"><code class="docutils literal notranslate"><span class="pre">ExperimentData.get_service_from_provider()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.job_errors"><code class="docutils literal notranslate"><span class="pre">ExperimentData.job_errors()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.job_status"><code class="docutils literal notranslate"><span class="pre">ExperimentData.job_status()</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.ExperimentData.jobs"><code class="docutils literal notranslate"><span class="pre">ExperimentData.jobs()</span></code></a></li>
@@ -1805,7 +1772,7 @@ remaining jobs.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=40110689"></script>
+</div><script src="../_static/documentation_options.js?v=1cfb7f1d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

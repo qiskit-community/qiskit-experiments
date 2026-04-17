@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Get experiment timing information" href="experiment_times.html" /><link rel="prev" title="Work with experiment artifacts" href="artifacts.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Save and load experiment data with the cloud service - Qiskit Experiments 0.13.0-12-gf476ff3a4</title>
+        <title>Save and load experiment data with an experiment service - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-12-gf476ff3a4</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-12-gf476ff3a4</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -211,7 +211,7 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-To Guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="artifacts.html">Work with experiment artifacts</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Save and load experiment data with an experiment service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
@@ -247,7 +247,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.Provider.html">Provider</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentService.html">ExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
@@ -365,7 +365,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.DbExperimentData.html">DbExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.DbAnalysisResultData.html">DbAnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ResultQuality.html">ResultQuality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.LocalExperimentService.html">LocalExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentDataSaveFailed.html">ExperimentDataSaveFailed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
 </ul>
@@ -519,7 +524,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/howtos/cloud_service.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/howtos/experiment_service.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -545,66 +550,91 @@
 of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
-<section id="save-and-load-experiment-data-with-the-cloud-service">
-<h1>Save and load experiment data with the cloud service<a class="headerlink" href="#save-and-load-experiment-data-with-the-cloud-service" title="Link to this heading">¶</a></h1>
+<section id="save-and-load-experiment-data-with-an-experiment-service">
+<h1>Save and load experiment data with an experiment service<a class="headerlink" href="#save-and-load-experiment-data-with-an-experiment-service" title="Link to this heading">¶</a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The cloud service at <cite>database &lt;https://quantum.ibm.com/experiments&gt;</cite> has been
+<p>The cloud service at <a class="reference external" href="https://quantum.ibm.com/experiments">https://quantum.ibm.com/experiments</a> has been
 sunset in the move to the new IBM Quantum cloud platform. Saving and loading
-to the cloud will not work. We are working on a local saving solution.</p>
+to the cloud will not work.</p>
 </div>
 <section id="problem">
 <h2>Problem<a class="headerlink" href="#problem" title="Link to this heading">¶</a></h2>
-<p>You want to save and retrieve experiment data from the cloud service.</p>
+<p>You want to save and retrieve experiment data from an experiment service.</p>
 </section>
 <section id="solution">
 <h2>Solution<a class="headerlink" href="#solution" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> supports saving and loading data with an
+experiment service class satisfying the <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentService.html#qiskit_experiments.framework.ExperimentService" title="qiskit_experiments.framework.ExperimentService"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentService</span></code></a> protocol.
+Here we demonstrate with the <a class="reference internal" href="../stubs/qiskit_experiments.database_service.LocalExperimentService.html#qiskit_experiments.database_service.LocalExperimentService" title="qiskit_experiments.database_service.LocalExperimentService"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalExperimentService</span></code></a> class in Qiskit
+Experiments.</p>
 <section id="saving">
 <h3>Saving<a class="headerlink" href="#saving" title="Link to this heading">¶</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This guide requires <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a> version 0.15 and up, which can be installed with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-ibm-runtime</span></code>.
-For how to migrate from the older <code class="docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code> to <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>,
-consult the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/migration-guides/qiskit-runtime-from-ibm-provider">migration guide</a>.</p>
+<p>In the examples below, the service is instantiated with
+<code class="docutils literal notranslate"><span class="pre">LocalExperimentService()</span></code> which only saves results to
+memory. You might want to use <code class="docutils literal notranslate"><span class="pre">LocalExperimentService(db_dir=db_dir)</span></code>
+instead specifying some local file path <code class="docutils literal notranslate"><span class="pre">db_dir</span></code> to save results to. Keep
+in mind that <a class="reference internal" href="../stubs/qiskit_experiments.database_service.LocalExperimentService.html#qiskit_experiments.database_service.LocalExperimentService" title="qiskit_experiments.database_service.LocalExperimentService"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalExperimentService</span></code></a> was not designed to scale to
+saving a large amount of data.</p>
 </div>
-<p>You must run the experiment on a real IBM
-backend and not a simulator to be able to save the experiment data. This is done by calling
-<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a>:</p>
+<p>Saving results is done by calling <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.save()</span></code></a>:</p>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+</div>
+</div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_ibm_runtime</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitRuntimeService</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library.characterization</span><span class="w"> </span><span class="kn">import</span> <span class="n">T1</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">T1</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.database_service</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalExperimentService</span>
 
-<span class="n">service</span> <span class="o">=</span> <span class="n">QiskitRuntimeService</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">&quot;ibm_quantum&quot;</span><span class="p">)</span>
-<span class="n">backend</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">backend</span><span class="p">(</span><span class="s2">&quot;ibm_osaka&quot;</span><span class="p">)</span>
+<span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="mf">300.e-6</span><span class="p">,</span> <span class="mf">30.e-6</span><span class="p">)</span>
+<span class="n">exp</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
-<span class="n">t1_delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mf">600e-6</span><span class="p">,</span> <span class="mf">50e-6</span><span class="p">)</span>
-
-<span class="n">exp</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">t1_delays</span><span class="p">)</span>
-
-<span class="n">t1_expdata</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
-<span class="n">t1_expdata</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+<span class="n">service</span> <span class="o">=</span> <span class="n">LocalExperimentService</span><span class="p">()</span>
+<span class="n">exp_data</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">service</span>
+<span class="n">exp_data</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>You can view the experiment online at
-https://quantum.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704
-</pre></div>
-</div>
 </div>
 </div>
 </section>
 <section id="loading">
 <h3>Loading<a class="headerlink" href="#loading" title="Link to this heading">¶</a></h3>
-<p>Let’s load a <a class="reference external" href="https://quantum.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e98571">previous T1
-experiment</a>
-(requires login to view), which we’ve made public by editing the <code class="docutils literal notranslate"><span class="pre">Share</span> <span class="pre">level</span></code> field:</p>
+<p>Let’s load the previous experiment again from the service. First, we create a
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.Provider.html#qiskit_experiments.framework.Provider" title="qiskit_experiments.framework.Provider"><code class="xref py py-class docutils literal notranslate"><span class="pre">Provider</span></code></a> object that has a
+<code class="docutils literal notranslate"><span class="pre">job(job_id)</span></code> method that can return a
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.Job.html#qiskit_experiments.framework.Job" title="qiskit_experiments.framework.Job"><code class="xref py py-class docutils literal notranslate"><span class="pre">Job</span></code></a> instance. Since this is a local
+test, a fake provider class that just returns jobs it has been given is used.
+Another provider like <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/qiskit-runtime-service" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QiskitRuntimeService</span></code></a> could
+be used instead. Also, the provider is only needed for reloading the raw job
+data for rerunning analysis. If only the experiment results and figures are
+needed, the <code class="docutils literal notranslate"><span class="pre">provider</span></code> argument to <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.load" title="qiskit_experiments.framework.ExperimentData.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.load()</span></code></a> can omitted.
+A warning about not being able to access the job data will be emitted in this
+case.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.test.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeProvider</span>
+
+<span class="n">provider</span> <span class="o">=</span> <span class="n">FakeProvider</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">jobs</span><span class="p">():</span>
+    <span class="n">provider</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Now the experiment data can be reloaded:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExperimentData</span>
-<span class="n">load_expdata</span> <span class="o">=</span> <span class="n">ExperimentData</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;9640736e-d797-4321-b063-d503f8e98571&quot;</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="n">service</span><span class="p">)</span>
+<span class="n">load_expdata</span> <span class="o">=</span> <span class="n">ExperimentData</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">service</span><span class="o">=</span><span class="n">service</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="n">provider</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -619,18 +649,62 @@ experiment</a>
 </div>
 </div>
 <div class="cell_output docutils container">
+<img alt="../_images/experiment_service_4_0.svg" src="../_images/experiment_service_4_0.svg" />
 </div>
 </div>
-<img alt="../_images/t1_loaded.png" src="../_images/t1_loaded.png" />
 <p>The analysis results have been retrieved as well and can be accessed normally.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">load_expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">load_expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>experiment</th>
+      <th>components</th>
+      <th>value</th>
+      <th>quality</th>
+      <th>backend</th>
+      <th>run_time</th>
+      <th>unit</th>
+      <th>chisq</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1409ba9d</th>
+      <td>T1</td>
+      <td>T1</td>
+      <td>[Q0]</td>
+      <td>0.000139+/-0.000009</td>
+      <td>good</td>
+      <td>aer_simulator_from(fake_manila)</td>
+      <td>None</td>
+      <td>s</td>
+      <td>1.731026</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
 </div>
 </section>
 </section>
@@ -645,33 +719,36 @@ In this case, a separate <code class="docutils literal notranslate"><span class=
 this file is done automatically in <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> and <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.load" title="qiskit_experiments.framework.ExperimentData.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load()</span></code></a>.</p>
 <section id="auto-saving-an-experiment">
 <h3>Auto-saving an experiment<a class="headerlink" href="#auto-saving-an-experiment" title="Link to this heading">¶</a></h3>
-<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">auto_save()</span></code> feature automatically saves changes to the
-<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object to the cloud service whenever it’s updated.</p>
+<p>The <cite>auto_save</cite> feature automatically saves changes to the
+<a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object to the experiment service whenever it’s updated.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">t1_delays</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">1.e-6</span><span class="p">,</span> <span class="mf">300.e-6</span><span class="p">,</span> <span class="mf">30.e-6</span><span class="p">)</span>
+<span class="n">exp</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
-<span class="n">t1_expdata</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
-<span class="n">t1_expdata</span><span class="o">.</span><span class="n">auto_save</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="n">t1_expdata</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+<span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">service</span> <span class="o">=</span> <span class="n">LocalExperimentService</span><span class="p">()</span>
+<span class="n">exp_data</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">service</span>
+<span class="n">exp_data</span><span class="o">.</span><span class="n">auto_save</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">exp_data</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>You can view the experiment online at https://quantum.ibm.com/experiments/cdaff3fa-f621-4915-a4d8-812d05d9a9ca
-&lt;ExperimentData[T1], backend: ibm_osaka, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca&gt;
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ExperimentData(T1, b7fc9e85-e48d-4982-ab56-7ea754ca33ce, job_ids=[&#39;2ab083ad-1ed8-47cc-83cb-2676ec32df69&#39;], metadata=&lt;5 items&gt;, figure_names=[&#39;T1_Q0_b7fc9e85.svg&#39;])
 </pre></div>
 </div>
 </div>
 </div>
-<p>Setting <code class="docutils literal notranslate"><span class="pre">auto_save</span> <span class="pre">=</span> <span class="pre">True</span></code> works by triggering <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.save()</span></code></a>.</p>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">auto_save</span> <span class="pre">=</span> <span class="pre">True</span></code> works by triggering <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.save()</span></code></a>
+once the experiment’s analysis completes.</p>
 <p>When working with composite experiments, setting <code class="docutils literal notranslate"><span class="pre">auto_save</span></code> will propagate this
 setting to the child experiments.</p>
 </section>
 <section id="deleting-an-experiment">
 <h3>Deleting an experiment<a class="headerlink" href="#deleting-an-experiment" title="Link to this heading">¶</a></h3>
 <p>Both figures and analysis results can be deleted. Note that unless you
-have auto save on, the update has to be manually saved to the remote
+have auto save on, the update has to be manually saved to the
 database by calling <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a>. Because there are two analysis
 results, one for the T1 parameter and one for the curve fitting results, we must
 delete twice to fully remove the analysis results.</p>
@@ -684,22 +761,16 @@ delete twice to fully remove the analysis results.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Are you sure you want to delete the experiment plot? [y/N]: y
-Are you sure you want to delete the analysis result? [y/N]: y
-Are you sure you want to delete the analysis result? [y/N]: y
-</pre></div>
-</div>
 </div>
 </div>
 </section>
-<section id="tagging-and-sharing-experiments">
-<h3>Tagging and sharing experiments<a class="headerlink" href="#tagging-and-sharing-experiments" title="Link to this heading">¶</a></h3>
+<section id="tagging-experiments">
+<h3>Tagging experiments<a class="headerlink" href="#tagging-experiments" title="Link to this heading">¶</a></h3>
 <p>Tags and notes can be added to experiments to help identify specific experiments in the interface.
-For example, an experiment can be tagged and made public with the following code.</p>
+For example, an experiment can be tagged with the following code.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t1_expdata</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tag1&#39;</span><span class="p">,</span> <span class="s1">&#39;tag2&#39;</span><span class="p">]</span>
-<span class="n">t1_expdata</span><span class="o">.</span><span class="n">share_level</span> <span class="o">=</span> <span class="s2">&quot;public&quot;</span>
 <span class="n">t1_expdata</span><span class="o">.</span><span class="n">notes</span> <span class="o">=</span> <span class="s2">&quot;Example note.&quot;</span>
 </pre></div>
 </div>
@@ -707,12 +778,6 @@ For example, an experiment can be tagged and made public with the following code
 <div class="cell_output docutils container">
 </div>
 </div>
-</section>
-<section id="web-interface">
-<h3>Web interface<a class="headerlink" href="#web-interface" title="Link to this heading">¶</a></h3>
-<p>You can also view experiment results as well as change the tags and share level at the <a class="reference external" href="https://quantum.ibm.com/experiments?date_interval=last-90-days&amp;owner=me">IBM Quantum Experiments
-pane</a>
-on the cloud.</p>
 </section>
 </section>
 </section>
@@ -752,7 +817,7 @@ on the cloud.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/10</div>
+              Last updated on 2026/04/17</div>
           </div>
           <div class="right-details">
             
@@ -773,7 +838,7 @@ on the cloud.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Save and load experiment data with the cloud service</a><ul>
+<li><a class="reference internal" href="#">Save and load experiment data with an experiment service</a><ul>
 <li><a class="reference internal" href="#problem">Problem</a></li>
 <li><a class="reference internal" href="#solution">Solution</a><ul>
 <li><a class="reference internal" href="#saving">Saving</a></li>
@@ -783,8 +848,7 @@ on the cloud.</p>
 <li><a class="reference internal" href="#discussion">Discussion</a><ul>
 <li><a class="reference internal" href="#auto-saving-an-experiment">Auto-saving an experiment</a></li>
 <li><a class="reference internal" href="#deleting-an-experiment">Deleting an experiment</a></li>
-<li><a class="reference internal" href="#tagging-and-sharing-experiments">Tagging and sharing experiments</a></li>
-<li><a class="reference internal" href="#web-interface">Web interface</a></li>
+<li><a class="reference internal" href="#tagging-experiments">Tagging experiments</a></li>
 </ul>
 </li>
 </ul>
@@ -798,7 +862,7 @@ on the cloud.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=40110689"></script>
+</div><script src="../_static/documentation_options.js?v=1cfb7f1d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

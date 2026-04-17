@@ -1,0 +1,8 @@
+﻿
+
+ExperimentDataSaveFailed
+============================================================
+
+.. currentmodule:: qiskit_experiments.database_service
+
+.. autoexception:: ExperimentDataSaveFailed

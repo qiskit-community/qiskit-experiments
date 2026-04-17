@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Quantum State Tomography" href="state_tomography.html" /><link rel="prev" title="Quantum Volume" href="quantum_volume.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Randomized Benchmarking - Qiskit Experiments 0.13.0-12-gf476ff3a4</title>
+        <title>Randomized Benchmarking - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.13.0-12-gf476ff3a4</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-12-gf476ff3a4</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -211,7 +211,7 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/artifacts.html">Work with experiment artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../howtos/experiment_service.html">Save and load experiment data with an experiment service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
@@ -247,7 +247,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.Provider.html">Provider</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.ExperimentService.html">ExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
@@ -365,7 +365,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.DbExperimentData.html">DbExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.DbAnalysisResultData.html">DbAnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.ResultQuality.html">ResultQuality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.LocalExperimentService.html">LocalExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.ExperimentDataSaveFailed.html">ExperimentDataSaveFailed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../stubs/qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
 </ul>
@@ -700,40 +705,40 @@ interleaved RB experiment will always give you accurate error value <span class=
   </thead>
   <tbody>
     <tr>
-      <th>188b0116</th>
+      <th>1db5ba4e</th>
       <td>alpha</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
-      <td>0.99581+/-0.00010</td>
+      <td>0.99577+/-0.00010</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.758285</td>
+      <td>0.786254</td>
     </tr>
     <tr>
-      <th>ff3366d8</th>
+      <th>f0e1b8d7</th>
       <td>EPC</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
-      <td>0.00209+/-0.00005</td>
+      <td>0.00211+/-0.00005</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.758285</td>
+      <td>0.786254</td>
     </tr>
     <tr>
-      <th>d87aba74</th>
+      <th>03f5895f</th>
       <td>EPG_x</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
-      <td>0.00245+/-0.00006</td>
+      <td>0.00248+/-0.00006</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.758285</td>
+      <td>0.786254</td>
     </tr>
     <tr>
-      <th>28997f2c</th>
+      <th>9ef37de7</th>
       <td>EPG_rz</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
@@ -741,18 +746,18 @@ interleaved RB experiment will always give you accurate error value <span class=
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.758285</td>
+      <td>0.786254</td>
     </tr>
     <tr>
-      <th>d2b91768</th>
+      <th>fd86736b</th>
       <td>EPG_sx</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
-      <td>0.00245+/-0.00006</td>
+      <td>0.00248+/-0.00006</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.758285</td>
+      <td>0.786254</td>
     </tr>
   </tbody>
 </table>
@@ -877,48 +882,48 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
   </thead>
   <tbody>
     <tr>
-      <th>ef4040c3</th>
+      <th>e3c211fe</th>
       <td>alpha</td>
       <td>StandardRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.9252+/-0.0028</td>
+      <td>0.9179+/-0.0034</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>0.93138</td>
+      <td>1.204928</td>
     </tr>
     <tr>
-      <th>2ca588b7</th>
+      <th>a2f67d55</th>
       <td>EPC</td>
       <td>StandardRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.0561+/-0.0021</td>
+      <td>0.0616+/-0.0025</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>0.93138</td>
+      <td>1.204928</td>
     </tr>
     <tr>
-      <th>9a4ab976</th>
+      <th>d99c10c6</th>
       <td>EPC_corrected</td>
       <td>StandardRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.0477+/-0.0022</td>
+      <td>0.0534+/-0.0026</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>0.93138</td>
+      <td>1.204928</td>
     </tr>
     <tr>
-      <th>297d032d</th>
+      <th>945ba73f</th>
       <td>EPG_cx</td>
       <td>StandardRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.0317+/-0.0014</td>
+      <td>0.0355+/-0.0017</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>0.93138</td>
+      <td>1.204928</td>
     </tr>
   </tbody>
 </table>
@@ -1051,43 +1056,43 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
   </thead>
   <tbody>
     <tr>
-      <th>e1c24a13</th>
+      <th>153c043d</th>
       <td>alpha</td>
       <td>InterleavedRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.9244+/-0.0029</td>
+      <td>0.9184+/-0.0019</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>1.366292</td>
+      <td>1.339168</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
-      <th>2039c4b0</th>
+      <th>96e349e8</th>
       <td>alpha_c</td>
       <td>InterleavedRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.949+/-0.004</td>
+      <td>0.951+/-0.004</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>1.366292</td>
+      <td>1.339168</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
-      <th>a74a380e</th>
+      <th>bb326655</th>
       <td>EPC</td>
       <td>InterleavedRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.0382+/-0.0028</td>
+      <td>0.0369+/-0.0030</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>1.366292</td>
-      <td>0.075234</td>
-      <td>[0, 0.11346975526151531]</td>
+      <td>1.339168</td>
+      <td>0.085513</td>
+      <td>[0, 0.12245222021835783]</td>
     </tr>
   </tbody>
 </table>
@@ -1171,7 +1176,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/10</div>
+              Last updated on 2026/04/17</div>
           </div>
           <div class="right-details">
             
@@ -1211,7 +1216,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=40110689"></script>
+</div><script src="../../_static/documentation_options.js?v=1cfb7f1d"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

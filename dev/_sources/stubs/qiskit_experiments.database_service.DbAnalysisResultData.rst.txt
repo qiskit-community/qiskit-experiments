@@ -1,0 +1,45 @@
+﻿
+
+DbAnalysisResultData
+========================================================
+
+.. currentmodule:: qiskit_experiments.database_service
+
+.. autoclass:: DbAnalysisResultData
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: DbAnalysisResultData.quality
+   .. autoattribute:: DbAnalysisResultData.verified
+   .. autoattribute:: DbAnalysisResultData.result_id
+   .. autoattribute:: DbAnalysisResultData.result_data
+   .. autoattribute:: DbAnalysisResultData.tags
+   
+
+
+
+
+   
+   
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: DbAnalysisResultData.copy
+
+   

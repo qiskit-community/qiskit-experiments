@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Save and load experiment data with the cloud service" href="cloud_service.html" /><link rel="prev" title="How-To Guides" href="index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Save and load experiment data with an experiment service" href="experiment_service.html" /><link rel="prev" title="How-To Guides" href="index.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Work with experiment artifacts - Qiskit Experiments 0.13.0-12-gf476ff3a4</title>
+        <title>Work with experiment artifacts - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-12-gf476ff3a4</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-12-gf476ff3a4</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -211,7 +211,7 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-To Guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Work with experiment artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cloud_service.html">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="experiment_service.html">Save and load experiment data with an experiment service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
@@ -247,7 +247,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.Provider.html">Provider</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentService.html">ExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
@@ -365,7 +365,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.DbExperimentData.html">DbExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.DbAnalysisResultData.html">DbAnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ResultQuality.html">ResultQuality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.LocalExperimentService.html">LocalExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentDataSaveFailed.html">ExperimentDataSaveFailed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
 </ul>
@@ -582,10 +587,10 @@ artifacts as a list of <a class="reference internal" href="../stubs/qiskit_exper
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[ArtifactData(name=curve_data, dtype=ScatterTable, uid=b0554802-63ff-4ae7-ac49-50bbec17f832, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
- ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=1158f483-42ee-4cc4-a99b-2138412bdd98, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
- ArtifactData(name=curve_data, dtype=ScatterTable, uid=d3019d6a-0f3f-4d69-9fc8-b22b10aee811, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;]),
- ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=5e2dc851-07f2-47cf-863b-b9989cf11a2c, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;])]
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[ArtifactData(name=curve_data, dtype=ScatterTable, uid=0aef2abe-0482-4fff-9d54-6d8fe91d35ae, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
+ ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=58e6c2fa-472c-4645-a3bd-1f84c0a2113b, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
+ ArtifactData(name=curve_data, dtype=ScatterTable, uid=5c41a534-492e-452c-810f-6a02dc0b1fdd, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;]),
+ ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=ee457e0f-588c-455c-9f1a-ee0f4d9f3f97, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;])]
 </pre></div>
 </div>
 </div>
@@ -643,8 +648,8 @@ The first curve_data artifact:
     <tr>
       <th>0</th>
       <td>0.000001</td>
-      <td>0.951707</td>
-      <td>0.006693</td>
+      <td>0.947805</td>
+      <td>0.006944</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -654,8 +659,8 @@ The first curve_data artifact:
     <tr>
       <th>1</th>
       <td>0.000051</td>
-      <td>0.410244</td>
-      <td>0.015356</td>
+      <td>0.422927</td>
+      <td>0.015423</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -665,8 +670,8 @@ The first curve_data artifact:
     <tr>
       <th>2</th>
       <td>0.000101</td>
-      <td>0.200488</td>
-      <td>0.012499</td>
+      <td>0.192683</td>
+      <td>0.012313</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -676,8 +681,8 @@ The first curve_data artifact:
     <tr>
       <th>3</th>
       <td>0.000151</td>
-      <td>0.095122</td>
-      <td>0.009159</td>
+      <td>0.082439</td>
+      <td>0.008586</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -687,8 +692,8 @@ The first curve_data artifact:
     <tr>
       <th>4</th>
       <td>0.000201</td>
-      <td>0.06</td>
-      <td>0.007414</td>
+      <td>0.055122</td>
+      <td>0.007125</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -709,8 +714,8 @@ The first curve_data artifact:
     <tr>
       <th>119</th>
       <td>0.000529</td>
-      <td>0.027977</td>
-      <td>0.002119</td>
+      <td>0.032636</td>
+      <td>0.00227</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -720,8 +725,8 @@ The first curve_data artifact:
     <tr>
       <th>120</th>
       <td>0.000534</td>
-      <td>0.027967</td>
-      <td>0.00212</td>
+      <td>0.032629</td>
+      <td>0.002271</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -731,8 +736,8 @@ The first curve_data artifact:
     <tr>
       <th>121</th>
       <td>0.00054</td>
-      <td>0.027958</td>
-      <td>0.00212</td>
+      <td>0.032623</td>
+      <td>0.002271</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -742,8 +747,8 @@ The first curve_data artifact:
     <tr>
       <th>122</th>
       <td>0.000545</td>
-      <td>0.02795</td>
-      <td>0.002121</td>
+      <td>0.032617</td>
+      <td>0.002272</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -753,8 +758,8 @@ The first curve_data artifact:
     <tr>
       <th>123</th>
       <td>0.000551</td>
-      <td>0.027943</td>
-      <td>0.002122</td>
+      <td>0.032612</td>
+      <td>0.002272</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -818,7 +823,7 @@ Qiskit Experiments.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ArtifactData(name=experiment_notes, dtype=dict, uid=b9b853cb-a535-455a-b52e-c590551bb6a5, experiment=None, device_components=[])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ArtifactData(name=experiment_notes, dtype=dict, uid=83fdc3e4-9f7c-4711-835f-56f71848836a, experiment=None, device_components=[])
 </pre></div>
 </div>
 </div>
@@ -838,39 +843,28 @@ Qiskit Experiments.</p>
 </section>
 <section id="saving-and-loading-artifacts">
 <h3>Saving and loading artifacts<a class="headerlink" href="#saving-and-loading-artifacts" title="Link to this heading">¶</a></h3>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This feature is only for those who have access to the cloud service. You can
-check whether you do by logging into the IBM Quantum interface
-and seeing if you can see the <a class="reference external" href="https://quantum.ibm.com/experiments">database</a>.</p>
-</div>
-<p>Artifacts are saved and loaded to and from the cloud service along with the rest of the
-<code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code> object. Artifacts are stored as <code class="docutils literal notranslate"><span class="pre">.zip</span></code> files in the cloud service grouped by
+<p>Artifacts are saved and loaded to and from an experiment service along with the rest of the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code> object. Artifacts are stored as <code class="docutils literal notranslate"><span class="pre">.zip</span></code> files in the service grouped by
 the artifact name. For example, the composite experiment above will generate two artifact files, <code class="docutils literal notranslate"><span class="pre">fit_summary.zip</span></code> and
 <code class="docutils literal notranslate"><span class="pre">curve_data.zip</span></code>. Each of these zipfiles will contain serialized artifact data in JSON format named
 by their unique artifact ID:</p>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>fit_summary.zip
-|- 1158f483-42ee-4cc4-a99b-2138412bdd98.json
-|- 5e2dc851-07f2-47cf-863b-b9989cf11a2c.json
+|- 58e6c2fa-472c-4645-a3bd-1f84c0a2113b.json
+|- ee457e0f-588c-455c-9f1a-ee0f4d9f3f97.json
 curve_data.zip
-|- b0554802-63ff-4ae7-ac49-50bbec17f832.json
-|- d3019d6a-0f3f-4d69-9fc8-b22b10aee811.json
+|- 0aef2abe-0482-4fff-9d54-6d8fe91d35ae.json
+|- 5c41a534-492e-452c-810f-6a02dc0b1fdd.json
 experiment_notes.zip
-|- b9b853cb-a535-455a-b52e-c590551bb6a5.json
+|- 83fdc3e4-9f7c-4711-835f-56f71848836a.json
 </pre></div>
 </div>
 </div>
 </div>
 <p>Note that for performance reasons, the auto save feature does not apply to artifacts. You must still
-call <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.save()</span></code></a> once the experiment analysis has completed to upload artifacts to the
-cloud service.</p>
-<p>Note also though individual artifacts can be deleted, currently artifact files cannot be removed from the
-cloud service. Instead, you can delete all artifacts of that name
-using <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.delete_artifact" title="qiskit_experiments.framework.ExperimentData.delete_artifact"><code class="xref py py-meth docutils literal notranslate"><span class="pre">delete_artifact()</span></code></a> and then call <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.save()</span></code></a>.
-This will save an empty file to the service, and the loaded experiment data will not contain
-these artifacts.</p>
+call <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.save" title="qiskit_experiments.framework.ExperimentData.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.save()</span></code></a> once the experiment analysis has completed to save artifacts in the
+service.</p>
 </section>
 </section>
 <section id="see-also">
@@ -889,12 +883,12 @@ these artifacts.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="cloud_service.html">
+          <a class="next-page" href="experiment_service.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Save and load experiment data with the cloud service</div>
+                <div class="title">Save and load experiment data with an experiment service</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -919,7 +913,7 @@ these artifacts.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/10</div>
+              Last updated on 2026/04/17</div>
           </div>
           <div class="right-details">
             
@@ -960,7 +954,7 @@ these artifacts.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=40110689"></script>
+</div><script src="../_static/documentation_options.js?v=1cfb7f1d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

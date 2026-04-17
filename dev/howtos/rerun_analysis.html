@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Use Experiments with Sampler" href="runtime_sessions.html" /><link rel="prev" title="Control the splitting of experiment circuits into jobs" href="job_splitting.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Rerun analysis for an existing experiment - Qiskit Experiments 0.13.0-12-gf476ff3a4</title>
+        <title>Rerun analysis for an existing experiment - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-12-gf476ff3a4</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-12-gf476ff3a4</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -211,7 +211,7 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-To Guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="artifacts.html">Work with experiment artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cloud_service.html">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="experiment_service.html">Save and load experiment data with an experiment service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
@@ -247,7 +247,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.Provider.html">Provider</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentService.html">ExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
@@ -365,7 +365,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.DbExperimentData.html">DbExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.DbAnalysisResultData.html">DbAnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ResultQuality.html">ResultQuality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.LocalExperimentService.html">LocalExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentDataSaveFailed.html">ExperimentDataSaveFailed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
 </ul>
@@ -555,14 +560,8 @@ execution successfully.</p>
 </section>
 <section id="solution">
 <h2>Solution<a class="headerlink" href="#solution" title="Link to this heading">¶</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This guide requires <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a> version 0.15 and up, which can be installed with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit-ibm-runtime</span></code>.
-For how to migrate from the older <code class="docutils literal notranslate"><span class="pre">qiskit-ibm-provider</span></code> to <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/index" title="(in Qiskit Runtime IBM Client)"><span class="xref std std-doc">qiskit-ibm-runtime</span></a>,
-consult the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/migration-guides/qiskit-runtime-from-ibm-provider">migration guide</a>.</p>
-</div>
 <p>Once you recreate the exact experiment you ran and all of its parameters and options,
-you can call the <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_jobs" title="qiskit_experiments.framework.ExperimentData.add_jobs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_jobs()</span></code></a> method with a list of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobV1" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Job</span></code></a> objects to generate the new <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object.
+you can call the <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_jobs" title="qiskit_experiments.framework.ExperimentData.add_jobs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_jobs()</span></code></a> method with a list of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobV1" title="(in Qiskit v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Job</span></code></a> objects to generate the new <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object.
 The following example retrieves jobs from a provider that has access to them via their
 job IDs:</p>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -593,7 +592,7 @@ job IDs:</p>
 <p><code class="docutils literal notranslate"><span class="pre">expdata</span></code> will be the new experiment data object containing results of the rerun analysis. Note that if
 <code class="docutils literal notranslate"><span class="pre">replace_results</span></code> isn’t set, running the analysis will return a new <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object
 instead of overwriting the existing one.</p>
-<p>If you have the job data in the form of a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> object, you can
+<p>If you have the job data in the form of a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> object, you can
 invoke the <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_data" title="qiskit_experiments.framework.ExperimentData.add_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_data()</span></code></a> method instead of <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_jobs" title="qiskit_experiments.framework.ExperimentData.add_jobs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_jobs()</span></code></a>:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -617,7 +616,7 @@ contain correct results.</p>
 <p>In the case where jobs are not directly accessible from the provider but you’ve
 downloaded the jobs from the
 <a class="reference external" href="https://quantum.ibm.com/jobs">IQS dashboard</a>, you can load them from
-the downloaded directory into <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> objects with this code:</p>
+the downloaded directory into <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> objects with this code:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -683,7 +682,7 @@ first component experiment.</p>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="cloud_service.html">Saving and loading experiment data with the cloud service</a></p></li>
+<li><p><a class="reference external" href="experiment_service.html">Saving and loading experiment data with an experiment service</a></p></li>
 </ul>
 </section>
 </section>
@@ -723,7 +722,7 @@ first component experiment.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/10</div>
+              Last updated on 2026/04/17</div>
           </div>
           <div class="right-details">
             
@@ -763,7 +762,7 @@ first component experiment.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=40110689"></script>
+</div><script src="../_static/documentation_options.js?v=1cfb7f1d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Job" href="qiskit_experiments.framework.Job.html" /><link rel="prev" title="BaseProvider" href="qiskit_experiments.framework.BaseProvider.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="DbAnalysisResultData" href="qiskit_experiments.database_service.DbAnalysisResultData.html" /><link rel="prev" title="to_component" href="qiskit_experiments.database_service.to_component.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>IBMProvider - Qiskit Experiments 0.13.0-12-gf476ff3a4</title>
+        <title>DbExperimentData - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-12-gf476ff3a4</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-12-gf476ff3a4</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -211,7 +211,7 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/artifacts.html">Work with experiment artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/experiment_service.html">Save and load experiment data with an experiment service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
@@ -232,7 +232,7 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../apidocs/index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../apidocs/main.html">Qiskit Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments</span></code>)</a></li>
-<li class="toctree-l2 current has-children"><a class="reference internal" href="../apidocs/framework.html">Experiment Framework (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.framework</span></code>)</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Experiment Framework (qiskit_experiments.framework)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/framework.html">Experiment Framework (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.framework</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Experiment Framework (qiskit_experiments.framework)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExperimentData.html">ExperimentData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExperimentStatus.html">ExperimentStatus</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.AnalysisStatus.html">AnalysisStatus</a></li>
@@ -247,7 +247,7 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.Provider.html">Provider</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
-<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExperimentService.html">ExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
@@ -359,13 +359,18 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.curve_analysis.utils.shot_weighted_average.html">shot_weighted_average</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/database_service.html">Database Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.database_service</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Database Service (qiskit_experiments.database_service)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="../apidocs/database_service.html">Database Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.database_service</span></code>)</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Database Service (qiskit_experiments.database_service)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.DeviceComponent.html">DeviceComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.Qubit.html">Qubit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">DbExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.DbAnalysisResultData.html">DbAnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ResultQuality.html">ResultQuality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.LocalExperimentService.html">LocalExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentDataSaveFailed.html">ExperimentDataSaveFailed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
 </ul>
@@ -519,7 +524,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/stubs/qiskit_experiments.framework.IBMProvider.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/stubs/qiskit_experiments.database_service.DbExperimentData.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -545,52 +550,55 @@
 of Qiskit Experiments. The documentation or APIs here can change prior to being
 released.</p>
 </div>
-<section id="ibmprovider">
-<h1>IBMProvider<a class="headerlink" href="#ibmprovider" title="Link to this heading">¶</a></h1>
+<section id="dbexperimentdata">
+<h1>DbExperimentData<a class="headerlink" href="#dbexperimentdata" title="Link to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.IBMProvider">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IBMProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/provider_interfaces.html#IBMProvider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.IBMProvider" title="Link to this definition">¶</a></dt>
-<dd><p>Provider interface needed for supporting features like IBM Quantum</p>
-<p>This interface is the subset of
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/qiskit-runtime-service" title="(in Qiskit Runtime IBM Client)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QiskitRuntimeService</span></code></a> needed for all features
-of Qiskit Experiments. Another provider could implement this interface to
-support these features as well.</p>
+<dt class="sig sig-object py" id="qiskit_experiments.database_service.DbExperimentData">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DbExperimentData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_id=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_ids=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_level=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_names=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notes=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hub=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation_datetime=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_datetime=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_datetime=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updated_datetime=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/database_service/db_experiment_data.html#DbExperimentData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.database_service.DbExperimentData" title="Link to this definition">¶</a></dt>
+<dd><p>Dataclass for experiments in the database.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The documentation does not currently render all the fields of this
+dataclass.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is named DbExperimentData to avoid confusion with the main
+<a class="reference internal" href="qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> class.</p>
+</div>
+<p class="rubric">Attributes</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qiskit_experiments.database_service.DbExperimentData.experiment_id">
+<span class="sig-name descname"><span class="pre">experiment_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#qiskit_experiments.database_service.DbExperimentData.experiment_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qiskit_experiments.database_service.DbExperimentData.tags">
+<span class="sig-name descname"><span class="pre">tags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#qiskit_experiments.database_service.DbExperimentData.tags" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qiskit_experiments.database_service.DbExperimentData.job_ids">
+<span class="sig-name descname"><span class="pre">job_ids</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#qiskit_experiments.database_service.DbExperimentData.job_ids" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qiskit_experiments.database_service.DbExperimentData.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#qiskit_experiments.database_service.DbExperimentData.metadata" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qiskit_experiments.database_service.DbExperimentData.figure_names">
+<span class="sig-name descname"><span class="pre">figure_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#qiskit_experiments.database_service.DbExperimentData.figure_names" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.IBMProvider.active_account">
-<span class="sig-name descname"><span class="pre">active_account</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/provider_interfaces.html#IBMProvider.active_account"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.IBMProvider.active_account" title="Link to this definition">¶</a></dt>
-<dd><p>Return the IBM Quantum account information currently in use</p>
-<p>This method returns the current account information in a dictionary
-format. It is used to copy the credentials for use with
-<code class="docutils literal notranslate"><span class="pre">qiskit-ibm-experiment</span></code> without requiring specifying the credentials
-for the provider and <code class="docutils literal notranslate"><span class="pre">qiskit-ibm-experiment</span></code> separately
-It should include <code class="docutils literal notranslate"><span class="pre">&quot;url&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;token&quot;</span></code> as keys for the
-authentication to work.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A dictionary with information about the account currently in the session.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>dict[str, str] | None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.IBMProvider.job">
-<span class="sig-name descname"><span class="pre">job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.framework.IBMProvider.job" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieve a job object using its job ID</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>job_id</strong> (<em>str</em>) – Job ID.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The retrieved job</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="qiskit_experiments.framework.BaseJob.html#qiskit_experiments.framework.BaseJob" title="qiskit_experiments.framework.provider_interfaces.BaseJob"><em>BaseJob</em></a> | <a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html#qiskit_experiments.framework.ExtendedJob" title="qiskit_experiments.framework.provider_interfaces.ExtendedJob"><em>ExtendedJob</em></a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="qiskit_experiments.database_service.DbExperimentData.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/database_service/db_experiment_data.html#DbExperimentData.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.database_service.DbExperimentData.copy" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a deep copy of the data</p>
 </dd></dl>
 
 </dd></dl>
@@ -602,23 +610,23 @@ authentication to work.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="qiskit_experiments.framework.Job.html">
+          <a class="next-page" href="qiskit_experiments.database_service.DbAnalysisResultData.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Job</div>
+                <div class="title">DbAnalysisResultData</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="qiskit_experiments.framework.BaseProvider.html">
+          <a class="prev-page" href="qiskit_experiments.database_service.to_component.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">BaseProvider</div>
+                <div class="title">to_component</div>
                 
               </div>
             </a>
@@ -632,7 +640,7 @@ authentication to work.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/10</div>
+              Last updated on 2026/04/17</div>
           </div>
           <div class="right-details">
             
@@ -653,10 +661,14 @@ authentication to work.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">IBMProvider</a><ul>
-<li><a class="reference internal" href="#qiskit_experiments.framework.IBMProvider"><code class="docutils literal notranslate"><span class="pre">IBMProvider</span></code></a><ul>
-<li><a class="reference internal" href="#qiskit_experiments.framework.IBMProvider.active_account"><code class="docutils literal notranslate"><span class="pre">IBMProvider.active_account()</span></code></a></li>
-<li><a class="reference internal" href="#qiskit_experiments.framework.IBMProvider.job"><code class="docutils literal notranslate"><span class="pre">IBMProvider.job()</span></code></a></li>
+<li><a class="reference internal" href="#">DbExperimentData</a><ul>
+<li><a class="reference internal" href="#qiskit_experiments.database_service.DbExperimentData"><code class="docutils literal notranslate"><span class="pre">DbExperimentData</span></code></a><ul>
+<li><a class="reference internal" href="#qiskit_experiments.database_service.DbExperimentData.experiment_id"><code class="docutils literal notranslate"><span class="pre">DbExperimentData.experiment_id</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.database_service.DbExperimentData.tags"><code class="docutils literal notranslate"><span class="pre">DbExperimentData.tags</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.database_service.DbExperimentData.job_ids"><code class="docutils literal notranslate"><span class="pre">DbExperimentData.job_ids</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.database_service.DbExperimentData.metadata"><code class="docutils literal notranslate"><span class="pre">DbExperimentData.metadata</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.database_service.DbExperimentData.figure_names"><code class="docutils literal notranslate"><span class="pre">DbExperimentData.figure_names</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_experiments.database_service.DbExperimentData.copy"><code class="docutils literal notranslate"><span class="pre">DbExperimentData.copy()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -670,7 +682,7 @@ authentication to work.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=40110689"></script>
+</div><script src="../_static/documentation_options.js?v=1cfb7f1d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="AnalysisResultData" href="qiskit_experiments.framework.AnalysisResultData.html" /><link rel="prev" title="AnalysisStatus" href="qiskit_experiments.framework.AnalysisStatus.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>AnalysisResult - Qiskit Experiments 0.13.0-12-gf476ff3a4</title>
+        <title>AnalysisResult - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-12-gf476ff3a4</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-12-gf476ff3a4</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -211,7 +211,7 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/artifacts.html">Work with experiment artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/experiment_service.html">Save and load experiment data with an experiment service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
@@ -247,7 +247,7 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.Provider.html">Provider</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
-<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExperimentService.html">ExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
@@ -365,7 +365,12 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.DbExperimentData.html">DbExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.DbAnalysisResultData.html">DbAnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ResultQuality.html">ResultQuality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.LocalExperimentService.html">LocalExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentDataSaveFailed.html">ExperimentDataSaveFailed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
 </ul>
@@ -589,7 +594,7 @@ provider for valid values.</p></li>
 <li><p><strong>extra</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – Dictionary of extra analysis result data</p></li>
 <li><p><strong>verified</strong> (<em>bool</em>) – Whether the result quality has been verified.</p></li>
 <li><p><strong>tags</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – Tags for this analysis result.</p></li>
-<li><p><strong>service</strong> (<em>IBMExperimentService</em><em> | </em><em>None</em>) – Experiment service to be used to store result in database.</p></li>
+<li><p><strong>service</strong> (<a class="reference internal" href="qiskit_experiments.framework.ExperimentService.html#qiskit_experiments.framework.ExperimentService" title="qiskit_experiments.framework.provider_interfaces.ExperimentService"><em>ExperimentService</em></a><em> | </em><em>None</em>) – Experiment service to be used to store result in database.</p></li>
 <li><p><strong>source</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>) – Class and Qiskit version information when loading from an
 experiment service.</p></li>
 </ul>
@@ -602,11 +607,6 @@ experiment service.</p></li>
 </dd>
 </dl>
 <p class="rubric">Attributes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResult.RESULT_QUALITY_TO_TEXT">
-<span class="sig-name descname"><span class="pre">RESULT_QUALITY_TO_TEXT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{ResultQuality.BAD:</span> <span class="pre">'bad',</span> <span class="pre">ResultQuality.GOOD:</span> <span class="pre">'good',</span> <span class="pre">ResultQuality.UNKNOWN:</span> <span class="pre">'unknown'}</span></em><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResult.RESULT_QUALITY_TO_TEXT" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.AnalysisResult.auto_save">
 <span class="sig-name descname"><span class="pre">auto_save</span></span><a class="headerlink" href="#qiskit_experiments.framework.AnalysisResult.auto_save" title="Link to this definition">¶</a></dt>
@@ -780,7 +780,7 @@ value has been verified by a human.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>result_id</strong> (<em>str</em>) – Analysis result ID.</p></li>
-<li><p><strong>service</strong> (<em>IBMExperimentService</em>) – the database service.</p></li>
+<li><p><strong>service</strong> (<a class="reference internal" href="qiskit_experiments.framework.ExperimentService.html#qiskit_experiments.framework.ExperimentService" title="qiskit_experiments.framework.provider_interfaces.ExperimentService"><em>ExperimentService</em></a>) – the database service.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -857,7 +857,7 @@ pass them on, potentially aborting the experiment (false).</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/10</div>
+              Last updated on 2026/04/17</div>
           </div>
           <div class="right-details">
             
@@ -880,7 +880,6 @@ pass them on, potentially aborting the experiment (false).</p>
             <ul>
 <li><a class="reference internal" href="#">AnalysisResult</a><ul>
 <li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResult"><code class="docutils literal notranslate"><span class="pre">AnalysisResult</span></code></a><ul>
-<li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResult.RESULT_QUALITY_TO_TEXT"><code class="docutils literal notranslate"><span class="pre">AnalysisResult.RESULT_QUALITY_TO_TEXT</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResult.auto_save"><code class="docutils literal notranslate"><span class="pre">AnalysisResult.auto_save</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResult.chisq"><code class="docutils literal notranslate"><span class="pre">AnalysisResult.chisq</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_experiments.framework.AnalysisResult.device_components"><code class="docutils literal notranslate"><span class="pre">AnalysisResult.device_components</span></code></a></li>
@@ -914,7 +913,7 @@ pass them on, potentially aborting the experiment (false).</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=40110689"></script>
+</div><script src="../_static/documentation_options.js?v=1cfb7f1d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

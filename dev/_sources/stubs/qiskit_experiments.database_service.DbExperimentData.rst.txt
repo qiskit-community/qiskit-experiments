@@ -1,0 +1,45 @@
+﻿
+
+DbExperimentData
+====================================================
+
+.. currentmodule:: qiskit_experiments.database_service
+
+.. autoclass:: DbExperimentData
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: DbExperimentData.experiment_id
+   .. autoattribute:: DbExperimentData.tags
+   .. autoattribute:: DbExperimentData.job_ids
+   .. autoattribute:: DbExperimentData.metadata
+   .. autoattribute:: DbExperimentData.figure_names
+   
+
+
+
+
+   
+   
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: DbExperimentData.copy
+
+   
