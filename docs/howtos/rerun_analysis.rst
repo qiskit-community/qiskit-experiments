@@ -11,11 +11,6 @@ execution successfully.
 Solution
 --------
 
-.. note::
-    This guide requires :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
-    For how to migrate from the older ``qiskit-ibm-provider`` to :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`,
-    consult the `migration guide <https://quantum.cloud.ibm.com/docs/migration-guides/qiskit-runtime-from-ibm-provider>`_.\
-
 Once you recreate the exact experiment you ran and all of its parameters and options,
 you can call the :meth:`.ExperimentData.add_jobs` method with a list of :class:`Job
 <qiskit.providers.JobV1>` objects to generate the new :class:`.ExperimentData` object.
@@ -122,4 +117,4 @@ first component experiment.
 See Also
 --------
 
-* `Saving and loading experiment data with the cloud service <cloud_service.html>`_
+* `Saving and loading experiment data with an experiment service <experiment_service.html>`_

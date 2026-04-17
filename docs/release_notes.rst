@@ -708,7 +708,7 @@ API Changes for Experiment Authors
   :class:`~qiskit_experiments.framework.ExtendedJob`,
   :class:`~qiskit_experiments.framework.Job`,
   :class:`~qiskit_experiments.framework.BaseProvider`,
-  :class:`~qiskit_experiments.framework.IBMProvider`, and
+  ``qiskit_experiments.framework.IBMProvider``, and
   :class:`~qiskit_experiments.framework.Provider` to document the interfaces
   needed by :class:`~.ExperimentData` to work with jobs and results.
 
@@ -1522,11 +1522,11 @@ Deprecation Notes
 .. releasenotes/notes/0.6/experiment-artifacts-c481f4e07226ce9e.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - Direct access to the curve fit summary in :class:`.ExperimentData` has moved from
-  :meth:`.analysis_results` to :meth:`.artifacts`, where values are stored in the
+  :meth:`.ExperimentDat.analysis_results` to :meth:`.artifacts`, where values are stored in the
   :attr:`~.ArtifactData.data` attribute of :class:`.ArtifactData` objects. For example, to access the
   chi-squared of the fit, ``expdata.analysis_results(0).chisq`` is deprecated in favor of
   ``expdata.artifacts("fit_summary").data.chisq``. In a future release, the curve fit summary
-  will be removed from :meth:`.analysis_results` and the option ``return_fit_parameters`` will be
+  will be removed from :meth:`.ExperimentData.analysis_results` and the option ``return_fit_parameters`` will be
   removed. For more information on artifacts, see the :doc:`artifacts how-to </howtos/artifacts>`.
 
 .. releasenotes/notes/0.6/experiment-artifacts-c481f4e07226ce9e.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'

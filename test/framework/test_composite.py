@@ -18,7 +18,6 @@ import warnings
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
-from unittest import mock
 from ddt import ddt, data
 
 from qiskit import QuantumCircuit
@@ -26,8 +25,7 @@ from qiskit.result import Result
 
 from qiskit_aer import AerSimulator, noise
 
-from qiskit_ibm_experiment import IBMExperimentService
-
+from qiskit_experiments.database_service import LocalExperimentService
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.test.fake_backend import FakeBackend
@@ -284,7 +282,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         Verify that saving and loading restores the original composite experiment data object
         """
 
-        self.rootdata.service = IBMExperimentService(local=True, local_save=False)
+        self.rootdata.service = LocalExperimentService()
         self.rootdata.save()
         loaded_data = ExperimentData.load(self.rootdata.experiment_id, self.rootdata.service)
         self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False, check_artifact=True)
@@ -293,7 +291,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         """
         Verify that saving metadata and loading restores the original composite experiment data object
         """
-        self.rootdata.service = IBMExperimentService(local=True, local_save=False)
+        self.rootdata.service = LocalExperimentService()
         self.rootdata.save_metadata()
         loaded_data = ExperimentData.load(self.rootdata.experiment_id, self.rootdata.service)
         self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False)
@@ -436,7 +434,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         par_exp = BatchExperiment([exp1, exp2], flatten_results=False)
         expdata = par_exp.run(FakeBackend(num_qubits=4))
         self.assertExperimentDone(expdata)
-        expdata.service = IBMExperimentService(local=True, local_save=False)
+        expdata.service = LocalExperimentService()
         expdata.auto_save = True
         par_exp.analysis.run(expdata)
         self.assertExperimentDone(expdata)
@@ -445,7 +443,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         """
         Test setting autosave when using composite experiments
         """
-        service = mock.create_autospec(IBMExperimentService, instance=True)
+        service = LocalExperimentService()
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
         par_exp = BatchExperiment([exp1, exp2], flatten_results=False)
@@ -453,7 +451,9 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         expdata.service = service
         self.assertExperimentDone(expdata)
         expdata.auto_save = True
-        self.assertEqual(service.create_or_update_experiment.call_count, 3)
+        for child_data in expdata.child_data():
+            results = service.analysis_results(experiment_id=child_data.experiment_id)
+            self.assertEqual(len(results), 3)
 
     def test_composite_subexp_data(self):
         """

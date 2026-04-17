@@ -94,7 +94,7 @@ Experiment Data Classes
     FigureData
     Provider
     BaseProvider
-    IBMProvider
+    ExperimentService
     Job
     BaseJob
     ExtendedJob
@@ -149,8 +149,8 @@ from qiskit_experiments.framework.containers import (
 from .provider_interfaces import (
     BaseJob,
     BaseProvider,
+    ExperimentService,
     ExtendedJob,
-    IBMProvider,
     Job,
     MeasLevel,
     MeasReturnType,

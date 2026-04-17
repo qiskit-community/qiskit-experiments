@@ -387,9 +387,17 @@ def _check_experiment_data(
         data2.child_data(),
         **kwargs,
     )
+    artifacts1 = data1.artifacts()
+    if not isinstance(artifacts1, list):
+        artifacts1 = [artifacts1]
+    artifacts2 = data2.artifacts()
+    if not isinstance(artifacts2, list):
+        artifacts2 = [artifacts2]
+    artifacts1.sort(key=lambda a: a.name)
+    artifacts2.sort(key=lambda a: a.name)
     artifact_equiv = is_equivalent(
-        data1.artifacts(),
-        data2.artifacts(),
+        artifacts1,
+        artifacts2,
         **kwargs,
     )
 

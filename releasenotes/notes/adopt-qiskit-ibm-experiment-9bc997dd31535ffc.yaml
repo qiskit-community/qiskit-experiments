@@ -1,0 +1,34 @@
+---
+upgrade:
+  - |
+    The dependency on ``qiskit-ibm-experiment`` has been removed following that
+    project's discontinuation. Its classes related to storing experiment
+    results in a database (referred to in the documentation as an experiment
+    service) have been moved into Qiskit Experiments as
+    :class:`.DbExperimentData`, :class:`.DbAnalysisResultData`, and
+    :class:`.ResultQuality`. These classes are used internally by
+    :class:`.ExperimentData` and :class:`.AnalysisResult`, so the move should
+    be transparent to the user in most cases. Additionally, ``pyyaml`` was
+    added an optional dependency for the new :class:`.LocalExperimentService`.
+    ``pyyaml`` was previously pulled in as a dependency of
+    ``qiskit-ibm-experiment``.
+  - |
+    The support within :class:`.ExperimentData` for looking up an experiment
+    service from an experiment's backend or provider has been removed. This
+    support was only relevant for the IBM experiment service which was
+    discontinued.
+  - |
+    The ``IBMProvider`` interface class was removed. This class was only used
+    for type annotations to indicate where a provider could be passed that
+    would allow looking up an experiment service.
+developer:
+  - |
+    :class:`.LocalExperimentService` has been added as a reference
+    implementation of a service for saving and loading experiment results. As
+    noted in its documentation, it was written for testing purposes and is not
+    currently suitable for storing a large amount of results.
+other:
+  - |
+    The `howto <experiment_service.html>`_ on working with the cloud experiment
+    service has been reworked to demonstrate using
+    :class:`.LocalExperimentService` instead.

@@ -40,13 +40,6 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 from qiskit.primitives import BitArray, SamplerPubResult
 
-from qiskit_ibm_experiment import (
-    IBMExperimentService,
-    ExperimentData as ExperimentDataclass,
-    AnalysisResultData as AnalysisResultDataclass,
-    ResultQuality,
-)
-
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 from qiskit_experiments.database_service.utils import (
     plot_to_svg_bytes,
@@ -62,15 +55,18 @@ from qiskit_experiments.framework.containers import ArtifactData
 from qiskit_experiments.framework import ExperimentStatus, AnalysisStatus, AnalysisCallback
 from qiskit_experiments.framework.deprecation import warn_from_qe
 from qiskit_experiments.framework.package_deps import qiskit_version
-from qiskit_experiments.database_service.exceptions import (
+from qiskit_experiments.database_service import (
+    DbAnalysisResultData,
+    DbExperimentData,
     ExperimentDataError,
     ExperimentEntryNotFound,
     ExperimentDataSaveFailed,
+    ResultQuality,
 )
 from qiskit_experiments.database_service.utils import objs_to_zip, zip_to_objs
 
 from .containers.figure_data import FigureData, FigureType
-from .provider_interfaces import Job, Provider
+from .provider_interfaces import ExperimentService, Job, Provider
 
 
 if TYPE_CHECKING:
@@ -125,11 +121,6 @@ def get_job_status(job: Job) -> JobStatus:
 class ExperimentData:
     """Experiment data container class.
 
-    .. note::
-        Saving experiment data to the cloud database is currently a limited access feature. You can
-        check whether you have access by logging into the IBM Quantum interface
-        and seeing if you can see the `database <https://quantum.ibm.com/experiments>`__.
-
     This class handles the following:
 
     1. Storing the data related to an experiment: raw data, metadata, analysis results,
@@ -137,7 +128,7 @@ class ExperimentData:
     2. Managing jobs and adding data from jobs automatically
     3. Saving and loading data from the database service
 
-    The field ``db_data`` is a dataclass (``ExperimentDataclass``) containing
+    The field ``db_data`` is a :class:`.DbExperimentData` dataclass containing
     all the data that can be stored in the database and loaded from it, and
     as such is subject to strict conventions.
 
@@ -159,13 +150,13 @@ class ExperimentData:
         self,
         experiment: BaseExperiment | None = None,
         backend: Backend | None = None,
-        service: IBMExperimentService | None = None,
+        service: ExperimentService | None = None,
         provider: Provider | None = None,
         parent_id: str | None = None,
         job_ids: list[str] | None = None,
         child_data: list[ExperimentData] | None = None,
         verbose: bool | None = True,
-        db_data: ExperimentDataclass | None = None,
+        db_data: DbExperimentData | None = None,
         start_datetime: datetime | None = None,
         **kwargs,
     ):
@@ -176,8 +167,7 @@ class ExperimentData:
             backend: Backend the experiment runs on. This overrides the
                 backend in the experiment object.
             service: The service that stores the experiment results to the database
-            provider: The provider used for the experiments
-                (can be used to automatically obtain the service)
+            provider: The provider used for the experiment
             parent_id: ID of the parent experiment data
                 in the setting of a composite experiment
             job_ids: IDs of jobs submitted for the experiment.
@@ -187,15 +177,6 @@ class ExperimentData:
                 This overrides other db parameters.
             start_datetime: The time when the experiment started running.
                 If none, defaults to the current time.
-
-        Additional info:
-            In order to save the experiment data to the cloud service, the class
-            needs access to the experiment service provider. It can be obtained
-            via three different methods, given here by priority:
-
-            1. Passing it directly via the ``service`` parameter.
-            2. Implicitly obtaining it from the ``provider`` parameter.
-            3. Implicitly obtaining it from the ``backend`` parameter, using that backend's provider.
         """
         if experiment is not None:
             backend = backend or experiment.backend
@@ -223,7 +204,7 @@ class ExperimentData:
         metadata["_source"] = source
         experiment_id = kwargs.get("experiment_id", str(uuid.uuid4()))
         if db_data is None:
-            self._db_data = ExperimentDataclass(
+            self._db_data = DbExperimentData(
                 experiment_id=experiment_id,
                 experiment_type=experiment_type,
                 parent_id=parent_id,
@@ -254,8 +235,8 @@ class ExperimentData:
             # qiskit_ibm_runtime.IBMBackend stores its Provider-like object in
             # the "service" attribute
             self._provider = backend.service
-        # Experiment service like qiskit_ibm_experiment.IBMExperimentService,
-        # not to be confused with qiskit_ibm_runtime.QiskitRuntimeService
+        # ExperimentService service not to be confused with
+        # qiskit_ibm_runtime.QiskitRuntimeService
         self._service = service
         self._auto_save = False
         self._created_in_db = False
@@ -362,10 +343,14 @@ class ExperimentData:
     def creation_datetime(self) -> datetime:
         """Return the creation datetime of this experiment data.
 
-        Returns:
-            The timestamp when this experiment data was saved to the cloud service
-            in the local timezone.
+        .. note::
 
+            Typically this value is set within the experiment service. It might
+            not be available on a new :class:`.ExperimentData` instance prior
+            to reloading it from the service.
+
+        Returns:
+            The timestamp when this experiment data was saved to the experiment service.
         """
         return self._db_data.creation_datetime
 
@@ -374,8 +359,7 @@ class ExperimentData:
         """Return the start datetime of this experiment data.
 
         Returns:
-            The timestamp when this experiment began running in the local timezone.
-
+            The timestamp when this experiment began running.
         """
         return self._db_data.start_datetime
 
@@ -387,9 +371,14 @@ class ExperimentData:
     def updated_datetime(self) -> datetime:
         """Return the update datetime of this experiment data.
 
+        .. note::
+
+            Typically this value is set within the experiment service. It might
+            not be available on a new :class:`.ExperimentData` instance prior
+            to reloading it from the service.
+
         Returns:
-            The timestamp when this experiment data was last updated in the service
-            in the local timezone.
+            The timestamp when this experiment data was last updated in the service.
 
         """
         return self._db_data.updated_datetime
@@ -417,8 +406,6 @@ class ExperimentData:
 
         Returns:
             The timestamp when the last job of this experiment finished
-            in the local timezone.
-
         """
         return self._db_data.end_datetime
 
@@ -432,7 +419,6 @@ class ExperimentData:
 
         Returns:
             The hub of this experiment data.
-
         """
         return self._db_data.hub
 
@@ -452,7 +438,6 @@ class ExperimentData:
 
         Returns:
             The project of this experiment data.
-
         """
         return self._db_data.project
 
@@ -527,9 +512,7 @@ class ExperimentData:
            to this experiment itself and its descendants.
 
         Args:
-            new_level: New experiment share level. Valid share levels are provider-
-                specified. For example, IBM Quantum experiment service allows
-                "public", "hub", "group", "project", and "private".
+            new_level: New experiment share level.
         """
         self._db_data.share_level = new_level
         for data in self._child_data.values():
@@ -633,7 +616,7 @@ class ExperimentData:
         self._db_data.figure_names.clear()
 
     @property
-    def service(self) -> IBMExperimentService | None:
+    def service(self) -> ExperimentService | None:
         """Return the database service.
 
         Returns:
@@ -642,7 +625,7 @@ class ExperimentData:
         return self._service
 
     @service.setter
-    def service(self, service: IBMExperimentService) -> None:
+    def service(self, service: ExperimentService) -> None:
         """Set the service to be used for storing experiment data
 
         Args:
@@ -653,30 +636,7 @@ class ExperimentData:
         """
         self._set_service(service)
 
-    def _infer_service(self, warn: bool):
-        """Try to configure service if it has not been configured
-
-        This method should be called before any method that needs to work with
-        the experiment service.
-
-        Args:
-            warn: Warn if the service could not be set up from the backend or
-                provider attributes.
-
-        Returns:
-            True if a service instance has been set up
-        """
-        if self.service is None:
-            self.service = self.get_service_from_backend(self.backend)
-        if self.service is None:
-            self.service = self.get_service_from_provider(self.provider)
-
-        if warn and self.service is None:
-            LOG.warning("Experiment service has not been configured. Can not save!")
-
-        return self.service is not None
-
-    def _set_service(self, service: IBMExperimentService) -> None:
+    def _set_service(self, service: ExperimentService) -> None:
         """Set the service to be used for storing experiment data,
            to this experiment itself and its descendants.
 
@@ -693,32 +653,6 @@ class ExperimentData:
             self.auto_save = self.service.options.get("auto_save", False)
         for data in self.child_data():
             data._set_service(service)
-
-    @staticmethod
-    def get_service_from_backend(backend) -> IBMExperimentService | None:
-        """Initializes the service from the backend data"""
-        # backend.provider is not checked since currently the only viable way
-        # to set up the experiment service is using the credentials from
-        # QiskitRuntimeService on a qiskit_ibm_runtime.IBMBackend.
-        provider = getattr(backend, "service", None)
-        return ExperimentData.get_service_from_provider(provider)
-
-    @staticmethod
-    def get_service_from_provider(provider) -> IBMExperimentService | None:
-        """Initializes the service from the provider data"""
-        if not hasattr(provider, "active_account"):
-            return None
-
-        account = provider.active_account()
-        url = account.get("url")
-        token = account.get("token")
-        try:
-            if url is not None and token is not None:
-                return IBMExperimentService(token=token, url=url)
-        except Exception:  # pylint: disable=broad-except
-            LOG.warning("Failed to connect to experiment service", exc_info=True)
-
-        return None
 
     @property
     def provider(self) -> Provider | None:
@@ -1174,8 +1108,7 @@ class ExperimentData:
             if not self._result_data.copy():
                 # Adding warning so the user will have indication why the analysis may fail.
                 LOG.warning(
-                    "Provider for ExperimentData object doesn't exist, resulting in a failed attempt to"
-                    " retrieve data from the server; no stored result data exists"
+                    "Provider for ExperimentData object is unset. Job data is not available."
                 )
             return
         retrieved_jobs = {}
@@ -1351,7 +1284,7 @@ class ExperimentData:
             self._db_data.figure_names.append(fig_name)
 
             save = save_figure if save_figure is not None else self.auto_save
-            if save and self._infer_service(warn=True):
+            if save:
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
                 self.service.create_or_update_figure(
@@ -1369,7 +1302,7 @@ class ExperimentData:
         self,
         figure_key: str | int,
     ) -> str:
-        """Add the experiment figure.
+        """Delete the experiment figure.
 
         Args:
             figure_key: Name or index of the figure.
@@ -1384,8 +1317,9 @@ class ExperimentData:
 
         del self._figures[figure_key]
         self._deleted_figures.append(figure_key)
+        self._db_data.figure_names.remove(figure_key)
 
-        if self.auto_save and self._infer_service(warn=True):
+        if self.auto_save:
             with service_exception_to_warning():
                 self.service.delete_figure(experiment_id=self.experiment_id, figure_name=figure_key)
             self._deleted_figures.remove(figure_key)
@@ -1434,7 +1368,7 @@ class ExperimentData:
         figure_key = self._find_figure_key(figure_key)
 
         figure_data = self._figures.get(figure_key, None)
-        if figure_data is None and self._infer_service(warn=False):
+        if figure_data is None and self.service:
             figure = self.service.figure(experiment_id=self.experiment_id, figure_name=figure_key)
             figure_data = FigureData(figure=figure, name=figure_key)
             self._figures[figure_key] = figure_data
@@ -1606,7 +1540,7 @@ class ExperimentData:
                 created_time=created_time,
                 **extra_values,
             )
-            if self.auto_save and self._infer_service(warn=True):
+            if self.auto_save:
                 service_result = _series_to_service_result(
                     series=self._analysis_results.get_data(uid, columns="all").iloc[0],
                     service=self.service,
@@ -1630,14 +1564,16 @@ class ExperimentData:
         Raises:
             ExperimentEntryNotFound: If analysis result not found or multiple entries are found.
         """
+        deleted_data = self._analysis_results.get_data(result_key, columns="all")
+        result_ids = deleted_data.result_id.unique()
         uids = self._analysis_results.del_data(result_key)
 
-        if self.auto_save and self._infer_service(warn=True):
+        if self.auto_save:
             with service_exception_to_warning():
-                for uid in uids:
+                for uid in result_ids:
                     self.service.delete_analysis_result(result_id=uid)
         else:
-            self._deleted_analysis_results.extend(uids)
+            self._deleted_analysis_results.extend(result_ids)
 
         return uids
 
@@ -1654,9 +1590,8 @@ class ExperimentData:
                 experiment_id=self.experiment_id, limit=None, json_decoder=self._json_decoder
             )
             for result in retrieved_results:
-                # Canonicalize IBM specific data structure.
                 # TODO define proper data schema on frontend and delegate this to service.
-                cano_quality = AnalysisResult.RESULT_QUALITY_TO_TEXT.get(result.quality, "unknown")
+                cano_quality = ResultQuality.to_str(result.quality)
                 cano_components = [to_component(c) for c in result.device_components]
                 extra = result.result_data["_extra"]
                 if result.chisq is not None:
@@ -1781,7 +1716,7 @@ class ExperimentData:
             ),
             DeprecationWarning,
         )
-        # Convert back into List[AnalysisResult] which is payload for IBM experiment service.
+        # Convert back into List[AnalysisResult].
         # This will be removed in future version.
         tmp_df = self._analysis_results.get_data(index, columns="all")
         service_results = []
@@ -1813,34 +1748,32 @@ class ExperimentData:
             This method does not save analysis results, figures, or artifacts.
             Use :meth:`save` for general saving of all experiment data.
 
-            See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
-            for fields that are saved.
+            This method uses
+            :meth:`qiskit_experiments.database_service.ExperimentService.create_or_update_experiment`
         """
-        self._infer_service(warn=False)
         self._save_experiment_metadata()
         for data in self.child_data():
             data.save_metadata()
 
     def _save_experiment_metadata(self, suppress_errors: bool = True) -> None:
         """Save this experiments metadata to a database service.
+
         Args:
             suppress_errors: should the method catch exceptions (true) or
             pass them on, potentially aborting the experiment (false)
+
         Raises:
             QiskitError: If the save to the database failed
+
         .. note::
             This method does not save analysis results nor figures.
             Use :meth:`save` for general saving of all experiment data.
 
-            See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
-            for fields that are saved.
+            This method uses
+            :meth:`qiskit_experiments.database_service.ExperimentService.create_or_update_experiment`
         """
         if not self.service:
-            LOG.warning(
-                "Experiment cannot be saved because no experiment service is available. "
-                "An experiment service is available, for example, "
-                "when using an IBM Quantum backend."
-            )
+            LOG.warning("Experiment cannot be saved because no experiment service is available.")
             return
         try:
             handle_metadata_separately = self._metadata_too_large()
@@ -1851,11 +1784,10 @@ class ExperimentData:
             result = self.service.create_or_update_experiment(
                 self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db
             )
-            if isinstance(result, dict):
-                created_datetime = result.get("created_at", None)
-                updated_datetime = result.get("updated_at", None)
-                self._db_data.creation_datetime = parse_utc_datetime(created_datetime)
-                self._db_data.updated_datetime = parse_utc_datetime(updated_datetime)
+            if hasattr(result, "start_datetime"):
+                self._db_data.creation_datetime = result.start_datetime
+            if hasattr(result, "updated_datetime"):
+                self._db_data.updated_datetime = result.updated_datetime
 
             self._created_in_db = True
 
@@ -1913,13 +1845,8 @@ class ExperimentData:
             additional tags or notes) use :meth:`save_metadata`.
         """
         # TODO - track changes
-        self._infer_service(warn=False)
         if not self.service:
-            LOG.warning(
-                "Experiment cannot be saved because no experiment service is available. "
-                "An experiment service is available, for example, "
-                "when using an IBM Quantum backend."
-            )
+            LOG.warning("Experiment cannot be saved because no experiment service is available.")
             if suppress_errors:
                 return
             else:
@@ -2021,27 +1948,14 @@ class ExperimentData:
                 except Exception:  # pylint: disable=broad-except:
                     LOG.error("Unable to save artifacts: %s", traceback.format_exc())
 
-            # Upload a blank file if the whole file should be deleted
-            # TODO: replace with direct artifact deletion when available
             for artifact_name in self._deleted_artifacts.copy():
-                try:  # Don't overwrite with a blank file if there's still artifacts with this name
-                    self.artifacts(artifact_name)
-                except Exception:  # pylint: disable=broad-except:
-                    with service_exception_to_warning():
-                        self.service.file_upload(
-                            experiment_id=self.experiment_id,
-                            file_name=f"{artifact_name}.zip",
-                            file_data=None,
-                        )
-                # Even if we didn't overwrite an artifact file, we don't need to keep this because
-                # an existing artifact(s) needs to be deleted to delete the artifact file in the future
+                with service_exception_to_warning():
+                    self.service.file_delete(
+                        experiment_id=self.experiment_id,
+                        file_name=f"{artifact_name}.zip",
+                    )
                 self._deleted_artifacts.remove(artifact_name)
 
-        if not self.service.local and self.verbose:
-            print(
-                "You can view the experiment online at "
-                f"https://quantum.ibm.com/experiments/{self.experiment_id}"
-            )
         # handle children, but without additional prints
         if save_children:
             for data in self._child_data.values():
@@ -2490,7 +2404,7 @@ class ExperimentData:
     def load(
         cls,
         experiment_id: str,
-        service: IBMExperimentService | None = None,
+        service: ExperimentService | None = None,
         provider: Provider | None = None,
     ) -> ExperimentData:
         """Load a saved experiment data from a database service.
@@ -2498,12 +2412,7 @@ class ExperimentData:
         Args:
             experiment_id: Experiment ID.
             service: the database service.
-            provider: an IBMProvider required for loading job data and
-                can be used to initialize the service. When using
-                :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`,
-                this is the :class:`~qiskit_ibm_runtime.QiskitRuntimeService` and should
-                not be confused with the experiment database service
-                :meth:`qiskit_ibm_experiment.IBMExperimentService`.
+            provider: provider to load job results from
 
         Returns:
             The loaded experiment data.
@@ -2511,11 +2420,7 @@ class ExperimentData:
             ExperimentDataError: If not service nor provider were given.
         """
         if service is None:
-            if provider is None:
-                raise ExperimentDataError(
-                    "Loading an experiment requires a valid Qiskit provider or experiment service."
-                )
-            service = cls.get_service_from_provider(provider)
+            raise ExperimentDataError("Loading an experiment requires a valid experiment service.")
         data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
         if service.experiment_has_file(experiment_id, cls._metadata_filename):
             metadata = service.file_download(
@@ -2546,9 +2451,7 @@ class ExperimentData:
         expdata._created_in_db = True
 
         child_data_ids = expdata.metadata.pop("child_data_ids", [])
-        child_data = [
-            ExperimentData.load(child_id, service, provider) for child_id in child_data_ids
-        ]
+        child_data = [ExperimentData.load(child_id, service) for child_id in child_data_ids]
         expdata._set_child_data(child_data)
 
         return expdata
@@ -2929,7 +2832,7 @@ def service_exception_to_warning():
 
 def _series_to_service_result(
     series: pd.Series,
-    service: IBMExperimentService,
+    service: ExperimentService,
     auto_save: bool,
     source: dict[str, Any] | None = None,
 ) -> AnalysisResult:
@@ -2940,7 +2843,7 @@ def _series_to_service_result(
         Now :class:`.AnalysisResult` is only used to save data in the experiment service.
         All local operations must be done with :class:`.AnalysisResultTable` dataframe.
         ExperimentData._analysis_results are totally decoupled from
-        the model of IBM experiment service until this function is implicitly called.
+        the model of the experiment service until this function is implicitly called.
 
     Args:
         series: Pandas dataframe Series (a row of dataframe).
@@ -2969,23 +2872,18 @@ def _series_to_service_result(
     result_data["_value"] = qe_result.value
     result_data["_extra"] = qe_result.extra
 
-    # IBM Experiment Service doesn't have data field for experiment and run time.
+    # DbAnalysisResultData doesn't have data field for experiment and run time.
     # These are added to extra field so that these data can be saved.
     result_data["_extra"]["experiment"] = qe_result.experiment
     result_data["_extra"]["run_time"] = qe_result.run_time
 
-    try:
-        quality = ResultQuality(str(qe_result.quality).upper())
-    except ValueError:
-        quality = "unknown"
-
-    experiment_service_payload = AnalysisResultDataclass(
+    experiment_service_payload = DbAnalysisResultData(
         result_id=qe_result.result_id,
         experiment_id=qe_result.experiment_id,
         result_type=qe_result.name,
         result_data=result_data,
         device_components=list(map(to_component, qe_result.device_components)),
-        quality=quality,
+        quality=ResultQuality.from_str(qe_result.quality),
         tags=qe_result.tags,
         backend_name=qe_result.backend,
         creation_datetime=qe_result.created_time,

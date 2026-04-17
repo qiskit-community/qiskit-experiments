@@ -16,7 +16,7 @@ import dataclasses
 import logging
 from typing import Any
 
-from qiskit_experiments.database_service.device_component import DeviceComponent
+from qiskit_experiments.database_service import DeviceComponent, ResultQuality
 
 
 LOG = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ class AnalysisResultData:
     value: Any
     experiment: str = None
     chisq: float | None = None
-    quality: str | None = None
+    quality: str = ResultQuality.UNKNOWN.value
     experiment_id: str | None = None
     result_id: str | None = None
     tags: list = dataclasses.field(default_factory=list)

@@ -81,7 +81,7 @@ class ScatterTable:
     def from_dataframe(
         cls,
         data: pd.DataFrame,
-    ) -> "ScatterTable":
+    ) -> ScatterTable:
         """Create new dataset with existing dataframe.
 
         Args:
@@ -99,7 +99,7 @@ class ScatterTable:
     def _create_new_instance(
         cls,
         data: pd.DataFrame,
-    ) -> "ScatterTable":
+    ) -> ScatterTable:
         # A shortcut for creating instance.
         # This bypasses data formatting and column compatibility check.
         # User who calls this method must guarantee the quality of the input data.
@@ -312,7 +312,7 @@ class ScatterTable:
             filt_data = filt_data.loc[index, :]
         return ScatterTable._create_new_instance(filt_data)
 
-    def iter_by_series_id(self) -> Iterator[tuple[int, "ScatterTable"]]:
+    def iter_by_series_id(self) -> Iterator[tuple[int, ScatterTable]]:
         """Iterate over subset of data sorted by the data series index.
 
         Yields:
@@ -325,7 +325,7 @@ class ScatterTable:
     def iter_groups(
         self,
         *group_by: str,
-    ) -> Iterator[tuple[tuple[Any, ...], "ScatterTable"]]:
+    ) -> Iterator[tuple[tuple[Any, ...], ScatterTable]]:
         """Iterate over the subset sorted by multiple column values.
 
         Args:
@@ -420,7 +420,7 @@ class ScatterTable:
         }
 
     @classmethod
-    def __json_decode__(cls, value: dict[str, Any]) -> "ScatterTable":
+    def __json_decode__(cls, value: dict[str, Any]) -> ScatterTable:
         if not value.get("class", None) == "ScatterTable":
             raise ValueError("JSON decoded value for ScatterTable is not valid class type.")
         tmp_df = pd.DataFrame.from_dict(value.get("data", {}), orient="index")
