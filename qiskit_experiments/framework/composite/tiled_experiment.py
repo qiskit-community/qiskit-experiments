@@ -106,24 +106,24 @@ class TiledExperiment(BatchExperiment):
 
         Use with caution and verify results, especially when using backend-specific features.
 
-    Example:
+    **Example**
 
-        .. jupyter-input::
+    .. jupyter-input::
 
-            from qiskit_experiments.library import T1
-            from qiskit_experiments.framework.composite import TiledExperiment
-            from qiskit_experiments.framework.backend_partition import partition_qubits
+        from qiskit_experiments.library import T1
+        from qiskit_experiments.framework.composite import TiledExperiment
+        from qiskit_experiments.framework.backend_partition import partition_qubits
 
-            # Create a template T1 experiment for a single qubit
-            template_exp = T1([0], delays=list(range(1, 40, 3)))
-            template_exp.set_transpile_options(optimization_level=3)
+        # Create a template T1 experiment for a single qubit
+        template_exp = T1([0], delays=list(range(1, 40, 3)))
+        template_exp.set_transpile_options(optimization_level=3)
 
-            # Partition the backend qubits with minimum distance of 3
-            groups = partition_qubits(backend, distance=3)
+        # Partition the backend qubits with minimum distance of 3
+        groups = partition_qubits(backend, distance=3)
 
-            # Create tiled experiment
-            tiled_exp = TiledExperiment(template_exp, groups)
-            tiled_exp.run(backend)
+        # Create tiled experiment
+        tiled_exp = TiledExperiment(template_exp, groups)
+        tiled_exp.run(backend)
     """
 
     def __init__(self, template_experiment: BaseExperiment, groups: List[List[Sequence[int]]]):
