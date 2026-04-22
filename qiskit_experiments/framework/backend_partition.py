@@ -18,10 +18,11 @@ tiled experiments, ensuring that experiments in the same group don't
 interfere with each other due to proximity.
 """
 
+from typing import Optional
 import rustworkx as rx
 
 
-def build_coupling_graph(backend, multigraph=False):
+def build_coupling_graph(backend, multigraph: bool = False) -> rx.PyGraph:
     """
     Build a rustworkx undirected graph from the backend's coupling map.
 
@@ -38,10 +39,10 @@ def build_coupling_graph(backend, multigraph=False):
 
     Args:
         backend (Backend): A Qiskit backend instance
-        multigraph (bool): If True, create parallel edges for bidirectional coupling map entries
+        multigraph: If True, create parallel edges for bidirectional coupling map entries
 
     Returns:
-        rustworkx.PyGraph: Undirected graph representing the coupling map
+        Undirected graph representing the coupling map
     """
     graph = rx.PyGraph(multigraph=multigraph)
     graph.add_nodes_from(list(range(backend.configuration().num_qubits)))
@@ -51,13 +52,13 @@ def build_coupling_graph(backend, multigraph=False):
     return graph
 
 
-def build_line_graph(graph):
+def build_line_graph(graph: rx.PyGraph) -> rx.PyGraph:
     """
     Return the line graph of the given graph.
 
     The line graph contains a node for each edge in the original graph.
     The node's label is the original graph's edge.
-    Nodes in the line graph are connected by an (unlabeled) edge iff the original edges share a node
+    Nodes in the line graph are connected by an (unlabeled) edge if the original edges share a node
     in the original graph.
 
     Example: if the original graph has four nodes and edges [0, 1], [1, 2], [2, 3]
@@ -66,10 +67,10 @@ def build_line_graph(graph):
     node labeled [1, 2] and the node labeled [2, 3].
 
     Args:
-        graph (rustworkx.PyGraph): A rustworkx.PyGraph instance
+        graph: A rustworkx.PyGraph instance
 
     Returns:
-        rustworkx.PyGraph: The line graph
+        The line graph
     """
     line_graph = rx.PyGraph()
 
@@ -84,7 +85,9 @@ def build_line_graph(graph):
     return line_graph
 
 
-def build_distance_graph(graph, distance, node_subset=None):
+def build_distance_graph(
+    graph: rx.PyGraph, distance: int, node_subset: Optional[list] = None
+) -> rx.PyGraph:
     """
     Build a graph where nodes are connected if their distance is less than a threshold.
 
@@ -98,12 +101,12 @@ def build_distance_graph(graph, distance, node_subset=None):
     will also become nodes of the distance graph.
 
     Args:
-        graph (rustworkx.PyGraph): A rustworkx.PyGraph instance
-        distance (int): Minimum distance threshold
-        node_subset (list): Optional subset of nodes to include
+        graph: A rustworkx.PyGraph instance
+        distance: Minimum distance threshold
+        node_subset: Optional subset of nodes to include
 
     Returns:
-        rustworkx.PyGraph: The distance graph
+        The distance graph
     """
     distance_matrix = rx.distance_matrix(graph)
     dist_graph = rx.PyGraph()
@@ -125,7 +128,7 @@ def build_distance_graph(graph, distance, node_subset=None):
     return dist_graph
 
 
-def partition_qubits(backend, distance, node_subset=None):
+def partition_qubits(backend, distance: int, node_subset: Optional[list] = None) -> list:
     """
     Partition the backend's qubits into groups with minimum distance between them.
 
@@ -134,12 +137,12 @@ def partition_qubits(backend, distance, node_subset=None):
 
     Args:
         backend (Backend): A Qiskit backend instance
-        distance (int): Minimum distance (number of edges) between qubits in the same group
-        node_subset (list): Optional subset of qubit indices to partition
+        distance: Minimum distance (number of edges) between qubits in the same group
+        node_subset: Optional subset of qubit indices to partition
 
     Returns:
-        list: List of groups, where each group is a list of singleton lists containing
-              qubit indices. Format: [[[q1], [q2], ...], [[q3], [q4], ...], ...]
+        List of groups, where each group is a list of singleton lists containing
+        qubit indices. Format: [[[q1], [q2], ...], [[q3], [q4], ...], ...]
 
     Example:
         >>> groups = partition_qubits(backend, distance=3)
@@ -149,33 +152,39 @@ def partition_qubits(backend, distance, node_subset=None):
     return partition_nodes(graph, distance, node_subset)
 
 
-def partition_qubit_pairs(backend, distance, multigraph=False, edge_subset=None, node_subset=None):
+def partition_qubit_pairs(
+    backend,
+    distance: int,
+    multigraph: bool = False,
+    edge_subset: Optional[list] = None,
+    node_subset: Optional[list] = None,
+) -> list:
     """
     Partition the backend's qubit pairs (edges) into groups with minimum distance.
 
     Partitions the edges of the backend's coupling graph into groups such that
     edges in the same group are separated by at least `distance`.
 
-    The `multigraph` parameter is for the graph construction,
-    see details in the documentation of `build_coupling_graph`.
-    For the partitioning, see the documentation of `partition_edges`.
+    The `multigraph` parameter is for the graph construction.
+    See the details in the documentation of :func:`.build_coupling_graph`.
+    For the partitioning logic, see the documentation of :func:`.partition_edges`.
 
     Args:
         backend (Backend): A Qiskit backend instance
-        distance (int): Minimum distance between edges in the same group
-        multigraph (bool): If True, treat bidirectional edges as separate
-        edge_subset (list): Optional subset of edges to partition
-        node_subset (list): Optional subset of nodes; only edges between these nodes are included
+        distance: Minimum distance between edges in the same group
+        multigraph: If True, treat bidirectional edges as separate
+        edge_subset: Optional subset of edges to partition
+        node_subset: Optional subset of nodes; only edges between these nodes are included
 
     Returns:
-        list: List of groups, where each group is a list of qubit pairs (edges).
-              Format: [[[q1, q2], [q3, q4], ...], [[q5, q6], ...], ...]
+        List of groups, where each group is a list of qubit pairs (edges).
+        Format: [[[q1, q2], [q3, q4], ...], [[q5, q6], ...], ...]
     """
     graph = build_coupling_graph(backend, multigraph)
     return partition_edges(graph, distance, edge_subset, node_subset)
 
 
-def partition_nodes(graph, distance, node_subset=None):
+def partition_nodes(graph: rx.PyGraph, distance: int, node_subset: Optional[list] = None) -> list:
     """
     Partition graph nodes into groups with minimum distance between nodes in each group.
 
@@ -193,12 +202,12 @@ def partition_nodes(graph, distance, node_subset=None):
     If `node_subset` is not None then the partitioning contains only nodes that belong to `node_subset`.
 
     Args:
-        graph (rustworkx.PyGraph): A rustworkx.PyGraph instance
-        distance (int): Minimum distance between nodes in the same group
-        node_subset (list): Optional subset of nodes to partition
+        graph: A rustworkx.PyGraph instance
+        distance: Minimum distance between nodes in the same group
+        node_subset: Optional subset of nodes to partition
 
     Returns:
-        list: List of groups of singleton node lists
+        List of groups of singleton node lists
 
     Note:
         This uses a greedy graph coloring algorithm. It may not produce the optimal
@@ -228,13 +237,23 @@ def partition_nodes(graph, distance, node_subset=None):
     ]
 
 
-def partition_edges(graph, distance, edge_subset=None, node_subset=None):
+def partition_edges(
+    graph: rx.PyGraph,
+    distance: int,
+    edge_subset: Optional[list] = None,
+    node_subset: Optional[list] = None,
+) -> list:
     """
     Partition graph edges into groups with minimum distance between edges in each group.
 
     Partitions the edges in the graph into groups, such that in each group the
     minimum distance (one plus number of edges in the shortest path) between edges is at least
     `distance`.
+
+    Note that "distance 1" for edges means that the two edges share a qubit. So two edges that
+    are next to each other but do not share a qubit (they have qubits that are distance 1 apart)
+    are distance 2 apart. For example, to partition into groups of edges with adjacent qubits,
+    distance should be set to 2.
 
     Returns a list of list of pairs of integers, i.e., a list of groups of edges.
 
@@ -244,13 +263,13 @@ def partition_edges(graph, distance, edge_subset=None, node_subset=None):
     It is not allowed to set both `node_subset` and `edge_subset` to values different from None.
 
     Args:
-        graph (rustworkx.PyGraph): A rustworkx.PyGraph instance
-        distance (int): Minimum distance between edges in the same group
-        edge_subset (list): Optional subset of edges to partition
-        node_subset (list): Optional subset of nodes; only edges between these nodes are included
+        graph: A rustworkx.PyGraph instance
+        distance: Minimum distance between edges in the same group
+        edge_subset: Optional subset of edges to partition
+        node_subset: Optional subset of nodes; only edges between these nodes are included
 
     Returns:
-        list: List of groups of edges (qubit pairs)
+        List of groups of edges (qubit pairs)
 
     Raises:
         ValueError: If both edge_subset and node_subset are specified

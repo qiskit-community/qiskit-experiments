@@ -19,4 +19,4 @@ from .composite_analysis import CompositeAnalysis
 # Composite experiment classes
 from .parallel_experiment import ParallelExperiment
 from .batch_experiment import BatchExperiment
-from .tiled_experiment import TiledExperiment
+from .tiled_experiment import BasicExperiment, TiledExperiment

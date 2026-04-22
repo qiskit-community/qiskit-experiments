@@ -111,7 +111,9 @@ Composite Experiment Classes
 
     CompositeExperiment
     ParallelExperiment
+    BasicExperiment
     BatchExperiment
+    TiledExperiment
     CompositeAnalysis
 
 Base Classes
@@ -183,12 +185,13 @@ from .composite import (
     BatchExperiment,
     CompositeExperiment,
     CompositeAnalysis,
+    BasicExperiment,
     TiledExperiment,
 )
 from .backend_partition import (
     build_coupling_graph,
-    build_line_graph,
     build_distance_graph,
+    build_line_graph,
     partition_nodes,
     partition_edges,
     partition_qubits,

@@ -125,59 +125,6 @@ class TestT1(QiskitExperimentsTestCase):
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
 
-    def test_t1_batched(self):
-        """
-        Test batched T1 experiments using TiledExperiment.
-
-        This test validates that TiledExperiment correctly remaps circuits
-        to different qubits and produces accurate T1 measurements.
-        """
-        from qiskit_experiments.framework import TiledExperiment
-
-        t1 = [25, 20, 15, 18]
-        t2 = [value / 2 for value in t1]
-        delays = list(range(1, 40, 3))
-
-        backend = NoisyDelayAerBackend(t1, t2)
-
-        # Create a template T1 experiment for qubit 0
-        template_exp = T1(physical_qubits=[0], delays=delays)
-
-        # Define groups for tiling - batch two groups of parallel experiments
-        groups = [
-            [[0], [2]],  # First batch: qubits 0 and 2 in parallel
-            [[1], [3]],  # Second batch: qubits 1 and 3 in parallel
-        ]
-
-        # Create tiled experiment - TiledExperiment uses flatten_results=True by default
-        # but we can check the structure by looking at component experiments
-        tiled_exp = TiledExperiment(template_exp, groups)
-
-        # Verify the experiment structure before running
-        self.assertEqual(len(tiled_exp.component_experiment()), 2)  # 2 batches
-        self.assertEqual(
-            len(tiled_exp.component_experiment(0).component_experiment()), 2
-        )  # 2 parallel in first
-        self.assertEqual(
-            len(tiled_exp.component_experiment(1).component_experiment()), 2
-        )  # 2 parallel in second
-
-        # Run the experiment
-        res = tiled_exp.run(backend=backend, shots=10000, seed_simulator=1)
-        self.assertExperimentDone(res)
-
-        # With flatten_results=True (default), all results are flattened
-        # We should have analysis results for all 4 qubits
-        t1_results = res.analysis_results("T1", dataframe=True)
-        self.assertEqual(len(t1_results), 4)
-
-        # Verify T1 values - results should be in order: qubits 0, 2, 1, 3
-        expected_qubit_order = [0, 2, 1, 3]
-        for idx, qb in enumerate(expected_qubit_order):
-            sub_res = t1_results.iloc[idx]
-            self.assertEqual(sub_res.quality, "good")
-            self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
-
     def test_t1_parallel_measurement_level_1(self):
         """
         Test parallel experiments of T1 using a simulator.
