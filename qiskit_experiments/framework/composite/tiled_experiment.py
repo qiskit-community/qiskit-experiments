@@ -106,24 +106,27 @@ class TiledExperiment(BatchExperiment):
 
         Use with caution and verify results, especially when using backend-specific features.
 
-    **Example**
+    # section: example
+        .. jupyter-execute::
 
-    .. jupyter-input::
+            from qiskit_ibm_runtime.fake_provider import FakeManilaV2
+            from qiskit_aer import AerSimulator
+            from qiskit_experiments.library import T1
+            from qiskit_experiments.framework.composite import TiledExperiment
+            from qiskit_experiments.framework.backend_partition import partition_qubits
 
-        from qiskit_experiments.library import T1
-        from qiskit_experiments.framework.composite import TiledExperiment
-        from qiskit_experiments.framework.backend_partition import partition_qubits
+            backend = AerSimulator.from_backend(FakeManilaV2())
 
-        # Create a template T1 experiment for a single qubit
-        template_exp = T1([0], delays=list(range(1, 40, 3)))
-        template_exp.set_transpile_options(optimization_level=3)
+            # Create a template T1 experiment for a single qubit
+            template_exp = T1([0], delays=list(range(1, 40, 3)))
+            template_exp.set_transpile_options(optimization_level=3)
 
-        # Partition the backend qubits with minimum distance of 3
-        groups = partition_qubits(backend, distance=3)
+            # Partition the backend qubits with minimum distance of 3
+            groups = partition_qubits(backend, distance=3)
 
-        # Create tiled experiment
-        tiled_exp = TiledExperiment(template_exp, groups)
-        tiled_exp.run(backend)
+            # Create tiled experiment
+            tiled_exp = TiledExperiment(template_exp, groups)
+            tiled_exp.run(backend)
     """
 
     def __init__(self, template_experiment: BaseExperiment, groups: List[List[Sequence[int]]]):
@@ -138,11 +141,12 @@ class TiledExperiment(BatchExperiment):
                 tuples/lists. Each group will be run in parallel, and groups
                 are run in batch (sequentially).
 
-        Example groups structure:
-            [
-                [[0, 1], [3, 4], [6, 7]],  # First parallel group
-                [[2, 3], [5, 6], [8, 9]],  # Second parallel group
-            ]
+                Example groups structure::
+
+                    [
+                        [[0, 1], [3, 4], [6, 7]],  # First parallel group
+                        [[2, 3], [5, 6], [8, 9]],  # Second parallel group
+                    ]
         """
         circs = template_experiment._transpiled_circuits()
 
