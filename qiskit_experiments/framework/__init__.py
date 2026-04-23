@@ -141,8 +141,8 @@ Backend Partition Utilities
     :toctree: ../stubs/
 
     build_coupling_graph
-    build_line_graph
     build_distance_graph
+    build_line_graph
     partition_nodes
     partition_edges
     partition_qubits

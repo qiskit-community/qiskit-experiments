@@ -41,7 +41,14 @@ class BasicExperiment(BaseExperiment):
         self.analysis = analysis
 
     def circuits(self):
-        """Required by BaseExperiment but not used since we override _transpiled_circuits."""
+        """
+        Return the template circuits.
+
+        Required by BaseExperiment but not used since we override _transpiled_circuits.
+
+        .. warning::
+            Do not mutate the returned circuits as they are shared across all experiment instances.
+        """
         return self._template_circs
 
     def _transpiled_circuits(self):

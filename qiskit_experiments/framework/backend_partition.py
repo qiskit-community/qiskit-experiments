@@ -20,9 +20,10 @@ interfere with each other due to proximity.
 
 from typing import Optional
 import rustworkx as rx
+from qiskit.providers.backend import Backend
 
 
-def build_coupling_graph(backend, multigraph: bool = False) -> rx.PyGraph:
+def build_coupling_graph(backend: Backend, multigraph: bool = False) -> rx.PyGraph:
     """
     Build a rustworkx undirected graph from the backend's coupling map.
 
@@ -38,7 +39,7 @@ def build_coupling_graph(backend, multigraph: bool = False) -> rx.PyGraph:
     in the edge's label will be arbitrary.
 
     Args:
-        backend (Backend): A Qiskit backend instance
+        backend: A Qiskit backend instance
         multigraph: If True, create parallel edges for bidirectional coupling map entries
 
     Returns:
@@ -128,7 +129,7 @@ def build_distance_graph(
     return dist_graph
 
 
-def partition_qubits(backend, distance: int, node_subset: Optional[list] = None) -> list:
+def partition_qubits(backend: Backend, distance: int, node_subset: Optional[list] = None) -> list:
     """
     Partition the backend's qubits into groups with minimum distance between them.
 
@@ -136,7 +137,7 @@ def partition_qubits(backend, distance: int, node_subset: Optional[list] = None)
     qubits in the same group are separated by at least `distance` edges.
 
     Args:
-        backend (Backend): A Qiskit backend instance
+        backend: A Qiskit backend instance
         distance: Minimum distance (number of edges) between qubits in the same group
         node_subset: Optional subset of qubit indices to partition
 
@@ -153,7 +154,7 @@ def partition_qubits(backend, distance: int, node_subset: Optional[list] = None)
 
 
 def partition_qubit_pairs(
-    backend,
+    backend: Backend,
     distance: int,
     multigraph: bool = False,
     edge_subset: Optional[list] = None,
@@ -170,7 +171,7 @@ def partition_qubit_pairs(
     For the partitioning logic, see the documentation of :func:`.partition_edges`.
 
     Args:
-        backend (Backend): A Qiskit backend instance
+        backend: A Qiskit backend instance
         distance: Minimum distance between edges in the same group
         multigraph: If True, treat bidirectional edges as separate
         edge_subset: Optional subset of edges to partition
