@@ -50,6 +50,13 @@ class ArtifactData:
     device_components: list = field(default_factory=list)
     created_time: datetime | None = field(default_factory=lambda: datetime.now(tz.tzlocal()))
 
+    def __json_encode__(self) -> dict[str, Any]:
+        return self.__dict__
+
+    @classmethod
+    def __json_decode__(cls, value: dict[str, Any]):
+        return cls(**value)
+
     @property
     def dtype(self):
         """Data type of the payload."""

@@ -15,6 +15,7 @@ import copy
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Any
 
 
 @dataclass
@@ -50,6 +51,13 @@ class DbExperimentData:
     start_datetime: datetime | None = None
     end_datetime: datetime | None = None
     updated_datetime: datetime | None = None
+
+    def __json_encode__(self):
+        return self.__dict__
+
+    @classmethod
+    def __json_decode__(cls, value: dict[str, Any]):
+        return cls(**value)
 
     def __str__(self):
         ret = ""

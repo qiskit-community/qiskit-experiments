@@ -11,15 +11,20 @@
 # that they have been altered from the originals.
 
 """Dataclass for analysis result data in the database"""
+from __future__ import annotations
+
 import copy
 import uuid
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from datetime import datetime
 
 from .constants import ResultQuality
 from .device_component import DeviceComponent
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 @dataclass
@@ -51,6 +56,13 @@ class DbAnalysisResultData:
     creation_datetime: datetime | None = None
     updated_datetime: datetime | None = None
     chisq: float | None = None
+
+    def __json_encode__(self) -> dict[str, Any]:
+        return self.__dict__
+
+    @classmethod
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
+        return cls(**value)
 
     def __str__(self):
         ret = f"Result {self.result_type}"

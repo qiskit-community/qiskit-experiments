@@ -11,8 +11,13 @@
 # that they have been altered from the originals.
 
 """Device component classes."""
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 class DeviceComponent(ABC):
@@ -29,6 +34,10 @@ class DeviceComponent(ABC):
     def __eq__(self, value):
         return str(self) == str(value)
 
+    @classmethod
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
+        return cls(**value)
+
 
 class Qubit(DeviceComponent):
     """Class representing a qubit device component."""
@@ -39,7 +48,7 @@ class Qubit(DeviceComponent):
     def __str__(self):
         return f"Q{self.index}"
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         return {"index": self.index}
 
 
@@ -52,7 +61,7 @@ class Resonator(DeviceComponent):
     def __str__(self):
         return f"R{self.index}"
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         return {"index": self.index}
 
 
@@ -65,7 +74,7 @@ class UnknownComponent(DeviceComponent):
     def __str__(self):
         return self.component
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         return {"component": self.component}
 
 
