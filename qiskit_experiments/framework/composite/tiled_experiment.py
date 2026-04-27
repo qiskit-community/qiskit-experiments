@@ -131,8 +131,9 @@ class TiledExperiment(BatchExperiment):
             # Create a template T1 experiment for a single qubit
             template_exp = T1([0], delays=list(range(1, 40, 3)))
 
-            # Create tiled experiment
-            tiled_exp = TiledExperiment(template_exp, groups=[[0], [1], [2, 3]])
+            # Create tiled experiment with groups of qubits
+            # Each inner list is a group that runs in parallel
+            tiled_exp = TiledExperiment(template_exp, groups=[[[0]], [[1]], [[2], [3]]])
             exp_data = tiled_exp.run(backend).block_for_results()
             exp_data.analysis_results(dataframe=True)
     """
