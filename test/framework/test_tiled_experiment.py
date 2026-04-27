@@ -16,8 +16,9 @@ Test TiledExperiment
 
 from test.base import QiskitExperimentsTestCase
 
-from qiskit_experiments.library import StandardRB
+from qiskit_experiments.library import StandardRB, T1
 from qiskit_experiments.framework.composite import TiledExperiment
+from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 
 
 class TestTiledExperiment(QiskitExperimentsTestCase):
@@ -65,16 +66,13 @@ class TestTiledExperiment(QiskitExperimentsTestCase):
 
         self.assertEqual(edge_groups, groups)
 
-    def test_t1_tiled(self):
+    def test_tiled_run(self):
         """
-        Test tiled T1 experiments using TiledExperiment.
+        Test full run of TiledExperiment using T1 as the template.
 
         This test validates that TiledExperiment correctly remaps circuits
         to different qubits and produces accurate T1 measurements.
         """
-        from qiskit_experiments.library import T1
-        from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
-
         t1 = [25, 20, 15, 18]
         t2 = [value / 2 for value in t1]
         delays = list(range(1, 40, 3))
