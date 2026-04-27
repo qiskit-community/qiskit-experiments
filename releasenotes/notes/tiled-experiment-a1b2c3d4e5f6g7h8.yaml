@@ -6,11 +6,7 @@ features:
     transpiles a template experiment once and then remaps the transpiled circuits
     to different physical qubits without re-transpiling, significantly improving
     performance for large-scale characterization tasks.
-    
-    The experiment is useful for running characterization experiments like T1, T2,
-    or RB across an entire device by partitioning qubits into groups that can be
-    run in parallel batches.
-    
+
     .. warning::
         This approach prioritizes speed over correctness by remapping circuits
         without re-transpiling. Users should verify results when using
