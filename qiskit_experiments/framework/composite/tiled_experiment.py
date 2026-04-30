@@ -112,21 +112,29 @@ class TiledExperiment(BatchExperiment):
 
         Use with caution and verify results, especially when using backend-specific features.
 
-    Example::
+    **Example**
+
+    .. jupyter-execute::
+        :hide-code:
 
         from qiskit_ibm_runtime.fake_provider import FakeManilaV2
         from qiskit_aer import AerSimulator
+        backend = AerSimulator.from_backend(FakeManilaV2())
+
+    .. jupyter-execute::
+
         from qiskit_experiments.library import T1
         from qiskit_experiments.framework.composite import TiledExperiment
-
-        backend = AerSimulator.from_backend(FakeManilaV2())
+        from qiskit_experiments.framework.backend_partition import partition_qubits
 
         # Create a template T1 experiment for a single qubit
         template_exp = T1([0], delays=list(range(1, 40, 3)))
 
-        # Create tiled experiment with groups of qubits
-        # Each inner list is a group that runs in parallel
-        tiled_exp = TiledExperiment(template_exp, groups=[[[0]], [[1]], [[2], [3]]])
+        # Partition the backend qubits with minimum distance of 3
+        groups = partition_qubits(backend, distance=3)
+
+        # Create tiled experiment
+        tiled_exp = TiledExperiment(template_exp, groups)
         exp_data = tiled_exp.run(backend).block_for_results()
         exp_data.analysis_results(dataframe=True)
     """
