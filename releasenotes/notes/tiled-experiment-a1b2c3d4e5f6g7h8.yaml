@@ -11,3 +11,12 @@ features:
         This approach prioritizes speed over correctness by remapping circuits
         without re-transpiling. Users should verify results when using
         backend-specific features or connectivity constraints.
+  - |
+    Added utility functions for partitioning backend qubits and qubit pairs into
+    groups with minimum distance separation:
+    
+    * :func:`~.partition_qubits` - Partition qubits into groups where qubits in
+      the same group are separated by at least a specified distance
+    * :func:`~.partition_qubit_pairs` - Partition qubit pairs (edges) into groups
+      with minimum distance separation
+
