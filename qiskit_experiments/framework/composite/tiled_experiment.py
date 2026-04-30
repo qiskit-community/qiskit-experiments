@@ -117,25 +117,27 @@ class TiledExperiment(BatchExperiment):
     .. jupyter-execute::
         :hide-code:
 
+        # backend
         from qiskit_ibm_runtime.fake_provider import FakeManilaV2
         from qiskit_aer import AerSimulator
         backend = AerSimulator.from_backend(FakeManilaV2())
 
     .. jupyter-execute::
 
+        import numpy as np
         from qiskit_experiments.library import T1
         from qiskit_experiments.framework.composite import TiledExperiment
         from qiskit_experiments.framework.backend_partition import partition_qubits
 
-        # Create a template T1 experiment for a single qubit
-        template_exp = T1([0], delays=list(range(1, 40, 3)))
+        delays = np.arange(1.e-6, 300.e-6, 30.e-6)
+        template_exp = T1(physical_qubits=(0,), delays=delays, backend=backend)
 
         # Partition the backend qubits with minimum distance of 3
         groups = partition_qubits(backend, distance=3)
 
         # Create tiled experiment
         tiled_exp = TiledExperiment(template_exp, groups)
-        exp_data = tiled_exp.run(backend).block_for_results()
+        exp_data = tiled_exp.run().block_for_results()
         exp_data.analysis_results(dataframe=True)
     """
 
