@@ -111,7 +111,9 @@ Composite Experiment Classes
 
     CompositeExperiment
     ParallelExperiment
+    BasicExperiment
     BatchExperiment
+    TiledExperiment
     CompositeAnalysis
 
 Base Classes
@@ -131,6 +133,20 @@ Experiment Configuration Helper Classes
 
     BackendData
     BackendTiming
+
+Backend Partition Utilities
+****************************
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    build_coupling_graph
+    build_distance_graph
+    build_line_graph
+    partition_nodes
+    partition_edges
+    partition_qubits
+    partition_qubit_pairs
 
 """
 from qiskit.providers.options import Options
@@ -169,5 +185,16 @@ from .composite import (
     BatchExperiment,
     CompositeExperiment,
     CompositeAnalysis,
+    BasicExperiment,
+    TiledExperiment,
+)
+from .backend_partition import (
+    build_coupling_graph,
+    build_distance_graph,
+    build_line_graph,
+    partition_nodes,
+    partition_edges,
+    partition_qubits,
+    partition_qubit_pairs,
 )
 from .json import ExperimentEncoder, ExperimentDecoder
