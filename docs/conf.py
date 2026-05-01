@@ -199,9 +199,34 @@ def _get_version_label(current_version):
         return "Development"
 
 
+def convert_type_alias_docstrings(app, what, name, obj, options, lines):
+    """Check objects marked as type aliases, which we handle in a custom way
+
+    Sphinx autodoc does not handle type aliases well so we bypass its system
+    and just use our own system of saving descriptions next to the aliases in
+    the code and retrieving those descriptions here.
+    """
+    mod_name, _, _ = name.rpartition(".")
+    mod = sys.modules.get(mod_name)
+    if mod is None:
+        return
+
+    aliases_mapping = getattr(mod, "__type_aliases__", None)
+    if aliases_mapping is None:
+        return
+
+    if name not in aliases_mapping:
+        return
+
+    description = aliases_mapping[name]
+    lines.clear()
+    lines.append(description)
+
+
 def setup(app):
     app.connect("config-inited", _get_versions)
     app.connect("autodoc-skip-member", maybe_skip_member)
+    app.connect("autodoc-process-docstring", convert_type_alias_docstrings)
     # Explicitly add nbsphinx-gallery.css to the app because it otherwise does
     # not get added to the output html pages. Debugging shows that nbsphinx
     # does call app.add_css_file itself but perhaps it calls it too late and
