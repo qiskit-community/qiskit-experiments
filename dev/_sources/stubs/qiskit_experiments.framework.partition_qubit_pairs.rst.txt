@@ -1,0 +1,8 @@
+﻿
+
+partition_qubit_pairs
+==================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autofunction:: partition_qubit_pairs

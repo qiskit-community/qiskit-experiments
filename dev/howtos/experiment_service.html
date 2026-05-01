@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Get experiment timing information" href="experiment_times.html" /><link rel="prev" title="Work with experiment artifacts" href="artifacts.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Save and load experiment data with an experiment service - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
+        <title>Save and load experiment data with an experiment service - Qiskit Experiments 0.13.0-14-g534655e16</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-14-g534655e16</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-14-g534655e16</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -255,12 +255,21 @@
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.MeasReturnType.html">MeasReturnType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BasicExperiment.html">BasicExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.TiledExperiment.html">TiledExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.CompositeAnalysis.html">CompositeAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html">BaseExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseAnalysis.html">BaseAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BackendData.html">BackendData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BackendTiming.html">BackendTiming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.build_coupling_graph.html">build_coupling_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.build_distance_graph.html">build_distance_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.build_line_graph.html">build_line_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.partition_nodes.html">partition_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.partition_edges.html">partition_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.partition_qubits.html">partition_qubits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.partition_qubit_pairs.html">partition_qubit_pairs</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -691,16 +700,16 @@ case.</p>
   </thead>
   <tbody>
     <tr>
-      <th>1409ba9d</th>
+      <th>98d9f556</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
-      <td>0.000139+/-0.000009</td>
+      <td>0.000124+/-0.000008</td>
       <td>good</td>
       <td>aer_simulator_from(fake_manila)</td>
       <td>None</td>
       <td>s</td>
-      <td>1.731026</td>
+      <td>0.612669</td>
     </tr>
   </tbody>
 </table>
@@ -735,7 +744,7 @@ this file is done automatically in <a class="reference internal" href="../stubs/
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ExperimentData(T1, b7fc9e85-e48d-4982-ab56-7ea754ca33ce, job_ids=[&#39;2ab083ad-1ed8-47cc-83cb-2676ec32df69&#39;], metadata=&lt;5 items&gt;, figure_names=[&#39;T1_Q0_b7fc9e85.svg&#39;])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ExperimentData(T1, 53e0b0b7-10ae-49bf-83f1-77e8a58e2b02, job_ids=[&#39;281e8218-5e28-47c8-9e42-399e128276b3&#39;], metadata=&lt;5 items&gt;, figure_names=[&#39;T1_Q0_53e0b0b7.svg&#39;])
 </pre></div>
 </div>
 </div>
@@ -817,7 +826,7 @@ For example, an experiment can be tagged with the following code.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/17</div>
+              Last updated on 2026/05/01</div>
           </div>
           <div class="right-details">
             
@@ -862,7 +871,7 @@ For example, an experiment can be tagged with the following code.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=1cfb7f1d"></script>
+</div><script src="../_static/documentation_options.js?v=95227867"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

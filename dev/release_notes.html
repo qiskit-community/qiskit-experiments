@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="QuantumVolumePlotter" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Release Notes - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
+        <title>Release Notes - Qiskit Experiments 0.13.0-14-g534655e16</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
+      <a href="index.html"><div class="brand">Qiskit Experiments 0.13.0-14-g534655e16</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-14-g534655e16</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -255,12 +255,21 @@
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.MeasReturnType.html">MeasReturnType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.BasicExperiment.html">BasicExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.TiledExperiment.html">TiledExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.CompositeAnalysis.html">CompositeAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.BaseExperiment.html">BaseExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.BaseAnalysis.html">BaseAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.BackendData.html">BackendData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.BackendTiming.html">BackendTiming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.build_coupling_graph.html">build_coupling_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.build_distance_graph.html">build_distance_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.build_line_graph.html">build_line_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.partition_nodes.html">partition_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.partition_edges.html">partition_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.partition_qubits.html">partition_qubits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stubs/qiskit_experiments.framework.partition_qubit_pairs.html">partition_qubit_pairs</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -552,10 +561,10 @@ released.</p>
 </div>
 <section id="release-notes">
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
-<section id="relnotes-0-13-0-13">
-<span id="id1"></span><h2>0.13.0-13<a class="headerlink" href="#relnotes-0-13-0-13" title="Link to this heading">¶</a></h2>
+<section id="relnotes-0-13-0-14">
+<span id="id1"></span><h2>0.13.0-14<a class="headerlink" href="#relnotes-0-13-0-14" title="Link to this heading">¶</a></h2>
 <section id="new-features">
-<span id="relnotes-0-13-0-13-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-13-0-14-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Importing of optional dependencies has been made delayed until first use.
 In particular, <code class="docutils literal notranslate"><span class="pre">cvxpy</span></code> is now not imported until a tomography fitter that
@@ -578,9 +587,34 @@ See Ref. [1] for the theoretical background.</p>
 <p>[1] Ken Xuan Wei, Emily Pritchett, David M. Zajac, David C. McKay, Seth Merkel, <em>Characterizing non-Markovian Off-Resonant Errors in Quantum Gates</em>, Phys. Rev. Applied 21, 024018 (2024), doi: 10.1103/PhysRevApplied.21.024018 <a class="reference external" href="http://arxiv.org/abs/2302.10881v2">(open)</a></p>
 </li>
 </ul>
+<ul>
+<li><p>Added <a class="reference internal" href="stubs/qiskit_experiments.framework.TiledExperiment.html#qiskit_experiments.framework.TiledExperiment" title="qiskit_experiments.framework.TiledExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">TiledExperiment</span></code></a> composite experiment for efficiently running
+the same experiment across multiple groups of qubits on a device. This class
+transpiles a template experiment once and then remaps the transpiled circuits
+to different physical qubits without re-transpiling, significantly improving
+performance for large-scale characterization tasks.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This approach prioritizes speed over correctness by remapping circuits
+without re-transpiling. Users should verify results when using
+backend-specific features or connectivity constraints.</p>
+</div>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Added utility functions for partitioning backend qubits and qubit pairs into
+groups with minimum distance separation:</p>
+<ul>
+<li><p><a class="reference internal" href="stubs/qiskit_experiments.framework.partition_qubits.html#qiskit_experiments.framework.partition_qubits" title="qiskit_experiments.framework.partition_qubits"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_qubits()</span></code></a> - Partition qubits into groups where qubits in
+the same group are separated by at least a specified distance</p></li>
+<li><p><a class="reference internal" href="stubs/qiskit_experiments.framework.partition_qubit_pairs.html#qiskit_experiments.framework.partition_qubit_pairs" title="qiskit_experiments.framework.partition_qubit_pairs"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_qubit_pairs()</span></code></a> - Partition qubit pairs (edges) into groups
+with minimum distance separation</p></li>
+</ul>
+</li>
+</ul>
 </section>
 <section id="upgrade-notes">
-<span id="relnotes-0-13-0-13-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-13-0-14-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The dependency on <code class="docutils literal notranslate"><span class="pre">qiskit-ibm-experiment</span></code> has been removed following that
 project’s discontinuation. Its classes related to storing experiment
@@ -612,7 +646,7 @@ versions.</p></li>
 </ul>
 </section>
 <section id="api-changes-for-experiment-authors">
-<span id="relnotes-0-13-0-13-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-13-0-14-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="stubs/qiskit_experiments.database_service.LocalExperimentService.html#qiskit_experiments.database_service.LocalExperimentService" title="qiskit_experiments.database_service.LocalExperimentService"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalExperimentService</span></code></a> has been added as a reference
 implementation of a service for saving and loading experiment results. As
@@ -621,7 +655,7 @@ currently suitable for storing a large amount of results.</p></li>
 </ul>
 </section>
 <section id="other-notes">
-<span id="relnotes-0-13-0-13-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-13-0-14-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The <a class="reference external" href="experiment_service.html">howto</a> on working with the cloud experiment
 service has been reworked to demonstrate using
@@ -3564,7 +3598,7 @@ figures by setting
 desired canvas. Note that it has to be a canvas for one of the
 <a class="reference external" href="https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends">non-interactive backend</a>.
 For example, you can set <code class="docutils literal notranslate"><span class="pre">default_figure_canvas</span></code> to
-<a class="reference external" href="https://matplotlib.org/stable/api/backend_agg_api.html#matplotlib.backends.backend_agg.FigureCanvasAgg" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">FigureCanvasAgg</span></code></a> to use the
+<a class="reference external" href="https://matplotlib.org/stable/api/backend_agg_api.html#matplotlib.backends.backend_agg.FigureCanvasAgg" title="(in Matplotlib v3.10.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">FigureCanvasAgg</span></code></a> to use the
 <code class="docutils literal notranslate"><span class="pre">AGG</span></code> backend.</p></li>
 </ul>
 <ul>
@@ -4155,7 +4189,7 @@ stored in the experiments analysis result extra field.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/17</div>
+              Last updated on 2026/05/01</div>
           </div>
           <div class="right-details">
             
@@ -4177,7 +4211,7 @@ stored in the experiments analysis result extra field.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Release Notes</a><ul>
-<li><a class="reference internal" href="#relnotes-0-13-0-13">0.13.0-13</a><ul>
+<li><a class="reference internal" href="#relnotes-0-13-0-14">0.13.0-14</a><ul>
 <li><a class="reference internal" href="#new-features">New Features</a></li>
 <li><a class="reference internal" href="#upgrade-notes">Upgrade Notes</a></li>
 <li><a class="reference internal" href="#api-changes-for-experiment-authors">API Changes for Experiment Authors</a></li>
@@ -4373,7 +4407,7 @@ stored in the experiments analysis result extra field.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=1cfb7f1d"></script>
+</div><script src="_static/documentation_options.js?v=95227867"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

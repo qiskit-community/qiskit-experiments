@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ExperimentData" href="../stubs/qiskit_experiments.framework.ExperimentData.html" /><link rel="prev" title="Qiskit Experiments (qiskit_experiments)" href="main.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Experiment Framework (qiskit_experiments.framework) - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
+        <title>Experiment Framework (qiskit_experiments.framework) - Qiskit Experiments 0.13.0-14-g534655e16</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-14-g534655e16</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-14-g534655e16</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -255,12 +255,21 @@
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.MeasReturnType.html">MeasReturnType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BasicExperiment.html">BasicExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.TiledExperiment.html">TiledExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.CompositeAnalysis.html">CompositeAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html">BaseExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseAnalysis.html">BaseAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BackendData.html">BackendData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.BackendTiming.html">BackendTiming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.build_coupling_graph.html">build_coupling_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.build_distance_graph.html">build_distance_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.build_line_graph.html">build_line_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.partition_nodes.html">partition_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.partition_edges.html">partition_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.partition_qubits.html">partition_qubits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_experiments.framework.partition_qubit_pairs.html">partition_qubit_pairs</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -682,8 +691,14 @@ for the experiment itself can be added via <code class="xref py py-meth docutils
 <tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.ParallelExperiment.html#qiskit_experiments.framework.ParallelExperiment" title="qiskit_experiments.framework.ParallelExperiment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParallelExperiment</span></code></a>(experiments[, backend, ...])</p></td>
 <td><p>Combine multiple experiments into a parallel experiment.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.BatchExperiment.html#qiskit_experiments.framework.BatchExperiment" title="qiskit_experiments.framework.BatchExperiment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchExperiment</span></code></a>(experiments[, backend, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.BasicExperiment.html#qiskit_experiments.framework.BasicExperiment" title="qiskit_experiments.framework.BasicExperiment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BasicExperiment</span></code></a>(qubits, template_circs, analysis)</p></td>
+<td><p>This is an internal helper class used by <a class="reference internal" href="../stubs/qiskit_experiments.framework.TiledExperiment.html#qiskit_experiments.framework.TiledExperiment" title="qiskit_experiments.framework.TiledExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">TiledExperiment</span></code></a> to create experiment instances with remapped qubits from a transpiled template.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.BatchExperiment.html#qiskit_experiments.framework.BatchExperiment" title="qiskit_experiments.framework.BatchExperiment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchExperiment</span></code></a>(experiments[, backend, ...])</p></td>
 <td><p>Combine multiple experiments into a batch experiment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.TiledExperiment.html#qiskit_experiments.framework.TiledExperiment" title="qiskit_experiments.framework.TiledExperiment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TiledExperiment</span></code></a>(template_experiment, groups)</p></td>
+<td><p>Composite experiment that duplicates a given experiment across the device.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.CompositeAnalysis.html#qiskit_experiments.framework.CompositeAnalysis" title="qiskit_experiments.framework.CompositeAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CompositeAnalysis</span></code></a>(analyses[, ...])</p></td>
 <td><p>Run analysis for composite experiments.</p></td>
@@ -717,6 +732,36 @@ for the experiment itself can be added via <code class="xref py py-meth docutils
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.BackendTiming.html#qiskit_experiments.framework.BackendTiming" title="qiskit_experiments.framework.BackendTiming"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BackendTiming</span></code></a>(backend, *[, ...])</p></td>
 <td><p>Helper for calculating pulse and delay times for an experiment</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="backend-partition-utilities">
+<h3>Backend Partition Utilities<a class="headerlink" href="#backend-partition-utilities" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.build_coupling_graph.html#qiskit_experiments.framework.build_coupling_graph" title="qiskit_experiments.framework.build_coupling_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_coupling_graph</span></code></a>(backend[, multigraph])</p></td>
+<td><p>Build a rustworkx undirected graph from the backend's coupling map.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.build_distance_graph.html#qiskit_experiments.framework.build_distance_graph" title="qiskit_experiments.framework.build_distance_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_distance_graph</span></code></a>(graph, distance[, ...])</p></td>
+<td><p>Build a graph where nodes are connected if their distance is less than a threshold.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.build_line_graph.html#qiskit_experiments.framework.build_line_graph" title="qiskit_experiments.framework.build_line_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_line_graph</span></code></a>(graph)</p></td>
+<td><p>Return the line graph of the given graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.partition_nodes.html#qiskit_experiments.framework.partition_nodes" title="qiskit_experiments.framework.partition_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition_nodes</span></code></a>(graph, distance[, node_subset])</p></td>
+<td><p>Partition graph nodes into groups with minimum distance between nodes in each group.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.partition_edges.html#qiskit_experiments.framework.partition_edges" title="qiskit_experiments.framework.partition_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition_edges</span></code></a>(graph, distance[, ...])</p></td>
+<td><p>Partition graph edges into groups with minimum distance between edges in each group.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.partition_qubits.html#qiskit_experiments.framework.partition_qubits" title="qiskit_experiments.framework.partition_qubits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition_qubits</span></code></a>(backend, distance[, ...])</p></td>
+<td><p>Partition the backend's qubits into groups with minimum distance between them.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../stubs/qiskit_experiments.framework.partition_qubit_pairs.html#qiskit_experiments.framework.partition_qubit_pairs" title="qiskit_experiments.framework.partition_qubit_pairs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition_qubit_pairs</span></code></a>(backend, distance[, ...])</p></td>
+<td><p>Partition the backend's qubit pairs (edges) into groups with minimum distance.</p></td>
 </tr>
 </tbody>
 </table>
@@ -760,7 +805,7 @@ for the experiment itself can be added via <code class="xref py py-meth docutils
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/17</div>
+              Last updated on 2026/05/01</div>
           </div>
           <div class="right-details">
             
@@ -788,6 +833,7 @@ for the experiment itself can be added via <code class="xref py py-meth docutils
 <li><a class="reference internal" href="#composite-experiment-classes">Composite Experiment Classes</a></li>
 <li><a class="reference internal" href="#base-classes">Base Classes</a></li>
 <li><a class="reference internal" href="#experiment-configuration-helper-classes">Experiment Configuration Helper Classes</a></li>
+<li><a class="reference internal" href="#backend-partition-utilities">Backend Partition Utilities</a></li>
 </ul>
 </li>
 </ul>
@@ -801,7 +847,7 @@ for the experiment itself can be added via <code class="xref py py-meth docutils
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=1cfb7f1d"></script>
+</div><script src="../_static/documentation_options.js?v=95227867"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="AnalysisConfig" href="qiskit_experiments.framework.AnalysisConfig.html" /><link rel="prev" title="AnalysisResultTable" href="qiskit_experiments.framework.AnalysisResultTable.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>ExperimentConfig - Qiskit Experiments 0.13.0-13-g60fc7b207</title>
+        <title>ExperimentConfig - Qiskit Experiments 0.13.0-14-g534655e16</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-13-g60fc7b207</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-14-g534655e16</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-13-g60fc7b207</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-14-g534655e16</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -255,12 +255,21 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.MeasReturnType.html">MeasReturnType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BasicExperiment.html">BasicExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.TiledExperiment.html">TiledExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.CompositeAnalysis.html">CompositeAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseExperiment.html">BaseExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html">BaseAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BackendData.html">BackendData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BackendTiming.html">BackendTiming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.build_coupling_graph.html">build_coupling_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.build_distance_graph.html">build_distance_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.build_line_graph.html">build_line_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.partition_nodes.html">partition_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.partition_edges.html">partition_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.partition_qubits.html">partition_qubits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.partition_qubit_pairs.html">partition_qubit_pairs</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -554,7 +563,7 @@ released.</p>
 <h1>ExperimentConfig<a class="headerlink" href="#experimentconfig" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentConfig">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExperimentConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_options=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transpile_options=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_options=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version='0.14.0.dev0+60fc7b2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/configs.html#ExperimentConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentConfig" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExperimentConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_options=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transpile_options=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_options=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version='0.14.0.dev0+534655e'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/configs.html#ExperimentConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentConfig" title="Link to this definition">¶</a></dt>
 <dd><p>Store configuration settings for an Experiment class.</p>
 <p>This stores the current configuration of a <a class="reference internal" href="qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a> and can be used to
 reconstruct the experiment using either the <a class="reference internal" href="#qiskit_experiments.framework.ExperimentConfig.experiment" title="qiskit_experiments.framework.ExperimentConfig.experiment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">experiment()</span></code></a> property if the experiment class
@@ -565,7 +574,7 @@ appropriate experiment.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentConfig.version">
-<span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0.14.0.dev0+60fc7b2'</span></em><a class="headerlink" href="#qiskit_experiments.framework.ExperimentConfig.version" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0.14.0.dev0+534655e'</span></em><a class="headerlink" href="#qiskit_experiments.framework.ExperimentConfig.version" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -652,7 +661,7 @@ appropriate experiment.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/04/17</div>
+              Last updated on 2026/05/01</div>
           </div>
           <div class="right-details">
             
@@ -695,7 +704,7 @@ appropriate experiment.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=1cfb7f1d"></script>
+</div><script src="../_static/documentation_options.js?v=95227867"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

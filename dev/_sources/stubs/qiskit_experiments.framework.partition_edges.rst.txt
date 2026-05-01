@@ -1,0 +1,8 @@
+﻿
+
+partition_edges
+============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autofunction:: partition_edges

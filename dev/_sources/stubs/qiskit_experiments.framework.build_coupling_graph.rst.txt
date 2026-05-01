@@ -1,0 +1,8 @@
+﻿
+
+build_coupling_graph
+=================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autofunction:: build_coupling_graph

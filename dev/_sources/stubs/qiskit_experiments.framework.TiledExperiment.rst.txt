@@ -1,0 +1,71 @@
+﻿
+
+TiledExperiment
+============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: TiledExperiment
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: TiledExperiment.analysis
+   .. autoattribute:: TiledExperiment.backend
+   .. autoattribute:: TiledExperiment.experiment_options
+   .. autoattribute:: TiledExperiment.experiment_type
+   .. autoattribute:: TiledExperiment.num_experiments
+   .. autoattribute:: TiledExperiment.num_qubits
+   .. autoattribute:: TiledExperiment.physical_qubits
+   .. autoattribute:: TiledExperiment.run_options
+   .. autoattribute:: TiledExperiment.transpile_options
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: TiledExperiment.circuits
+   .. automethod:: TiledExperiment.component_experiment
+   .. automethod:: TiledExperiment.config
+   .. automethod:: TiledExperiment.copy
+   .. automethod:: TiledExperiment.from_config
+   .. automethod:: TiledExperiment.job_info
+   .. automethod:: TiledExperiment.run
+   .. automethod:: TiledExperiment.set_experiment_options
+   .. automethod:: TiledExperiment.set_run_options
+   .. automethod:: TiledExperiment.set_transpile_options
+
+   
