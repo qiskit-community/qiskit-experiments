@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Experiment utility functions."""
+from __future__ import annotations
 
 import io
 import zipfile
@@ -21,13 +22,16 @@ from abc import ABC, abstractmethod
 from collections import OrderedDict
 from collections.abc import Callable, Iterator
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, TYPE_CHECKING
 import json
 
 import dateutil.parser
 from dateutil import tz
 
 from .exceptions import ExperimentEntryNotFound, ExperimentEntryExists, ExperimentDataError
+
+if TYPE_CHECKING:
+    from typing import Self
 
 LOG = logging.getLogger(__name__)
 
@@ -246,12 +250,12 @@ class ThreadSafeContainer(ABC):
         with self.lock:
             self._container.clear()
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         cpy = self.copy_object()
         return {"_container": cpy._container}
 
     @classmethod
-    def __json_decode__(cls, value):
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
         ret = cls()
         ret._container = value["_container"]
         return ret

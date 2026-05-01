@@ -25,6 +25,7 @@ from qiskit.result import Result
 
 from qiskit_aer import AerSimulator, noise
 
+import qiskit_experiments.framework.json as qe_json
 from qiskit_experiments.database_service import LocalExperimentService
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
@@ -47,6 +48,22 @@ class TestComposite(QiskitExperimentsTestCase):
     """
     Test composite experiment behavior.
     """
+
+    _orig_json_safe_modules = frozenset()
+
+    @classmethod
+    def setUpClass(cls):
+        """Class-level test setup"""
+        super().setUpClass()
+        qe_json._load_allowed_packages()
+        cls._orig_json_safe_modules = qe_json._allowed_packages
+        qe_json._allowed_packages = cls._orig_json_safe_modules.union(["test"])
+
+    @classmethod
+    def tearDownClass(cls):
+        """Class-level tear down"""
+        super().tearDownClass()
+        qe_json._allowed_packages = cls._orig_json_safe_modules
 
     def test_parallel_options(self):
         """

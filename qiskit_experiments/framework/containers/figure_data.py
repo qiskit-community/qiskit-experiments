@@ -18,6 +18,8 @@ from typing import Any
 
 from matplotlib.figure import Figure as MatplotlibFigure
 
+from qiskit_experiments.database_service.utils import plot_to_svg_bytes
+
 
 class FigureData:
     """A plot data container.
@@ -73,7 +75,11 @@ class FigureData:
 
     def __json_encode__(self) -> dict[str, Any]:
         """Return the json representation of the figure data"""
-        return {"figure": self.figure, "name": self.name, "metadata": self.metadata}
+        data = {"figure": self.figure, "name": self.name, "metadata": self.metadata}
+        if isinstance(self.figure, MatplotlibFigure):
+            # Convert to svg because there is no serialization support for matplotlib figures
+            data["figure"] = plot_to_svg_bytes(self.figure)
+        return data
 
     @classmethod
     def __json_decode__(cls, args: dict[str, Any]) -> "FigureData":

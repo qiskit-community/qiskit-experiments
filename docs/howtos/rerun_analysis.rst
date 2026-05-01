@@ -87,6 +87,11 @@ restore it later with the following lines of code:
     serialized_exp = json.dumps(Experiment.config(), cls=ExperimentEncoder)
     Experiment.from_config(json.loads(serialized_exp, cls=ExperimentDecoder))
 
+.. warning::
+
+   It is recommended only to load data from trusted sources. See
+   :class:`.ExperimentEncoder` for more details.
+
 Rerunning with different analysis options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

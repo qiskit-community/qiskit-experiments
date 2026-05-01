@@ -10,10 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Status of experiment execution."""
+from __future__ import annotations
 
 import dataclasses
 import enum
 from threading import Event
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 class ExperimentStatus(enum.Enum):
@@ -29,11 +34,11 @@ class ExperimentStatus(enum.Enum):
     DONE = "experiment jobs and analysis have successfully run"
     ERROR = "experiment jobs or analysis incurred an error"
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> str:
         return self.name
 
     @classmethod
-    def __json_decode__(cls, value):
+    def __json_decode__(cls, value: str) -> Self:
         return cls.__members__[value]  # pylint: disable=unsubscriptable-object
 
 
@@ -46,11 +51,11 @@ class AnalysisStatus(enum.Enum):
     DONE = "analysis callback has successfully run"
     ERROR = "analysis callback incurred an error"
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> str:
         return self.name
 
     @classmethod
-    def __json_decode__(cls, value):
+    def __json_decode__(cls, value: str) -> Self:
         return cls.__members__[value]  # pylint: disable=unsubscriptable-object
 
 
@@ -71,5 +76,9 @@ class AnalysisCallback:
         state["event"] = None
         return state
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         return self.__getstate__()
+
+    @classmethod
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
+        return cls(**value)
