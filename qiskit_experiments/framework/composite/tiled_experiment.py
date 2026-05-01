@@ -91,6 +91,8 @@ class BasicExperiment(BaseExperiment):
 class TiledExperiment(BatchExperiment):
     """Composite experiment that duplicates a given experiment across the device.
 
+    .. rubric:: Overview
+
     This class creates a batch experiment that runs copies of a template experiment
     on different groups of qubits across a device. The template experiment is transpiled
     once, and then the transpiled circuits are remapped to different physical qubits
@@ -112,7 +114,7 @@ class TiledExperiment(BatchExperiment):
 
         Use with caution and verify results, especially when using backend-specific features.
 
-    **Example**
+    .. rubric:: Example
 
     .. jupyter-execute::
         :hide-code:
@@ -133,7 +135,11 @@ class TiledExperiment(BatchExperiment):
         template_exp = T1(physical_qubits=(0,), delays=delays, backend=backend)
 
         # Partition the backend qubits with minimum distance of 3
-        groups = partition_qubits(backend, distance=3)
+        groups = [
+            [[2]],
+            [[1], [4]],
+            [[0], [3]],
+        ]
 
         # Create tiled experiment
         tiled_exp = TiledExperiment(template_exp, groups)
