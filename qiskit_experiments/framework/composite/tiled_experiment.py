@@ -129,7 +129,6 @@ class TiledExperiment(BatchExperiment):
         import numpy as np
         from qiskit_experiments.library import T1
         from qiskit_experiments.framework.composite import TiledExperiment
-        from qiskit_experiments.framework.backend_partition import partition_qubits
 
         delays = np.arange(1.e-6, 300.e-6, 30.e-6)
         template_exp = T1(physical_qubits=(0,), delays=delays, backend=backend)
