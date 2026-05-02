@@ -58,6 +58,11 @@ Saving results is done by calling :meth:`.ExperimentData.save`:
 Loading
 ~~~~~~~
 
+.. warning::
+
+   It is recommended only to load data from trusted sources. See
+   :class:`.ExperimentEncoder` for more details.
+
 Let's load the previous experiment again from the service. First, we create a
 :class:`~qiskit_experiments.framework.Provider` object that has a
 ``job(job_id)`` method that can return a
@@ -66,7 +71,7 @@ test, a fake provider class that just returns jobs it has been given is used.
 Another provider like :class:`~qiskit_ibm_runtime.QiskitRuntimeService` could
 be used instead. Also, the provider is only needed for reloading the raw job
 data for rerunning analysis. If only the experiment results and figures are
-needed, the ``provider`` argument to :meth:`.ExperimentData.load` can omitted.
+needed, the ``provider`` argument to :meth:`.ExperimentData.load` can be omitted.
 A warning about not being able to access the job data will be emitted in this
 case.
 

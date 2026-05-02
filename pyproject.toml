@@ -58,6 +58,10 @@ extras = [
 [project.entry-points."qiskit.synthesis"]
 "clifford.rb_default" = "qiskit_experiments.library.randomized_benchmarking.clifford_synthesis:RBDefaultCliffordSynthesis"
 
+[project.entry-points."qiskit_experiments.deserialization_packages"]
+qiskit-experiments = "qiskit_experiments"
+main = "__main__"
+
 [dependency-groups]
 formatting = ["black~=25.1"]
 devbase = []

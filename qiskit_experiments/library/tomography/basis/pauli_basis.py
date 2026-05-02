@@ -12,6 +12,8 @@
 """
 Pauli preparation and measurement tomography bases.
 """
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import numpy as np
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import HGate, XGate, ZGate, SGate, SdgGate
@@ -19,6 +21,9 @@ from qiskit.quantum_info import DensityMatrix
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.data_processing import LocalReadoutMitigator
 from .local_basis import LocalMeasurementBasis, LocalPreparationBasis
+
+if TYPE_CHECKING:
+    from typing import Any, Self
 
 
 class PauliMeasurementBasis(LocalMeasurementBasis):
@@ -81,11 +86,15 @@ class PauliMeasurementBasis(LocalMeasurementBasis):
             raise QiskitError("Invalid mitigator: must be LocalReadoutMitigator")
         return povm
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         # Override LocalMeasurementBasis's encoder
         if self._mitigator is not None:
             return {"mitigator": self._mitigator}
         return {}
+
+    @classmethod
+    def __json_decode__(cls: Self, value: dict[str, Any]) -> Self:
+        return cls(**value)
 
 
 class PauliPreparationBasis(LocalPreparationBasis):
@@ -127,9 +136,13 @@ class PauliPreparationBasis(LocalPreparationBasis):
         prep_yp.append(SGate(), [0])
         super().__init__("PauliPreparationBasis", [prep_zp, prep_zm, prep_xp, prep_yp])
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         # Override LocalPreparationBasis's encoder
         return {}
+
+    @classmethod
+    def __json_decode__(cls: Self, value: dict[str, Any]) -> Self:
+        return cls(**value)
 
 
 class Pauli6PreparationBasis(LocalPreparationBasis):
@@ -191,6 +204,10 @@ class Pauli6PreparationBasis(LocalPreparationBasis):
             ],
         )
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         # Override LocalPreparationBasis's encoder
         return {}
+
+    @classmethod
+    def __json_decode__(cls: Self, value: dict[str, Any]) -> Self:
+        return cls(**value)

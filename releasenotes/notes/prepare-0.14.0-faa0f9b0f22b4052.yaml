@@ -1,0 +1,16 @@
+---
+prelude: >
+    The Qiskit Experiments 0.14.0 release adds several features while also
+    including maintenance updates, particularly related to process of saving
+    experiments. Highlights include:
+
+    * New experiment class :class:`.PurityRB`
+    * New composite experiment class :class:`.TiledExperiment` and device
+      partitioning functions like :func:`.partition_qubits` for running
+      experiments across a device
+    * Improved import time by delaying expensive optional imports
+    * Clean up of the process of serializing and deserializing experiments,
+      including the removal of the deprecated `qiskit_ibm_experiment`
+      dependency for uploading to the discontinued IBM Experiment Service, the
+      addition of a local experiment service, and improvement to the security
+      posture of experiment deserialization.

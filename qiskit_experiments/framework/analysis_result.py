@@ -188,6 +188,11 @@ class AnalysisResult:
     def load(cls, result_id: str, service: ExperimentService) -> "AnalysisResult":
         """Load a saved analysis result from a database service.
 
+        .. warning::
+
+           It is recommended only to load data from trusted sources. See
+           :class:`.ExperimentEncoder` for more details.
+
         Args:
             result_id: Analysis result ID.
             service: the database service.
@@ -496,7 +501,7 @@ class AnalysisResult:
         out += ")"
         return out
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         return {
             "name": self._db_data.result_type,
             "value": self._db_data.result_data.get("_value", None),

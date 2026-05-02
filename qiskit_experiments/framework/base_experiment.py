@@ -12,11 +12,13 @@
 """
 Base Experiment class.
 """
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
 from collections.abc import Sequence
+from typing import Any, TYPE_CHECKING
 
 from qiskit import transpile, QuantumCircuit
 from qiskit.providers import Job, Backend
@@ -29,6 +31,9 @@ from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
 from qiskit_experiments.database_service import Qubit
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 class BaseExperiment(ABC, StoreInitArgs):
@@ -547,11 +552,11 @@ class BaseExperiment(ABC, StoreInitArgs):
         }
         return metadata
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> ExperimentConfig:
         """Convert to format that can be JSON serialized"""
         return self.config()
 
     @classmethod
-    def __json_decode__(cls, value):
+    def __json_decode__(cls, value: ExperimentConfig | dict[str, Any]) -> Self:
         """Load from JSON compatible format"""
         return cls.from_config(value)

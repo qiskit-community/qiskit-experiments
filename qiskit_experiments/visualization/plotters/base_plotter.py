@@ -10,15 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Base plotter abstract class"""
+from __future__ import annotations
 
 import warnings
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from qiskit_experiments.framework import Options
 from qiskit_experiments.visualization.drawers import BaseDrawer, SeriesName
 
 from ..style import PlotStyle
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 class BasePlotter(ABC):
@@ -566,11 +570,11 @@ class BasePlotter(ABC):
             "drawer": drawer,
         }
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         return self.config()
 
     @classmethod
-    def __json_decode__(cls, value):
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
         ## Process drawer as it's needed to create a plotter
         drawer_values = value["drawer"]
         # We expect a subclass of BaseDrawer
