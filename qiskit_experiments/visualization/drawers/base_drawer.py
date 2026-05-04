@@ -11,9 +11,10 @@
 # that they have been altered from the originals.
 
 """Drawer abstract class."""
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from collections.abc import Sequence
 
 import numpy as np
@@ -22,6 +23,9 @@ from qiskit_experiments.framework import Options
 
 from ..style import PlotStyle
 from ..utils import ExtentTuple
+
+if TYPE_CHECKING:
+    from typing import Self
 
 SeriesName = str | int | float
 
@@ -564,11 +568,11 @@ class BaseDrawer(ABC):
             "figure_options": figure_options,
         }
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         return self.config()
 
     @classmethod
-    def __json_decode__(cls, value):
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
         instance = cls()
         if "options" in value:
             instance.set_options(**value["options"])

@@ -17,7 +17,7 @@ from __future__ import annotations
 import logging
 import re
 from typing import Any, TYPE_CHECKING
-from collections import deque, defaultdict
+from collections import defaultdict
 from collections.abc import Callable, Iterable
 from datetime import datetime, timezone
 from concurrent import futures
@@ -74,6 +74,7 @@ if TYPE_CHECKING:
     # Sphinx on Python 3.9+ to link type hints correctly.  The gating on
     # `TYPE_CHECKING` means that the import will never be resolved by an actual
     # interpreter, only static analysis.
+    from typing import Self
     from . import BaseExperiment
 
 LOG = logging.getLogger(__name__)
@@ -262,8 +263,8 @@ class ExperimentData:
         self._analysis_results = AnalysisResultTable()
         self._artifacts = ThreadSafeOrderedDict()
 
-        self._deleted_figures = deque()
-        self._deleted_analysis_results = deque()
+        self._deleted_figures = []
+        self._deleted_analysis_results = []
         self._deleted_artifacts = set()  # for holding unique artifact names to be deleted
 
         # Child related
@@ -2409,6 +2410,11 @@ class ExperimentData:
     ) -> ExperimentData:
         """Load a saved experiment data from a database service.
 
+        .. warning::
+
+           It is recommended only to load data from trusted sources. See
+           :class:`.ExperimentEncoder` for more details.
+
         Args:
             experiment_id: Experiment ID.
             service: the database service.
@@ -2618,7 +2624,7 @@ class ExperimentData:
                     figures[name] = figure
         return figures
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         if any(not fut.done() for fut in self._job_futures.values()):
             raise QiskitError(
                 "Not all experiment jobs have finished. Jobs must be "
@@ -2657,7 +2663,7 @@ class ExperimentData:
         return json_value
 
     @classmethod
-    def __json_decode__(cls, value):
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
         ret = cls()
         for att, att_val in value.items():
             setattr(ret, att, att_val)

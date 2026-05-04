@@ -23,7 +23,7 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 from qiskit.circuit import QuantumCircuit, CircuitInstruction, Barrier, Gate
 from qiskit.circuit.library import get_standard_gate_name_mapping
 from qiskit.exceptions import QiskitError
-from qiskit.providers.backend import Backend
+from qiskit.providers.backend import Backend, BackendV2
 from qiskit.quantum_info import Clifford
 
 try:
@@ -196,9 +196,21 @@ class LayerFidelity(BaseExperiment):
         super().__init__(
             physical_qubits, analysis=LayerFidelityAnalysis(full_layers), backend=backend
         )
+        # These will be set by `_set_backend` in `super().__init__` if the backend was
+        # set. We don't want them to be overwritten by the default None values
+        # in `set_experiment_options` below in that case. Because
+        # BaseExperiment.__init__ sets up the experiment options, we can not
+        # set them before calling super().__init__
+        two_qubit_gate = (
+            self.experiment_options.two_qubit_gate if two_qubit_gate is None else two_qubit_gate
+        )
+        one_qubit_basis_gates = (
+            self.experiment_options.one_qubit_basis_gates
+            if one_qubit_basis_gates is None
+            else one_qubit_basis_gates
+        )
 
         self.analysis.benchmark_suffix = benchmark_suffix
-        # assert isinstance(backend, BackendV2)
 
         # Verify parameters
         if len(set(lengths)) != len(lengths):
@@ -206,47 +218,19 @@ class LayerFidelity(BaseExperiment):
         if num_samples <= 0:
             raise QiskitError(f"The number of samples {num_samples} should be positive.")
 
-        if two_qubit_gate is None:
-            if self.backend is None:
-                raise QiskitError("two_qubit_gate or backend must be supplied.")
-            # Try to set default two_qubit_gate from backend
-            for op in self.backend.target.operations:
-                if isinstance(op, Gate) and op.num_qubits == 2:
-                    two_qubit_gate = op.name
-                    LOG.info("%s is set for two_qubit_gate", op.name)
-                    break
-            if not two_qubit_gate:
-                raise QiskitError("two_qubit_gate is not provided and failed to set from backend.")
-        else:
-            if self.backend is None and two_qubit_gate not in GATE_NAME_MAP:
-                raise QiskitError(f"Unknown two_qubit_gate: {two_qubit_gate}.")
-
-        if one_qubit_basis_gates is None:
-            if self.backend is None:
-                raise QiskitError("one_qubit_basis_gates or backend must be supplied.")
-            # Try to set default one_qubit_basis_gates from backend
-            one_qubit_basis_gates = []
-            for op in self.backend.target.operations:
-                if isinstance(op, Gate) and op.num_qubits == 1:
-                    if op.name in GATE_NAME_MAP:
-                        one_qubit_basis_gates.append(op.name)
-                    else:
-                        warnings.warn(
-                            f'Not using single qubit gate "{op.name}". Please '
-                            "open an issue if support for using gates outside "
-                            "of Qiskit's standard gates is needed for layer "
-                            "fidelity."
-                        )
-            LOG.info("%s is set for one_qubit_basis_gates", str(one_qubit_basis_gates))
-            if not one_qubit_basis_gates:
-                raise QiskitError(
-                    "one_qubit_basis_gates is not provided and failed to set from backend."
-                )
-        else:
-            if self.backend is None:
-                for gate in one_qubit_basis_gates:
-                    if gate not in GATE_NAME_MAP:
-                        raise QiskitError(f"Unknown gate in one_qubit_basis_gates: {gate}.")
+        if one_qubit_basis_gates is not None:
+            filtered_gates = []
+            for gate in one_qubit_basis_gates:
+                if gate not in GATE_NAME_MAP:
+                    warnings.warn(
+                        f'Not using single qubit gate "{gate}". Please '
+                        "open an issue if support for using gates outside "
+                        "of Qiskit's standard gates is needed for layer "
+                        "fidelity."
+                    )
+                else:
+                    filtered_gates.append(gate)
+            one_qubit_basis_gates = tuple(filtered_gates)
 
         # Set configurable options
         self.set_experiment_options(
@@ -255,13 +239,40 @@ class LayerFidelity(BaseExperiment):
             seed=seed,
             two_qubit_layers=two_qubit_layers,
             two_qubit_gate=two_qubit_gate,
-            one_qubit_basis_gates=tuple(one_qubit_basis_gates),
+            one_qubit_basis_gates=one_qubit_basis_gates,
             layer_barrier=layer_barrier,
             min_delay=min_delay,
         )
 
         # Verify two_qubit_gate and one_qubit_basis_gates
         self.__validate_basis_gates()
+
+    @staticmethod
+    def _infer_one_qubit_basis_gates(backend: BackendV2) -> list[str] | None:
+        one_qubit_basis_gates = []
+        for op in backend.target.operations:
+            if isinstance(op, Gate) and op.num_qubits == 1:
+                if op.name in GATE_NAME_MAP:
+                    one_qubit_basis_gates.append(op.name)
+                else:
+                    warnings.warn(
+                        f'Not using single qubit gate "{op.name}". Please '
+                        "open an issue if support for using gates outside "
+                        "of Qiskit's standard gates is needed for layer "
+                        "fidelity."
+                    )
+        LOG.info("%s is set for one_qubit_basis_gates", str(one_qubit_basis_gates))
+        return one_qubit_basis_gates
+
+    @staticmethod
+    def _infer_two_qubit_gate(backend: BackendV2) -> str | None:
+        two_qubit_gate = None
+        for op in backend.target.operations:
+            if isinstance(op, Gate) and op.num_qubits == 2:
+                two_qubit_gate = op.name
+                LOG.info("%s is set for two_qubit_gate", op.name)
+                break
+        return two_qubit_gate
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -347,6 +358,12 @@ class LayerFidelity(BaseExperiment):
             super()._set_backend(BackendV2Converter(backend, add_delay=True))
         else:
             super()._set_backend(backend)
+        new_opts = {}
+        if self.experiment_options.two_qubit_gate is None:
+            new_opts["two_qubit_gate"] = self._infer_two_qubit_gate(self.backend)
+        if self.experiment_options.one_qubit_basis_gates is None:
+            new_opts["one_qubit_basis_gates"] = self._infer_one_qubit_basis_gates(self.backend)
+        self.set_experiment_options(**new_opts)
         self.__validate_basis_gates()
 
     def __validate_basis_gates(self) -> None:
@@ -355,7 +372,13 @@ class LayerFidelity(BaseExperiment):
         opts = self.experiment_options
         target = self.backend.target
         # validate two_qubit_gate if it is set
-        if opts.two_qubit_gate:
+        #
+        # two_qubit_layers is a required __init__ argument but it might not be
+        # set if a backend is passed to __init__ and this function is called by
+        # _set_backend before two_qubit_layers can be set. If that is the case,
+        # this function will get called again after setting two_qubit_layers
+        # later in __init__.
+        if opts.two_qubit_gate and opts.two_qubit_layers:
             if opts.two_qubit_gate not in target.operation_names:
                 raise QiskitError(f"two_qubit_gate {opts.two_qubit_gate} is not in backend.target")
             for two_q_layer in opts.two_qubit_layers:
@@ -390,6 +413,16 @@ class LayerFidelity(BaseExperiment):
             A generator of :class:`QuantumCircuit`\s.
         """
         opts = self.experiment_options
+
+        if not opts.two_qubit_gate:
+            raise QiskitError("two_qubit_gate was not provided or inferred from backend.")
+        if not opts.one_qubit_basis_gates:
+            raise QiskitError(
+                "one_qubit_basis_gates is not provided and failed to set from backend."
+            )
+        if not self.backend and opts.two_qubit_gate not in GATE_NAME_MAP:
+            raise QiskitError(f"Unknown two_qubit_gate: {opts.two_qubit_gate}.")
+
         residal_qubits_by_layer = [self.__residual_qubits(layer) for layer in opts.two_qubit_layers]
         rng = default_rng(seed=opts.seed)
         # define functions and variables for speed

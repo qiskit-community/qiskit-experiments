@@ -15,6 +15,7 @@ Base class for readout error mitigation.
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Callable
+from typing import Any
 
 import numpy as np
 
@@ -24,6 +25,18 @@ from qiskit.result.distributions.quasi import QuasiDistribution
 
 class BaseReadoutMitigator(ABC):
     """Base readout error mitigator class."""
+
+    @property
+    @abstractmethod
+    def settings(self) -> dict[str, Any]:
+        """Data settings that fully characterize the mitigator"""
+
+    def __json_encode__(self) -> dict[str, Any]:
+        return self.settings
+
+    @classmethod
+    def __json_decode__(cls, value: dict[str, Any]):
+        return cls(**value)
 
     @abstractmethod
     def quasi_probabilities(

@@ -12,8 +12,10 @@
 """
 Circuit basis for tomography preparation and measurement circuits
 """
+from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Instruction
@@ -25,6 +27,9 @@ from qiskit.exceptions import QiskitError
 
 from .base_basis import PreparationBasis, MeasurementBasis
 from .cache_method import cache_method, _method_cache_name
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 # Typing
@@ -228,7 +233,7 @@ class LocalPreparationBasis(PreparationBasis):
             )
         )
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         value = {
             "name": self._name,
             "instructions": list(self._instructions) if self._instructions else None,
@@ -238,6 +243,10 @@ class LocalPreparationBasis(PreparationBasis):
         if self._qubit_states:
             value["qubit_states"] = self._qubit_states
         return value
+
+    @classmethod
+    def __json_decode__(cls: Self, value: dict[str, Any]) -> Self:
+        return cls(**value)
 
     def __getstate__(self):
         # override get state to skip class cache when pickling
@@ -504,7 +513,7 @@ class LocalMeasurementBasis(MeasurementBasis):
             return self._default_povms[index[0]]
         return None
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         value = {
             "name": self._name,
             "instructions": self._instructions if self._instructions else None,
@@ -514,6 +523,10 @@ class LocalMeasurementBasis(MeasurementBasis):
         if self._qubit_povms:
             value["qubit_povms"] = self._qubit_povms
         return value
+
+    @classmethod
+    def __json_decode__(cls: Self, value: dict[str, Any]) -> Self:
+        return cls(**value)
 
     def __getstate__(self):
         # override get state to skip class cache when pickling

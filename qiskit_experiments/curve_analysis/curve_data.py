@@ -13,10 +13,12 @@
 """
 Curve data classes.
 """
+from __future__ import annotations
+
 import dataclasses
 import itertools
 import warnings
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from collections.abc import Iterable
 
 import numpy as np
@@ -24,6 +26,9 @@ import uncertainties
 from uncertainties.unumpy import uarray
 
 from qiskit_experiments.exceptions import AnalysisError
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 class CurveFitResult:
@@ -222,7 +227,7 @@ class CurveFitResult:
     def __deepcopy__(self, memo):
         return self.__copy__()
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         return {
             "method": self.method,
             "model_repr": self.model_repr,
@@ -243,7 +248,7 @@ class CurveFitResult:
         }
 
     @classmethod
-    def __json_decode__(cls, value):
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
         return cls(**value)
 
 
@@ -265,6 +270,13 @@ class ParameterRepr:
 
     # Unit
     unit: str | None = None
+
+    def __json_encode__(self) -> dict[str, Any]:
+        return self.__dict__
+
+    @classmethod
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
+        return cls(**value)
 
 
 class OptionsDict(dict):

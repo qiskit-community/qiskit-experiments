@@ -24,6 +24,7 @@ from collections.abc import Callable
 import fixtures
 import testtools
 
+import qiskit_experiments.framework.json
 from qiskit_experiments.framework import (
     ExperimentDecoder,
     ExperimentEncoder,
@@ -109,6 +110,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 message=".*Could not determine job completion time.*",
                 category=UserWarning,
             )
+            qiskit_experiments.framework.json._strict_serialization = True
 
         def assertExperimentDone(
             self,

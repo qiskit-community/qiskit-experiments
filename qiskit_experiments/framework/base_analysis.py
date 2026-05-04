@@ -12,10 +12,13 @@
 """
 Base analysis class.
 """
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
 from datetime import datetime
+from typing import Any, TYPE_CHECKING
 import warnings
 
 from dateutil import tz
@@ -28,6 +31,9 @@ from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.containers import FigureData, FigureType
 from qiskit_experiments.framework.configs import AnalysisConfig
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 class BaseAnalysis(ABC, StoreInitArgs):
@@ -264,11 +270,11 @@ class BaseAnalysis(ABC, StoreInitArgs):
         # NOTE: passing kwarg options to _run_analysis should be removed once
         pass
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> AnalysisConfig:
         return self.config()
 
     @classmethod
-    def __json_decode__(cls, value):
+    def __json_decode__(cls, value: AnalysisConfig | dict[str, Any]) -> Self:
         return cls.from_config(value)
 
 

@@ -11,10 +11,16 @@
 # that they have been altered from the originals.
 
 """Dataclass for experiment data in the database"""
+from __future__ import annotations
+
 import copy
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 @dataclass
@@ -50,6 +56,13 @@ class DbExperimentData:
     start_datetime: datetime | None = None
     end_datetime: datetime | None = None
     updated_datetime: datetime | None = None
+
+    def __json_encode__(self) -> dict[str, Any]:
+        return self.__dict__
+
+    @classmethod
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
+        return cls(**value)
 
     def __str__(self):
         ret = ""
