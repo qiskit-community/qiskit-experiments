@@ -5,6 +5,50 @@ Release Notes
 .. release-notes::
    :earliest-version: 0.13.0
 
+.. _Release Notes_0.13.0:
+
+0.13.0
+======
+
+.. _Release Notes_0.13.0_Prelude:
+
+Prelude
+-------
+
+.. releasenotes/notes/prepare-0.13.0-167e9b7befc25c7f.yaml @ b'19b06b47d9656081d5fe1b99e6af514284fcad5b'
+
+Qiskit Experiments 0.13.0 is a small update with a fix for long randomized benchmarking sequences and a new niche feature for averaging parameterized PUBs.
+
+
+.. _Release Notes_0.13.0_New Features:
+
+New Features
+------------
+
+.. releasenotes/notes/average-pub-params-f24fd73f817051ac.yaml @ b'19b06b47d9656081d5fe1b99e6af514284fcad5b'
+
+- Enable averaging PUB parameters in :class:`~.ExperimentData` when 
+  the circuit metadata contain "average_params". This feature is undocumented
+  for now since it is niche. It requires the user to submit parameterized
+  circuits to a sampler outside of an experiment and then add the results to
+  an :class:`.ExperimentData` object since Qiskit Experiments does not
+  currently support running parameterized PUBs directly.
+
+
+.. _Release Notes_0.13.0_Bug Fixes:
+
+Bug Fixes
+---------
+
+.. releasenotes/notes/rb-clifford-10k-3429e74f4a82848e.yaml @ b'643c20ac50ea49078960927fff0a683058c4f427'
+
+- A workaround was added for a limit on exponentiation imposed by `LMFIT
+  <https://lmfit.github.io/lmfit-py/intro.html>`__ which prevented
+  :class:`.RBAnalysis` from working on experiments with Clifford lengths
+  longer than 10,000. See `#1594
+  <https://github.com/qiskit-community/qiskit-experiments/issues/1594>`__.
+
+
 .. _Release Notes_0.12.0:
 
 0.12.0
