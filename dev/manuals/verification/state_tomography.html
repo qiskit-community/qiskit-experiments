@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="T1 Characterization" href="../characterization/t1.html" /><link rel="prev" title="Randomized Benchmarking" href="randomized_benchmarking.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Quantum State Tomography - Qiskit Experiments 0.13.0-15-ged4363aac</title>
+        <title>Quantum State Tomography - Qiskit Experiments 0.13.0-16-gb58ebad07</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.13.0-15-ged4363aac</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.13.0-16-gb58ebad07</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-15-ged4363aac</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-16-gb58ebad07</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -649,28 +649,28 @@ to describe the preparation circuit.</p>
   </thead>
   <tbody>
     <tr>
-      <th>54c6ad47</th>
+      <th>5115fe3a</th>
       <td>state</td>
       <td>StateTomography</td>
       <td>[Q0, Q1]</td>
-      <td>DensityMatrix([[ 0.47135417+0.00000000e+00j,&nbsp;&nbsp;...</td>
+      <td>DensityMatrix([[ 0.48316105+0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, -0.00...</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
       <td>1.0</td>
-      <td>[0.9193195144051906, 0.04551996014989119, 0.02...</td>
-      <td>[0.9193195144051906, 0.04551996014989119, 0.02...</td>
-      <td>False</td>
+      <td>[0.9203778291485829, 0.05119856227860111, 0.02...</td>
+      <td>[0.9216995976352799, 0.052520330765298065, 0.0...</td>
+      <td>True</td>
       <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
       <td>1.0</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>a9950f9a</th>
+      <th>65760872</th>
       <td>state_fidelity</td>
       <td>StateTomography</td>
       <td>[Q0, Q1]</td>
-      <td>0.918457</td>
+      <td>0.91958</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
@@ -683,7 +683,7 @@ to describe the preparation circuit.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>9c164acd</th>
+      <th>02582865</th>
       <td>positive</td>
       <td>StateTomography</td>
       <td>[Q0, Q1]</td>
@@ -715,14 +715,14 @@ to describe the preparation circuit.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>DensityMatrix([[ 0.47135417+0.00000000e+00j,  0.00358073+9.92838542e-03j,
-                 0.00276693+1.15559896e-02j,  0.00927734-4.43359375e-01j],
-               [ 0.00358073-9.92838542e-03j,  0.03222656+0.00000000e+00j,
-                 0.01123047-2.92968750e-03j, -0.01285807-1.96940104e-02j],
-               [ 0.00276693-1.15559896e-02j,  0.01123047+2.92968750e-03j,
-                 0.01757813+0.00000000e+00j, -0.00423177+1.62760417e-04j],
-               [ 0.00927734+4.43359375e-01j, -0.01285807+1.96940104e-02j,
-                -0.00423177-1.62760417e-04j,  0.47884115+0.00000000e+00j]],
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>DensityMatrix([[ 0.48316105+0.j        , -0.00423092-0.00993102j,
+                -0.00329712+0.00149168j,  0.01801373-0.44761941j],
+               [-0.00423092+0.00993102j,  0.02387842+0.j        ,
+                 0.02013869+0.00327687j,  0.00854465-0.01325155j],
+               [-0.00329712-0.00149168j,  0.02013869-0.00327687j,
+                 0.03220121+0.j        ,  0.00868643+0.00540577j],
+               [ 0.01801373+0.44761941j,  0.00854465+0.01325155j,
+                 0.00868643-0.00540577j,  0.46075933+0.j        ]],
               dims=(2, 2))
 </pre></div>
 </div>
@@ -754,7 +754,7 @@ state cannot be automatically generated and this field will be set to
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>State Fidelity = 0.91846
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>State Fidelity = 0.91958
 </pre></div>
 </div>
 </div>
@@ -779,8 +779,8 @@ eigenvalues before rescaling was performed.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>eigvals: [0.91931951 0.04551996 0.02749512 0.0076654 ]
-trace: 1.0000000000000018
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>eigvals: [0.92037783 0.05119856 0.02842361 0.        ]
+trace: 1.000000000000002
 positive: True
 </pre></div>
 </div>
@@ -804,23 +804,23 @@ counts:</p>
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>name: state
 experiment: StateTomography
 components: [&lt;Qubit(Q0)&gt;, &lt;Qubit(Q1)&gt;]
-value: DensityMatrix([[ 0.3302515 +0.00000000e+00j, -0.02631217+1.37868653e-01j,
-                -0.0531063 -4.35907818e-02j,  0.03001955-3.14217239e-01j],
-               [-0.02631217-1.37868653e-01j,  0.07883366-1.73472348e-18j,
-                -0.00161265+6.64896356e-02j, -0.07496481+1.67984356e-02j],
-               [-0.0531063 +4.35907818e-02j, -0.00161265-6.64896356e-02j,
-                 0.10923003+0.00000000e+00j,  0.08353676-6.75319753e-02j],
-               [ 0.03001955+3.14217239e-01j, -0.07496481-1.67984356e-02j,
-                 0.08353676+6.75319753e-02j,  0.48168482+0.00000000e+00j]],
+value: DensityMatrix([[ 0.35054117+0.j        ,  0.01721209-0.03473756j,
+                -0.08414603-0.07482385j,  0.13530308-0.35704869j],
+               [ 0.01721209+0.03473756j,  0.07351822+0.j        ,
+                -0.05122913-0.00368611j,  0.07705656+0.06150771j],
+               [-0.08414603+0.07482385j, -0.05122913+0.00368611j,
+                 0.08009463+0.j        ,  0.02404443+0.05869772j],
+               [ 0.13530308+0.35704869j,  0.07705656-0.06150771j,
+                 0.02404443-0.05869772j,  0.49584598+0.j        ]],
               dims=(2, 2))
 quality: unknown
 backend: aer_simulator_from(fake_perth)
 run_time: None
-trace: 1.0000000000000004
-eigvals: [0.77483567 0.22516433 0.         0.        ]
-raw_eigvals: [ 0.86762492  0.31795357 -0.00452968 -0.18104881]
+trace: 1.0
+eigvals: [0.84152086 0.15847914 0.         0.        ]
+raw_eigvals: [ 0.97349898  0.29045726 -0.0325685  -0.23138774]
 rescaled_psd: True
-fitter_metadata: {&#39;fitter&#39;: &#39;linear_inversion&#39;, &#39;fitter_time&#39;: 0.003583192825317383}
+fitter_metadata: {&#39;fitter&#39;: &#39;linear_inversion&#39;, &#39;fitter_time&#39;: 0.0037674903869628906}
 conditional_probability: 1.0
 positive: True
 </pre></div>
@@ -866,23 +866,23 @@ PSD without requiring rescaling.</p>
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>name: state
 experiment: StateTomography
 components: [&lt;Qubit(Q0)&gt;, &lt;Qubit(Q1)&gt;]
-value: DensityMatrix([[ 0.49162008+0.00000000e+00j, -0.00799967-4.55309242e-03j,
-                -0.00327537+1.26572180e-02j,  0.00285725-4.41856253e-01j],
-               [-0.00799967+4.55309242e-03j,  0.02721548+0.00000000e+00j,
-                -0.01932309-4.28258742e-04j,  0.00406725+4.48089236e-03j],
-               [-0.00327537-1.26572180e-02j, -0.01932309+4.28258742e-04j,
-                 0.03047259+0.00000000e+00j, -0.00305196+6.31161434e-03j],
-               [ 0.00285725+4.41856253e-01j,  0.00406725-4.48089236e-03j,
-                -0.00305196-6.31161434e-03j,  0.45069184+0.00000000e+00j]],
+value: DensityMatrix([[ 0.45863494+0.00000000e+00j,  0.00046834+2.54244188e-04j,
+                -0.01626546+1.70562386e-02j, -0.01478818-4.40366323e-01j],
+               [ 0.00046834-2.54244188e-04j,  0.03362366+0.00000000e+00j,
+                 0.00762422-8.81661955e-03j,  0.01144632-2.10458929e-02j],
+               [-0.01626546-1.70562386e-02j,  0.00762422+8.81661955e-03j,
+                 0.04921901+0.00000000e+00j,  0.00647467-5.90372256e-03j],
+               [-0.01478818+4.40366323e-01j,  0.01144632+2.10458929e-02j,
+                 0.00647467+5.90372256e-03j,  0.45852239+0.00000000e+00j]],
               dims=(2, 2))
 quality: unknown
 backend: aer_simulator_from(fake_perth)
 run_time: None
-trace: 1.000000010768633
-eigvals: [0.91382101 0.04978213 0.02803326 0.00836359]
-raw_eigvals: [0.913821   0.04978213 0.02803326 0.00836359]
+trace: 0.9999999986941865
+eigvals: [0.899657   0.06999205 0.0287167  0.00163425]
+raw_eigvals: [0.899657   0.06999205 0.0287167  0.00163425]
 rescaled_psd: False
-fitter_metadata: {&#39;fitter&#39;: &#39;cvxpy_gaussian_lstsq&#39;, &#39;cvxpy_solver&#39;: &#39;SCS&#39;, &#39;cvxpy_status&#39;: [&#39;optimal&#39;], &#39;psd_constraint&#39;: True, &#39;trace_preserving&#39;: True, &#39;fitter_time&#39;: 0.035063982009887695}
+fitter_metadata: {&#39;fitter&#39;: &#39;cvxpy_gaussian_lstsq&#39;, &#39;cvxpy_solver&#39;: &#39;SCS&#39;, &#39;cvxpy_status&#39;: [&#39;optimal&#39;], &#39;psd_constraint&#39;: True, &#39;trace_preserving&#39;: True, &#39;fitter_time&#39;: 0.03876996040344238}
 conditional_probability: 1.0
 positive: True
 </pre></div>
@@ -950,28 +950,28 @@ run subsystem tomography on multiple qubits in parallel.</p>
   </thead>
   <tbody>
     <tr>
-      <th>942969af</th>
+      <th>4469a58f</th>
       <td>state</td>
       <td>StateTomography</td>
       <td>[Q0]</td>
-      <td>DensityMatrix([[0.96875&nbsp;&nbsp; +0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, 0.008789...</td>
+      <td>DensityMatrix([[ 0.97949219+0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, -0.04...</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
       <td>1.0</td>
-      <td>[0.9690926888629038, 0.03090731113709729]</td>
-      <td>[0.9690926888629038, 0.03090731113709729]</td>
+      <td>[0.9824910596898806, 0.01750894031012028]</td>
+      <td>[0.9824910596898806, 0.01750894031012028]</td>
       <td>False</td>
       <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
       <td>1.0</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>7f41f85a</th>
+      <th>e6ae3fa9</th>
       <td>state_fidelity</td>
       <td>StateTomography</td>
       <td>[Q0]</td>
-      <td>0.96875</td>
+      <td>0.979492</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
@@ -984,7 +984,7 @@ run subsystem tomography on multiple qubits in parallel.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>63ca331b</th>
+      <th>24abd4b0</th>
       <td>positive</td>
       <td>StateTomography</td>
       <td>[Q0]</td>
@@ -1001,28 +1001,28 @@ run subsystem tomography on multiple qubits in parallel.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>2b47fcdb</th>
+      <th>c6d0a9d0</th>
       <td>state</td>
       <td>StateTomography</td>
       <td>[Q1]</td>
-      <td>DensityMatrix([[ 0.83691406+0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, -0.00...</td>
+      <td>DensityMatrix([[ 0.83789063+0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, -0.01...</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
       <td>1.0</td>
-      <td>[0.9744656820157225, 0.025534317984278423]</td>
-      <td>[0.9744656820157225, 0.025534317984278423]</td>
+      <td>[0.9625381866361737, 0.03746181336382731]</td>
+      <td>[0.9625381866361737, 0.03746181336382731]</td>
       <td>False</td>
       <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
       <td>1.0</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>eb32cb28</th>
+      <th>4bf6f852</th>
       <td>state_fidelity</td>
       <td>StateTomography</td>
       <td>[Q1]</td>
-      <td>0.974397</td>
+      <td>0.961967</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
@@ -1035,7 +1035,7 @@ run subsystem tomography on multiple qubits in parallel.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>e9795a8d</th>
+      <th>33b60fc8</th>
       <td>positive</td>
       <td>StateTomography</td>
       <td>[Q1]</td>
@@ -1052,24 +1052,24 @@ run subsystem tomography on multiple qubits in parallel.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>4363f7f7</th>
+      <th>569b86a6</th>
       <td>state</td>
       <td>StateTomography</td>
       <td>[Q2]</td>
-      <td>DensityMatrix([[ 0.52441406+0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, -0.00...</td>
+      <td>DensityMatrix([[0.48925781+0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, 0.0087...</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
       <td>1.0</td>
-      <td>[0.9703859392283435, 0.02961406077165732]</td>
-      <td>[0.9703859392283435, 0.02961406077165732]</td>
+      <td>[0.9699315755830638, 0.03006842441693708]</td>
+      <td>[0.9699315755830638, 0.03006842441693708]</td>
       <td>False</td>
       <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
       <td>1.0</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>3942f0bc</th>
+      <th>83aa56b6</th>
       <td>state_fidelity</td>
       <td>StateTomography</td>
       <td>[Q2]</td>
@@ -1086,7 +1086,7 @@ run subsystem tomography on multiple qubits in parallel.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>a3ed98d7</th>
+      <th>caa6f886</th>
       <td>positive</td>
       <td>StateTomography</td>
       <td>[Q2]</td>
@@ -1103,28 +1103,28 @@ run subsystem tomography on multiple qubits in parallel.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>c546054d</th>
+      <th>7f4327a9</th>
       <td>state</td>
       <td>StateTomography</td>
       <td>[Q3]</td>
-      <td>DensityMatrix([[ 0.1640625 +0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, -0.02...</td>
+      <td>DensityMatrix([[0.19824219+0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, 0.0078...</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
       <td>1.0</td>
-      <td>[0.9717555014770132, 0.028244498522987604]</td>
-      <td>[0.9717555014770132, 0.028244498522987604]</td>
+      <td>[0.9523603630638846, 0.04763963693611657]</td>
+      <td>[0.9523603630638846, 0.04763963693611657]</td>
       <td>False</td>
       <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
       <td>1.0</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>af35fe0b</th>
+      <th>15f06ec7</th>
       <td>state_fidelity</td>
       <td>StateTomography</td>
       <td>[Q3]</td>
-      <td>0.970944</td>
+      <td>0.951609</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
@@ -1137,7 +1137,7 @@ run subsystem tomography on multiple qubits in parallel.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>2f8aced2</th>
+      <th>11bf0c00</th>
       <td>positive</td>
       <td>StateTomography</td>
       <td>[Q3]</td>
@@ -1154,28 +1154,28 @@ run subsystem tomography on multiple qubits in parallel.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>c9c22194</th>
+      <th>9da54a74</th>
       <td>state</td>
       <td>StateTomography</td>
       <td>[Q4]</td>
-      <td>DensityMatrix([[0.03320313+0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, 0.0097...</td>
+      <td>DensityMatrix([[ 0.02734375+0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, -0.01...</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
       <td>1.0</td>
-      <td>[0.9669000359988452, 0.03309996400115605]</td>
-      <td>[0.9669000359988452, 0.03309996400115605]</td>
+      <td>[0.973988067476758, 0.02601193252324308]</td>
+      <td>[0.973988067476758, 0.02601193252324308]</td>
       <td>False</td>
       <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
       <td>1.0</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>1488cbd7</th>
+      <th>768b0a1a</th>
       <td>state_fidelity</td>
       <td>StateTomography</td>
       <td>[Q4]</td>
-      <td>0.966797</td>
+      <td>0.972656</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
@@ -1188,7 +1188,7 @@ run subsystem tomography on multiple qubits in parallel.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>b4c78e70</th>
+      <th>708341f5</th>
       <td>positive</td>
       <td>StateTomography</td>
       <td>[Q4]</td>
@@ -1253,28 +1253,28 @@ run subsystem tomography on multiple qubits in parallel.</p>
   </thead>
   <tbody>
     <tr>
-      <th>942969af</th>
+      <th>4469a58f</th>
       <td>state</td>
       <td>StateTomography</td>
       <td>[Q0]</td>
-      <td>DensityMatrix([[0.96875&nbsp;&nbsp; +0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, 0.008789...</td>
+      <td>DensityMatrix([[ 0.97949219+0.j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, -0.04...</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
       <td>1.0</td>
-      <td>[0.9690926888629038, 0.03090731113709729]</td>
-      <td>[0.9690926888629038, 0.03090731113709729]</td>
+      <td>[0.9824910596898806, 0.01750894031012028]</td>
+      <td>[0.9824910596898806, 0.01750894031012028]</td>
       <td>False</td>
       <td>{'fitter': 'linear_inversion', 'fitter_time': ...</td>
       <td>1.0</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>7f41f85a</th>
+      <th>e6ae3fa9</th>
       <td>state_fidelity</td>
       <td>StateTomography</td>
       <td>[Q0]</td>
-      <td>0.96875</td>
+      <td>0.979492</td>
       <td>unknown</td>
       <td>aer_simulator_from(fake_perth)</td>
       <td>None</td>
@@ -1287,7 +1287,7 @@ run subsystem tomography on multiple qubits in parallel.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>63ca331b</th>
+      <th>24abd4b0</th>
       <td>positive</td>
       <td>StateTomography</td>
       <td>[Q0]</td>
@@ -1406,7 +1406,7 @@ run subsystem tomography on multiple qubits in parallel.</p>
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=4d5b6d8c"></script>
+</div><script src="../../_static/documentation_options.js?v=82676ed0"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
