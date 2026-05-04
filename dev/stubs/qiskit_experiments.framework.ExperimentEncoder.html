@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ExperimentDecoder" href="qiskit_experiments.framework.ExperimentDecoder.html" /><link rel="prev" title="AnalysisConfig" href="qiskit_experiments.framework.AnalysisConfig.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>ExperimentEncoder - Qiskit Experiments 0.13.0-14-g534655e16</title>
+        <title>ExperimentEncoder - Qiskit Experiments 0.13.0-15-ged4363aac</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-14-g534655e16</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0-15-ged4363aac</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-14-g534655e16</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-15-ged4363aac</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -565,19 +565,43 @@ released.</p>
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentEncoder">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExperimentEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_ascii</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_circular</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/json.html#ExperimentEncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentEncoder" title="Link to this definition">¶</a></dt>
 <dd><p>JSON Encoder for Qiskit Experiments.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is recommended only to deserialize data with
+<a class="reference internal" href="qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a> from trusted sources. For custom classes,
+the deserialization procedure involves dynamic execution of code based
+on the content of the serialized data. The deserialization code
+includes some safeguards:</p>
+<ol class="arabic simple">
+<li><p>Only modules registered with the
+<code class="docutils literal notranslate"><span class="pre">qiskit_experiments.deserialization_packages</span></code> entry point are
+imported dynamically.</p></li>
+<li><p>Only classes (as determined by Python’s <code class="docutils literal notranslate"><span class="pre">inspect.isclass</span></code>
+function) are referenced from the imported modules for further
+processing.</p></li>
+<li><p>These classes are checked to ensure that they were
+defined by the registered modules they were loaded from.</p></li>
+<li><p>For the referenced classes, only the <code class="docutils literal notranslate"><span class="pre">__json_decode__</span></code> method
+is called with the serialized data.</p></li>
+</ol>
+<p>Even with these safeguards, loading a payload involves instantiating
+registered classes with arbitrary inputs. These classes were not
+written assuming malicious input.</p>
+<p>Note that versions of Qiskit Experiments older than 0.14 could load
+arbitrary functions like <code class="docutils literal notranslate"><span class="pre">subprocess.run</span></code> and pass them data from
+the deserialization payload.</p>
+</div>
 <p>This class extends the default Python JSONEncoder by including built-in
 support for</p>
 <ul class="simple">
 <li><p>complex numbers, inf and NaN floats, sets, and dataclasses.</p></li>
 <li><p>NumPy ndarrays and SciPy sparse matrices.</p></li>
 <li><p>Qiskit <code class="docutils literal notranslate"><span class="pre">QuantumCircuit</span></code>.</p></li>
-<li><p>Any class that implements a <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method or a
-<code class="docutils literal notranslate"><span class="pre">settings</span></code> property.</p></li>
+<li><p>Any class that implements a <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method</p></li>
 </ul>
-<p>Generic classes can be serialized by this encoder. This is done
-by attempting the following methods in order:</p>
-<ol class="arabic">
-<li><p>The object has a <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method. This should have signature</p>
+<p>Custom classes can be serialized by this encoder by implementing a
+<code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method. The serialization procedure is as follows:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method should have signature</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
     <span class="c1"># return a JSON serializable object value</span>
 </pre></div>
@@ -590,32 +614,39 @@ class must also provide a <code class="docutils literal notranslate"><span class
 convert the value returned by <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> back to the object.
 This method should have signature</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">cls</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
     <span class="c1"># recover the object from the `value` returned by __json_encode__</span>
 </pre></div>
 </div>
-</li>
-<li><p>The object has a <code class="docutils literal notranslate"><span class="pre">settings</span></code> property. This should have signature</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@property</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-    <span class="c1"># Return settings value for reconstructing the instance</span>
+<p>Additionally, the custom class’s package metadata must register the top
+level import package as a <code class="docutils literal notranslate"><span class="pre">qiskit_experiments.def</span></code> Python entry point. In
+<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> the entry point registration would like this:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project.entry-points.</span><span class="s2">&quot;qiskit_experiments.deserialization_packages&quot;</span><span class="k">]</span>
+<span class="n">custom-package-name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;custom_package&quot;</span>
 </pre></div>
 </div>
-<p>Deserialization of objects from the <code class="docutils literal notranslate"><span class="pre">value</span></code> dictionary returned by
-<code class="docutils literal notranslate"><span class="pre">settings</span></code> is done by calling the class <cite>__init__</cite> method
-<code class="docutils literal notranslate"><span class="pre">cls(**settings)</span></code>.</p>
-</li>
-<li><p>In all other cases only the object class is saved. Deserialization
-will attempt to recover the object from default initialization of
-its class as <code class="docutils literal notranslate"><span class="pre">cls()</span></code>.</p></li>
-</ol>
+<p>where <code class="docutils literal notranslate"><span class="pre">custom_package</span></code> is the Python import module that the custom class
+is below (the import path before the first <code class="docutils literal notranslate"><span class="pre">.</span></code>; <code class="docutils literal notranslate"><span class="pre">custom_package</span></code> for
+class <code class="docutils literal notranslate"><span class="pre">MyClass</span></code> if it is normally imported as <code class="docutils literal notranslate"><span class="pre">from</span>
+<span class="pre">custom_package.subpackage</span> <span class="pre">import</span> <span class="pre">MyClass</span></code> for example). The entry point
+name, <code class="docutils literal notranslate"><span class="pre">custom-package-name</span></code> in the example, is not used and can be set to
+any descriptive name.</p>
+<p>If the object has no <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method and all other special cases
+(numpy arrays, Qiskit quantum info classes, etc.) do not apply, the
+object is serialized as though <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> returned an empty dict.
+Without a <code class="docutils literal notranslate"><span class="pre">__json_decode__</span></code> method, the object will be loaded by
+<a class="reference internal" href="qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a> as a dictionary containing the name of the
+object’s class and module. This incomplete loading of the object may lead
+to other code execution problems.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Serialization of custom classes works for user-defined classes in
 Python scripts, notebooks, or third party modules. Note however
 that these will only be able to be de-serialized if that class
 can be imported form the same scope at the time the
-<a class="reference internal" href="qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a> is invoked.</p>
+<a class="reference internal" href="qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a> is invoked. For scripts and notebook, the
+scope is named <code class="docutils literal notranslate"><span class="pre">__main__</span></code> which is registered by default with the
+<code class="docutils literal notranslate"><span class="pre">qiskit_experiments.deserialization_packages</span></code> entry point.</p>
 </div>
 <p>Constructor for JSONEncoder, with sensible defaults.</p>
 <p>If skipkeys is false, then it is a TypeError to attempt
@@ -748,7 +779,7 @@ representation as available.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/05/01</div>
+              Last updated on 2026/05/04</div>
           </div>
           <div class="right-details">
             
@@ -789,7 +820,7 @@ representation as available.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=95227867"></script>
+</div><script src="../_static/documentation_options.js?v=4d5b6d8c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

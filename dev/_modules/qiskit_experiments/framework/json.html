@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.framework.json - Qiskit Experiments 0.13.0-14-g534655e16</title>
+        <title>qiskit_experiments.framework.json - Qiskit Experiments 0.13.0-15-ged4363aac</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-14-g534655e16</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.13.0-15-ged4363aac</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-14-g534655e16</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-15-ged4363aac</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -564,7 +564,6 @@
 <span class="sd">&quot;&quot;&quot;Experiment serialization methods.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
@@ -573,19 +572,30 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">zlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">entry_points</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionType</span><span class="p">,</span> <span class="n">MethodType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sps</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">uncertainties</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">qpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">qpy</span><span class="p">,</span> <span class="n">quantum_info</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParameterExpression</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">Instruction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
+
+
+<span class="c1"># This can be set to true in testing to raise an exception if a class is</span>
+<span class="c1"># falling through to default serialization</span>
+<span class="n">_strict_serialization</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># pylint: disable=invalid-name</span>
+<span class="c1"># Set of Python packages that are allowed for deserialization. The set is</span>
+<span class="c1"># loaded and set here once when first needed.</span>
+<span class="n">_allowed_packages</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># pylint: disable=invalid-name</span>
 
 
 <span class="nd">@lru_cache</span>
@@ -655,16 +665,6 @@
     <span class="k">if</span> <span class="n">traceback_msg</span><span class="p">:</span>
         <span class="n">warning_msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The following exception was raised:</span><span class="se">\n</span><span class="si">{</span><span class="n">traceback_msg</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_deprecation_warning</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Show warning for deprecated serialization&quot;&quot;&quot;</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Deserializated data for &lt;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&gt; stored in a deprecated serialization format.&quot;</span>
-        <span class="s2">&quot; Re-serialize or re-save the data to update the serialization format otherwise&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; loading this data may fail in qiskit-experiments version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">. &quot;</span><span class="p">,</span>
-        <span class="ne">DeprecationWarning</span><span class="p">,</span>
-    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_serialize_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">compress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -754,7 +754,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not deserialize &lt;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&gt; data.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_serialize_safe_float</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">any</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_serialize_safe_float</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively serialize basic types safely handing inf and NaN&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
@@ -793,30 +793,99 @@
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;__value__&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_allowed_packages</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">_allowed_packages</span>  <span class="c1"># pylint: disable=global-statement</span>
+    <span class="k">if</span> <span class="n">_allowed_packages</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ep_pkgs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">module</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entry_points</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="s2">&quot;qiskit_experiments.deserialization_packages&quot;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">_allowed_packages</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">ep_pkgs</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_quantum_info_class</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check cls is a quantum_info type to be deserialized&quot;&quot;&quot;</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;__module__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;settings&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="c1"># Class comes from qiskit.quantum_info and has a settings property</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">mod</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;qiskit.quantum_info&quot;</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">quantum_info</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="nb">property</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_quantum_info_type</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attempt to load a type from the qiskit quantum_info package&quot;&quot;&quot;</span>
+    <span class="bp">cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">quantum_info</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not load type </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> from module </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;__module__&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; specified to load from </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2"> does not appear to be a class!&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;qiskit.quantum_info&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Could not load type </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> from module </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">. It appears to come &quot;</span>
+            <span class="s2">&quot;from </span><span class="si">{cls.__module__}</span><span class="s2"> instead.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;settings&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">settings</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="nb">property</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Class </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> from qiskit.quantum_info does not have a &quot;settings&quot; property. &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;Only class from qiskit.quantum_info with a &quot;settings&quot; property can be loaded.&#39;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="bp">cls</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_ufloat</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">uncertainties</span><span class="o">.</span><span class="n">UFloat</span><span class="p">:</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;settings&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="k">if</span> <span class="s2">&quot;value&quot;</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">uncertainties</span><span class="o">.</span><span class="n">ufloat</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;std_dev&quot;</span><span class="p">))</span>
+    <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bad ufloat settings: </span><span class="si">{</span><span class="n">settings</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_type</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deserialize a type, function, or class method&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deserialize a Python type&quot;&quot;&quot;</span>
     <span class="n">traceback_msg</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">load_version</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deserializing class members is no longer supported: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">qualname</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">qualname</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">method_cls</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">qualname</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">method_cls</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">qualname</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
         <span class="n">mod</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;module&quot;</span><span class="p">]</span>
-        <span class="n">mod_scope</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
-        <span class="n">scope</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">method_cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">scope</span> <span class="o">=</span> <span class="n">mod_scope</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">name_</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">mod_scope</span><span class="p">,</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">name_</span> <span class="o">==</span> <span class="n">method_cls</span><span class="p">:</span>
-                    <span class="n">scope</span> <span class="o">=</span> <span class="n">obj</span>
-        <span class="k">if</span> <span class="n">scope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">name_</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="n">istype</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">name_</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">obj</span>
+
+        <span class="c1"># These two conditionals handle previously serialized data before</span>
+        <span class="c1"># dedicated ufloat and qiskit.quantum_info serializers were added.</span>
+        <span class="c1">#</span>
+        <span class="c1"># Perhaps they can be removed in the future</span>
+        <span class="k">if</span> <span class="n">mod</span> <span class="o">==</span> <span class="s2">&quot;uncertainties.core&quot;</span> <span class="ow">and</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;Variable&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">uncertainties</span><span class="o">.</span><span class="n">ufloat</span>
+        <span class="k">if</span> <span class="n">mod</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;qiskit.quantum_info&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_load_quantum_info_type</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;module&quot;</span><span class="p">])</span>
+
+        <span class="n">_load_allowed_packages</span><span class="p">()</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">package</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_allowed_packages</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Import of </span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2"> denied. It must be registered with the &quot;</span>
+                <span class="s2">&quot;&#39;qiskit_experiments.deserialization_packages&#39; entry point to &quot;</span>
+                <span class="s2">&quot;allow loading objects from it. See the documentation for &quot;</span>
+                <span class="s2">&quot;&#39;qiskit_experiments.framework.ExperimentEncoder&#39;.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">scope</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Requested object &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; not foudn in &#39;</span><span class="si">{</span><span class="n">mod</span><span class="si">}</span><span class="s2">&#39;!&quot;</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Requested object &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; of &#39;</span><span class="si">{</span><span class="n">mod</span><span class="si">}</span><span class="s2">&#39; is not a class!&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__module__</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">package</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Object &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; of &#39;</span><span class="si">{</span><span class="n">mod</span><span class="si">}</span><span class="s2">&#39; appears to come from </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2"> instead!&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
         <span class="n">traceback_msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">ex</span><span class="p">),</span> <span class="n">ex</span><span class="p">,</span> <span class="n">ex</span><span class="o">.</span><span class="n">__traceback__</span><span class="p">))</span>
 
@@ -836,33 +905,32 @@
     <span class="k">return</span> <span class="n">value</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_serialize_object</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">safe_float</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_serialize_object</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Serialize a class instance from its init args and kwargs.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        obj: The object to be serialized.</span>
-<span class="sd">        settings: Optional, settings for reconstructing the object from kwargs.</span>
-<span class="sd">        safe_float: If True check float values for NaN, inf and -inf</span>
-<span class="sd">                    and cast to strings during serialization.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict serialized class instance.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">settings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;__json_encode__&quot;</span><span class="p">):</span>
-            <span class="n">settings</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">__json_encode__</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;settings&quot;</span><span class="p">):</span>
-            <span class="n">settings</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">settings</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">settings</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">safe_float</span><span class="p">:</span>
-        <span class="n">settings</span> <span class="o">=</span> <span class="n">_serialize_safe_float</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;__json_encode__&quot;</span><span class="p">):</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">__json_encode__</span><span class="p">()</span>
+        <span class="n">has_json_encode</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">has_json_encode</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">_serialize_safe_float</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
     <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
     <span class="n">value</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="n">_serialize_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">),</span>
         <span class="s2">&quot;settings&quot;</span><span class="p">:</span> <span class="n">settings</span><span class="p">,</span>
         <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">get_object_version</span><span class="p">(</span><span class="bp">cls</span><span class="p">),</span>
     <span class="p">}</span>
+    <span class="k">if</span> <span class="n">_strict_serialization</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_json_encode</span><span class="p">:</span>
+        <span class="c1"># We do not expect to use _serialize_object except for cases where</span>
+        <span class="c1"># __json_encode__ is defined</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected default serialization for </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="s2">&quot;__value__&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
 
 
@@ -874,6 +942,7 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="n">settings</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;settings&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;__json_decode__&quot;</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__json_decode__</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
@@ -884,11 +953,11 @@
                 <span class="s2">&quot;using __json_decode__ method.&quot;</span>
             <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">settings</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
-            <span class="n">traceback_msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">ex</span><span class="p">),</span> <span class="n">ex</span><span class="p">,</span> <span class="n">ex</span><span class="o">.</span><span class="n">__traceback__</span><span class="p">))</span>
-            <span class="n">warning_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Could not deserialize instance of class </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s2"> from settings </span><span class="si">{</span><span class="n">settings</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="n">traceback_msg</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">warning_msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Could not deserialize instance of class </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s2"> from settings </span><span class="si">{</span><span class="n">settings</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s2">.__json_decode__ does not exist.&quot;</span>
+        <span class="p">)</span>
 
     <span class="c1"># Display warning msg if deserialization failed</span>
     <span class="n">mod_name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span>
@@ -906,33 +975,40 @@
     <span class="k">return</span> <span class="n">value</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_object_legacy</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deserialize a class object from its init args and kwargs.&quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">class_name</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">]</span>
-        <span class="n">mod_name</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">]</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__args__&quot;</span><span class="p">,</span> <span class="p">())</span>
-        <span class="n">kwargs</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__kwargs__&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod_name</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">class_name</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>  <span class="c1"># pylint: disable=broad-exception-raised</span>
-            <span class="sa">f</span><span class="s2">&quot;Unable to find class </span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s2"> in module </span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
-        <span class="n">traceback_msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">ex</span><span class="p">),</span> <span class="n">ex</span><span class="p">,</span> <span class="n">ex</span><span class="o">.</span><span class="n">__traceback__</span><span class="p">))</span>
-        <span class="n">warning_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unable to initialize </span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s2">.&quot;</span>
-        <span class="n">_show_warning</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">,</span> <span class="n">traceback_msg</span><span class="o">=</span><span class="n">traceback_msg</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">value</span>
-
-
 <div class="viewcode-block" id="ExperimentEncoder">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentEncoder.html#qiskit_experiments.framework.ExperimentEncoder">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExperimentEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;JSON Encoder for Qiskit Experiments.</span>
+
+<span class="sd">    .. warning::</span>
+
+<span class="sd">        It is recommended only to deserialize data with</span>
+<span class="sd">        :class:`ExperimentDecoder` from trusted sources. For custom classes,</span>
+<span class="sd">        the deserialization procedure involves dynamic execution of code based</span>
+<span class="sd">        on the content of the serialized data. The deserialization code</span>
+<span class="sd">        includes some safeguards:</span>
+
+<span class="sd">        1. Only modules registered with the</span>
+<span class="sd">           ``qiskit_experiments.deserialization_packages`` entry point are</span>
+<span class="sd">           imported dynamically.</span>
+
+<span class="sd">        2. Only classes (as determined by Python&#39;s ``inspect.isclass``</span>
+<span class="sd">           function) are referenced from the imported modules for further</span>
+<span class="sd">           processing.</span>
+
+<span class="sd">        3. These classes are checked to ensure that they were</span>
+<span class="sd">           defined by the registered modules they were loaded from.</span>
+
+<span class="sd">        4. For the referenced classes, only the ``__json_decode__`` method</span>
+<span class="sd">           is called with the serialized data.</span>
+
+<span class="sd">        Even with these safeguards, loading a payload involves instantiating</span>
+<span class="sd">        registered classes with arbitrary inputs. These classes were not</span>
+<span class="sd">        written assuming malicious input.</span>
+
+<span class="sd">        Note that versions of Qiskit Experiments older than 0.14 could load</span>
+<span class="sd">        arbitrary functions like ``subprocess.run`` and pass them data from</span>
+<span class="sd">        the deserialization payload.</span>
 
 <span class="sd">    This class extends the default Python JSONEncoder by including built-in</span>
 <span class="sd">    support for</span>
@@ -940,49 +1016,56 @@
 <span class="sd">    * complex numbers, inf and NaN floats, sets, and dataclasses.</span>
 <span class="sd">    * NumPy ndarrays and SciPy sparse matrices.</span>
 <span class="sd">    * Qiskit ``QuantumCircuit``.</span>
-<span class="sd">    * Any class that implements a ``__json_encode__`` method or a</span>
-<span class="sd">      ``settings`` property.</span>
+<span class="sd">    * Any class that implements a ``__json_encode__`` method</span>
 
-<span class="sd">    Generic classes can be serialized by this encoder. This is done</span>
-<span class="sd">    by attempting the following methods in order:</span>
+<span class="sd">    Custom classes can be serialized by this encoder by implementing a</span>
+<span class="sd">    ``__json_encode__`` method. The serialization procedure is as follows:</span>
 
-<span class="sd">    1.  The object has a ``__json_encode__`` method. This should have signature</span>
+<span class="sd">    The ``__json_encode__`` method should have signature</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">    .. code-block:: python</span>
 
-<span class="sd">            def __json_encode__(self) -&gt; Any:</span>
-<span class="sd">                # return a JSON serializable object value</span>
+<span class="sd">        def __json_encode__(self) -&gt; Any:</span>
+<span class="sd">            # return a JSON serializable object value</span>
 
-<span class="sd">        The value returned by ``__json_encode__`` must be an object that can be</span>
-<span class="sd">        serialized by the JSON encoder (for example a ``dict`` containing</span>
-<span class="sd">        other JSON serializable objects).</span>
+<span class="sd">    The value returned by ``__json_encode__`` must be an object that can be</span>
+<span class="sd">    serialized by the JSON encoder (for example a ``dict`` containing</span>
+<span class="sd">    other JSON serializable objects).</span>
 
-<span class="sd">        To deserialize this object using the :class:`ExperimentDecoder` the</span>
-<span class="sd">        class must also provide a ``__json_decode__`` class method that can</span>
-<span class="sd">        convert the value returned by ``__json_encode__`` back to the object.</span>
-<span class="sd">        This method should have signature</span>
+<span class="sd">    To deserialize this object using the :class:`ExperimentDecoder` the</span>
+<span class="sd">    class must also provide a ``__json_decode__`` class method that can</span>
+<span class="sd">    convert the value returned by ``__json_encode__`` back to the object.</span>
+<span class="sd">    This method should have signature</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">    .. code-block:: python</span>
 
-<span class="sd">            @classmethod</span>
-<span class="sd">            def __json_decode__(cls, value: Any) -&gt; cls:</span>
-<span class="sd">                # recover the object from the `value` returned by __json_encode__</span>
+<span class="sd">        @classmethod</span>
+<span class="sd">        def __json_decode__(cls, value: Any) -&gt; Self:</span>
+<span class="sd">            # recover the object from the `value` returned by __json_encode__</span>
 
-<span class="sd">    2.  The object has a ``settings`` property. This should have signature</span>
+<span class="sd">    Additionally, the custom class&#39;s package metadata must register the top</span>
+<span class="sd">    level import package as a ``qiskit_experiments.def`` Python entry point. In</span>
+<span class="sd">    ``pyproject.toml`` the entry point registration would like this:</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">    .. code-block:: toml</span>
 
-<span class="sd">            @property</span>
-<span class="sd">            def settings(self) -&gt; Dict[str, Any]:</span>
-<span class="sd">                # Return settings value for reconstructing the instance</span>
+<span class="sd">        [project.entry-points.&quot;qiskit_experiments.deserialization_packages&quot;]</span>
+<span class="sd">        custom-package-name = &quot;custom_package&quot;</span>
 
-<span class="sd">        Deserialization of objects from the ``value`` dictionary returned by</span>
-<span class="sd">        ``settings`` is done by calling the class `__init__` method</span>
-<span class="sd">        ``cls(**settings)``.</span>
+<span class="sd">    where ``custom_package`` is the Python import module that the custom class</span>
+<span class="sd">    is below (the import path before the first ``.``; ``custom_package`` for</span>
+<span class="sd">    class ``MyClass`` if it is normally imported as ``from</span>
+<span class="sd">    custom_package.subpackage import MyClass`` for example). The entry point</span>
+<span class="sd">    name, ``custom-package-name`` in the example, is not used and can be set to</span>
+<span class="sd">    any descriptive name.</span>
 
-<span class="sd">    3.  In all other cases only the object class is saved. Deserialization</span>
-<span class="sd">        will attempt to recover the object from default initialization of</span>
-<span class="sd">        its class as ``cls()``.</span>
+<span class="sd">    If the object has no ``__json_encode__`` method and all other special cases</span>
+<span class="sd">    (numpy arrays, Qiskit quantum info classes, etc.) do not apply, the</span>
+<span class="sd">    object is serialized as though ``__json_encode__`` returned an empty dict.</span>
+<span class="sd">    Without a ``__json_decode__`` method, the object will be loaded by</span>
+<span class="sd">    :class:`ExperimentDecoder` as a dictionary containing the name of the</span>
+<span class="sd">    object&#39;s class and module. This incomplete loading of the object may lead</span>
+<span class="sd">    to other code execution problems.</span>
 
 <span class="sd">    .. note::</span>
 
@@ -990,7 +1073,9 @@
 <span class="sd">        Python scripts, notebooks, or third party modules. Note however</span>
 <span class="sd">        that these will only be able to be de-serialized if that class</span>
 <span class="sd">        can be imported form the same scope at the time the</span>
-<span class="sd">        :class:`ExperimentDecoder` is invoked.</span>
+<span class="sd">        :class:`ExperimentDecoder` is invoked. For scripts and notebook, the</span>
+<span class="sd">        scope is named ``__main__`` which is registered by default with the</span>
+<span class="sd">        ``qiskit_experiments.deserialization_packages`` entry point.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ExperimentEncoder.default">
@@ -1016,12 +1101,6 @@
             <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime&quot;</span><span class="p">,</span> <span class="s2">&quot;__value__&quot;</span><span class="p">:</span> <span class="n">obj</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()}</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
-            <span class="c1"># Note that dataclass.asdict recursively convert nested dataclass into dictionary.</span>
-            <span class="c1"># Thus inter dataclass is unintentionally decoded as dictionary.</span>
-            <span class="c1"># obj.__dict__ doesn&#39;t convert inter dataclass thus serialization</span>
-            <span class="c1"># is offloaded to usual json serialization mechanism.</span>
-            <span class="k">return</span> <span class="n">_serialize_object</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">uncertainties</span><span class="o">.</span><span class="n">UFloat</span><span class="p">):</span>
             <span class="c1"># This could be UFloat (AffineScalarFunc) or Variable.</span>
             <span class="c1"># UFloat is a base class of Variable that contains parameter correlation.</span>
@@ -1029,18 +1108,11 @@
             <span class="c1"># Since this object is not serializable, we will drop correlation information</span>
             <span class="c1"># during serialization. Then both can be serialized as Variable.</span>
             <span class="c1"># Note that UFloat doesn&#39;t have a tag.</span>
-            <span class="n">settings</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">_serialize_safe_float</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">nominal_value</span><span class="p">),</span>
-                <span class="s2">&quot;std_dev&quot;</span><span class="p">:</span> <span class="n">_serialize_safe_float</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">std_dev</span><span class="p">),</span>
-                <span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="p">}</span>
-            <span class="bp">cls</span> <span class="o">=</span> <span class="n">uncertainties</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Variable</span>
             <span class="k">return</span> <span class="p">{</span>
-                <span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="s2">&quot;ufloat&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;__value__&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="n">_serialize_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">),</span>
-                    <span class="s2">&quot;settings&quot;</span><span class="p">:</span> <span class="n">settings</span><span class="p">,</span>
-                    <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">get_object_version</span><span class="p">(</span><span class="bp">cls</span><span class="p">),</span>
+                    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">_serialize_safe_float</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">nominal_value</span><span class="p">),</span>
+                    <span class="s2">&quot;std_dev&quot;</span><span class="p">:</span> <span class="n">_serialize_safe_float</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">std_dev</span><span class="p">),</span>
                 <span class="p">},</span>
             <span class="p">}</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
@@ -1069,8 +1141,16 @@
                 <span class="n">compress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="s2">&quot;ParameterExpression&quot;</span><span class="p">,</span> <span class="s2">&quot;__value__&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
-        <span class="k">if</span> <span class="n">istype</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">_serialize_type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_check_quantum_info_class</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="s2">&quot;qiskit.quantum_info&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;__value__&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                    <span class="s2">&quot;settings&quot;</span><span class="p">:</span> <span class="n">_serialize_safe_float</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">settings</span><span class="p">),</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Backend</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
@@ -1084,11 +1164,17 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">ExperimentDecoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecoder</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;JSON Decoder for Qiskit Experiments.</span>
 
+<span class="sd">    .. warning::</span>
+
+<span class="sd">        It is recommended to use this class only on trusted data. See the</span>
+<span class="sd">        warning in the :class:`ExperimentEncoder` documentation for more</span>
+<span class="sd">        details.</span>
+
 <span class="sd">    This class extends the default Python JSONDecoder by including built-in</span>
 <span class="sd">    support for all objects that that can be serialized using the</span>
 <span class="sd">    :class:`ExperimentEncoder`.</span>
 
-<span class="sd">    See :class:`ExperimentEncoder` class documentation for details.</span>
+<span class="sd">    See :class:`ExperimentEncoder` class documentation for further details.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_NaNs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;NaN&quot;</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;Infinity&quot;</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="s2">&quot;-Infinity&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">}</span>
@@ -1115,6 +1201,8 @@
                 <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">obj_val</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;datetime&quot;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">obj_val</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;ufloat&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">uncertainties</span><span class="o">.</span><span class="n">ufloat</span><span class="p">(</span><span class="n">obj_val</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="n">obj_val</span><span class="p">[</span><span class="s2">&quot;std_dev&quot;</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;LMFIT.Model&quot;</span><span class="p">:</span>
                 <span class="n">tmp</span> <span class="o">=</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
                 <span class="n">load_obj</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="n">obj_val</span><span class="p">)</span>
@@ -1128,26 +1216,19 @@
                 <span class="k">return</span> <span class="n">_decode_and_deserialize</span><span class="p">(</span>
                     <span class="n">obj_val</span><span class="p">,</span> <span class="n">qpy</span><span class="o">.</span><span class="n">_read_parameter_expression</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">obj_type</span>
                 <span class="p">)</span>
+            <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;qiskit.quantum_info&quot;</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">quantum_info</span><span class="p">,</span> <span class="n">obj_val</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]):</span>
+                <span class="bp">cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">quantum_info</span><span class="p">,</span> <span class="n">obj_val</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
+                <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">obj_val</span><span class="p">[</span><span class="s2">&quot;settings&quot;</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;safe_float&quot;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_NaNs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obj_val</span><span class="p">,</span> <span class="n">obj_val</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_check_quantum_info_class</span><span class="p">(</span><span class="n">obj_val</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="n">obj_val</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">](</span><span class="o">**</span><span class="n">obj_val</span><span class="p">[</span><span class="s2">&quot;settings&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">obj_val</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="n">uncertainties</span><span class="o">.</span><span class="n">ufloat</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_deserialize_ufloat</span><span class="p">(</span><span class="n">obj_val</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">_deserialize_object</span><span class="p">(</span><span class="n">obj_val</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">_deserialize_type</span><span class="p">(</span><span class="n">obj_val</span><span class="p">)</span>
-
-            <span class="c1"># Deprecated formats</span>
-            <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;array&quot;</span><span class="p">:</span>
-                <span class="n">_deprecation_warning</span><span class="p">(</span><span class="n">obj_type</span><span class="p">,</span> <span class="s2">&quot;0.3.0&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">obj_val</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span><span class="p">:</span>
-                <span class="n">_deprecation_warning</span><span class="p">(</span><span class="n">obj_type</span><span class="p">,</span> <span class="s2">&quot;0.3.0&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">obj_val</span>
-            <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;__object__&quot;</span><span class="p">:</span>
-                <span class="n">_deprecation_warning</span><span class="p">(</span><span class="n">obj_type</span><span class="p">,</span> <span class="s2">&quot;0.3.0&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">_deserialize_object_legacy</span><span class="p">(</span><span class="n">obj_val</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;__class_name__&quot;</span><span class="p">:</span>
-                <span class="n">_deprecation_warning</span><span class="p">(</span><span class="n">obj_type</span><span class="p">,</span> <span class="s2">&quot;0.3.0&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">obj_val</span>
         <span class="k">return</span> <span class="n">obj</span></div>
 </div>
 
@@ -1169,7 +1250,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/05/01</div>
+              Last updated on 2026/05/04</div>
           </div>
           <div class="right-details">
             
@@ -1184,7 +1265,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=95227867"></script>
+</div><script src="../../../_static/documentation_options.js?v=4d5b6d8c"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

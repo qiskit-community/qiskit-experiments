@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="QuantumVolumePlotter" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Release Notes - Qiskit Experiments 0.13.0-14-g534655e16</title>
+        <title>Release Notes - Qiskit Experiments 0.13.0-15-ged4363aac</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit Experiments 0.13.0-14-g534655e16</div></a>
+      <a href="index.html"><div class="brand">Qiskit Experiments 0.13.0-15-ged4363aac</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-14-g534655e16</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-15-ged4363aac</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -561,10 +561,10 @@ released.</p>
 </div>
 <section id="release-notes">
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
-<section id="relnotes-0-13-0-14">
-<span id="id1"></span><h2>0.13.0-14<a class="headerlink" href="#relnotes-0-13-0-14" title="Link to this heading">¶</a></h2>
+<section id="relnotes-0-13-0-15">
+<span id="id1"></span><h2>0.13.0-15<a class="headerlink" href="#relnotes-0-13-0-15" title="Link to this heading">¶</a></h2>
 <section id="new-features">
-<span id="relnotes-0-13-0-14-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-13-0-15-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Importing of optional dependencies has been made delayed until first use.
 In particular, <code class="docutils literal notranslate"><span class="pre">cvxpy</span></code> is now not imported until a tomography fitter that
@@ -614,7 +614,7 @@ with minimum distance separation</p></li>
 </ul>
 </section>
 <section id="upgrade-notes">
-<span id="relnotes-0-13-0-14-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-13-0-15-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The dependency on <code class="docutils literal notranslate"><span class="pre">qiskit-ibm-experiment</span></code> has been removed following that
 project’s discontinuation. Its classes related to storing experiment
@@ -644,9 +644,69 @@ would allow looking up an experiment service.</p></li>
 Additionally, Python 3.9 has been dropped from the list of compatible
 versions.</p></li>
 </ul>
+<ul class="simple">
+<li><p>Deserializing JSON with the <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a> class now only
+supports loading custom classes outside of Qiskit Experiments that register
+with the <code class="docutils literal notranslate"><span class="pre">qiskit_experiments.deserialization_packages</span></code> entry point and
+implement a <code class="docutils literal notranslate"><span class="pre">__json_decode__</span></code> class method. Deserializing functions and
+class methods is no longer supported. See the <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentEncoder.html#qiskit_experiments.framework.ExperimentEncoder" title="qiskit_experiments.framework.ExperimentEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentEncoder</span></code></a>
+documentation for more details.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Serializing objects with a <code class="docutils literal notranslate"><span class="pre">settings</span></code> property is no longer supported by
+<a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentEncoder.html#qiskit_experiments.framework.ExperimentEncoder" title="qiskit_experiments.framework.ExperimentEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentEncoder</span></code></a> (outside of special cases of class in Qiskit).
+Objects must implement a <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method. See the
+<a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentEncoder.html#qiskit_experiments.framework.ExperimentEncoder" title="qiskit_experiments.framework.ExperimentEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentEncoder</span></code></a> documentation for more details.</p></li>
+</ul>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method of <a class="reference internal" href="stubs/qiskit_experiments.framework.FigureData.html#qiskit_experiments.framework.FigureData" title="qiskit_experiments.framework.FigureData"><code class="xref py py-class docutils literal notranslate"><span class="pre">FigureData</span></code></a> was updated to
+convert its figures into SVG format. Previously, figures could be left as
+matplotlib figure objects which could then be serialized with
+<a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentEncoder.html#qiskit_experiments.framework.ExperimentEncoder" title="qiskit_experiments.framework.ExperimentEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentEncoder</span></code></a> as empty containers with no figure data.</p></li>
+</ul>
+<ul>
+<li><p><a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity" title="qiskit_experiments.library.randomized_benchmarking.LayerFidelity"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerFidelity</span></code></a> was updated so that its input validation is
+compatible with round trip JSON serialization with
+<a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentEncoder.html#qiskit_experiments.framework.ExperimentEncoder" title="qiskit_experiments.framework.ExperimentEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentEncoder</span></code></a> and <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a>. The basis
+gates can either be passed as <code class="docutils literal notranslate"><span class="pre">__init__</span></code> arguments or set as experiment
+options (which can be inferred from the backend). The experiment code
+saves both <code class="docutils literal notranslate"><span class="pre">__init__</span></code> arguments and experiment options and includes them
+the serialized JSON payload. Before this release, the experiment
+<code class="docutils literal notranslate"><span class="pre">__init__</span></code> had been validating basis gates passed as arguments. During
+deserialization this validation would happen before the experiment options
+were restored, raising an exception when the gates had been set as
+experiment options after being found in the target of a backend passed in
+as a target. Gate validation has been delayed until a backend is set so
+that setting the gates after <code class="docutils literal notranslate"><span class="pre">__init__</span></code> is now allowed.</p>
+<p>Additionally, check that the <code class="docutils literal notranslate"><span class="pre">two_qubit_gate</span></code> option is in the backend
+target or in the standard Qiskit gate name mapping was delayed from the
+experiment <code class="docutils literal notranslate"><span class="pre">__init__</span></code> until first use in the <code class="docutils literal notranslate"><span class="pre">circuits()</span></code> method for
+similar reasons.</p>
+</li>
+</ul>
+</section>
+<section id="security-issues">
+<span id="relnotes-0-13-0-15-security-issues"></span><h3>Security Issues<a class="headerlink" href="#security-issues" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a> class used to load <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a>
+objects saved to an experiment service (or to save Qiskit Experiments
+objects serialized to JSON more generally) has been overhauled to improve
+security. Deserializing objects outside of the core types handled by Qiskit
+Experiments (such as numpy arrays, complex numbers, Qiskit <code class="docutils literal notranslate"><span class="pre">quantum_info</span></code>
+classes, etc.) now requires that the object’s class belong to a package
+registered with the <code class="docutils literal notranslate"><span class="pre">qiskit_experiments.deserialization_packages</span></code> entry
+point and that the class implement a <code class="docutils literal notranslate"><span class="pre">__json_decode__</span></code> method.
+Additionally, deserializing functions and class methods is no longer
+supported. Prior to these changes, in Qiskit Experiments 0.13 and earlier,
+it was possible to trigger the execution of arbitrary code with a custom
+JSON payload (with “custom” here meaning not a payload generated by Qiskit
+Experiments itself). With all versions of Qiskit Experiments, including
+0.14, it is strongly recommended not to deserialize an untrusted payload.
+See the <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentEncoder.html#qiskit_experiments.framework.ExperimentEncoder" title="qiskit_experiments.framework.ExperimentEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentEncoder</span></code></a> documentation for more details.</p></li>
+</ul>
 </section>
 <section id="api-changes-for-experiment-authors">
-<span id="relnotes-0-13-0-14-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-13-0-15-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="stubs/qiskit_experiments.database_service.LocalExperimentService.html#qiskit_experiments.database_service.LocalExperimentService" title="qiskit_experiments.database_service.LocalExperimentService"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalExperimentService</span></code></a> has been added as a reference
 implementation of a service for saving and loading experiment results. As
@@ -655,7 +715,7 @@ currently suitable for storing a large amount of results.</p></li>
 </ul>
 </section>
 <section id="other-notes">
-<span id="relnotes-0-13-0-14-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-13-0-15-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The <a class="reference external" href="experiment_service.html">howto</a> on working with the cloud experiment
 service has been reworked to demonstrate using
@@ -4189,7 +4249,7 @@ stored in the experiments analysis result extra field.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/05/01</div>
+              Last updated on 2026/05/04</div>
           </div>
           <div class="right-details">
             
@@ -4211,9 +4271,10 @@ stored in the experiments analysis result extra field.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Release Notes</a><ul>
-<li><a class="reference internal" href="#relnotes-0-13-0-14">0.13.0-14</a><ul>
+<li><a class="reference internal" href="#relnotes-0-13-0-15">0.13.0-15</a><ul>
 <li><a class="reference internal" href="#new-features">New Features</a></li>
 <li><a class="reference internal" href="#upgrade-notes">Upgrade Notes</a></li>
+<li><a class="reference internal" href="#security-issues">Security Issues</a></li>
 <li><a class="reference internal" href="#api-changes-for-experiment-authors">API Changes for Experiment Authors</a></li>
 <li><a class="reference internal" href="#other-notes">Other Notes</a></li>
 </ul>
@@ -4407,7 +4468,7 @@ stored in the experiments analysis result extra field.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=95227867"></script>
+</div><script src="_static/documentation_options.js?v=4d5b6d8c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

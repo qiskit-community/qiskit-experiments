@@ -14,7 +14,12 @@ BaseReadoutMitigator
 
    
    
+         
 
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: BaseReadoutMitigator.settings
    
 
 
