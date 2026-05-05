@@ -1,0 +1,8 @@
+﻿
+
+eval_with_uncertainties
+===============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.utils
+
+.. autofunction:: eval_with_uncertainties

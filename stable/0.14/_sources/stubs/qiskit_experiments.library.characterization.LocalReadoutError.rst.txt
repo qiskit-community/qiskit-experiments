@@ -1,0 +1,48 @@
+﻿
+
+LocalReadoutError
+=============================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: LocalReadoutError
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: LocalReadoutError.analysis
+   .. autoattribute:: LocalReadoutError.backend
+   .. autoattribute:: LocalReadoutError.experiment_options
+   .. autoattribute:: LocalReadoutError.experiment_type
+   .. autoattribute:: LocalReadoutError.num_qubits
+   .. autoattribute:: LocalReadoutError.physical_qubits
+   .. autoattribute:: LocalReadoutError.run_options
+   .. autoattribute:: LocalReadoutError.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: LocalReadoutError.circuits
+   .. automethod:: LocalReadoutError.config
+   .. automethod:: LocalReadoutError.copy
+   .. automethod:: LocalReadoutError.from_config
+   .. automethod:: LocalReadoutError.job_info
+   .. automethod:: LocalReadoutError.run
+   .. automethod:: LocalReadoutError.set_experiment_options
+   .. automethod:: LocalReadoutError.set_run_options
+   .. automethod:: LocalReadoutError.set_transpile_options
+   
+
+   
+   

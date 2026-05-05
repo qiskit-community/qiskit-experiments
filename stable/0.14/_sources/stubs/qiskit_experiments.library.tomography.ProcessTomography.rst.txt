@@ -1,0 +1,48 @@
+﻿
+
+ProcessTomography
+=======================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoexperiment:: ProcessTomography
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: ProcessTomography.analysis
+   .. autoattribute:: ProcessTomography.backend
+   .. autoattribute:: ProcessTomography.experiment_options
+   .. autoattribute:: ProcessTomography.experiment_type
+   .. autoattribute:: ProcessTomography.num_qubits
+   .. autoattribute:: ProcessTomography.physical_qubits
+   .. autoattribute:: ProcessTomography.run_options
+   .. autoattribute:: ProcessTomography.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: ProcessTomography.circuits
+   .. automethod:: ProcessTomography.config
+   .. automethod:: ProcessTomography.copy
+   .. automethod:: ProcessTomography.from_config
+   .. automethod:: ProcessTomography.job_info
+   .. automethod:: ProcessTomography.run
+   .. automethod:: ProcessTomography.set_experiment_options
+   .. automethod:: ProcessTomography.set_run_options
+   .. automethod:: ProcessTomography.set_transpile_options
+   
+
+   
+   

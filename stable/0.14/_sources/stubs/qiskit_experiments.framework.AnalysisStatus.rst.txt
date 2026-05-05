@@ -1,0 +1,47 @@
+﻿
+
+AnalysisStatus
+===========================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: AnalysisStatus
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: AnalysisStatus.QUEUED
+   .. autoattribute:: AnalysisStatus.RUNNING
+   .. autoattribute:: AnalysisStatus.CANCELLED
+   .. autoattribute:: AnalysisStatus.DONE
+   .. autoattribute:: AnalysisStatus.ERROR
+   
+
+
+
+
+   
+   
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: AnalysisStatus.__getitem__
+   .. automethod:: AnalysisStatus.__len__
+
+   

@@ -1,0 +1,8 @@
+﻿
+
+exp_decay
+=================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.guess
+
+.. autofunction:: exp_decay

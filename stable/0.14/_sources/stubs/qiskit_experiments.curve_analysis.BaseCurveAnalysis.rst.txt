@@ -1,0 +1,53 @@
+﻿
+
+BaseCurveAnalysis
+===================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoclass:: BaseCurveAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: BaseCurveAnalysis.models
+   .. autoattribute:: BaseCurveAnalysis.name
+   .. autoattribute:: BaseCurveAnalysis.options
+   .. autoattribute:: BaseCurveAnalysis.parameters
+   .. autoattribute:: BaseCurveAnalysis.plotter
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: BaseCurveAnalysis.config
+   .. automethod:: BaseCurveAnalysis.copy
+   .. automethod:: BaseCurveAnalysis.from_config
+   .. automethod:: BaseCurveAnalysis.run
+   .. automethod:: BaseCurveAnalysis.set_options
+
+   

@@ -1,0 +1,8 @@
+﻿
+
+sqrt_lorentzian
+==============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.fit_function
+
+.. autofunction:: sqrt_lorentzian

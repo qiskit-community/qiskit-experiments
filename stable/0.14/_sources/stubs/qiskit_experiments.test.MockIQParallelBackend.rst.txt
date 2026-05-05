@@ -1,0 +1,75 @@
+﻿
+
+MockIQParallelBackend
+=============================================
+
+.. currentmodule:: qiskit_experiments.test
+
+.. autoclass:: MockIQParallelBackend
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: MockIQParallelBackend.coupling_map
+   .. autoattribute:: MockIQParallelBackend.dt
+   .. autoattribute:: MockIQParallelBackend.dtm
+   .. autoattribute:: MockIQParallelBackend.experiment_helper
+   .. autoattribute:: MockIQParallelBackend.instruction_durations
+   .. autoattribute:: MockIQParallelBackend.instructions
+   .. autoattribute:: MockIQParallelBackend.max_circuits
+   .. autoattribute:: MockIQParallelBackend.meas_map
+   .. autoattribute:: MockIQParallelBackend.num_qubits
+   .. autoattribute:: MockIQParallelBackend.operation_names
+   .. autoattribute:: MockIQParallelBackend.operations
+   .. autoattribute:: MockIQParallelBackend.options
+   .. autoattribute:: MockIQParallelBackend.provider
+   .. autoattribute:: MockIQParallelBackend.target
+   .. autoattribute:: MockIQParallelBackend.version
+   .. autoattribute:: MockIQParallelBackend.description
+   .. autoattribute:: MockIQParallelBackend.online_date
+   .. autoattribute:: MockIQParallelBackend.backend_version
+   
+
+
+
+
+   
+   
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: MockIQParallelBackend.qubit_properties
+   .. automethod:: MockIQParallelBackend.run
+   .. automethod:: MockIQParallelBackend.set_options
+
+   

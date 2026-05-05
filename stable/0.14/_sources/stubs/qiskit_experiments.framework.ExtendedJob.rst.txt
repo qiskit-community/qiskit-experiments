@@ -1,0 +1,42 @@
+﻿
+
+ExtendedJob
+========================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: ExtendedJob
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ExtendedJob.backend
+   .. automethod:: ExtendedJob.cancel
+   .. automethod:: ExtendedJob.error_message
+   .. automethod:: ExtendedJob.job_id
+   .. automethod:: ExtendedJob.result
+   .. automethod:: ExtendedJob.status
+
+   

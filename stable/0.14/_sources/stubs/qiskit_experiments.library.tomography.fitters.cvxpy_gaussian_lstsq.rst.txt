@@ -1,0 +1,8 @@
+﻿
+
+cvxpy_gaussian_lstsq
+==================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.fitters
+
+.. autofunction:: cvxpy_gaussian_lstsq

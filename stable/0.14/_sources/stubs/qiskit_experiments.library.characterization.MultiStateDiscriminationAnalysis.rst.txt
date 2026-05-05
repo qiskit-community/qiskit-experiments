@@ -1,0 +1,38 @@
+﻿
+
+MultiStateDiscriminationAnalysis
+============================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: MultiStateDiscriminationAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: MultiStateDiscriminationAnalysis.options
+   .. autoattribute:: MultiStateDiscriminationAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: MultiStateDiscriminationAnalysis.config
+   .. automethod:: MultiStateDiscriminationAnalysis.copy
+   .. automethod:: MultiStateDiscriminationAnalysis.from_config
+   .. automethod:: MultiStateDiscriminationAnalysis.run
+   .. automethod:: MultiStateDiscriminationAnalysis.set_options
+   
+
+   
+   

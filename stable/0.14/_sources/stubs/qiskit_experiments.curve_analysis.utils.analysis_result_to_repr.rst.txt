@@ -1,0 +1,8 @@
+﻿
+
+analysis_result_to_repr
+===============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.utils
+
+.. autofunction:: analysis_result_to_repr

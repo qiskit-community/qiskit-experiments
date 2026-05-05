@@ -1,0 +1,48 @@
+﻿
+
+T2Hahn
+==================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: T2Hahn
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: T2Hahn.analysis
+   .. autoattribute:: T2Hahn.backend
+   .. autoattribute:: T2Hahn.experiment_options
+   .. autoattribute:: T2Hahn.experiment_type
+   .. autoattribute:: T2Hahn.num_qubits
+   .. autoattribute:: T2Hahn.physical_qubits
+   .. autoattribute:: T2Hahn.run_options
+   .. autoattribute:: T2Hahn.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: T2Hahn.circuits
+   .. automethod:: T2Hahn.config
+   .. automethod:: T2Hahn.copy
+   .. automethod:: T2Hahn.from_config
+   .. automethod:: T2Hahn.job_info
+   .. automethod:: T2Hahn.run
+   .. automethod:: T2Hahn.set_experiment_options
+   .. automethod:: T2Hahn.set_run_options
+   .. automethod:: T2Hahn.set_transpile_options
+   
+
+   
+   

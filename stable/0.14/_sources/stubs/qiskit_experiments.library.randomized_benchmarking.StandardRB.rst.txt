@@ -1,0 +1,48 @@
+﻿
+
+StandardRB
+=============================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoexperiment:: StandardRB
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: StandardRB.analysis
+   .. autoattribute:: StandardRB.backend
+   .. autoattribute:: StandardRB.experiment_options
+   .. autoattribute:: StandardRB.experiment_type
+   .. autoattribute:: StandardRB.num_qubits
+   .. autoattribute:: StandardRB.physical_qubits
+   .. autoattribute:: StandardRB.run_options
+   .. autoattribute:: StandardRB.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: StandardRB.circuits
+   .. automethod:: StandardRB.config
+   .. automethod:: StandardRB.copy
+   .. automethod:: StandardRB.from_config
+   .. automethod:: StandardRB.job_info
+   .. automethod:: StandardRB.run
+   .. automethod:: StandardRB.set_experiment_options
+   .. automethod:: StandardRB.set_run_options
+   .. automethod:: StandardRB.set_transpile_options
+   
+
+   
+   

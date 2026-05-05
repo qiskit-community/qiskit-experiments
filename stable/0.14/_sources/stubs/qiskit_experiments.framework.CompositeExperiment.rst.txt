@@ -1,0 +1,71 @@
+﻿
+
+CompositeExperiment
+================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: CompositeExperiment
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: CompositeExperiment.analysis
+   .. autoattribute:: CompositeExperiment.backend
+   .. autoattribute:: CompositeExperiment.experiment_options
+   .. autoattribute:: CompositeExperiment.experiment_type
+   .. autoattribute:: CompositeExperiment.num_experiments
+   .. autoattribute:: CompositeExperiment.num_qubits
+   .. autoattribute:: CompositeExperiment.physical_qubits
+   .. autoattribute:: CompositeExperiment.run_options
+   .. autoattribute:: CompositeExperiment.transpile_options
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: CompositeExperiment.circuits
+   .. automethod:: CompositeExperiment.component_experiment
+   .. automethod:: CompositeExperiment.config
+   .. automethod:: CompositeExperiment.copy
+   .. automethod:: CompositeExperiment.from_config
+   .. automethod:: CompositeExperiment.job_info
+   .. automethod:: CompositeExperiment.run
+   .. automethod:: CompositeExperiment.set_experiment_options
+   .. automethod:: CompositeExperiment.set_run_options
+   .. automethod:: CompositeExperiment.set_transpile_options
+
+   

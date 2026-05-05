@@ -1,0 +1,8 @@
+﻿
+
+cvxpy_linear_lstsq
+================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.fitters
+
+.. autofunction:: cvxpy_linear_lstsq

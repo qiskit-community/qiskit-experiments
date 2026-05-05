@@ -1,0 +1,35 @@
+﻿
+
+MeasLevel
+======================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: MeasLevel
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: MeasLevel.RAW
+   .. autoattribute:: MeasLevel.KERNELED
+   .. autoattribute:: MeasLevel.CLASSIFIED
+   
+
+
+
+
+   
+   
+
+   

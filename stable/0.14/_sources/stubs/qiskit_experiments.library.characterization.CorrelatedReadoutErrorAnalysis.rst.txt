@@ -1,0 +1,37 @@
+﻿
+
+CorrelatedReadoutErrorAnalysis
+==========================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: CorrelatedReadoutErrorAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: CorrelatedReadoutErrorAnalysis.options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: CorrelatedReadoutErrorAnalysis.config
+   .. automethod:: CorrelatedReadoutErrorAnalysis.copy
+   .. automethod:: CorrelatedReadoutErrorAnalysis.from_config
+   .. automethod:: CorrelatedReadoutErrorAnalysis.run
+   .. automethod:: CorrelatedReadoutErrorAnalysis.set_options
+   
+
+   
+   

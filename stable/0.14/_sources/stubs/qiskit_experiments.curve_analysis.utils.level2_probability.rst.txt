@@ -1,0 +1,8 @@
+﻿
+
+level2_probability
+==========================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.utils
+
+.. autofunction:: level2_probability

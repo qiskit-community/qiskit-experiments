@@ -1,0 +1,48 @@
+﻿
+
+PurityRB
+===========================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoexperiment:: PurityRB
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: PurityRB.analysis
+   .. autoattribute:: PurityRB.backend
+   .. autoattribute:: PurityRB.experiment_options
+   .. autoattribute:: PurityRB.experiment_type
+   .. autoattribute:: PurityRB.num_qubits
+   .. autoattribute:: PurityRB.physical_qubits
+   .. autoattribute:: PurityRB.run_options
+   .. autoattribute:: PurityRB.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: PurityRB.circuits
+   .. automethod:: PurityRB.config
+   .. automethod:: PurityRB.copy
+   .. automethod:: PurityRB.from_config
+   .. automethod:: PurityRB.job_info
+   .. automethod:: PurityRB.run
+   .. automethod:: PurityRB.set_experiment_options
+   .. automethod:: PurityRB.set_run_options
+   .. automethod:: PurityRB.set_transpile_options
+   
+
+   
+   

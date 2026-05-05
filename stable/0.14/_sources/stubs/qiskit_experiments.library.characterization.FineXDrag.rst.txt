@@ -1,0 +1,48 @@
+﻿
+
+FineXDrag
+=====================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: FineXDrag
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: FineXDrag.analysis
+   .. autoattribute:: FineXDrag.backend
+   .. autoattribute:: FineXDrag.experiment_options
+   .. autoattribute:: FineXDrag.experiment_type
+   .. autoattribute:: FineXDrag.num_qubits
+   .. autoattribute:: FineXDrag.physical_qubits
+   .. autoattribute:: FineXDrag.run_options
+   .. autoattribute:: FineXDrag.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: FineXDrag.circuits
+   .. automethod:: FineXDrag.config
+   .. automethod:: FineXDrag.copy
+   .. automethod:: FineXDrag.from_config
+   .. automethod:: FineXDrag.job_info
+   .. automethod:: FineXDrag.run
+   .. automethod:: FineXDrag.set_experiment_options
+   .. automethod:: FineXDrag.set_run_options
+   .. automethod:: FineXDrag.set_transpile_options
+   
+
+   
+   

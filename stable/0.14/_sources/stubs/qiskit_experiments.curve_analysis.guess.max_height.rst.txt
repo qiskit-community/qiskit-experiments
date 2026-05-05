@@ -1,0 +1,8 @@
+﻿
+
+max_height
+==================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.guess
+
+.. autofunction:: max_height

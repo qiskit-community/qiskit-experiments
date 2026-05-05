@@ -1,0 +1,60 @@
+﻿
+
+PlotStyle
+==========================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. autoclass:: PlotStyle
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: PlotStyle.__getitem__
+   .. automethod:: PlotStyle.__len__
+   .. automethod:: PlotStyle.clear
+   .. automethod:: PlotStyle.copy
+   .. automethod:: PlotStyle.default_style
+   .. automethod:: PlotStyle.fromkeys
+   .. automethod:: PlotStyle.get
+   .. automethod:: PlotStyle.items
+   .. automethod:: PlotStyle.keys
+   .. automethod:: PlotStyle.merge
+   .. automethod:: PlotStyle.pop
+   .. automethod:: PlotStyle.popitem
+   .. automethod:: PlotStyle.setdefault
+   .. automethod:: PlotStyle.update
+   .. automethod:: PlotStyle.values
+
+   

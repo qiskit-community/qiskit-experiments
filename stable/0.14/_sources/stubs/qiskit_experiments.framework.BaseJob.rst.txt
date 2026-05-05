@@ -1,0 +1,38 @@
+﻿
+
+BaseJob
+====================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: BaseJob
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: BaseJob.cancel
+   .. automethod:: BaseJob.job_id
+   .. automethod:: BaseJob.result
+   .. automethod:: BaseJob.status
+
+   

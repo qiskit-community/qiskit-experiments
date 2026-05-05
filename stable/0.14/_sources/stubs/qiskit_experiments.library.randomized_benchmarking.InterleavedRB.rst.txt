@@ -1,0 +1,48 @@
+﻿
+
+InterleavedRB
+================================================================
+
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+
+.. autoexperiment:: InterleavedRB
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: InterleavedRB.analysis
+   .. autoattribute:: InterleavedRB.backend
+   .. autoattribute:: InterleavedRB.experiment_options
+   .. autoattribute:: InterleavedRB.experiment_type
+   .. autoattribute:: InterleavedRB.num_qubits
+   .. autoattribute:: InterleavedRB.physical_qubits
+   .. autoattribute:: InterleavedRB.run_options
+   .. autoattribute:: InterleavedRB.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: InterleavedRB.circuits
+   .. automethod:: InterleavedRB.config
+   .. automethod:: InterleavedRB.copy
+   .. automethod:: InterleavedRB.from_config
+   .. automethod:: InterleavedRB.job_info
+   .. automethod:: InterleavedRB.run
+   .. automethod:: InterleavedRB.set_experiment_options
+   .. automethod:: InterleavedRB.set_run_options
+   .. automethod:: InterleavedRB.set_transpile_options
+   
+
+   
+   

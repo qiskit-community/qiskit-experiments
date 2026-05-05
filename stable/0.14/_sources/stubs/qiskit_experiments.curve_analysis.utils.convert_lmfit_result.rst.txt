@@ -1,0 +1,8 @@
+﻿
+
+convert_lmfit_result
+============================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.utils
+
+.. autofunction:: convert_lmfit_result

@@ -1,0 +1,48 @@
+﻿
+
+MultiStateDiscrimination
+====================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoexperiment:: MultiStateDiscrimination
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: MultiStateDiscrimination.analysis
+   .. autoattribute:: MultiStateDiscrimination.backend
+   .. autoattribute:: MultiStateDiscrimination.experiment_options
+   .. autoattribute:: MultiStateDiscrimination.experiment_type
+   .. autoattribute:: MultiStateDiscrimination.num_qubits
+   .. autoattribute:: MultiStateDiscrimination.physical_qubits
+   .. autoattribute:: MultiStateDiscrimination.run_options
+   .. autoattribute:: MultiStateDiscrimination.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: MultiStateDiscrimination.circuits
+   .. automethod:: MultiStateDiscrimination.config
+   .. automethod:: MultiStateDiscrimination.copy
+   .. automethod:: MultiStateDiscrimination.from_config
+   .. automethod:: MultiStateDiscrimination.job_info
+   .. automethod:: MultiStateDiscrimination.run
+   .. automethod:: MultiStateDiscrimination.set_experiment_options
+   .. automethod:: MultiStateDiscrimination.set_run_options
+   .. automethod:: MultiStateDiscrimination.set_transpile_options
+   
+
+   
+   

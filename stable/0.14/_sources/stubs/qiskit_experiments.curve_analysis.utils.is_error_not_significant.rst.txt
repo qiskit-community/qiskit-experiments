@@ -1,0 +1,8 @@
+﻿
+
+is_error_not_significant
+================================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.utils
+
+.. autofunction:: is_error_not_significant

@@ -1,0 +1,31 @@
+﻿
+
+ArtifactData
+=========================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: ArtifactData
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: ArtifactData.dtype
+   
+
+
+
+
+   
+   
+
+   

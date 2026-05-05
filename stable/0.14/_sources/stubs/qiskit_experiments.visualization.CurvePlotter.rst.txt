@@ -1,0 +1,49 @@
+﻿
+
+CurvePlotter
+=============================================
+
+.. currentmodule:: qiskit_experiments.visualization
+
+.. autoplotter:: CurvePlotter
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: CurvePlotter.figure_options
+   .. autoattribute:: CurvePlotter.options
+   .. autoattribute:: CurvePlotter.series
+   .. autoattribute:: CurvePlotter.series_data
+   .. autoattribute:: CurvePlotter.supplementary_data
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: CurvePlotter.clear_series_data
+   .. automethod:: CurvePlotter.clear_supplementary_data
+   .. automethod:: CurvePlotter.config
+   .. automethod:: CurvePlotter.data_exists_for
+   .. automethod:: CurvePlotter.data_for
+   .. automethod:: CurvePlotter.data_keys_for
+   .. automethod:: CurvePlotter.expected_series_data_keys
+   .. automethod:: CurvePlotter.expected_supplementary_data_keys
+   .. automethod:: CurvePlotter.figure
+   .. automethod:: CurvePlotter.set_figure_options
+   .. automethod:: CurvePlotter.set_options
+   .. automethod:: CurvePlotter.set_series_data
+   .. automethod:: CurvePlotter.set_supplementary_data
+   
+
+   
+   

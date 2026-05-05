@@ -1,0 +1,71 @@
+﻿
+
+BatchExperiment
+============================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: BatchExperiment
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: BatchExperiment.analysis
+   .. autoattribute:: BatchExperiment.backend
+   .. autoattribute:: BatchExperiment.experiment_options
+   .. autoattribute:: BatchExperiment.experiment_type
+   .. autoattribute:: BatchExperiment.num_experiments
+   .. autoattribute:: BatchExperiment.num_qubits
+   .. autoattribute:: BatchExperiment.physical_qubits
+   .. autoattribute:: BatchExperiment.run_options
+   .. autoattribute:: BatchExperiment.transpile_options
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: BatchExperiment.circuits
+   .. automethod:: BatchExperiment.component_experiment
+   .. automethod:: BatchExperiment.config
+   .. automethod:: BatchExperiment.copy
+   .. automethod:: BatchExperiment.from_config
+   .. automethod:: BatchExperiment.job_info
+   .. automethod:: BatchExperiment.run
+   .. automethod:: BatchExperiment.set_experiment_options
+   .. automethod:: BatchExperiment.set_run_options
+   .. automethod:: BatchExperiment.set_transpile_options
+
+   

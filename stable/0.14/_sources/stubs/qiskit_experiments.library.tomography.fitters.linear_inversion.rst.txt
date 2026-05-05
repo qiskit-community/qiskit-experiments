@@ -1,0 +1,8 @@
+﻿
+
+linear_inversion
+==============================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.fitters
+
+.. autofunction:: linear_inversion

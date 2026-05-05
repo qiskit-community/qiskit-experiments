@@ -1,0 +1,26 @@
+﻿
+
+ParameterRepr
+===============================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoclass:: ParameterRepr
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+
+   
+
+
+
+
+   
+   
+
+   

@@ -1,0 +1,43 @@
+﻿
+
+SVD
+======================================
+
+.. currentmodule:: qiskit_experiments.data_processing
+
+.. autoclass:: SVD
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: SVD.is_trained
+   .. autoattribute:: SVD.parameters
+   
+
+
+
+
+   
+   
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: SVD.__call__
+   .. automethod:: SVD.set_parameters
+   .. automethod:: SVD.train
+
+   

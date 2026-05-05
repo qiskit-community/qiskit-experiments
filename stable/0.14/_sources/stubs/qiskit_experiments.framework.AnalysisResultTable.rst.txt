@@ -1,0 +1,57 @@
+﻿
+
+AnalysisResultTable
+================================================
+
+.. currentmodule:: qiskit_experiments.framework
+
+.. autoclass:: AnalysisResultTable
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: AnalysisResultTable.DEFAULT_COLUMNS
+   .. autoattribute:: AnalysisResultTable.VALID_ID_REGEX
+   .. autoattribute:: AnalysisResultTable.columns
+   .. autoattribute:: AnalysisResultTable.dataframe
+   .. autoattribute:: AnalysisResultTable.result_ids
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: AnalysisResultTable.__len__
+   .. automethod:: AnalysisResultTable.add_data
+   .. automethod:: AnalysisResultTable.clear
+   .. automethod:: AnalysisResultTable.copy
+   .. automethod:: AnalysisResultTable.del_data
+   .. automethod:: AnalysisResultTable.from_dataframe
+   .. automethod:: AnalysisResultTable.get_data
+
+   

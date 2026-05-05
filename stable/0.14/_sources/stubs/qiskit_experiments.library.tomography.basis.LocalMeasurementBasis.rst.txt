@@ -1,0 +1,45 @@
+﻿
+
+LocalMeasurementBasis
+=================================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography.basis
+
+.. autoclass:: LocalMeasurementBasis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: LocalMeasurementBasis.name
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: LocalMeasurementBasis.circuit
+   .. automethod:: LocalMeasurementBasis.index_shape
+   .. automethod:: LocalMeasurementBasis.matrix
+   .. automethod:: LocalMeasurementBasis.matrix_shape
+   .. automethod:: LocalMeasurementBasis.outcome_shape
+
+   

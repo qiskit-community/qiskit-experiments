@@ -1,0 +1,42 @@
+﻿
+
+DampedOscillationAnalysis
+===========================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis
+
+.. autoanalysis:: DampedOscillationAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: DampedOscillationAnalysis.models
+   .. autoattribute:: DampedOscillationAnalysis.name
+   .. autoattribute:: DampedOscillationAnalysis.options
+   .. autoattribute:: DampedOscillationAnalysis.parameters
+   .. autoattribute:: DampedOscillationAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: DampedOscillationAnalysis.config
+   .. automethod:: DampedOscillationAnalysis.copy
+   .. automethod:: DampedOscillationAnalysis.from_config
+   .. automethod:: DampedOscillationAnalysis.model_names
+   .. automethod:: DampedOscillationAnalysis.run
+   .. automethod:: DampedOscillationAnalysis.set_options
+   
+
+   
+   

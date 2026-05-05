@@ -1,0 +1,8 @@
+﻿
+
+min_height
+==================================================
+
+.. currentmodule:: qiskit_experiments.curve_analysis.guess
+
+.. autofunction:: min_height

@@ -1,0 +1,42 @@
+﻿
+
+FineAmplitudeAnalysis
+=================================================================
+
+.. currentmodule:: qiskit_experiments.library.characterization
+
+.. autoanalysis:: FineAmplitudeAnalysis
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: FineAmplitudeAnalysis.models
+   .. autoattribute:: FineAmplitudeAnalysis.name
+   .. autoattribute:: FineAmplitudeAnalysis.options
+   .. autoattribute:: FineAmplitudeAnalysis.parameters
+   .. autoattribute:: FineAmplitudeAnalysis.plotter
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: FineAmplitudeAnalysis.config
+   .. automethod:: FineAmplitudeAnalysis.copy
+   .. automethod:: FineAmplitudeAnalysis.from_config
+   .. automethod:: FineAmplitudeAnalysis.model_names
+   .. automethod:: FineAmplitudeAnalysis.run
+   .. automethod:: FineAmplitudeAnalysis.set_options
+   
+
+   
+   

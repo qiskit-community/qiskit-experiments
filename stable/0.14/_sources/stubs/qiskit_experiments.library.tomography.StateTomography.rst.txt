@@ -1,0 +1,48 @@
+﻿
+
+StateTomography
+=====================================================
+
+.. currentmodule:: qiskit_experiments.library.tomography
+
+.. autoexperiment:: StateTomography
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: StateTomography.analysis
+   .. autoattribute:: StateTomography.backend
+   .. autoattribute:: StateTomography.experiment_options
+   .. autoattribute:: StateTomography.experiment_type
+   .. autoattribute:: StateTomography.num_qubits
+   .. autoattribute:: StateTomography.physical_qubits
+   .. autoattribute:: StateTomography.run_options
+   .. autoattribute:: StateTomography.transpile_options
+   
+   
+
+   
+   
+
+   .. rubric:: Methods
+
+   
+   .. automethod:: StateTomography.circuits
+   .. automethod:: StateTomography.config
+   .. automethod:: StateTomography.copy
+   .. automethod:: StateTomography.from_config
+   .. automethod:: StateTomography.job_info
+   .. automethod:: StateTomography.run
+   .. automethod:: StateTomography.set_experiment_options
+   .. automethod:: StateTomography.set_run_options
+   .. automethod:: StateTomography.set_transpile_options
+   
+
+   
+   
