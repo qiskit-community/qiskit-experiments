@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="QuantumVolumePlotter" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>Release Notes - Qiskit Experiments 0.13.0-16-gb58ebad07</title>
+        <title>Release Notes - Qiskit Experiments 0.14.0-1-g4f865d9d2</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit Experiments 0.13.0-16-gb58ebad07</div></a>
+      <a href="index.html"><div class="brand">Qiskit Experiments 0.14.0-1-g4f865d9d2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0-16-gb58ebad07</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-1-g4f865d9d2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -508,6 +508,8 @@
         
             <li><a href="/qiskit-experiments/stable/0.5/index.html" rel="nofollow noindex">0.5</a></li>
         
+            <li><a href="/qiskit-experiments/stable/0.13/index.html" rel="nofollow noindex">0.13</a></li>
+        
             <li><a href="/qiskit-experiments/stable/0.12/index.html" rel="nofollow noindex">0.12</a></li>
         
             <li><a href="/qiskit-experiments/stable/0.11/index.html" rel="nofollow noindex">0.11</a></li>
@@ -561,10 +563,10 @@ released.</p>
 </div>
 <section id="release-notes">
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
-<section id="relnotes-0-13-0-16">
-<span id="id1"></span><h2>0.13.0-16<a class="headerlink" href="#relnotes-0-13-0-16" title="Link to this heading">¶</a></h2>
+<section id="relnotes-0-14-0">
+<span id="id1"></span><h2>0.14.0<a class="headerlink" href="#relnotes-0-14-0" title="Link to this heading">¶</a></h2>
 <section id="prelude">
-<span id="relnotes-0-13-0-16-prelude"></span><h3>Prelude<a class="headerlink" href="#prelude" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-14-0-prelude"></span><h3>Prelude<a class="headerlink" href="#prelude" title="Link to this heading">¶</a></h3>
 <p>The Qiskit Experiments 0.14.0 release adds several features while also
 including maintenance updates, particularly related to the process of saving
 experiments. Highlights include:</p>
@@ -582,7 +584,7 @@ posture of experiment deserialization.</p></li>
 </ul>
 </section>
 <section id="new-features">
-<span id="relnotes-0-13-0-16-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-14-0-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Importing optional dependencies has been delayed until first use.
 In particular, <code class="docutils literal notranslate"><span class="pre">cvxpy</span></code> is now not imported until a tomography fitter that
@@ -632,7 +634,7 @@ with minimum distance separation</p></li>
 </ul>
 </section>
 <section id="upgrade-notes">
-<span id="relnotes-0-13-0-16-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-14-0-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The dependency on <code class="docutils literal notranslate"><span class="pre">qiskit-ibm-experiment</span></code> has been removed following that
 project’s discontinuation. Its classes related to storing experiment
@@ -704,7 +706,7 @@ similar reasons.</p>
 </ul>
 </section>
 <section id="security-issues">
-<span id="relnotes-0-13-0-16-security-issues"></span><h3>Security Issues<a class="headerlink" href="#security-issues" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-14-0-security-issues"></span><h3>Security Issues<a class="headerlink" href="#security-issues" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a> class used to load <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a>
 objects saved to an experiment service (or to save Qiskit Experiments
@@ -724,7 +726,7 @@ See the <a class="reference internal" href="stubs/qiskit_experiments.framework.E
 </ul>
 </section>
 <section id="api-changes-for-experiment-authors">
-<span id="relnotes-0-13-0-16-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-14-0-api-changes-for-experiment-authors"></span><h3>API Changes for Experiment Authors<a class="headerlink" href="#api-changes-for-experiment-authors" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="stubs/qiskit_experiments.database_service.LocalExperimentService.html#qiskit_experiments.database_service.LocalExperimentService" title="qiskit_experiments.database_service.LocalExperimentService"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalExperimentService</span></code></a> has been added as a reference
 implementation of a service for saving and loading experiment results. As
@@ -733,7 +735,7 @@ currently suitable for storing a large amount of results.</p></li>
 </ul>
 </section>
 <section id="other-notes">
-<span id="relnotes-0-13-0-16-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-14-0-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The <a class="reference external" href="experiment_service.html">howto</a> on working with the cloud experiment
 service has been reworked to demonstrate using
@@ -4267,7 +4269,7 @@ stored in the experiments analysis result extra field.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/05/04</div>
+              Last updated on 2026/05/05</div>
           </div>
           <div class="right-details">
             
@@ -4289,7 +4291,7 @@ stored in the experiments analysis result extra field.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Release Notes</a><ul>
-<li><a class="reference internal" href="#relnotes-0-13-0-16">0.13.0-16</a><ul>
+<li><a class="reference internal" href="#relnotes-0-14-0">0.14.0</a><ul>
 <li><a class="reference internal" href="#prelude">Prelude</a></li>
 <li><a class="reference internal" href="#new-features">New Features</a></li>
 <li><a class="reference internal" href="#upgrade-notes">Upgrade Notes</a></li>
@@ -4487,7 +4489,7 @@ stored in the experiments analysis result extra field.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=82676ed0"></script>
+</div><script src="_static/documentation_options.js?v=3248f673"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
