@@ -1,0 +1,47 @@
+﻿
+
+ResultQuality
+=================================================
+
+.. currentmodule:: qiskit_experiments.database_service
+
+.. autoclass:: ResultQuality
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: ResultQuality.BAD
+   .. autoattribute:: ResultQuality.GOOD
+   .. autoattribute:: ResultQuality.UNKNOWN
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ResultQuality.from_str
+   .. automethod:: ResultQuality.to_str
+   .. automethod:: ResultQuality.__getitem__
+   .. automethod:: ResultQuality.__len__
+
+   

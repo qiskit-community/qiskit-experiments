@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ExperimentDecoder" href="qiskit_experiments.framework.ExperimentDecoder.html" /><link rel="prev" title="AnalysisConfig" href="qiskit_experiments.framework.AnalysisConfig.html" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>ExperimentEncoder - Qiskit Experiments 0.13.0</title>
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>ExperimentEncoder - Qiskit Experiments 0.14.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.13.0</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.13.0</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -211,7 +211,7 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtos/index.html">How-To Guides</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of How-To Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/artifacts.html">Work with experiment artifacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtos/cloud_service.html">Save and load experiment data with the cloud service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/experiment_service.html">Save and load experiment data with an experiment service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/experiment_times.html">Get experiment timing information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/figure_generation.html">Control figure generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtos/job_splitting.html">Control the splitting of experiment circuits into jobs</a></li>
@@ -247,7 +247,7 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.FigureData.html">FigureData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.Provider.html">Provider</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseProvider.html">BaseProvider</a></li>
-<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.IBMProvider.html">IBMProvider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExperimentService.html">ExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.Job.html">Job</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseJob.html">BaseJob</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ExtendedJob.html">ExtendedJob</a></li>
@@ -255,17 +255,27 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.MeasReturnType.html">MeasReturnType</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.CompositeExperiment.html">CompositeExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.ParallelExperiment.html">ParallelExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BasicExperiment.html">BasicExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BatchExperiment.html">BatchExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.TiledExperiment.html">TiledExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.CompositeAnalysis.html">CompositeAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseExperiment.html">BaseExperiment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html">BaseAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BackendData.html">BackendData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.BackendTiming.html">BackendTiming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.build_coupling_graph.html">build_coupling_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.build_distance_graph.html">build_distance_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.build_line_graph.html">build_line_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.partition_nodes.html">partition_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.partition_edges.html">partition_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.partition_qubits.html">partition_qubits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.framework.partition_qubit_pairs.html">partition_qubit_pairs</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/library.html">Experiment Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Experiment Library (qiskit_experiments.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.PurityRB.html">PurityRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary.html">LayerFidelityUnitary</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.tomography.TomographyExperiment.html">TomographyExperiment</a></li>
@@ -364,7 +374,12 @@
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.Resonator.html">Resonator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.UnknownComponent.html">UnknownComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.to_component.html">to_component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.DbExperimentData.html">DbExperimentData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.DbAnalysisResultData.html">DbAnalysisResultData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ResultQuality.html">ResultQuality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.LocalExperimentService.html">LocalExperimentService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentDataError.html">ExperimentDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentDataSaveFailed.html">ExperimentDataSaveFailed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentEntryExists.html">ExperimentEntryExists</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.database_service.ExperimentEntryNotFound.html">ExperimentEntryNotFound</a></li>
 </ul>
@@ -423,10 +438,12 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/mod_randomized_benchmarking.html">Randomized Benchmarking Experiments (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_experiments.library.randomized_benchmarking</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of Randomized Benchmarking Experiments (qiskit_experiments.library.randomized_benchmarking)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.StandardRB.html">StandardRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html">InterleavedRB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.PurityRB.html">PurityRB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html">LayerFidelity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.LayerFidelityUnitary.html">LayerFidelityUnitary</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html">RBAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.InterleavedRBAnalysis.html">InterleavedRBAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.PurityRBAnalysis.html">PurityRBAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis.html">LayerFidelityAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis.html">RBDefaultCliffordSynthesis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qiskit_experiments.library.randomized_benchmarking.RBUtils.html">RBUtils</a></li>
@@ -491,6 +508,8 @@
         
             <li><a href="/qiskit-experiments/stable/0.5/index.html" rel="nofollow noindex">0.5</a></li>
         
+            <li><a href="/qiskit-experiments/stable/0.13/index.html" rel="nofollow noindex">0.13</a></li>
+        
             <li><a href="/qiskit-experiments/stable/0.12/index.html" rel="nofollow noindex">0.12</a></li>
         
             <li><a href="/qiskit-experiments/stable/0.11/index.html" rel="nofollow noindex">0.11</a></li>
@@ -540,21 +559,45 @@
 <h1>ExperimentEncoder<a class="headerlink" href="#experimentencoder" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentEncoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExperimentEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_ascii</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_circular</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/json.html#ExperimentEncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentEncoder" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExperimentEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_ascii</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_circular</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_experiments/framework/json.html#ExperimentEncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_experiments.framework.ExperimentEncoder" title="Link to this definition">¶</a></dt>
 <dd><p>JSON Encoder for Qiskit Experiments.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is recommended only to deserialize data with
+<a class="reference internal" href="qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a> from trusted sources. For custom classes,
+the deserialization procedure involves dynamic execution of code based
+on the content of the serialized data. The deserialization code
+includes some safeguards:</p>
+<ol class="arabic simple">
+<li><p>Only modules registered with the
+<code class="docutils literal notranslate"><span class="pre">qiskit_experiments.deserialization_packages</span></code> entry point are
+imported dynamically.</p></li>
+<li><p>Only classes (as determined by Python’s <code class="docutils literal notranslate"><span class="pre">inspect.isclass</span></code>
+function) are referenced from the imported modules for further
+processing.</p></li>
+<li><p>These classes are checked to ensure that they were
+defined by the registered modules they were loaded from.</p></li>
+<li><p>For the referenced classes, only the <code class="docutils literal notranslate"><span class="pre">__json_decode__</span></code> method
+is called with the serialized data.</p></li>
+</ol>
+<p>Even with these safeguards, loading a payload involves instantiating
+registered classes with arbitrary inputs. These classes were not
+written assuming malicious input.</p>
+<p>Note that versions of Qiskit Experiments older than 0.14 could load
+arbitrary functions like <code class="docutils literal notranslate"><span class="pre">subprocess.run</span></code> and pass them data from
+the deserialization payload.</p>
+</div>
 <p>This class extends the default Python JSONEncoder by including built-in
 support for</p>
 <ul class="simple">
 <li><p>complex numbers, inf and NaN floats, sets, and dataclasses.</p></li>
 <li><p>NumPy ndarrays and SciPy sparse matrices.</p></li>
 <li><p>Qiskit <code class="docutils literal notranslate"><span class="pre">QuantumCircuit</span></code>.</p></li>
-<li><p>Any class that implements a <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method or a
-<code class="docutils literal notranslate"><span class="pre">settings</span></code> property.</p></li>
+<li><p>Any class that implements a <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method</p></li>
 </ul>
-<p>Generic classes can be serialized by this encoder. This is done
-by attempting the following methods in order:</p>
-<ol class="arabic">
-<li><p>The object has a <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method. This should have signature</p>
+<p>Custom classes can be serialized by this encoder by implementing a
+<code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method. The serialization procedure is as follows:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method should have signature</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
     <span class="c1"># return a JSON serializable object value</span>
 </pre></div>
@@ -567,40 +610,48 @@ class must also provide a <code class="docutils literal notranslate"><span class
 convert the value returned by <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> back to the object.
 This method should have signature</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">cls</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
     <span class="c1"># recover the object from the `value` returned by __json_encode__</span>
 </pre></div>
 </div>
-</li>
-<li><p>The object has a <code class="docutils literal notranslate"><span class="pre">settings</span></code> property. This should have signature</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@property</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-    <span class="c1"># Return settings value for reconstructing the instance</span>
+<p>Additionally, the custom class’s package metadata must register the top
+level import package as a <code class="docutils literal notranslate"><span class="pre">qiskit_experiments.def</span></code> Python entry point. In
+<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> the entry point registration would like this:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project.entry-points.</span><span class="s2">&quot;qiskit_experiments.deserialization_packages&quot;</span><span class="k">]</span>
+<span class="n">custom-package-name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;custom_package&quot;</span>
 </pre></div>
 </div>
-<p>Deserialization of objects from the <code class="docutils literal notranslate"><span class="pre">value</span></code> dictionary returned by
-<code class="docutils literal notranslate"><span class="pre">settings</span></code> is done by calling the class <cite>__init__</cite> method
-<code class="docutils literal notranslate"><span class="pre">cls(**settings)</span></code>.</p>
-</li>
-<li><p>In all other cases only the object class is saved. Deserialization
-will attempt to recover the object from default initialization of
-its class as <code class="docutils literal notranslate"><span class="pre">cls()</span></code>.</p></li>
-</ol>
+<p>where <code class="docutils literal notranslate"><span class="pre">custom_package</span></code> is the Python import module that the custom class
+is below (the import path before the first <code class="docutils literal notranslate"><span class="pre">.</span></code>; <code class="docutils literal notranslate"><span class="pre">custom_package</span></code> for
+class <code class="docutils literal notranslate"><span class="pre">MyClass</span></code> if it is normally imported as <code class="docutils literal notranslate"><span class="pre">from</span>
+<span class="pre">custom_package.subpackage</span> <span class="pre">import</span> <span class="pre">MyClass</span></code> for example). The entry point
+name, <code class="docutils literal notranslate"><span class="pre">custom-package-name</span></code> in the example, is not used and can be set to
+any descriptive name.</p>
+<p>If the object has no <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> method and all other special cases
+(numpy arrays, Qiskit quantum info classes, etc.) do not apply, the
+object is serialized as though <code class="docutils literal notranslate"><span class="pre">__json_encode__</span></code> returned an empty dict.
+Without a <code class="docutils literal notranslate"><span class="pre">__json_decode__</span></code> method, the object will be loaded by
+<a class="reference internal" href="qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a> as a dictionary containing the name of the
+object’s class and module. This incomplete loading of the object may lead
+to other code execution problems.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Serialization of custom classes works for user-defined classes in
 Python scripts, notebooks, or third party modules. Note however
 that these will only be able to be de-serialized if that class
 can be imported form the same scope at the time the
-<a class="reference internal" href="qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a> is invoked.</p>
+<a class="reference internal" href="qiskit_experiments.framework.ExperimentDecoder.html#qiskit_experiments.framework.ExperimentDecoder" title="qiskit_experiments.framework.ExperimentDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentDecoder</span></code></a> is invoked. For scripts and notebook, the
+scope is named <code class="docutils literal notranslate"><span class="pre">__main__</span></code> which is registered by default with the
+<code class="docutils literal notranslate"><span class="pre">qiskit_experiments.deserialization_packages</span></code> entry point.</p>
 </div>
 <p>Constructor for JSONEncoder, with sensible defaults.</p>
 <p>If skipkeys is false, then it is a TypeError to attempt
 encoding of keys that are not str, int, float, bool or None.
 If skipkeys is True, such items are simply skipped.</p>
-<p>If ensure_ascii is true, the output is guaranteed to be str
-objects with all incoming non-ASCII characters escaped.  If
-ensure_ascii is false, the output can contain non-ASCII characters.</p>
+<p>If ensure_ascii is true, the output is guaranteed to be str objects
+with all incoming non-ASCII and non-printable characters escaped.
+If ensure_ascii is false, the output can contain non-ASCII and
+non-printable characters.</p>
 <p>If check_circular is true, then lists, dicts, and custom encoded
 objects will be checked for circular references during encoding to
 prevent an infinite recursion (which would cause an RecursionError).
@@ -616,13 +667,14 @@ that JSON serializations can be compared on a day-to-day basis.</p>
 elements and object members will be pretty-printed with that
 indent level.  An indent level of 0 will only insert newlines.
 None is the most compact representation.</p>
-<p>If specified, separators should be an (item_separator, key_separator)
-tuple.  The default is (’, ‘, ‘: ‘) if <em>indent</em> is <code class="docutils literal notranslate"><span class="pre">None</span></code> and
-(‘,’, ‘: ‘) otherwise.  To get the most compact JSON representation,
-you should specify (‘,’, ‘:’) to eliminate whitespace.</p>
+<p>If specified, separators should be an (item_separator,
+key_separator) tuple.  The default is (’, ‘, ‘: ‘) if <em>indent</em> is
+<code class="docutils literal notranslate"><span class="pre">None</span></code> and (‘,’, ‘: ‘) otherwise.  To get the most compact JSON
+representation, you should specify (‘,’, ‘:’) to eliminate
+whitespace.</p>
 <p>If specified, default is a function that gets called for objects
-that can’t otherwise be serialized.  It should return a JSON encodable
-version of the object or raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>.</p>
+that can’t otherwise be serialized.  It should return a JSON
+encodable version of the object or raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>.</p>
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_experiments.framework.ExperimentEncoder.item_separator">
@@ -717,13 +769,13 @@ representation as available.</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2025, Qiskit Development Team
+                Copyright &#169; 2021-2026, Qiskit Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2025/11/05</div>
+              Last updated on 2026/05/05</div>
           </div>
           <div class="right-details">
             
@@ -764,7 +816,7 @@ representation as available.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=1019fba8"></script>
+</div><script src="../_static/documentation_options.js?v=9e420a66"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

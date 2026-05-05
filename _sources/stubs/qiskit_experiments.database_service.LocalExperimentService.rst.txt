@@ -1,0 +1,79 @@
+﻿
+
+LocalExperimentService
+==========================================================
+
+.. currentmodule:: qiskit_experiments.database_service
+
+.. autoclass:: LocalExperimentService
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+
+
+   
+   
+         
+         
+         
+
+   
+   .. rubric:: Attributes
+      
+   .. autoattribute:: LocalExperimentService.experiment_db_columns
+   .. autoattribute:: LocalExperimentService.options
+   .. autoattribute:: LocalExperimentService.results_db_columns
+   
+
+
+
+
+   
+   
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+
+   
+   .. rubric:: Methods
+   
+   .. automethod:: LocalExperimentService.analysis_result
+   .. automethod:: LocalExperimentService.analysis_results
+   .. automethod:: LocalExperimentService.backends
+   .. automethod:: LocalExperimentService.create_analysis_results
+   .. automethod:: LocalExperimentService.create_figures
+   .. automethod:: LocalExperimentService.create_or_update_analysis_result
+   .. automethod:: LocalExperimentService.create_or_update_experiment
+   .. automethod:: LocalExperimentService.create_or_update_figure
+   .. automethod:: LocalExperimentService.delete_analysis_result
+   .. automethod:: LocalExperimentService.delete_experiment
+   .. automethod:: LocalExperimentService.delete_figure
+   .. automethod:: LocalExperimentService.experiment
+   .. automethod:: LocalExperimentService.experiment_has_file
+   .. automethod:: LocalExperimentService.experiments
+   .. automethod:: LocalExperimentService.figure
+   .. automethod:: LocalExperimentService.file_delete
+   .. automethod:: LocalExperimentService.file_download
+   .. automethod:: LocalExperimentService.file_upload
+   .. automethod:: LocalExperimentService.files
+   .. automethod:: LocalExperimentService.save
+
+   

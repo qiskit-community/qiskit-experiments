@@ -21,17 +21,6 @@ are all of type ``datetime.datetime`` and in your local timezone:
   could not be added to the :class:`.ExperimentData` object for some other reason,
   :attr:`.ExperimentData.end_datetime` will not update.
 
-.. note::
-    The below attributes are only relevant for those who have access to the cloud service. You can 
-    check whether you do by logging into the IBM Quantum interface 
-    and seeing if you can see the `database <https://quantum.ibm.com/experiments>`__.
-
-- :attr:`.ExperimentData.creation_datetime` is the time when the experiment data was saved via the
-  service. This defaults to ``None`` if experiment data has not yet been saved.
-
-- :attr:`.ExperimentData.updated_datetime` is the time the experiment data entry in the service was
-  last updated. This defaults to ``None`` if experiment data has not yet been saved.
-
 Discussion
 ----------
 

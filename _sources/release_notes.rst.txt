@@ -3,7 +3,51 @@ Release Notes
 =============
 
 .. release-notes::
-   :earliest-version: 0.12.0
+   :earliest-version: 0.13.0
+
+.. _Release Notes_0.13.0:
+
+0.13.0
+======
+
+.. _Release Notes_0.13.0_Prelude:
+
+Prelude
+-------
+
+.. releasenotes/notes/prepare-0.13.0-167e9b7befc25c7f.yaml @ b'19b06b47d9656081d5fe1b99e6af514284fcad5b'
+
+Qiskit Experiments 0.13.0 is a small update with a fix for long randomized benchmarking sequences and a new niche feature for averaging parameterized PUBs.
+
+
+.. _Release Notes_0.13.0_New Features:
+
+New Features
+------------
+
+.. releasenotes/notes/average-pub-params-f24fd73f817051ac.yaml @ b'19b06b47d9656081d5fe1b99e6af514284fcad5b'
+
+- Enable averaging PUB parameters in :class:`~.ExperimentData` when 
+  the circuit metadata contain "average_params". This feature is undocumented
+  for now since it is niche. It requires the user to submit parameterized
+  circuits to a sampler outside of an experiment and then add the results to
+  an :class:`.ExperimentData` object since Qiskit Experiments does not
+  currently support running parameterized PUBs directly.
+
+
+.. _Release Notes_0.13.0_Bug Fixes:
+
+Bug Fixes
+---------
+
+.. releasenotes/notes/rb-clifford-10k-3429e74f4a82848e.yaml @ b'643c20ac50ea49078960927fff0a683058c4f427'
+
+- A workaround was added for a limit on exponentiation imposed by `LMFIT
+  <https://lmfit.github.io/lmfit-py/intro.html>`__ which prevented
+  :class:`.RBAnalysis` from working on experiments with Clifford lengths
+  longer than 10,000. See `#1594
+  <https://github.com/qiskit-community/qiskit-experiments/issues/1594>`__.
+
 
 .. _Release Notes_0.12.0:
 
@@ -708,7 +752,7 @@ API Changes for Experiment Authors
   :class:`~qiskit_experiments.framework.ExtendedJob`,
   :class:`~qiskit_experiments.framework.Job`,
   :class:`~qiskit_experiments.framework.BaseProvider`,
-  :class:`~qiskit_experiments.framework.IBMProvider`, and
+  ``qiskit_experiments.framework.IBMProvider``, and
   :class:`~qiskit_experiments.framework.Provider` to document the interfaces
   needed by :class:`~.ExperimentData` to work with jobs and results.
 
@@ -1522,11 +1566,11 @@ Deprecation Notes
 .. releasenotes/notes/0.6/experiment-artifacts-c481f4e07226ce9e.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'
 
 - Direct access to the curve fit summary in :class:`.ExperimentData` has moved from
-  :meth:`.analysis_results` to :meth:`.artifacts`, where values are stored in the
+  :meth:`.ExperimentDat.analysis_results` to :meth:`.artifacts`, where values are stored in the
   :attr:`~.ArtifactData.data` attribute of :class:`.ArtifactData` objects. For example, to access the
   chi-squared of the fit, ``expdata.analysis_results(0).chisq`` is deprecated in favor of
   ``expdata.artifacts("fit_summary").data.chisq``. In a future release, the curve fit summary
-  will be removed from :meth:`.analysis_results` and the option ``return_fit_parameters`` will be
+  will be removed from :meth:`.ExperimentData.analysis_results` and the option ``return_fit_parameters`` will be
   removed. For more information on artifacts, see the :doc:`artifacts how-to </howtos/artifacts>`.
 
 .. releasenotes/notes/0.6/experiment-artifacts-c481f4e07226ce9e.yaml @ b'e8531c4f6af9432827bc28c772c5a179737f0c3c'

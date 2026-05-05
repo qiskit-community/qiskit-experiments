@@ -110,8 +110,6 @@ ExperimentData
          
          
          
-         
-         
 
    
    .. rubric:: Methods
@@ -141,8 +139,6 @@ ExperimentData
    .. automethod:: ExperimentData.delete_figure
    .. automethod:: ExperimentData.errors
    .. automethod:: ExperimentData.figure
-   .. automethod:: ExperimentData.get_service_from_backend
-   .. automethod:: ExperimentData.get_service_from_provider
    .. automethod:: ExperimentData.job_errors
    .. automethod:: ExperimentData.job_status
    .. automethod:: ExperimentData.jobs

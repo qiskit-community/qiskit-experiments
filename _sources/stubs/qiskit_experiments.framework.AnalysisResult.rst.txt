@@ -28,12 +28,10 @@ AnalysisResult
          
          
          
-         
 
    
    .. rubric:: Attributes
       
-   .. autoattribute:: AnalysisResult.RESULT_QUALITY_TO_TEXT
    .. autoattribute:: AnalysisResult.auto_save
    .. autoattribute:: AnalysisResult.chisq
    .. autoattribute:: AnalysisResult.device_components
