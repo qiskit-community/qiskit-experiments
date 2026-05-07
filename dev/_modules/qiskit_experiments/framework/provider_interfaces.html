@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>qiskit_experiments.framework.provider_interfaces - Qiskit Experiments 0.14.0-1-g4f865d9d2</title>
+        <title>qiskit_experiments.framework.provider_interfaces - Qiskit Experiments 0.14.0-2-g5a3ef8f98</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-1-g4f865d9d2</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-2-g5a3ef8f98</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-1-g4f865d9d2</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-2-g5a3ef8f98</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -576,7 +576,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">IntEnum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">json</span><span class="w"> </span><span class="kn">import</span> <span class="n">JSONEncoder</span><span class="p">,</span> <span class="n">JSONDecoder</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">TypeAlias</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">Result</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrimitiveResult</span>
@@ -584,6 +584,12 @@
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.database_service</span><span class="w"> </span><span class="kn">import</span> <span class="n">DbExperimentData</span><span class="p">,</span> <span class="n">DbAnalysisResultData</span>
+
+
+<span class="c1"># Local type aliases for convert_type_alias_docstrings. The keys are simple</span>
+<span class="c1"># type names that will need to be promoted to fully qualified names in the</span>
+<span class="c1"># module documenting the aliases as public</span>
+<span class="n">__local_type_aliases__</span> <span class="o">=</span> <span class="p">{}</span>
 
 
 <div class="viewcode-block" id="BaseJob">
@@ -642,8 +648,8 @@
 
 
 
-<span class="n">Job</span> <span class="o">=</span> <span class="n">BaseJob</span> <span class="o">|</span> <span class="n">ExtendedJob</span>
-<span class="sd">&quot;&quot;&quot;Union type of job interfaces supported by Qiskit Experiments&quot;&quot;&quot;</span>
+<span class="n">Job</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">BaseJob</span> <span class="o">|</span> <span class="n">ExtendedJob</span>
+<span class="n">__local_type_aliases__</span><span class="p">[</span><span class="s2">&quot;Job&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Union type of job interfaces supported by Qiskit Experiments&quot;</span>
 
 
 <div class="viewcode-block" id="BaseProvider">
@@ -667,8 +673,12 @@
 
 
 
-<span class="n">Provider</span> <span class="o">=</span> <span class="n">BaseProvider</span>
-<span class="sd">&quot;&quot;&quot;Type alias of provider interface supported by Qiskit Experiments&quot;&quot;&quot;</span>
+<span class="c1"># Wrap with Annotated to bypass Sphinx alias detection so that our custom</span>
+<span class="c1"># docstring is used</span>
+<span class="n">Provider</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">BaseProvider</span><span class="p">,</span> <span class="s2">&quot;Provider&quot;</span><span class="p">]</span>
+<span class="n">__local_type_aliases__</span><span class="p">[</span><span class="s2">&quot;Provider&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Type alias of provider interfaces supported by Qiskit Experiments&quot;</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="MeasReturnType">
@@ -1040,7 +1050,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/05/05</div>
+              Last updated on 2026/05/07</div>
           </div>
           <div class="right-details">
             
@@ -1055,7 +1065,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=3248f673"></script>
+</div><script src="../../../_static/documentation_options.js?v=8f3ab604"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

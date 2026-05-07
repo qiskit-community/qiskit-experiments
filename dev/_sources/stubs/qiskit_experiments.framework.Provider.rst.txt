@@ -5,28 +5,4 @@ Provider
 
 .. currentmodule:: qiskit_experiments.framework
 
-.. autoclass:: Provider
-   :no-members:
-   :no-inherited-members:
-   :no-special-members:
-
-
-
-   
-   
-
-   
-
-
-
-
-   
-   
-         
-
-   
-   .. rubric:: Methods
-   
-   .. automethod:: Provider.job
-
-   
+.. autodata:: Provider
