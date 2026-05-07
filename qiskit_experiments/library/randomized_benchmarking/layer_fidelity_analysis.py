@@ -124,7 +124,7 @@ class _ProcessFidelityAnalysis(curve.CurveAnalysis):
 
         b_guess = 1 / 2 ** len(self._physical_qubits)
         alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, b=b_guess)
-        a_guess = (curve_data.y[0] - b_guess) / (alpha_guess ** curve_data.x[0])
+        a_guess = (curve_data.y[0] - b_guess) / (alpha_guess ** curve_data.x[0] + 1e-12)
 
         user_opt.p0.set_if_empty(
             b=b_guess,
