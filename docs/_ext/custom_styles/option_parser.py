@@ -17,6 +17,7 @@ A class to recursively collect option documentation from current class.
 import copy
 import inspect
 import re
+from itertools import chain
 from typing import Any
 
 import numpy as np
@@ -24,47 +25,85 @@ from sphinx.application import Sphinx
 from sphinx.ext.autodoc import Options as SphinxOptions
 from sphinx.ext.napoleon import Config as NapoleonConfig
 from sphinx.ext.napoleon import GoogleDocstring
+from qiskit.providers import Options
 
 
 _parameter_doc_regex = re.compile(r"(.+?)\(\s*(.*[^\s]+)\s*\):(.*[^\s]+)")
 
 
-class QiskitExperimentsOptionsDocstring(GoogleDocstring):
-    """GoogleDocstring with updated parameter field formatter.
-
-    This docstring parser may take options mapping in the Sphinx option
-    and inject :default_val: role to the restructured text to manage default value.
-
-    Since this class overrides a protected member, it might be sensitive to napoleon version.
+def _inject_roles(
+    lines: list[str],
+    default_opt_values: Options = None,
+    desc_sources: dict[str, str] | None = None,
+) -> list[str]:
+    """Post-process GoogleDocstring output to inject custom roles.
+    
+    This function loops through a Sphinx reStructuredText function signature docstring
+    and adds extra :default_val: and :source: roles at the end of each parameter's group.
+    
+    Example:
+        Input lines::
+        
+            :param delay: Delay times
+            :type delay: float
+            :param shots: Number of shots
+            :type shots: int
+        
+        Output lines::
+        
+            :param delay: Delay time
+            :type delay: float
+            :default_val delay: 1.0
+            :source delay: :class:`~.MyClass`
+            :param shots: Number of shots
+            :type shots: int
+            :default_val shots: 1024
+            :source shots: :class:`~.MyClass`
+    
+    Args:
+        lines: Sphinx reStructuredText function argument docstring lines from
+            (such as output by GoogleDocstring.lines()).
+        default_opt_values: Options object containing default values for parameters.
+        desc_sources: Dictionary mapping parameter names to their fully qualified source class
+            names.
+        
+    Returns:
+        Modified list of lines with custom roles injected.
     """
-
-    def _format_docutils_params(
-        self,
-        fields: list[tuple[str, str, list[str]]],
-        field_role: str = "param",
-        type_role: str = "type",
-        default_role: str = "default_val",
-        source_role: str = "source",
-    ) -> list[str]:
-        lines = []
-        for _name, _type, _desc in fields:
-            _desc = self._strip_empty(_desc)
-            if any(_desc):
-                _desc = self._fix_field_desc(_desc)[0]
-                lines.append(f":{field_role} {_name}: {_desc}")
-            else:
-                lines.append(f":{field_role} {_name}: ")
-            if _type:
-                lines.append(f":{type_role} {_name}: {_type}")
-            if "default_opt_values" in self._opt:
-                value = _value_repr(self._opt["default_opt_values"].get(_name, None))
-                lines.append(f":{default_role} {_name}: {value}")
-            if "desc_sources" in self._opt and _name in self._opt["desc_sources"]:
-                source = self._opt["desc_sources"][_name]
-                lines.append(f":{source_role} {_name}: :class:`~.{source}`")
-            else:
-                lines.append(f":{source_role} {_name}: Unknown class")
-        return lines + [""]
+    # Pattern to match :param lines
+    param_pattern = re.compile(r'^:param\s+(\w+):')
+    
+    result = []
+    current_param = None
+    
+    # Use chain to append None as sentinel value to trigger last parameter processing
+    for line in chain(lines, [None]):
+        end_of_docstring = line is None
+        
+        # Check if this is a :param line (None won't match)
+        param_match = param_pattern.match(line) if not end_of_docstring else None
+        
+        if param_match or end_of_docstring:
+            # If we already have a current_param, inject its custom roles first
+            if current_param is not None:
+                if default_opt_values is not None:
+                    value = _value_repr(default_opt_values.get(current_param, None))
+                    result.append(f":default_val {current_param}: {value}")
+                
+                if desc_sources is not None and current_param in desc_sources:
+                    source = desc_sources[current_param]
+                    result.append(f":source {current_param}: :class:`~.{source}`")
+                else:
+                    result.append(f":source {current_param}: Unknown class")
+            
+            # Update current_param to the new parameter (or None if sentinel)
+            current_param = param_match.group(1) if param_match else None
+        
+        # Add the current line to result (skip the sentinel None)
+        if not end_of_docstring:
+            result.append(line)
+    
+    return result
 
 
 def process_default_options(
@@ -109,24 +148,23 @@ def process_default_options(
             "Use Google style docstring. PEP484 type annotations is not supported for options."
         )
 
-    extra_info = {
-        "default_opt_values": default_options,
-        "desc_sources": desc_sources,
-    }
-
-    # Relying on GoogleDocstring to apply typehint automation
-    _options = options.copy()
-    _options.update(extra_info)
+    # Use GoogleDocstring to parse and format the docstring
     _config = copy.copy(config)
     _config.napoleon_use_param = True
-    docstring = QiskitExperimentsOptionsDocstring(
+    docstring = GoogleDocstring(
         docstring=descriptions,
         config=_config,
         app=app,
         obj=current_class,
-        options=_options,
+        options=options,
     )
-    return docstring.lines()
+    
+    # Post-process to inject custom roles
+    return _inject_roles(
+        lines=docstring.lines(),
+        default_opt_values=default_options,
+        desc_sources=desc_sources,
+    )
 
 
 def _flatten_option_docs(
