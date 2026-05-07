@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from enum import Enum, IntEnum
 from json import JSONEncoder, JSONDecoder
-from typing import Protocol, TYPE_CHECKING
+from typing import Annotated, Protocol, TYPE_CHECKING, TypeAlias
 
 from qiskit.result import Result
 from qiskit.primitives import PrimitiveResult
@@ -32,6 +32,12 @@ from qiskit.providers import Backend, JobStatus
 
 if TYPE_CHECKING:
     from qiskit_experiments.database_service import DbExperimentData, DbAnalysisResultData
+
+
+# Local type aliases for convert_type_alias_docstrings. The keys are simple
+# type names that will need to be promoted to fully qualified names in the
+# module documenting the aliases as public
+__local_type_aliases__ = {}
 
 
 class BaseJob(Protocol):
@@ -66,8 +72,8 @@ class ExtendedJob(BaseJob, Protocol):
         raise NotImplementedError
 
 
-Job = BaseJob | ExtendedJob
-"""Union type of job interfaces supported by Qiskit Experiments"""
+Job: TypeAlias = BaseJob | ExtendedJob
+__local_type_aliases__["Job"] = "Union type of job interfaces supported by Qiskit Experiments"
 
 
 class BaseProvider(Protocol):
@@ -85,8 +91,12 @@ class BaseProvider(Protocol):
         raise NotImplementedError
 
 
-Provider = BaseProvider
-"""Type alias of provider interface supported by Qiskit Experiments"""
+# Wrap with Annotated to bypass Sphinx alias detection so that our custom
+# docstring is used
+Provider: TypeAlias = Annotated[BaseProvider, "Provider"]
+__local_type_aliases__["Provider"] = (
+    "Type alias of provider interfaces supported by Qiskit Experiments"
+)
 
 
 class MeasReturnType(str, Enum):

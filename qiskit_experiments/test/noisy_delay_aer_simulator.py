@@ -57,7 +57,7 @@ class NoisyDelayAerBackend(AerSimulator):
 
         Args:
             run_input: List of circuit to run.
-            run_options (kwargs): additional run time backend options.
+            run_options: additional run time backend options.
 
         Returns:
             AerJob: A job that contains the simulated data.
