@@ -13,7 +13,7 @@ relaxation time of the qubit on the Bloch sphere as a result of both energy rela
 and pure dephasing in the transverse plane. Unlike :math:`T_2`, which is measured by
 :class:`.T2Hahn`, :math:`T_2^*` is sensitive to inhomogenous broadening.
 
-Since the detuning frequency is relatively small, we add a phase gate to the circuit to
+Since the detuning frequency is relatively small, we add a rotation gate to the circuit to
 enable better measurement. The actual frequency measured is the sum of the detuning
 frequency and the user induced *oscillation frequency* (``osc_freq`` parameter).
 
@@ -25,17 +25,17 @@ frequency and the user induced *oscillation frequency* (``osc_freq`` parameter).
 
 The circuits used for the experiment comprise the following steps:
 
-#. Hadamard gate
+#. SX gate
 #. Delay
 #. RZ gate that rotates the qubit in the x-y plane 
-#. Hadamard gate
+#. SX gate
 #. Measurement
 
 The user provides as input a series of delays (in seconds) and the
 oscillation frequency (in Hz). During the delay, we expect the qubit to
-precess about the z-axis. If the p gate and the precession offset each
+precess about the z-axis. If the rz gate and the precession offset each
 other perfectly, then the qubit will arrive at the
-:math:`\left|0\right\rangle` state (after the second Hadamard gate). By
+:math:`\left|0\right\rangle` state (after the second SX gate). By
 varying the extension of the delays, we get a series of oscillations of
 the qubit state between the :math:`\left|0\right\rangle` and
 :math:`\left|1\right\rangle` states. We can draw the graph of the
