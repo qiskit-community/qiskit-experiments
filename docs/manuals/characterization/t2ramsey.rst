@@ -13,9 +13,9 @@ relaxation time of the qubit on the Bloch sphere as a result of both energy rela
 and pure dephasing in the transverse plane. Unlike :math:`T_2`, which is measured by
 :class:`.T2Hahn`, :math:`T_2^*` is sensitive to inhomogenous broadening.
 
-Since the detuning frequency is relatively small, we add a rotation gate to the circuit to
-enable better measurement. The actual frequency measured is the sum of the detuning
-frequency and the user induced *oscillation frequency* (``osc_freq`` parameter).
+Since the detuning frequency is relatively small, we add a Z rotation gate to the circuit to
+emulate a larger frequency to enable better measurement. The actual frequency measured
+is the sum of the detuning frequency and the user induced *oscillation frequency* (``osc_freq`` parameter).
 
 .. jupyter-execute::
 
