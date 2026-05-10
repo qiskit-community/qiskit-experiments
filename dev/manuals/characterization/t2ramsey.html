@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Tφ Characterization" href="tphi.html" /><link rel="prev" title="T2 Hahn Characterization" href="t2hahn.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>T2* Ramsey Characterization - Qiskit Experiments 0.14.0-2-g5a3ef8f98</title>
+        <title>T2* Ramsey Characterization - Qiskit Experiments 0.14.0-3-gab1b3b48c</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.0-2-g5a3ef8f98</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.0-3-gab1b3b48c</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-2-g5a3ef8f98</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-3-gab1b3b48c</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -574,9 +574,9 @@ decay toward a mixed state, when the qubit is initialized to the
 relaxation time of the qubit on the Bloch sphere as a result of both energy relaxation
 and pure dephasing in the transverse plane. Unlike <span class="math notranslate nohighlight">\(T_2\)</span>, which is measured by
 <a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.T2Hahn.html#qiskit_experiments.library.characterization.T2Hahn" title="qiskit_experiments.library.characterization.T2Hahn"><code class="xref py py-class docutils literal notranslate"><span class="pre">T2Hahn</span></code></a>, <span class="math notranslate nohighlight">\(T_2^*\)</span> is sensitive to inhomogenous broadening.</p>
-<p>Since the detuning frequency is relatively small, we add a phase gate to the circuit to
-enable better measurement. The actual frequency measured is the sum of the detuning
-frequency and the user induced <em>oscillation frequency</em> (<code class="docutils literal notranslate"><span class="pre">osc_freq</span></code> parameter).</p>
+<p>Since the detuning frequency is relatively small, we add a Z rotation gate to the circuit to
+emulate a larger frequency to enable better measurement. The actual frequency measured
+is the sum of the detuning frequency and the user induced <em>oscillation frequency</em> (<code class="docutils literal notranslate"><span class="pre">osc_freq</span></code> parameter).</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -590,17 +590,17 @@ frequency and the user induced <em>oscillation frequency</em> (<code class="docu
 </div>
 <p>The circuits used for the experiment comprise the following steps:</p>
 <ol class="arabic simple">
-<li><p>Hadamard gate</p></li>
+<li><p>SX gate</p></li>
 <li><p>Delay</p></li>
 <li><p>RZ gate that rotates the qubit in the x-y plane</p></li>
-<li><p>Hadamard gate</p></li>
+<li><p>SX gate</p></li>
 <li><p>Measurement</p></li>
 </ol>
 <p>The user provides as input a series of delays (in seconds) and the
 oscillation frequency (in Hz). During the delay, we expect the qubit to
-precess about the z-axis. If the p gate and the precession offset each
+precess about the z-axis. If the rz gate and the precession offset each
 other perfectly, then the qubit will arrive at the
-<span class="math notranslate nohighlight">\(\left|0\right\rangle\)</span> state (after the second Hadamard gate). By
+<span class="math notranslate nohighlight">\(\left|0\right\rangle\)</span> state (after the second SX gate). By
 varying the extension of the delays, we get a series of oscillations of
 the qubit state between the <span class="math notranslate nohighlight">\(\left|0\right\rangle\)</span> and
 <span class="math notranslate nohighlight">\(\left|1\right\rangle\)</span> states. We can draw the graph of the
@@ -724,7 +724,7 @@ frequency.</p>
   </thead>
   <tbody>
     <tr>
-      <th>43a5264d</th>
+      <th>a4aeefe2</th>
       <td>Frequency</td>
       <td>T2Ramsey</td>
       <td>[Q0]</td>
@@ -736,7 +736,7 @@ frequency.</p>
       <td>Hz</td>
     </tr>
     <tr>
-      <th>0585133a</th>
+      <th>52d0da43</th>
       <td>T2star</td>
       <td>T2Ramsey</td>
       <td>[Q0]</td>
@@ -822,7 +822,7 @@ computed for other qubits.</p>
   </thead>
   <tbody>
     <tr>
-      <th>b23e321e</th>
+      <th>254ce908</th>
       <td>Frequency</td>
       <td>T2Ramsey</td>
       <td>[Q0]</td>
@@ -834,7 +834,7 @@ computed for other qubits.</p>
       <td>Hz</td>
     </tr>
     <tr>
-      <th>e1feb1d4</th>
+      <th>eaf69324</th>
       <td>T2star</td>
       <td>T2Ramsey</td>
       <td>[Q0]</td>
@@ -893,7 +893,7 @@ computed for other qubits.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/05/07</div>
+              Last updated on 2026/05/10</div>
           </div>
           <div class="right-details">
             
@@ -930,7 +930,7 @@ computed for other qubits.</p>
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=8f3ab604"></script>
+</div><script src="../../_static/documentation_options.js?v=db9d9da8"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

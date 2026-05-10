@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Tphi" href="qiskit_experiments.library.characterization.Tphi.html" /><link rel="prev" title="T2Hahn" href="qiskit_experiments.library.characterization.T2Hahn.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>T2Ramsey - Qiskit Experiments 0.14.0-2-g5a3ef8f98</title>
+        <title>T2Ramsey - Qiskit Experiments 0.14.0-3-gab1b3b48c</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-2-g5a3ef8f98</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-3-gab1b3b48c</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-2-g5a3ef8f98</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-3-gab1b3b48c</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -576,11 +576,11 @@ of both energy relaxation and pure dephasing in the transverse plane. Unlike
 <span class="math notranslate nohighlight">\(T_2\)</span>, which is measured by <a class="reference internal" href="qiskit_experiments.library.characterization.T2Hahn.html#qiskit_experiments.library.characterization.T2Hahn" title="qiskit_experiments.library.characterization.T2Hahn"><code class="xref py py-class docutils literal notranslate"><span class="pre">T2Hahn</span></code></a>, <span class="math notranslate nohighlight">\(T_2^*\)</span> is sensitive
 to inhomogenous broadening.</p>
 <p>This experiment consists of a series of circuits of the form</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>     ┌───┐┌──────────────┐┌──────┐ ░ ┌───┐ ░ ┌─┐
-q_0: ┤ H ├┤   DELAY(t)   ├┤ P(λ) ├─░─┤ H ├─░─┤M├
-     └───┘└──────────────┘└──────┘ ░ └───┘ ░ └╥┘
-c: 1/═════════════════════════════════════════╩═
-                                            0
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>     ┌────┐┌──────────┐┌───────┐┌────┐┌─┐
+  q: ┤ √X ├┤ Delay(t) ├┤ Rz(λ) ├┤ √X ├┤M├
+     └────┘└──────────┘└───────┘└────┘└╥┘
+c: 1/══════════════════════════════════╩═
+                                       0
 </pre></div>
 </div>
 <p>for each <em>t</em> from the specified delay times, where
@@ -679,27 +679,27 @@ The circuits are run on the device or on a simulator backend.</p>
   </thead>
   <tbody>
     <tr>
-      <th>12373f31</th>
+      <th>0d4a4253</th>
       <td>Frequency</td>
       <td>T2Ramsey</td>
       <td>[Q0]</td>
-      <td>(1.0026+/-0.0011)e+05</td>
+      <td>(1.0023+/-0.0011)e+05</td>
       <td>good</td>
       <td>aer_simulator_from(fake_manila)</td>
       <td>None</td>
-      <td>1.319911</td>
+      <td>0.619011</td>
       <td>Hz</td>
     </tr>
     <tr>
-      <th>8aa17e20</th>
+      <th>b21daf72</th>
       <td>T2star</td>
       <td>T2Ramsey</td>
       <td>[Q0]</td>
-      <td>(9.8+/-0.5)e-05</td>
+      <td>0.000101+/-0.000006</td>
       <td>good</td>
       <td>aer_simulator_from(fake_manila)</td>
       <td>None</td>
-      <td>1.319911</td>
+      <td>0.619011</td>
       <td>s</td>
     </tr>
   </tbody>
@@ -972,7 +972,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/05/07</div>
+              Last updated on 2026/05/10</div>
           </div>
           <div class="right-details">
             
@@ -1025,7 +1025,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=8f3ab604"></script>
+</div><script src="../_static/documentation_options.js?v=db9d9da8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
