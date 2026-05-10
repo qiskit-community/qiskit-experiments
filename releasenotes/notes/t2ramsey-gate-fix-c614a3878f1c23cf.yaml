@@ -1,4 +1,4 @@
 ---
 fixes:
   - |
-    Fixed T2Ramsey gate description in :class:`~.T2Ramsey` and the related documentation.
+    Fixed description of the gates used in the :class:`~.T2Ramsey` documentation.
