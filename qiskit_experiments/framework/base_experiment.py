@@ -415,9 +415,16 @@ class BaseExperiment(ABC, StoreInitArgs):
                     sampler.options.simulator.seed_simulator = run_options["seed_simulator"]
 
                 if run_options.get("shots") is not None:
+                    # Set shots in options for consistency with other options
+                    # even though it is passed to run() below
                     sampler.options.default_shots = run_options.get("shots")
 
-            jobs = [sampler.run(circs) for circs in job_circuits]
+            # Options actually passed to run() instead of set into sampler options
+            sampler_run_options = {}
+            if "shots" in run_options:
+                sampler_run_options["shots"] = run_options["shots"]
+
+            jobs = [sampler.run(circs, **sampler_run_options) for circs in job_circuits]
         else:
             jobs = [self.backend.run(circs, **run_options) for circs in job_circuits]
 
