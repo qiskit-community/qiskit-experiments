@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    :class:`.BaseExperiment` now passes the ``shots`` argument from its
+    ``run()`` method through to the sampler's ``run()`` method when it is
+    passed a ``sampler`` argument. Previously, ``shots`` was only honored when
+    no sampler was passed and the experiment generated a sampler internally.
