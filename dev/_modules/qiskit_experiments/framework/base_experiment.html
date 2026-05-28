@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.framework.base_experiment - Qiskit Experiments 0.14.0-4-g693b7a0d5</title>
+        <title>qiskit_experiments.framework.base_experiment - Qiskit Experiments 0.14.0-5-g2d2b88425</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-4-g693b7a0d5</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-5-g2d2b88425</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-4-g693b7a0d5</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-5-g2d2b88425</span>
   
 </a>
 
@@ -978,9 +978,16 @@
                     <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">seed_simulator</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;seed_simulator&quot;</span><span class="p">]</span>
 
                 <span class="k">if</span> <span class="n">run_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># Set shots in options for consistency with other options</span>
+                    <span class="c1"># even though it is passed to run() below</span>
                     <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">default_shots</span> <span class="o">=</span> <span class="n">run_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span>
 
-            <span class="n">jobs</span> <span class="o">=</span> <span class="p">[</span><span class="n">sampler</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">circs</span><span class="p">)</span> <span class="k">for</span> <span class="n">circs</span> <span class="ow">in</span> <span class="n">job_circuits</span><span class="p">]</span>
+            <span class="c1"># Options actually passed to run() instead of set into sampler options</span>
+            <span class="n">sampler_run_options</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="s2">&quot;shots&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                <span class="n">sampler_run_options</span><span class="p">[</span><span class="s2">&quot;shots&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;shots&quot;</span><span class="p">]</span>
+
+            <span class="n">jobs</span> <span class="o">=</span> <span class="p">[</span><span class="n">sampler</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">circs</span><span class="p">,</span> <span class="o">**</span><span class="n">sampler_run_options</span><span class="p">)</span> <span class="k">for</span> <span class="n">circs</span> <span class="ow">in</span> <span class="n">job_circuits</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">jobs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">circs</span><span class="p">,</span> <span class="o">**</span><span class="n">run_options</span><span class="p">)</span> <span class="k">for</span> <span class="n">circs</span> <span class="ow">in</span> <span class="n">job_circuits</span><span class="p">]</span>
 
@@ -1169,7 +1176,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=4dd29ff6"></script>
+</div><script src="../../../_static/documentation_options.js?v=5838fe13"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
