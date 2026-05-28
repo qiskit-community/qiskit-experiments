@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.rb_analysis - Qiskit Experiments 0.14.0-5-g2d2b88425</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.rb_analysis - Qiskit Experiments 0.14.0-6-gfb23278bb</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-5-g2d2b88425</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-6-gfb23278bb</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-5-g2d2b88425</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-6-gfb23278bb</span>
   
 </a>
 
@@ -695,7 +695,14 @@
 
         <span class="n">b_guess</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">**</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span><span class="p">)</span>
         <span class="n">alpha_guess</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">rb_decay</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b_guess</span><span class="p">)</span>
-        <span class="n">a_guess</span> <span class="o">=</span> <span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">b_guess</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">alpha_guess</span> <span class="o">**</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">alpha_guess</span> <span class="o">&lt;</span> <span class="mf">0.6</span><span class="p">:</span>
+            <span class="c1"># Don&#39;t account for decay in estimating a if decay appears to be</span>
+            <span class="c1"># very strong</span>
+            <span class="n">a_guess</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">b_guess</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">a_guess</span> <span class="o">=</span> <span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">b_guess</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">alpha_guess</span> <span class="o">**</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># Make sure a is in the default (0, 1) bounds</span>
+        <span class="n">a_guess</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">a_guess</span><span class="p">)</span>
 
         <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span>
             <span class="n">b</span><span class="o">=</span><span class="n">b_guess</span><span class="p">,</span>
@@ -1034,7 +1041,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=5838fe13"></script>
+</div><script src="../../../../_static/documentation_options.js?v=f0f722d6"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>
