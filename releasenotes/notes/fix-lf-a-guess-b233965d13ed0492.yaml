@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    The logic for guessing decay curve parameters used by
+    :class:`.LayerFidelityAnalysis`, :class:`.RBAnalysis`, and
+    :class:`.InterleavedRBAnalysis` has been updated to avoid a division by
+    zero when processing poor data. :class:`.PurityRBAnalysis` already had a
+    mitigation for the error in place and that mitigation was propagated to the
+    other analysis classes.
