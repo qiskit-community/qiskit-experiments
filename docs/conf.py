@@ -149,6 +149,9 @@ modindex_common_prefix = ["qiskit_experiments."]
 
 html_theme = "qiskit-ecosystem"
 html_title = f"{project} {release}"
+html_theme_options = {
+    "sidebar_qiskit_ecosystem_member": True,
+}
 
 docs_url_prefix = "qiskit-experiments"
 
