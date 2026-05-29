@@ -53,7 +53,7 @@ def _generate_analysis_ref(
 
     if not issubclass(current_class, BaseExperiment):
         # check if no more base class
-        raise TypeError("This is not valid experiment class.")
+        raise TypeError(f"{current_class} is not valid experiment class.")
 
     experiment_option_parser = GoogleDocstring(
         docstring=prepare_docstring(current_class.__doc__, tabsize=len(indent)),
@@ -77,7 +77,7 @@ def _generate_analysis_ref(
                 pass
 
     if analysis_ref_start is None:
-        raise Exception(f"Option docstring for analysis_ref is missing.")
+        raise Exception(f"Option docstring for analysis_ref is missing for {current_class}.")
 
     analysis_ref_lines = []
     for line in lines[analysis_ref_start + 1:]:

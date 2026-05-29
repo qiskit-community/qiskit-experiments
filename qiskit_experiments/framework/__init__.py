@@ -171,6 +171,7 @@ from .provider_interfaces import (
     MeasLevel,
     MeasReturnType,
     Provider,
+    __local_type_aliases__ as _provider_type_aliases,
 )
 
 from .base_analysis import BaseAnalysis
@@ -198,3 +199,11 @@ from .backend_partition import (
     partition_qubit_pairs,
 )
 from .json import ExperimentEncoder, ExperimentDecoder
+
+
+def _promote_type_aliases(module_name: str, alias_dict: dict[str, str]):
+    """Helper to promote type aliases to fully qualified names for convert_type_alias_docstrings"""
+    return {f"{module_name}.{name}": value for name, value in alias_dict.items()}
+
+
+__type_aliases__ = _promote_type_aliases(__name__, _provider_type_aliases)
