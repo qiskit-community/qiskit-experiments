@@ -147,7 +147,14 @@ class RBAnalysis(curve.CurveAnalysis):
 
         b_guess = 1 / 2 ** len(self._physical_qubits)
         alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, b=b_guess)
-        a_guess = (curve_data.y[0] - b_guess) / (alpha_guess ** curve_data.x[0])
+        if alpha_guess < 0.6:
+            # Don't account for decay in estimating a if decay appears to be
+            # very strong
+            a_guess = curve_data.y[0] - b_guess
+        else:
+            a_guess = (curve_data.y[0] - b_guess) / (alpha_guess ** curve_data.x[0])
+        # Make sure a is in the default (0, 1) bounds
+        a_guess = max(0, a_guess)
 
         user_opt.p0.set_if_empty(
             b=b_guess,
