@@ -1,0 +1,6 @@
+---
+prelude: >
+    Qiskit Experiments 0.14.1 is a minor update to 0.14.0 to address a fitting
+    error with randomized benchmarking experiments and to handle the ``shots``
+    argument correctly when running experiments with a user provided sampler
+    instance.
