@@ -516,7 +516,7 @@ The `stable/*` branches should only receive changes in the form of bug fixes.
 
 If you're making a bug fix PR that you believe should be backported to the
 current stable release, tag it with the `backport stable potential` label.
-When PR is merged with that label or when that label is added to a PR after
+When a PR is merged with that label or when that label is added to a PR after
 merging, a Mergify automation is triggered to open a backport PR against the
 latest stable branch.
 
