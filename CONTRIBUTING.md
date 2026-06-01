@@ -510,8 +510,24 @@ should be performed:
    running `tox run -ebumpversion` and then committing the resulting changes.
 2. Open and merge a pull request with the version bump changes.
 
+#### Patch releases
+
 The `stable/*` branches should only receive changes in the form of bug fixes.
+
 If you're making a bug fix PR that you believe should be backported to the
-current stable release, tag it with `backport stable potential`. Producing a
-new patch releaes can be done just by adding a new tag to the `stabel/*` to
-trigger the release automation.
+current stable release, tag it with the `backport stable potential` label.
+When PR is merged with that label or when that label is added to a PR after
+merging, a Mergify automation is triggered to open a backport PR against the
+latest stable branch.
+
+To create a new patch release, follow these steps:
+
+1. Bump the version on the stable branch. This can be done by running `tox run
+   -ebumpversion -- -v <new_version>` (the version must be specified because
+the default is to increment to a new minor version).
+2. Tag the `stable/*` branch with the new version to trigger the release automation.
+
+For example, to release 0.14.1, create a new branch from the `stable/0.14`
+branch, run `tox run -ebumpversion -- -v 0.14.1` on it, and create and merge a
+pull request against the `stable/0.14` branch from the resulting changes.
+Afterwards, add a `0.14.1` tag to the `stable/0.14` branch.

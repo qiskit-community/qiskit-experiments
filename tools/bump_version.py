@@ -21,6 +21,7 @@
 # ]
 # ///
 
+from argparse import ArgumentParser
 from pathlib import Path
 from subprocess import run
 
@@ -54,8 +55,21 @@ def replace_text(path: Path, old: str, new: str, count: int = 1):
     path.write_text("\n".join(lines) + "\n")
 
 
-def main():
+def main(args: list[str] | None = None):
     """Bump minor version in package files"""
+    parser = ArgumentParser(description="Increment project version")
+    parser.add_argument(
+        "--version",
+        "-v",
+        type=str,
+        default=None,
+        help=(
+            "New version to set. If not passed, the current minor version is "
+            "incremented, e.g. 0.5.3->0.6.0"
+        ),
+    )
+    args = parser.parse_args(args)
+
     proc = run(["git", "rev-parse", "--show-toplevel"], check=True, capture_output=True, text=True)
     git_root = Path(proc.stdout.strip())
 
@@ -63,19 +77,15 @@ def main():
     version_str = version_file.read_text().strip()
     old_version = Version(version_str)
     old_version_short = f"{old_version.major}.{old_version.minor}"
-    prev_old_version = f"{old_version.major}.{old_version.minor - 1}.0"
-    prev_old_version_short = f"{old_version.major}.{old_version.minor - 1}"
 
-    new_version = f"{old_version.major}.{old_version.minor + 1}.0"
-    new_version_short = f"{old_version.major}.{old_version.minor + 1}"
+    if args.version is None:
+        new_version = Version(f"{old_version.major}.{old_version.minor + 1}.0")
+    else:
+        new_version = Version(args.version)
+    new_version_short = f"{new_version.major}.{new_version.minor}"
 
     version_file.write_text(f"{new_version}\n")
 
-    replace_text(
-        git_root / "docs/release_notes.rst",
-        f":earliest-version: {prev_old_version}",
-        f":earliest-version: {old_version}",
-    )
     replace_text(
         git_root / "docs/conf.py",
         f'release = os.getenv("RELEASE_STRING", "{old_version}")',
@@ -86,11 +96,21 @@ def main():
         f'version = os.getenv("VERSION_STRING", "{old_version_short}")',
         f'version = os.getenv("VERSION_STRING", "{new_version_short}")',
     )
-    replace_text(
-        git_root / ".mergify.yml",
-        f"- stable/{prev_old_version_short}",
-        f"- stable/{old_version_short}",
-    )
+
+    if (old_version.major, old_version.minor) != (new_version.major, new_version.minor):
+        # These do not change on a patch release (like X.Y.0->X.Y.1)
+        prev_old_version = f"{old_version.major}.{old_version.minor - 1}.0"
+        prev_old_version_short = f"{old_version.major}.{old_version.minor - 1}"
+        replace_text(
+            git_root / "docs/release_notes.rst",
+            f":earliest-version: {prev_old_version}",
+            f":earliest-version: {old_version}",
+        )
+        replace_text(
+            git_root / ".mergify.yml",
+            f"- stable/{prev_old_version_short}",
+            f"- stable/{old_version_short}",
+        )
 
 
 if __name__ == "__main__":
