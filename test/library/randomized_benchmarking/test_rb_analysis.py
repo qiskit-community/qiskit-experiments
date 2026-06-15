@@ -197,7 +197,6 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
             ),
         )
         result_2qrb = analysis_2qrb.run(self.expdata_2qrb)
-        analysis_2qrb._run_analysis(self.expdata_2qrb)
         self.assertExperimentDone(result_2qrb)
         cx_epg_corrected = result_2qrb.analysis_results("EPG_cx", dataframe=True).iloc[0]
         self.assertLess(
