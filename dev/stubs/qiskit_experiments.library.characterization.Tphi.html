@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="HalfAngle" href="qiskit_experiments.library.characterization.HalfAngle.html"><link rel="prev" title="T2Ramsey" href="qiskit_experiments.library.characterization.T2Ramsey.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Tphi - Qiskit Experiments 0.14.0-10-g46329108c</title>
+        <title>Tphi - Qiskit Experiments 0.14.0-11-g612a15bb7</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-10-g46329108c</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-11-g612a15bb7</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-10-g46329108c</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-11-g612a15bb7</span>
   
 </a>
 
@@ -668,11 +668,11 @@ to <span class="math notranslate nohighlight">\(T_2\)</span>.</p>
   </thead>
   <tbody>
     <tr>
-      <th>ac9ca722</th>
+      <th>08dc4787</th>
       <td>T_phi</td>
       <td>Tphi</td>
       <td>[Q0]</td>
-      <td>0.002+/-0.030</td>
+      <td>(7.2+/-2.6)e-05</td>
       <td>bad</td>
       <td>aer_simulator_from(fake_manila)</td>
       <td>None</td>
@@ -680,28 +680,28 @@ to <span class="math notranslate nohighlight">\(T_2\)</span>.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>38c46eb8</th>
+      <th>f64638bb</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
-      <td>0.000130+/-0.000004</td>
+      <td>0.000132+/-0.000004</td>
       <td>good</td>
       <td>aer_simulator_from(fake_manila)</td>
       <td>None</td>
       <td>s</td>
-      <td>1.249259</td>
+      <td>1.263128</td>
     </tr>
     <tr>
-      <th>166fa9d1</th>
+      <th>35f43abf</th>
       <td>T2</td>
       <td>T2Hahn</td>
       <td>[Q0]</td>
-      <td>0.00023+/-0.00027</td>
+      <td>(5.6+/-1.6)e-05</td>
       <td>bad</td>
       <td>aer_simulator_from(fake_manila)</td>
       <td>None</td>
       <td>s</td>
-      <td>1.098719</td>
+      <td>1.158128</td>
     </tr>
   </tbody>
 </table>
@@ -797,7 +797,7 @@ to “hahn”.</p></li>
 <dd><p>Return a list of experiment circuits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A list of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a>.</p>
+<dd class="field-odd"><p>A list of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a>.</p>
 </dd>
 </dl>
 <div class="admonition note">
@@ -865,7 +865,7 @@ are obtained via the internal <code class="xref py py-meth docutils literal notr
 backend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.4)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
+<dd class="field-odd"><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.5)"><em>Backend</em></a>) – Optional, the backend for which to get job distribution
 information. If not specified, the experiment must already have a
 set backend.</p>
 </dd>
@@ -899,8 +899,8 @@ experiment on the currently set backend.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.4)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
-<li><p><strong>sampler</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v2.4)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
+<li><p><strong>backend</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Backend" title="(in Qiskit v2.5)"><em>Backend</em></a><em> | </em><em>None</em>) – Optional, the backend to run on. Will override existing backend settings.</p></li>
+<li><p><strong>sampler</strong> (<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v2.5)"><em>BaseSamplerV2</em></a><em> | </em><em>None</em>) – Optional, the sampler to run the experiment on.
 If None then a sampler will be invoked from previously
 set backend</p></li>
 <li><p><strong>analysis</strong> (<a class="reference internal" href="qiskit_experiments.framework.BaseAnalysis.html#qiskit_experiments.framework.BaseAnalysis" title="qiskit_experiments.framework.base_analysis.BaseAnalysis"><em>BaseAnalysis</em></a><em> | </em><em>None</em>) – Optional, a custom analysis instance to use for performing
@@ -1010,7 +1010,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/24</div>
+              Last updated on 2026/07/20</div>
           </div>
           <div class="right-details">
             
@@ -1065,7 +1065,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=7adc6c68"></script>
+</div><script src="../_static/documentation_options.js?v=4f055512"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

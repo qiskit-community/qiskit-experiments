@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Use Experiments with Sampler" href="runtime_sessions.html"><link rel="prev" title="Control the splitting of experiment circuits into jobs" href="job_splitting.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Rerun analysis for an existing experiment - Qiskit Experiments 0.14.0-10-g46329108c</title>
+        <title>Rerun analysis for an existing experiment - Qiskit Experiments 0.14.0-11-g612a15bb7</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-10-g46329108c</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-11-g612a15bb7</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-10-g46329108c</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-11-g612a15bb7</span>
   
 </a>
 
@@ -566,7 +566,7 @@ execution successfully.</p>
 <section id="solution">
 <h2>Solution<a class="headerlink" href="#solution" title="Link to this heading">¶</a></h2>
 <p>Once you recreate the exact experiment you ran and all of its parameters and options,
-you can call the <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_jobs" title="qiskit_experiments.framework.ExperimentData.add_jobs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_jobs()</span></code></a> method with a list of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobV1" title="(in Qiskit v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Job</span></code></a> objects to generate the new <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object.
+you can call the <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_jobs" title="qiskit_experiments.framework.ExperimentData.add_jobs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_jobs()</span></code></a> method with a list of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobV1" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Job</span></code></a> objects to generate the new <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object.
 The following example retrieves jobs from a provider that has access to them via their
 job IDs:</p>
 <div class="jupyter_cell jupyter_container docutils container">
@@ -597,7 +597,7 @@ job IDs:</p>
 <p><code class="docutils literal notranslate"><span class="pre">expdata</span></code> will be the new experiment data object containing results of the rerun analysis. Note that if
 <code class="docutils literal notranslate"><span class="pre">replace_results</span></code> isn’t set, running the analysis will return a new <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object
 instead of overwriting the existing one.</p>
-<p>If you have the job data in the form of a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> object, you can
+<p>If you have the job data in the form of a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> object, you can
 invoke the <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_data" title="qiskit_experiments.framework.ExperimentData.add_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_data()</span></code></a> method instead of <a class="reference internal" href="../stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData.add_jobs" title="qiskit_experiments.framework.ExperimentData.add_jobs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExperimentData.add_jobs()</span></code></a>:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
@@ -621,7 +621,7 @@ contain correct results.</p>
 <p>In the case where jobs are not directly accessible from the provider but you’ve
 downloaded the jobs from the
 <a class="reference external" href="https://quantum.ibm.com/jobs">IQS dashboard</a>, you can load them from
-the downloaded directory into <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> objects with this code:</p>
+the downloaded directory into <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> objects with this code:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -732,7 +732,7 @@ first component experiment.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/24</div>
+              Last updated on 2026/07/20</div>
           </div>
           <div class="right-details">
             
@@ -772,7 +772,7 @@ first component experiment.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=7adc6c68"></script>
+</div><script src="../_static/documentation_options.js?v=4f055512"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
