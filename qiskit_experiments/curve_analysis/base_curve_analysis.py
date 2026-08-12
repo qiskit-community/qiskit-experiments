@@ -168,6 +168,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 ``[ParameterRepr("alpha", "\u03b1", "a.u.")]`` for example.
                 The parameter name should be defined in the series definition.
                 Representation should be printable in standard output, i.e. no latex syntax.
+                The name of each reported parameter is also the key used to retrieve the
+                corresponding result, e.g. ``exp_data.analysis_results("alpha")``.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
                 as extra information.
             fixed_parameters (Dict[str, Any]): Fitting model parameters that are fixed
