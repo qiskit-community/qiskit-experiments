@@ -139,9 +139,12 @@ class CompositeAnalysis(BaseAnalysis):
             # Ideally this constraint will be removed in the future.
             # Previously run() was called on all components and then
             # block_for_results() was called on all of them, but since only one
-            # thread can execute Python code at a time there is not much
+            # thread can execute Python code at a time (not counting
+            # free-threaded Python) there is not much
             # difference in performance. Blocking separately limits the number
-            # of threads that are started simultaneously.
+            # of threads that are started simultaneously. Analysis results
+            # could be parallelized better in the future but that should be done
+            # in a way that allows controlling the degree of parallelism allowed.
             sub_expdata.block_for_results()
 
         # Optionally flatten results from all component experiments
