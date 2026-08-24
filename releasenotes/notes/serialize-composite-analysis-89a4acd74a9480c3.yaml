@@ -1,0 +1,17 @@
+---
+fixes:
+  - |
+    The ``run()`` method of :class:`.CompositeAnalysis` had been updated to
+    block for results on each sub-analysis's ``run()`` call when looping over
+    them. This change forces the analysis runs to be serialized. Previously,
+    ``CompositeAnalysis`` would call all the ``run()`` methods first, leading
+    to all of them starting their analysis back ground threads separately, and
+    the wait for all of them to finish. Since Python is typically run with the
+    global interpreter lock (GIL) which allows only one thread of Python code
+    to execute at a time, the analysis was already mostly serialized in
+    practice, but, when running many sub-analysis routines in parallel such as
+    when running one or more experiments across all qubits of a large device,
+    the large number of threads simultaneously can be difficult for the system
+    running Qiskit Experiments to deal with. This change keeps the number of
+    threads low and avoids resource exhaustion and contention. A future
+    enhancement might reintroduce meaningful analysis parallelism.
