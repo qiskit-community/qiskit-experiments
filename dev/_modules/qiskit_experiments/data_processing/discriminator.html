@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.data_processing.discriminator - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.data_processing.discriminator - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Discriminator wrappers to make discriminators serializable..&quot;&quot;&quot;</span>
+<span class="sd">"""Discriminator wrappers to make discriminators serializable.."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
@@ -565,7 +565,7 @@
 <div class="viewcode-block" id="BaseDiscriminator">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseDiscriminator</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An abstract base class for serializable discriminators used in the</span>
+<span class="w">    </span><span class="sd">"""An abstract base class for serializable discriminators used in the</span>
 <span class="sd">    :class:`.DiscriminatorNode` data action nodes.</span>
 
 <span class="sd">    This class allows developers to implement their own discriminators or wrap discriminators</span>
@@ -577,52 +577,52 @@
 <span class="sd">      labels from the input level-one data.</span>
 <span class="sd">    - :meth:`config`: produces the config file to serialize and deserialize the discriminator.</span>
 <span class="sd">    - :meth:`is_trained`: indicates if the discriminator is trained, i.e., fit to training data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="BaseDiscriminator.predict">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator.predict">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The function used to predict the labels of the data.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""The function used to predict the labels of the data."""</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">discriminator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the discriminator object that is wrapped.</span>
+<span class="w">        </span><span class="sd">"""Return the discriminator object that is wrapped.</span>
 
 <span class="sd">        Sub-classes may not need to implement this method but can chose to</span>
 <span class="sd">        if they are wrapping an object capable of discrimination.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="BaseDiscriminator.config">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator.config">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the configuration of the discriminator.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Return the configuration of the discriminator."""</span></div>
 
 
 <div class="viewcode-block" id="BaseDiscriminator.is_trained">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator.is_trained">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_trained</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if this discriminator has been trained on data.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Return True if this discriminator has been trained on data."""</span></div>
 
 
 <div class="viewcode-block" id="BaseDiscriminator.from_config">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BaseDiscriminator.html#qiskit_experiments.data_processing.BaseDiscriminator.from_config">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;BaseDiscriminator&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a discriminator from the configuration.&quot;&quot;&quot;</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"BaseDiscriminator"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Create a discriminator from the configuration."""</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to format that can be JSON serialized.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Convert to format that can be JSON serialized."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">()</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;BaseDiscriminator&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load from JSON compatible format.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"BaseDiscriminator"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Load from JSON compatible format."""</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
 </pre></div>
@@ -643,7 +643,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -658,7 +658,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

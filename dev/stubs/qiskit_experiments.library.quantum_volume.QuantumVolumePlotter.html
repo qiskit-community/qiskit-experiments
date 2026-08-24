@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Release Notes" href="../release_notes.html"><link rel="prev" title="QuantumVolumeAnalysis" href="qiskit_experiments.library.quantum_volume.QuantumVolumeAnalysis.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>QuantumVolumePlotter - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>QuantumVolumePlotter - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -809,14 +809,14 @@ least one does not have a value assigned.</p>
 <dd><p>Returns data associated with the given series.</p>
 <p>The returned tuple contains the data, associated with <code class="docutils literal notranslate"><span class="pre">data_keys</span></code>, in the same
 orders as they are provided. For example,</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span><span class="s2">&quot;seriesA&quot;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">yerr</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span><span class="s2">"seriesA"</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">yerr</span><span class="p">)</span>
 
 <span class="c1"># The following calls are equivalent.</span>
-<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="s2">&quot;seriesA&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;yerr&quot;</span><span class="p">])</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="s2">"seriesA"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"yerr"</span><span class="p">])</span>
 <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">yerr</span>
 
 <span class="c1"># Retrieving a single data key returns a tuple. Note the comma after ``x``.</span>
-<span class="n">x</span><span class="p">,</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="s2">&quot;seriesA&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="n">x</span><span class="p">,</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="s2">"seriesA"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><a class="reference internal" href="#qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.data_for" title="qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.data_for"><code class="xref py py-meth docutils literal notranslate"><span class="pre">data_for()</span></code></a> is intended to be used by sub-classes of <code class="xref py py-class docutils literal notranslate"><span class="pre">BasePlotter</span></code>
@@ -1001,7 +1001,7 @@ expected supplementary data keys.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1055,7 +1055,7 @@ expected supplementary data keys.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../_static/documentation_options.js?v=78f35329"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

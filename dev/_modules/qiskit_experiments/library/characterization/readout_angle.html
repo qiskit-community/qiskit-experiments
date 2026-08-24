@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.readout_angle - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.characterization.readout_angle - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Readout Angle Experiment class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
@@ -573,7 +573,7 @@
 <div class="viewcode-block" id="ReadoutAngle">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.ReadoutAngle.html#qiskit_experiments.library.characterization.ReadoutAngle">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ReadoutAngle</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    An experiment to measure the angle between ground and excited state IQ clusters.</span>
 
 <span class="sd">    # section: overview</span>
@@ -618,15 +618,15 @@
 <span class="sd">            exp_data = exp.run().block_for_results()</span>
 <span class="sd">            display(exp_data.figure(0))</span>
 <span class="sd">            exp_data.analysis_results(dataframe=True)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_run_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default run options.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default run options."""</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_run_options</span><span class="p">()</span>
 
         <span class="n">options</span><span class="o">.</span><span class="n">meas_level</span> <span class="o">=</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">meas_return</span> <span class="o">=</span> <span class="s2">&quot;avg&quot;</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">meas_return</span> <span class="o">=</span> <span class="s2">"avg"</span>
 
         <span class="k">return</span> <span class="n">options</span>
 
@@ -635,34 +635,34 @@
         <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the readout angle experiment class</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            physical_qubits: a single-element sequence containing the qubit whose readout angle is to be</span>
 <span class="sd">                estimated</span>
 <span class="sd">            backend: Optional, the backend to run the experiment on.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Initialize base experiment</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">ReadoutAngleAnalysis</span><span class="p">(),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ReadoutAngle.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.ReadoutAngle.html#qiskit_experiments.library.characterization.ReadoutAngle.circuits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return a list of experiment circuits</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The experiment circuits</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">circ0</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">circ0</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">circ0</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="n">circ0</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"xval"</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
 
         <span class="n">circ1</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">circ1</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">circ1</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">circ1</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="n">circ1</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"xval"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="n">circ0</span><span class="p">,</span> <span class="n">circ1</span><span class="p">]</span></div>
 </div>
@@ -685,7 +685,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -700,7 +700,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.rb_analysis - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.rb_analysis - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Standard RB analysis class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
@@ -581,7 +581,7 @@
 <div class="viewcode-block" id="RBAnalysis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html#qiskit_experiments.library.randomized_benchmarking.RBAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RBAnalysis</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">CurveAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A class to analyze randomized benchmarking experiments.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A class to analyze randomized benchmarking experiments.</span>
 
 <span class="sd">    # section: overview</span>
 <span class="sd">        This analysis takes only single series.</span>
@@ -624,7 +624,7 @@
 <span class="sd">    # section: reference</span>
 <span class="sd">        .. ref_arxiv:: 1 1712.06550</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -637,8 +637,8 @@
                     <span class="c1"># 10,000 Cliffords. By splitting out the factors of 10 like</span>
                     <span class="c1"># this, we can have `x` go up to 100,000 Cliffords without</span>
                     <span class="c1"># hitting the asteval limit.</span>
-                    <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;a * (alpha ** (x/10)) ** 10 + b&quot;</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;rb_decay&quot;</span><span class="p">,</span>
+                    <span class="n">expr</span><span class="o">=</span><span class="s2">"a * (alpha ** (x/10)) ** 10 + b"</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"rb_decay"</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">]</span>
         <span class="p">)</span>
@@ -647,29 +647,29 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default analysis options.</span>
+<span class="w">        </span><span class="sd">"""Default analysis options.</span>
 
 <span class="sd">        Analysis Options:</span>
 <span class="sd">            gate_error_ratio (Optional[Dict[str, float]]): A dictionary with gate name keys</span>
 <span class="sd">                and error ratio values used when calculating EPG from the estimated EPC.</span>
 <span class="sd">                The default value will use standard gate error ratios.</span>
-<span class="sd">                If you don&#39;t know accurate error ratio between your basis gates,</span>
+<span class="sd">                If you don't know accurate error ratio between your basis gates,</span>
 <span class="sd">                you can skip analysis of EPGs by setting this options to ``None``.</span>
 <span class="sd">            epg_1_qubit (Union[List[AnalysisResult], DataFrame]): Analysis</span>
 <span class="sd">                results from previous RB experiments for individual single</span>
 <span class="sd">                qubit gates. If this is provided, EPC of 2Q RB is corrected to</span>
 <span class="sd">                exclude the depolarization of underlying 1Q channels.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">default_options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">default_options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
-            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Clifford Length&quot;</span><span class="p">,</span>
-            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;P(0)&quot;</span><span class="p">,</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">"Clifford Length"</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">"P(0)"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">default_options</span><span class="o">.</span><span class="n">plot_raw_data</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">default_options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span>
-        <span class="n">default_options</span><span class="o">.</span><span class="n">gate_error_ratio</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
+        <span class="n">default_options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"alpha"</span><span class="p">]</span>
+        <span class="n">default_options</span><span class="o">.</span><span class="n">gate_error_ratio</span> <span class="o">=</span> <span class="s2">"default"</span>
         <span class="n">default_options</span><span class="o">.</span><span class="n">epg_1_qubit</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">default_options</span><span class="o">.</span><span class="n">average_method</span> <span class="o">=</span> <span class="s2">&quot;sample&quot;</span>
+        <span class="n">default_options</span><span class="o">.</span><span class="n">average_method</span> <span class="o">=</span> <span class="s2">"sample"</span>
 
         <span class="k">return</span> <span class="n">default_options</span>
 
@@ -678,7 +678,7 @@
         <span class="n">user_opt</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">ScatterTable</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create algorithmic initial fit guess from analysis options and curve data.</span>
+<span class="w">        </span><span class="sd">"""Create algorithmic initial fit guess from analysis options and curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            user_opt: Fit options filled with user provided guess and bounds.</span>
@@ -686,7 +686,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of fit options that are passed to the fitter function.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">user_opt</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span>
             <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
             <span class="n">alpha</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
@@ -696,7 +696,7 @@
         <span class="n">b_guess</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">**</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span><span class="p">)</span>
         <span class="n">alpha_guess</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">rb_decay</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b_guess</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">alpha_guess</span> <span class="o">&lt;</span> <span class="mf">0.6</span><span class="p">:</span>
-            <span class="c1"># Don&#39;t account for decay in estimating a if decay appears to be</span>
+            <span class="c1"># Don't account for decay in estimating a if decay appears to be</span>
             <span class="c1"># very strong</span>
             <span class="n">a_guess</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">b_guess</span>
         <span class="k">else</span><span class="p">:</span>
@@ -718,7 +718,7 @@
         <span class="n">quality</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">**</span><span class="n">metadata</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create analysis results for important fit parameters.</span>
+<span class="w">        </span><span class="sd">"""Create analysis results for important fit parameters.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fit_data: Fit outcome.</span>
@@ -726,18 +726,18 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of analysis result data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">outcomes</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_analysis_results</span><span class="p">(</span><span class="n">fit_data</span><span class="p">,</span> <span class="n">quality</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span>
         <span class="n">num_qubits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span><span class="p">)</span>
 
         <span class="c1"># Calculate EPC</span>
-        <span class="n">alpha</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"alpha"</span><span class="p">]</span>
         <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">num_qubits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="n">epc</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span>
 
         <span class="n">outcomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">AnalysisResultData</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;EPC&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"EPC"</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">epc</span><span class="p">,</span>
                 <span class="n">chisq</span><span class="o">=</span><span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span><span class="p">,</span>
                 <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
@@ -755,7 +755,7 @@
             <span class="p">)</span>
             <span class="n">outcomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">AnalysisResultData</span><span class="p">(</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;EPC_corrected&quot;</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"EPC_corrected"</span><span class="p">,</span>
                     <span class="n">value</span><span class="o">=</span><span class="n">epc</span><span class="p">,</span>
                     <span class="n">chisq</span><span class="o">=</span><span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span><span class="p">,</span>
                     <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
@@ -775,7 +775,7 @@
                 <span class="k">for</span> <span class="n">gate</span><span class="p">,</span> <span class="n">epg_val</span> <span class="ow">in</span> <span class="n">epg_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="n">outcomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">AnalysisResultData</span><span class="p">(</span>
-                            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;EPG_</span><span class="si">{</span><span class="n">gate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"EPG_</span><span class="si">{</span><span class="n">gate</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                             <span class="n">value</span><span class="o">=</span><span class="n">epg_val</span><span class="p">,</span>
                             <span class="n">chisq</span><span class="o">=</span><span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span><span class="p">,</span>
                             <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
@@ -789,7 +789,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize curve analysis with experiment data.</span>
+<span class="w">        </span><span class="sd">"""Initialize curve analysis with experiment data.</span>
 
 <span class="sd">        This method is called ahead of other processing.</span>
 
@@ -798,7 +798,7 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AnalysisError: When circuit metadata for ops count is missing.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gate_error_ratio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -810,48 +810,48 @@
             <span class="n">n_circs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">())</span>
             <span class="k">for</span> <span class="n">circ_result</span> <span class="ow">in</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">():</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">count_ops</span> <span class="o">=</span> <span class="n">circ_result</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;count_ops&quot;</span><span class="p">]</span>
+                    <span class="n">count_ops</span> <span class="o">=</span> <span class="n">circ_result</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">][</span><span class="s2">"count_ops"</span><span class="p">]</span>
                 <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span>
-                        <span class="s2">&quot;&#39;count_ops&#39; key is not found in the circuit metadata. &quot;</span>
-                        <span class="s2">&quot;This analysis cannot compute error per gates. &quot;</span>
-                        <span class="s2">&quot;Please disable this with &#39;gate_error_ratio=False&#39;.&quot;</span>
+                        <span class="s2">"'count_ops' key is not found in the circuit metadata. "</span>
+                        <span class="s2">"This analysis cannot compute error per gates. "</span>
+                        <span class="s2">"Please disable this with 'gate_error_ratio=False'."</span>
                     <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
-                <span class="n">nclif</span> <span class="o">=</span> <span class="n">circ_result</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;xval&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">nclif</span> <span class="o">=</span> <span class="n">circ_result</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">][</span><span class="s2">"xval"</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
                 <span class="k">for</span> <span class="p">(</span><span class="n">qinds</span><span class="p">,</span> <span class="n">gate</span><span class="p">),</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">count_ops</span><span class="p">:</span>
                     <span class="n">formatted_key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">qinds</span><span class="p">)),</span> <span class="n">gate</span>
                     <span class="n">avg_gpc</span><span class="p">[</span><span class="n">formatted_key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">count</span> <span class="o">/</span> <span class="n">nclif</span> <span class="o">/</span> <span class="n">n_circs</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_gate_counts_per_clifford</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">avg_gpc</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gate_error_ratio</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gate_error_ratio</span> <span class="o">==</span> <span class="s2">"default"</span><span class="p">:</span>
                 <span class="c1"># Gate error dict is computed for gates appearing in counts dictionary</span>
                 <span class="c1"># Error ratio among gates is determined based on the predefined lookup table.</span>
                 <span class="c1"># This is not always accurate for every quantum backends.</span>
                 <span class="n">gate_error_ratio</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="k">for</span> <span class="n">qinds</span><span class="p">,</span> <span class="n">gate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gate_counts_per_clifford</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">qinds</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;physical_qubits&quot;</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">qinds</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">"physical_qubits"</span><span class="p">]):</span>
                         <span class="k">continue</span>
                     <span class="n">gate_error_ratio</span><span class="p">[</span><span class="n">gate</span><span class="p">]</span> <span class="o">=</span> <span class="n">_lookup_epg_ratio</span><span class="p">(</span><span class="n">gate</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">qinds</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">gate_error_ratio</span><span class="o">=</span><span class="n">gate_error_ratio</span><span class="p">)</span>
 
         <span class="c1"># Get qubit number</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;physical_qubits&quot;</span><span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">"physical_qubits"</span><span class="p">]</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_lookup_epg_ratio</span><span class="p">(</span><span class="n">gate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n_qubits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A helper method to look-up preset gate error ratio for given basis gate name.</span>
+<span class="w">    </span><span class="sd">"""A helper method to look-up preset gate error ratio for given basis gate name.</span>
 
 <span class="sd">    In the table the error ratio is defined based on the count of</span>
 <span class="sd">    typical assembly gate in the gate decomposition.</span>
-<span class="sd">    For example, &quot;u3&quot; gate can be decomposed into two &quot;sx&quot; gates.</span>
-<span class="sd">    In this case, the ratio of &quot;u3&quot; gate error becomes 2.</span>
+<span class="sd">    For example, "u3" gate can be decomposed into two "sx" gates.</span>
+<span class="sd">    In this case, the ratio of "u3" gate error becomes 2.</span>
 
 <span class="sd">    .. note::</span>
 
 <span class="sd">        This table is not aware of the actual waveform played on the hardware,</span>
 <span class="sd">        and the returned error ratio is just a guess.</span>
-<span class="sd">        To be precise, user can always set &quot;gate_error_ratio&quot; option of the experiment.</span>
+<span class="sd">        To be precise, user can always set "gate_error_ratio" option of the experiment.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        gate: Name of the gate.</span>
@@ -862,51 +862,51 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        QiskitError: When number of qubit is more than three.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Gate count in (X, SX)-based decomposition. VZ gate contribution is ignored.</span>
     <span class="c1"># Amplitude or duration modulated pulse implementation is not considered.</span>
     <span class="n">standard_1q_ratio</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;u1&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;u2&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;u3&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;tdg&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;sdg&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;sx&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;sxdg&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;rx&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;ry&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;rz&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"u1"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"u2"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"u3"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"u"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"p"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"x"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"y"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"z"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"t"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"tdg"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"s"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"sdg"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"sx"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"sxdg"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"rx"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"ry"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"rz"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"h"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="c1"># Gate count in (CX, CSX)-based decomposition, 1q gate contribution is ignored.</span>
     <span class="c1"># Amplitude or duration modulated pulse implementation is not considered.</span>
     <span class="n">standard_2q_ratio</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;swap&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
-        <span class="s2">&quot;rxx&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;rzz&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;cx&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;cy&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;cz&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;ch&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;ecr&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;crx&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;cry&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;crz&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;csx&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;cu1&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;cp&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;cu&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;cu3&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"swap"</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
+        <span class="s2">"rxx"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"rzz"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"cx"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"cy"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"cz"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"ch"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"ecr"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"crx"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"cry"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"crz"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"csx"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"cu1"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"cp"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"cu"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"cu3"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="n">n_qubits</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -916,18 +916,18 @@
         <span class="k">return</span> <span class="n">standard_2q_ratio</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">gate</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Standard gate error ratio for </span><span class="si">{</span><span class="n">n_qubits</span><span class="si">}</span><span class="s2"> qubit RB is not provided. &quot;</span>
-        <span class="s2">&quot;Please explicitly set &#39;gate_error_ratio&#39; option of the experiment.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Standard gate error ratio for </span><span class="si">{</span><span class="n">n_qubits</span><span class="si">}</span><span class="s2"> qubit RB is not provided. "</span>
+        <span class="s2">"Please explicitly set 'gate_error_ratio' option of the experiment."</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_epg</span><span class="p">(</span>
-    <span class="n">epc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;UFloat&quot;</span><span class="p">],</span>
+    <span class="n">epc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">"UFloat"</span><span class="p">],</span>
     <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
     <span class="n">gate_error_ratio</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
     <span class="n">gate_counts_per_clifford</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">QubitGateTuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;UFloat&quot;</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A helper method to compute EPGs of basis gates from fit EPC value.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">"UFloat"</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""A helper method to compute EPGs of basis gates from fit EPC value.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        epc: Error per Clifford.</span>
@@ -937,7 +937,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A dictionary of gate errors keyed on the gate name.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">norm</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">gate</span><span class="p">,</span> <span class="n">r_epg</span> <span class="ow">in</span> <span class="n">gate_error_ratio</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">formatted_key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">qubits</span><span class="p">)),</span> <span class="n">gate</span>
@@ -950,12 +950,12 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_exclude_1q_error</span><span class="p">(</span>
-    <span class="n">epc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;UFloat&quot;</span><span class="p">],</span>
+    <span class="n">epc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">"UFloat"</span><span class="p">],</span>
     <span class="n">qubits</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">gate_counts_per_clifford</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">QubitGateTuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
     <span class="n">extra_analyses</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResult</span><span class="p">]</span> <span class="o">|</span> <span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;UFloat&quot;</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A helper method to exclude contribution of single qubit gates from 2Q EPC.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">"UFloat"</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""A helper method to exclude contribution of single qubit gates from 2Q EPC.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        epc: EPC from 2Q RB experiment.</span>
@@ -965,7 +965,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Corrected 2Q EPC.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Extract EPC of non-measured qubits from previous experiments</span>
     <span class="n">epg_1qs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="c1"># Convert to list of results to handle legacy AnalysisResult case with same</span>
@@ -982,9 +982,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">components</span> <span class="o">=</span> <span class="n">analysis_data</span><span class="o">.</span><span class="n">device_components</span>
         <span class="k">if</span> <span class="p">(</span>
-            <span class="ow">not</span> <span class="n">analysis_data</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;EPG_&quot;</span><span class="p">)</span>
+            <span class="ow">not</span> <span class="n">analysis_data</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"EPG_"</span><span class="p">)</span>
             <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">components</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
-            <span class="ow">or</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">(</span><span class="n">components</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Q&quot;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">(</span><span class="n">components</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"Q"</span><span class="p">)</span>
         <span class="p">):</span>
             <span class="k">continue</span>
         <span class="n">qind</span> <span class="o">=</span> <span class="n">components</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
@@ -1026,7 +1026,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1041,7 +1041,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.tphi - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.characterization.tphi - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Tphi Experiment class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -576,7 +576,7 @@
 <div class="viewcode-block" id="Tphi">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.Tphi.html#qiskit_experiments.library.characterization.Tphi">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Tphi</span><span class="p">(</span><span class="n">BatchExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;An experiment to measure the qubit dephasing rate in the :math:`x - y` plane.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""An experiment to measure the qubit dephasing rate in the :math:`x - y` plane.</span>
 
 <span class="sd">    # section: overview</span>
 
@@ -646,59 +646,59 @@
 <span class="sd">        * :py:class:`qiskit_experiments.library.characterization.T2Ramsey`</span>
 <span class="sd">        * :py:class:`qiskit_experiments.library.characterization.T2Hahn`</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">delays_t1</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
         <span class="n">delays_t2</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-        <span class="n">t2type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hahn&quot;</span><span class="p">,</span>
+        <span class="n">t2type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hahn"</span><span class="p">,</span>
         <span class="n">osc_freq</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">num_echoes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the experiment object.</span>
+<span class="w">        </span><span class="sd">"""Initialize the experiment object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            physical_qubits: A single-element sequence containing the qubit under test.</span>
-<span class="sd">            t2type: What type of T2/T2* experiment to use. Can be either &quot;ramsey&quot; for</span>
-<span class="sd">                :class:`.T2Ramsey` to be used, or &quot;hahn&quot; for :class:`.T2Hahn`. Defaults</span>
-<span class="sd">                to &quot;hahn&quot;.</span>
+<span class="sd">            t2type: What type of T2/T2* experiment to use. Can be either "ramsey" for</span>
+<span class="sd">                :class:`.T2Ramsey` to be used, or "hahn" for :class:`.T2Hahn`. Defaults</span>
+<span class="sd">                to "hahn".</span>
 <span class="sd">            delays_t1: Delay times of the T1 experiment.</span>
 <span class="sd">            delays_t2: Delay times of the T2 experiment.</span>
 <span class="sd">            osc_freq: The oscillation frequency induced for T2Ramsey. Only used when</span>
-<span class="sd">                ``t2type`` is set to &quot;ramsey&quot;.</span>
+<span class="sd">                ``t2type`` is set to "ramsey".</span>
 <span class="sd">            num_echoes: The number of echoes to perform for T2Hahn. Only used when</span>
-<span class="sd">                ``t2type`` is set to &quot;hahn&quot;.</span>
+<span class="sd">                ``t2type`` is set to "hahn".</span>
 <span class="sd">            backend: Optional, the backend on which to run the experiment.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If an invalid ``t2type`` is provided.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">exp_t1</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays_t1</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
-        <span class="n">exp_options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;delays_t1&quot;</span><span class="p">:</span> <span class="n">delays_t1</span><span class="p">,</span> <span class="s2">&quot;delays_t2&quot;</span><span class="p">:</span> <span class="n">delays_t2</span><span class="p">}</span>
+        <span class="n">exp_options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"delays_t1"</span><span class="p">:</span> <span class="n">delays_t1</span><span class="p">,</span> <span class="s2">"delays_t2"</span><span class="p">:</span> <span class="n">delays_t2</span><span class="p">}</span>
 
-        <span class="k">if</span> <span class="n">t2type</span> <span class="o">==</span> <span class="s2">&quot;ramsey&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">t2type</span> <span class="o">==</span> <span class="s2">"ramsey"</span><span class="p">:</span>
             <span class="n">exp_t2</span> <span class="o">=</span> <span class="n">T2Ramsey</span><span class="p">(</span>
                 <span class="n">physical_qubits</span><span class="o">=</span><span class="n">physical_qubits</span><span class="p">,</span>
                 <span class="n">delays</span><span class="o">=</span><span class="n">delays_t2</span><span class="p">,</span>
                 <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
                 <span class="n">osc_freq</span><span class="o">=</span><span class="n">osc_freq</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">exp_options</span><span class="p">[</span><span class="s2">&quot;osc_freq&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">osc_freq</span>
-        <span class="k">elif</span> <span class="n">t2type</span> <span class="o">==</span> <span class="s2">&quot;hahn&quot;</span><span class="p">:</span>
+            <span class="n">exp_options</span><span class="p">[</span><span class="s2">"osc_freq"</span><span class="p">]</span> <span class="o">=</span> <span class="n">osc_freq</span>
+        <span class="k">elif</span> <span class="n">t2type</span> <span class="o">==</span> <span class="s2">"hahn"</span><span class="p">:</span>
             <span class="n">exp_t2</span> <span class="o">=</span> <span class="n">T2Hahn</span><span class="p">(</span>
                 <span class="n">physical_qubits</span><span class="o">=</span><span class="n">physical_qubits</span><span class="p">,</span>
                 <span class="n">delays</span><span class="o">=</span><span class="n">delays_t2</span><span class="p">,</span>
                 <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
                 <span class="n">num_echoes</span><span class="o">=</span><span class="n">num_echoes</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">exp_options</span><span class="p">[</span><span class="s2">&quot;num_echoes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_echoes</span>
+            <span class="n">exp_options</span><span class="p">[</span><span class="s2">"num_echoes"</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_echoes</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid T2 experiment type </span><span class="si">{</span><span class="n">t2type</span><span class="si">}</span><span class="s2"> specified.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid T2 experiment type </span><span class="si">{</span><span class="n">t2type</span><span class="si">}</span><span class="s2"> specified."</span><span class="p">)</span>
 
         <span class="n">analysis</span> <span class="o">=</span> <span class="n">TphiAnalysis</span><span class="p">([</span><span class="n">exp_t1</span><span class="o">.</span><span class="n">analysis</span><span class="p">,</span> <span class="n">exp_t2</span><span class="o">.</span><span class="n">analysis</span><span class="p">])</span>
 
@@ -714,25 +714,25 @@
 <div class="viewcode-block" id="Tphi.set_experiment_options">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.Tphi.html#qiskit_experiments.library.characterization.Tphi.set_experiment_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_experiment_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the experiment options.</span>
+<span class="w">        </span><span class="sd">"""Set the experiment options.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            fields: The fields defining the options.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">             QiskitError: Invalid input option.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># propagate options to the sub-experiments.</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;delays_t1&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">delays</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;delays_t1&quot;</span><span class="p">])</span>
-            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;delays_t2&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">delays</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;delays_t2&quot;</span><span class="p">])</span>
-            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;osc_freq&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">T2Ramsey</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">osc_freq</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;osc_freq&quot;</span><span class="p">])</span>
-            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;num_echoes&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">T2Hahn</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">num_echoes</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;num_echoes&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"delays_t1"</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">delays</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s2">"delays_t1"</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"delays_t2"</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">delays</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s2">"delays_t2"</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"osc_freq"</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">T2Ramsey</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">osc_freq</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s2">"osc_freq"</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"num_echoes"</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">T2Hahn</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">num_echoes</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s2">"num_echoes"</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tphi experiment does not support option </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Tphi experiment does not support option </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span></div>
 </div>
 
 </pre></div>
@@ -753,7 +753,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -768,7 +768,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

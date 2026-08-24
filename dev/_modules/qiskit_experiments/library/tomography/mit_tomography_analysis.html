@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.tomography.mit_tomography_analysis - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.tomography.mit_tomography_analysis - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Readout error mitigated tomography analysis</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositeAnalysis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.library.characterization</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalReadoutErrorAnalysis</span>
@@ -568,7 +568,7 @@
 <div class="viewcode-block" id="MitigatedTomographyAnalysis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.tomography.MitigatedTomographyAnalysis.html#qiskit_experiments.library.tomography.MitigatedTomographyAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MitigatedTomographyAnalysis</span><span class="p">(</span><span class="n">CompositeAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Analysis for readout error mitigated tomography experiments.</span>
+<span class="w">    </span><span class="sd">"""Analysis for readout error mitigated tomography experiments.</span>
 
 <span class="sd">    Analysis is performed as a :class:`.CompositeAnalysis` consisting</span>
 <span class="sd">    of :class:`.LocalReadoutErrorAnalysis` to determine the local</span>
@@ -576,19 +576,19 @@
 <span class="sd">    and then these matrices are used to automatically construct a noisy</span>
 <span class="sd">    :class:`~.PauliMeasurementBasis` for use during tomographic</span>
 <span class="sd">    fitting with the tomography analysis.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">roerror_analysis</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">tomography_analysis</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize mitigated tomography analysis&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">roerror_analysis</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">roerror_analysis</span><span class="o">=</span><span class="s2">"default"</span><span class="p">,</span> <span class="n">tomography_analysis</span><span class="o">=</span><span class="s2">"default"</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Initialize mitigated tomography analysis"""</span>
+        <span class="k">if</span> <span class="n">roerror_analysis</span> <span class="o">==</span> <span class="s2">"default"</span><span class="p">:</span>
             <span class="n">roerror_analysis</span> <span class="o">=</span> <span class="n">LocalReadoutErrorAnalysis</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">tomography_analysis</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tomography_analysis</span> <span class="o">==</span> <span class="s2">"default"</span><span class="p">:</span>
             <span class="n">tomography_analysis</span> <span class="o">=</span> <span class="n">TomographyAnalysis</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">([</span><span class="n">roerror_analysis</span><span class="p">,</span> <span class="n">tomography_analysis</span><span class="p">],</span> <span class="n">flatten_results</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default analysis options</span>
+<span class="w">        </span><span class="sd">"""Default analysis options</span>
 
 <span class="sd">        Analysis Options:</span>
 <span class="sd">            fitter (str or Callable): The fitter function to use for reconstruction.</span>
@@ -615,10 +615,10 @@
 <span class="sd">                False only compute mitigated results (Default: False)</span>
 <span class="sd">            target (Any): Optional, target object for fidelity comparison of the fit</span>
 <span class="sd">                (Default: None).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Override options to be tomography options minus bases</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">fitter</span> <span class="o">=</span> <span class="s2">&quot;linear_inversion&quot;</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">fitter</span> <span class="o">=</span> <span class="s2">"linear_inversion"</span>
         <span class="n">options</span><span class="o">.</span><span class="n">fitter_options</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">options</span><span class="o">.</span><span class="n">rescale_positive</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">options</span><span class="o">.</span><span class="n">rescale_trace</span> <span class="o">=</span> <span class="kc">True</span>
@@ -652,7 +652,7 @@
         <span class="c1"># Construct noisy measurement basis</span>
         <span class="n">mitigator</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">roerror_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span>
-                <span class="s2">&quot;Local Readout Mitigator&quot;</span><span class="p">,</span>
+                <span class="s2">"Local Readout Mitigator"</span><span class="p">,</span>
                 <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -665,7 +665,7 @@
             <span class="n">tomo_data</span><span class="p">,</span>
             <span class="n">replace_results</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">measurement_basis</span><span class="o">=</span><span class="n">PauliMeasurementBasis</span><span class="p">(</span><span class="n">mitigator</span><span class="o">=</span><span class="n">mitigator</span><span class="p">),</span>
-            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mitigated&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"mitigated"</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
         <span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 
         <span class="c1"># Combine results so that tomography results are ordered first</span>
@@ -677,7 +677,7 @@
                 <span class="n">tomo_data</span><span class="p">,</span>
                 <span class="n">replace_results</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">measurement_basis</span><span class="o">=</span><span class="n">PauliMeasurementBasis</span><span class="p">(),</span>
-                <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mitigated&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"mitigated"</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
             <span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
             <span class="n">combined_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nomit_data</span><span class="p">)</span>
 
@@ -704,7 +704,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -719,7 +719,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

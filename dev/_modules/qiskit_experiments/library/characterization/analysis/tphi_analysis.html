@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html"><link rel="search" title="Search" href="../../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.analysis.tphi_analysis - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.characterization.analysis.tphi_analysis - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Tphi Analysis class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExperimentData</span><span class="p">,</span> <span class="n">AnalysisResultData</span>
@@ -573,14 +573,14 @@
 <div class="viewcode-block" id="TphiAnalysis">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.characterization.TphiAnalysis.html#qiskit_experiments.library.characterization.TphiAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TphiAnalysis</span><span class="p">(</span><span class="n">CompositeAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A class to analyze :math:`T_\phi` experiments.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A class to analyze :math:`T_\phi` experiments.</span>
 
 <span class="sd">    # section: see_also</span>
 <span class="sd">        * :py:class:`qiskit_experiments.library.characterization.analysis.T1Analysis`</span>
 <span class="sd">        * :py:class:`qiskit_experiments.library.characterization.analysis.T2HahnAnalysis`</span>
 <span class="sd">        * :py:class:`qiskit_experiments.library.characterization.analysis.T2RamseyAnalysis`</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">analyses</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">analyses</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -593,36 +593,36 @@
             <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">analyses</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="n">T2RamseyAnalysis</span><span class="p">,</span> <span class="n">T2HahnAnalysis</span><span class="p">))</span>
         <span class="p">):</span>
             <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                <span class="s2">&quot;Invalid component analyses for Tphi, analyses must be a pair of &quot;</span>
-                <span class="s2">&quot;T1Analysis and T2HahnAnalysis or T2RamseyAnalysis instances.&quot;</span>
+                <span class="s2">"Invalid component analyses for Tphi, analyses must be a pair of "</span>
+                <span class="s2">"T1Analysis and T2HahnAnalysis or T2RamseyAnalysis instances."</span>
             <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">analyses</span><span class="p">,</span> <span class="n">flatten_results</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_analysis</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Run analysis for :math:`T_\phi` experiment.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"matplotlib.figure.Figure"</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Run analysis for :math:`T_\phi` experiment.</span>
 <span class="sd">        It invokes CompositeAnalysis._run_analysis that will invoke</span>
 <span class="sd">        _run_analysis for the two sub-experiments.</span>
 <span class="sd">        Based on the results, it computes the result for :math:`T_phi`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># Run composite analysis and extract T1 and T2 results</span>
         <span class="n">analysis_results</span><span class="p">,</span> <span class="n">figures</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_run_analysis</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">)</span>
-        <span class="n">t1_result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">res</span><span class="p">:</span> <span class="n">res</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="n">analysis_results</span><span class="p">))</span>
-        <span class="n">t2_result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">res</span><span class="p">:</span> <span class="n">res</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;T2star&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">},</span> <span class="n">analysis_results</span><span class="p">))</span>
+        <span class="n">t1_result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">res</span><span class="p">:</span> <span class="n">res</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"T1"</span><span class="p">,</span> <span class="n">analysis_results</span><span class="p">))</span>
+        <span class="n">t2_result</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">res</span><span class="p">:</span> <span class="n">res</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"T2star"</span><span class="p">,</span> <span class="s2">"T2"</span><span class="p">},</span> <span class="n">analysis_results</span><span class="p">))</span>
 
         <span class="c1"># Calculate Tphi from T1 and T2</span>
         <span class="n">tphi</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">t2_result</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">t1_result</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
         <span class="n">quality_tphi</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;good&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">t1_result</span><span class="o">.</span><span class="n">quality</span> <span class="o">==</span> <span class="s2">&quot;good&quot;</span> <span class="ow">and</span> <span class="n">t2_result</span><span class="o">.</span><span class="n">quality</span> <span class="o">==</span> <span class="s2">&quot;good&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;bad&quot;</span>
+            <span class="s2">"good"</span> <span class="k">if</span> <span class="p">(</span><span class="n">t1_result</span><span class="o">.</span><span class="n">quality</span> <span class="o">==</span> <span class="s2">"good"</span> <span class="ow">and</span> <span class="n">t2_result</span><span class="o">.</span><span class="n">quality</span> <span class="o">==</span> <span class="s2">"good"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"bad"</span>
         <span class="p">)</span>
         <span class="n">tphi_result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;T_phi&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"T_phi"</span><span class="p">,</span>
             <span class="n">value</span><span class="o">=</span><span class="n">tphi</span><span class="p">,</span>
             <span class="n">chisq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">quality</span><span class="o">=</span><span class="n">quality_tphi</span><span class="p">,</span>
-            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">},</span>
+            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"unit"</span><span class="p">:</span> <span class="s2">"s"</span><span class="p">},</span>
         <span class="p">)</span>
 
         <span class="c1"># Return combined results</span>
@@ -647,7 +647,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -662,7 +662,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/scripts/furo.js?v=46bd48cc"></script>

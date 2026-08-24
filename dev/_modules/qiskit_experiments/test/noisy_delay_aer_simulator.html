@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.test.noisy_delay_aer_simulator - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.test.noisy_delay_aer_simulator - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Temporary backend to be used to apply T2 and T1 noise.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Delay</span>
@@ -572,7 +572,7 @@
 <div class="viewcode-block" id="NoisyDelayAerBackend">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.NoisyDelayAerBackend.html#qiskit_experiments.test.NoisyDelayAerBackend">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NoisyDelayAerBackend</span><span class="p">(</span><span class="n">AerSimulator</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Backend for T1 and T2Ramsey experiments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Backend for T1 and T2Ramsey experiments."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -582,7 +582,7 @@
         <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">backend_options</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;configure backend noise&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""configure backend noise"""</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">backend_options</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_t2</span> <span class="o">=</span> <span class="n">t2</span> <span class="ow">or</span> <span class="p">[</span><span class="mf">1e-4</span><span class="p">]</span>
@@ -602,7 +602,7 @@
 <div class="viewcode-block" id="NoisyDelayAerBackend.run">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.NoisyDelayAerBackend.html#qiskit_experiments.test.NoisyDelayAerBackend.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_input</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span> <span class="o">**</span><span class="n">run_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AerJob</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add noise pass to all circuits and then run the circuits.</span>
 
 <span class="sd">        Args:</span>
@@ -612,7 +612,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            AerJob: A job that contains the simulated data.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">relax_pass</span> <span class="o">=</span> <span class="n">RelaxationNoisePass</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_t1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t2</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dt_factor</span><span class="p">,</span> <span class="n">op_types</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_op_types</span>
         <span class="p">)</span>
@@ -642,7 +642,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -657,7 +657,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.framework.base_experiment - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.framework.base_experiment - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Base Experiment class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
@@ -585,7 +585,7 @@
 <div class="viewcode-block" id="BaseExperiment">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseExperiment</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">StoreInitArgs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for experiments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Abstract base class for experiments."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -595,7 +595,7 @@
         <span class="n">experiment_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">backend_run</span><span class="p">:</span> <span class="n">Options</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the experiment object.</span>
+<span class="w">        </span><span class="sd">"""Initialize the experiment object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            physical_qubits: list of physical qubits for the experiment.</span>
@@ -605,7 +605,7 @@
 <span class="sd">            backend_run: Optional, use backend run vs the sampler (temporary)</span>
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If qubits contains duplicates.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Experiment identification metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">experiment_type</span> <span class="o">=</span> <span class="n">experiment_type</span>
 
@@ -613,7 +613,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_qubits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_qubits</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Duplicate qubits in physical qubits list.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"Duplicate qubits in physical qubits list."</span><span class="p">)</span>
 
         <span class="c1"># Experiment options</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
@@ -642,12 +642,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">experiment_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return experiment type.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return experiment type."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span>
 
     <span class="nd">@experiment_type</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">experiment_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the type for the experiment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set the type for the experiment."""</span>
         <span class="k">if</span> <span class="n">exp_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">else</span><span class="p">:</span>
@@ -655,54 +655,54 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">physical_qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the device qubits for the experiment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the device qubits for the experiment."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">num_qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of qubits for the experiment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of qubits for the experiment."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_qubits</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseAnalysis</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the analysis instance for the experiment&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the analysis instance for the experiment"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis</span>
 
     <span class="nd">@analysis</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">analysis</span><span class="p">:</span> <span class="n">BaseAnalysis</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the analysis instance for the experiment&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set the analysis instance for the experiment"""</span>
         <span class="k">if</span> <span class="n">analysis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">analysis</span><span class="p">,</span> <span class="n">BaseAnalysis</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input is not a None or a BaseAnalysis subclass.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"Input is not a None or a BaseAnalysis subclass."</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_analysis</span> <span class="o">=</span> <span class="n">analysis</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">backend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Backend</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the backend for the experiment&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the backend for the experiment"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span>
 
     <span class="nd">@backend</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the backend for the experiment&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set the backend for the experiment"""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">Backend</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input is not a backend.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"Input is not a backend."</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the backend for the experiment.</span>
+<span class="w">        </span><span class="sd">"""Set the backend for the experiment.</span>
 
 <span class="sd">        Subclasses can override this method to extract additional</span>
 <span class="sd">        properties from the supplied backend if required.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span> <span class="o">=</span> <span class="n">backend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_backend_data</span> <span class="o">=</span> <span class="n">BackendData</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BaseExperiment.copy">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.copy">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BaseExperiment&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a copy of the experiment&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"BaseExperiment"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a copy of the experiment"""</span>
         <span class="c1"># We want to avoid a deep copy be default for performance so we</span>
         <span class="c1"># need to also copy the Options structures so that if they are</span>
-        <span class="c1"># updated on the copy they don&#39;t affect the original.</span>
+        <span class="c1"># updated on the copy they don't affect the original.</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="p">:</span>
             <span class="n">ret</span><span class="o">.</span><span class="n">analysis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -720,9 +720,9 @@
 <div class="viewcode-block" id="BaseExperiment.config">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExperimentConfig</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the config dataclass for this experiment&quot;&quot;&quot;</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__init_args__&quot;</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">())</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__init_kwargs__&quot;</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">()))</span>
+<span class="w">        </span><span class="sd">"""Return the config dataclass for this experiment"""</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"__init_args__"</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">())</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"__init_kwargs__"</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">()))</span>
         <span class="c1"># Only store non-default valued options</span>
         <span class="n">experiment_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_experiment_options</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_experiment_options</span>
@@ -744,8 +744,8 @@
 <div class="viewcode-block" id="BaseExperiment.from_config">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.from_config">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ExperimentConfig</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BaseExperiment&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize an experiment from experiment config&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ExperimentConfig</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"BaseExperiment"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize an experiment from experiment config"""</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">ExperimentConfig</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">*</span><span class="n">config</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
@@ -764,12 +764,12 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sampler</span><span class="p">:</span> <span class="n">BaseSamplerV2</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">analysis</span><span class="p">:</span> <span class="n">BaseAnalysis</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">analysis</span><span class="p">:</span> <span class="n">BaseAnalysis</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"default"</span><span class="p">,</span>
         <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">backend_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">run_options</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExperimentData</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run an experiment and perform analysis.</span>
+<span class="w">        </span><span class="sd">"""Run an experiment and perform analysis.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            backend: Optional, the backend to run on. Will override existing backend settings.</span>
@@ -777,7 +777,7 @@
 <span class="sd">                      If None then a sampler will be invoked from previously</span>
 <span class="sd">                      set backend</span>
 <span class="sd">            analysis: Optional, a custom analysis instance to use for performing</span>
-<span class="sd">                      analysis. If None analysis will not be run. If ``&quot;default&quot;``</span>
+<span class="sd">                      analysis. If None analysis will not be run. If ``"default"``</span>
 <span class="sd">                      the experiments :meth:`analysis` instance will be used if</span>
 <span class="sd">                      it contains one.</span>
 <span class="sd">            timeout: Time to wait for experiment jobs to finish running before</span>
@@ -791,12 +791,12 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If experiment is run with an incompatible existing</span>
 <span class="sd">                         ExperimentData container.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="p">(</span>
             <span class="p">(</span><span class="n">backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
             <span class="ow">or</span> <span class="p">(</span><span class="n">sampler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="ow">or</span> <span class="n">analysis</span> <span class="o">!=</span> <span class="s2">&quot;default&quot;</span>
+            <span class="ow">or</span> <span class="n">analysis</span> <span class="o">!=</span> <span class="s2">"default"</span>
             <span class="ow">or</span> <span class="n">run_options</span>
             <span class="ow">or</span> <span class="p">(</span><span class="n">backend_run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
         <span class="p">):</span>
@@ -826,7 +826,7 @@
             <span class="n">experiment</span> <span class="o">=</span> <span class="bp">self</span>
 
         <span class="k">if</span> <span class="n">experiment</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Cannot run experiment, no backend has been set.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"Cannot run experiment, no backend has been set."</span><span class="p">)</span>
 
         <span class="c1"># Finalize experiment before executions</span>
         <span class="n">experiment</span><span class="o">.</span><span class="n">_finalize</span><span class="p">()</span>
@@ -852,30 +852,30 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_initialize_experiment_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExperimentData</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the return data container for the experiment run&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the return data container for the experiment run"""</span>
         <span class="k">return</span> <span class="n">ExperimentData</span><span class="p">(</span><span class="n">experiment</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Finalize experiment object before running jobs.</span>
+<span class="w">        </span><span class="sd">"""Finalize experiment object before running jobs.</span>
 
 <span class="sd">        Subclasses can override this method to set any final option</span>
 <span class="sd">        values derived from other options or attributes of the</span>
 <span class="sd">        experiment before `_run` is called.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_max_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Calculate the maximum number of circuits per job for the experiment.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># set backend</span>
         <span class="k">if</span> <span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;A backend must be provided.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"A backend must be provided."</span><span class="p">)</span>
             <span class="n">backend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span>
         <span class="c1"># Get max circuits for job splitting</span>
-        <span class="n">max_circuits_option</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="p">,</span> <span class="s2">&quot;max_circuits&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">max_circuits_option</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="p">,</span> <span class="s2">"max_circuits"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">max_circuits_backend</span> <span class="o">=</span> <span class="n">BackendData</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">max_circuits</span>
 
         <span class="k">if</span> <span class="n">max_circuits_option</span> <span class="ow">and</span> <span class="n">max_circuits_backend</span><span class="p">:</span>
@@ -888,7 +888,7 @@
 <div class="viewcode-block" id="BaseExperiment.job_info">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.job_info">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">job_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get information about job distribution for the experiment on a specific</span>
 <span class="sd">        backend.</span>
 
@@ -900,19 +900,19 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            dict: A dictionary containing information about job distribution.</span>
 
-<span class="sd">                - &quot;Total number of circuits in the experiment&quot;: Total number of</span>
+<span class="sd">                - "Total number of circuits in the experiment": Total number of</span>
 <span class="sd">                  circuits in the experiment.</span>
 
-<span class="sd">                - &quot;Maximum number of circuits per job&quot;: Maximum number of</span>
+<span class="sd">                - "Maximum number of circuits per job": Maximum number of</span>
 <span class="sd">                  circuits in one job based on backend and experiment settings.</span>
 
-<span class="sd">                - &quot;Total number of jobs&quot;: Number of jobs needed to run this</span>
+<span class="sd">                - "Total number of jobs": Number of jobs needed to run this</span>
 <span class="sd">                  experiment on the currently set backend.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: if backend is not specified.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">max_circuits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_circuits</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
         <span class="n">total_circuits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">())</span>
 
@@ -921,16 +921,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">num_jobs</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_circuits</span> <span class="o">+</span> <span class="n">max_circuits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">max_circuits</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;Total number of circuits in the experiment&quot;</span><span class="p">:</span> <span class="n">total_circuits</span><span class="p">,</span>
-            <span class="s2">&quot;Maximum number of circuits per job&quot;</span><span class="p">:</span> <span class="n">max_circuits</span><span class="p">,</span>
-            <span class="s2">&quot;Total number of jobs&quot;</span><span class="p">:</span> <span class="n">num_jobs</span><span class="p">,</span>
+            <span class="s2">"Total number of circuits in the experiment"</span><span class="p">:</span> <span class="n">total_circuits</span><span class="p">,</span>
+            <span class="s2">"Maximum number of circuits per job"</span><span class="p">:</span> <span class="n">max_circuits</span><span class="p">,</span>
+            <span class="s2">"Total number of jobs"</span><span class="p">:</span> <span class="n">num_jobs</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_jobs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span> <span class="n">sampler</span><span class="p">:</span> <span class="n">BaseSamplerV2</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">run_options</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Job</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run circuits on backend as 1 or more jobs.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Run circuits on backend as 1 or more jobs."""</span>
         <span class="n">max_circuits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_circuits</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
 
         <span class="c1"># Run experiment jobs</span>
@@ -954,38 +954,38 @@
                 <span class="c1"># have to hand set some of these options</span>
                 <span class="c1"># see https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime</span>
                 <span class="c1"># /qiskit_ibm_runtime.options.SamplerExecutionOptionsV2</span>
-                <span class="k">if</span> <span class="s2">&quot;init_qubits&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
-                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">init_qubits</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;init_qubits&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="s2">&quot;rep_delay&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
-                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">rep_delay</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;rep_delay&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="s2">&quot;meas_level&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                        <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">meas_type</span> <span class="o">=</span> <span class="s2">&quot;classified&quot;</span>
-                    <span class="k">elif</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="s2">&quot;meas_return&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;meas_return&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;avg&quot;</span><span class="p">:</span>
-                                <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">meas_type</span> <span class="o">=</span> <span class="s2">&quot;avg_kerneled&quot;</span>
+                <span class="k">if</span> <span class="s2">"init_qubits"</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">init_qubits</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">"init_qubits"</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">"rep_delay"</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">rep_delay</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">"rep_delay"</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">"meas_level"</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">"meas_level"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">meas_type</span> <span class="o">=</span> <span class="s2">"classified"</span>
+                    <span class="k">elif</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">"meas_level"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="s2">"meas_return"</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">"meas_return"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"avg"</span><span class="p">:</span>
+                                <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">meas_type</span> <span class="o">=</span> <span class="s2">"avg_kerneled"</span>
                             <span class="k">else</span><span class="p">:</span>
-                                <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">meas_type</span> <span class="o">=</span> <span class="s2">&quot;kerneled&quot;</span>
+                                <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">meas_type</span> <span class="o">=</span> <span class="s2">"kerneled"</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="c1"># assume this is what is wanted if no  meas return specified</span>
-                            <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">meas_type</span> <span class="o">=</span> <span class="s2">&quot;kerneled&quot;</span>
+                            <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">meas_type</span> <span class="o">=</span> <span class="s2">"kerneled"</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Only meas level 1 + 2 supported by sampler&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="s2">&quot;noise_model&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
-                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">noise_model</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;noise_model&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="s2">&quot;seed_simulator&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
-                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">seed_simulator</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;seed_simulator&quot;</span><span class="p">]</span>
+                        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"Only meas level 1 + 2 supported by sampler"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">"noise_model"</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">noise_model</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">"noise_model"</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">"seed_simulator"</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">seed_simulator</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">"seed_simulator"</span><span class="p">]</span>
 
-                <span class="k">if</span> <span class="n">run_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">run_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shots"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="c1"># Set shots in options for consistency with other options</span>
                     <span class="c1"># even though it is passed to run() below</span>
-                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">default_shots</span> <span class="o">=</span> <span class="n">run_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span>
+                    <span class="n">sampler</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">default_shots</span> <span class="o">=</span> <span class="n">run_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shots"</span><span class="p">)</span>
 
             <span class="c1"># Options actually passed to run() instead of set into sampler options</span>
             <span class="n">sampler_run_options</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">if</span> <span class="s2">&quot;shots&quot;</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
-                <span class="n">sampler_run_options</span><span class="p">[</span><span class="s2">&quot;shots&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">&quot;shots&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">"shots"</span> <span class="ow">in</span> <span class="n">run_options</span><span class="p">:</span>
+                <span class="n">sampler_run_options</span><span class="p">[</span><span class="s2">"shots"</span><span class="p">]</span> <span class="o">=</span> <span class="n">run_options</span><span class="p">[</span><span class="s2">"shots"</span><span class="p">]</span>
 
             <span class="n">jobs</span> <span class="o">=</span> <span class="p">[</span><span class="n">sampler</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">circs</span><span class="p">,</span> <span class="o">**</span><span class="n">sampler_run_options</span><span class="p">)</span> <span class="k">for</span> <span class="n">circs</span> <span class="ow">in</span> <span class="n">job_circuits</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -997,7 +997,7 @@
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.circuits">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of experiment circuits.</span>
+<span class="w">        </span><span class="sd">"""Return a list of experiment circuits.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`~qiskit.circuit.QuantumCircuit`.</span>
@@ -1006,31 +1006,31 @@
 <span class="sd">            These circuits should be on qubits ``[0, .., N-1]`` for an</span>
 <span class="sd">            *N*-qubit experiment. The circuits mapped to physical qubits</span>
 <span class="sd">            are obtained via the internal :meth:`_transpiled_circuits` method.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
         <span class="c1"># NOTE: Subclasses should override this method using the `options`</span>
         <span class="c1"># values for any explicit experiment options that affect circuit</span>
         <span class="c1"># generation</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_transpiled_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of experiment circuits, transpiled.</span>
+<span class="w">        </span><span class="sd">"""Return a list of experiment circuits, transpiled.</span>
 
 <span class="sd">        This function can be overridden to define custom transpilation.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">transpile_opts</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transpile_options</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
-        <span class="n">transpile_opts</span><span class="p">[</span><span class="s2">&quot;initial_layout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">)</span>
+        <span class="n">transpile_opts</span><span class="p">[</span><span class="s2">"initial_layout"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">)</span>
         <span class="n">transpiled</span> <span class="o">=</span> <span class="n">transpile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="o">**</span><span class="n">transpile_opts</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">transpiled</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default experiment options.</span>
+<span class="w">        </span><span class="sd">"""Default experiment options.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            max_circuits (Optional[int]): The maximum number of circuits per job when</span>
 <span class="sd">                running an experiment on a backend.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Experiment subclasses should override this method to return</span>
         <span class="c1"># an `Options` object containing all the supported options for</span>
         <span class="c1"># that experiment and their default values. Only options listed</span>
@@ -1040,24 +1040,24 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">experiment_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the options for the experiment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the options for the experiment."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_options</span>
 
 <div class="viewcode-block" id="BaseExperiment.set_experiment_options">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.set_experiment_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_experiment_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the experiment options.</span>
+<span class="w">        </span><span class="sd">"""Set the experiment options.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fields: The fields to update the options</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AttributeError: If the field passed in is not a supported options</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_experiment_options</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Options field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> is not valid for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Options field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> is not valid for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_experiment_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_experiment_options</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
@@ -1065,7 +1065,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_transpile_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default transpiler options for transpilation of circuits&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default transpiler options for transpilation of circuits"""</span>
         <span class="c1"># Experiment subclasses can override this method if they need</span>
         <span class="c1"># to set specific default transpiler options to transpile the</span>
         <span class="c1"># experiment circuits.</span>
@@ -1073,13 +1073,13 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">transpile_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the transpiler options for the :meth:`run` method.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the transpiler options for the :meth:`run` method."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transpile_options</span>
 
 <div class="viewcode-block" id="BaseExperiment.set_transpile_options">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.set_transpile_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_transpile_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the transpiler options for :meth:`run` method.</span>
+<span class="w">        </span><span class="sd">"""Set the transpiler options for :meth:`run` method.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fields: The fields to update the options</span>
@@ -1088,11 +1088,11 @@
 <span class="sd">            QiskitError: If `initial_layout` is one of the fields.</span>
 
 <span class="sd">        .. seealso:: The :ref:`guide_setting_options` guide for code example.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;initial_layout&quot;</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"initial_layout"</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                <span class="s2">&quot;Initial layout cannot be specified as a transpile option&quot;</span>
-                <span class="s2">&quot; as it is determined by the experiment physical qubits.&quot;</span>
+                <span class="s2">"Initial layout cannot be specified as a transpile option"</span>
+                <span class="s2">" as it is determined by the experiment physical qubits."</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_transpile_options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_transpile_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_transpile_options</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
@@ -1100,47 +1100,47 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_run_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default options values for the experiment :meth:`run` method.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default options values for the experiment :meth:`run` method."""</span>
         <span class="k">return</span> <span class="n">Options</span><span class="p">(</span><span class="n">meas_level</span><span class="o">=</span><span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">run_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return options values for the experiment :meth:`run` method.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return options values for the experiment :meth:`run` method."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_options</span>
 
 <div class="viewcode-block" id="BaseExperiment.set_run_options">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.set_run_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_run_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set options values for the experiment  :meth:`run` method.</span>
+<span class="w">        </span><span class="sd">"""Set options values for the experiment  :meth:`run` method.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fields: The fields to update the options</span>
 
 <span class="sd">        .. seealso:: The :ref:`guide_setting_options` guide for code example.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_run_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_run_options</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return experiment metadata for ExperimentData.</span>
+<span class="w">        </span><span class="sd">"""Return experiment metadata for ExperimentData.</span>
 
 <span class="sd">        By default, this assumes the experiment is running on qubits only. Subclasses can override</span>
 <span class="sd">        this method to add custom experiment metadata to the returned experiment result data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;physical_qubits&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">),</span>
-            <span class="s2">&quot;device_components&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Qubit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">)),</span>
+            <span class="s2">"physical_qubits"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">),</span>
+            <span class="s2">"device_components"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Qubit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">)),</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">metadata</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExperimentConfig</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to format that can be JSON serialized&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Convert to format that can be JSON serialized"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">()</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ExperimentConfig</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load from JSON compatible format&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Load from JSON compatible format"""</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
 </pre></div>
@@ -1161,7 +1161,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1176,7 +1176,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

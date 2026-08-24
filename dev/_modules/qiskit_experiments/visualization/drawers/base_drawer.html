@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.visualization.drawers.base_drawer - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.visualization.drawers.base_drawer - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Drawer abstract class.&quot;&quot;&quot;</span>
+<span class="sd">"""Drawer abstract class."""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
@@ -579,7 +579,7 @@
 <div class="viewcode-block" id="BaseDrawer">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.html#qiskit_experiments.visualization.BaseDrawer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseDrawer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract class for the serializable Qiskit Experiments figure drawer.</span>
+<span class="w">    </span><span class="sd">"""Abstract class for the serializable Qiskit Experiments figure drawer.</span>
 
 <span class="sd">    # section: overview</span>
 
@@ -646,7 +646,7 @@
 <span class="sd">    ``legend``. If a user would like the graphics drawn onto a canvas to be used as the</span>
 <span class="sd">    graphical component of a legend entry; they should set ``legend=True``. The legend</span>
 <span class="sd">    entry label can be defined in three locations: the ``label`` parameter of drawing</span>
-<span class="sd">    functions, the ``&quot;label&quot;`` entry in ``series_params``, and the ``name`` parameter of</span>
+<span class="sd">    functions, the ``"label"`` entry in ``series_params``, and the ``name`` parameter of</span>
 <span class="sd">    drawing functions. These three possible label variables have a search hierarchy</span>
 <span class="sd">    given by the order in the aforementioned list. If one of the label variables is</span>
 <span class="sd">    ``None``, the next is used. If all are ``None``, a legend entry is not generated for</span>
@@ -680,10 +680,10 @@
 <span class="sd">        :meth:`BasePlotter.figure` method is called. This must be kept in mind when</span>
 <span class="sd">        creating subclasses of :class:`BaseDrawer`.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a BaseDrawer instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create a BaseDrawer instance."""</span>
         <span class="c1"># Normal options. Which includes the drawer axis, subplots, and default style.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="c1"># A set of changed options for serialization.</span>
@@ -700,22 +700,22 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the drawer options.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the drawer options."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">figure_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the figure options.</span>
+<span class="w">        </span><span class="sd">"""Return the figure options.</span>
 
 <span class="sd">        These are typically updated by a plotter instance, and thus may change. It is</span>
 <span class="sd">        recommended to set figure options in a parent :class:`BasePlotter` instance that</span>
 <span class="sd">        contains the :class:`BaseDrawer` instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default drawer options.</span>
+<span class="w">        </span><span class="sd">"""Return default drawer options.</span>
 
 <span class="sd">        Options:</span>
 <span class="sd">            axis (Any): Arbitrary object that can be used as a canvas.</span>
@@ -725,7 +725,7 @@
 <span class="sd">                all required style parameters for :class:`drawer`, as is defined in</span>
 <span class="sd">                :meth:`PlotStyle.default_style()`. Subclasses can add extra required</span>
 <span class="sd">                style parameters by overriding :meth:`_default_style`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">Options</span><span class="p">(</span>
             <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">subplots</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
@@ -738,7 +738,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_figure_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default figure options.</span>
+<span class="w">        </span><span class="sd">"""Return default figure options.</span>
 
 <span class="sd">        Figure Options:</span>
 <span class="sd">            xlabel (Union[str, List[str]]): X-axis label string of the output figure. If</span>
@@ -761,8 +761,8 @@
 <span class="sd">                If there are multiple rows in the canvas, this could be a list of yval_units.</span>
 <span class="sd">            xval_unit_scale (Union[bool, List[bool]]): Whether to add an SI unit prefix to</span>
 <span class="sd">                ``xval_unit`` if needed. For example, when the x values represent time and</span>
-<span class="sd">                ``xval_unit=&quot;s&quot;``, ``xval_unit_scale=True`` adds an SI unit prefix to</span>
-<span class="sd">                ``&quot;s&quot;`` based on X values of plotted data. In the output figure, the</span>
+<span class="sd">                ``xval_unit="s"``, ``xval_unit_scale=True`` adds an SI unit prefix to</span>
+<span class="sd">                ``"s"`` based on X values of plotted data. In the output figure, the</span>
 <span class="sd">                prefix is automatically selected based on the maximum value in this</span>
 <span class="sd">                axis. If your x values are in [1e-3, 1e-4], they are displayed as [1 ms,</span>
 <span class="sd">                10 ms]. By default, this option is set to ``True``. If ``False`` is</span>
@@ -779,15 +779,15 @@
 <span class="sd">            sharey (bool): Set True to share y-axis ticks among sub-plots.</span>
 <span class="sd">            series_params (Dict[str, Dict[str, Any]]): A dictionary of parameters for</span>
 <span class="sd">                each series. This is keyed on the name for each series. Sub-dictionary</span>
-<span class="sd">                is expected to have the following three configurations, &quot;canvas&quot;,</span>
-<span class="sd">                &quot;color&quot;, &quot;symbol&quot; and &quot;label&quot;; &quot;canvas&quot; is the integer index of axis</span>
-<span class="sd">                (when multi-canvas plot is set), &quot;color&quot; is the color of the drawn</span>
-<span class="sd">                graphics, &quot;symbol&quot; is the series marker style for scatter plots, and</span>
-<span class="sd">                &quot;label&quot; is a user provided series label that appears in the legend.</span>
+<span class="sd">                is expected to have the following three configurations, "canvas",</span>
+<span class="sd">                "color", "symbol" and "label"; "canvas" is the integer index of axis</span>
+<span class="sd">                (when multi-canvas plot is set), "color" is the color of the drawn</span>
+<span class="sd">                graphics, "symbol" is the series marker style for scatter plots, and</span>
+<span class="sd">                "label" is a user provided series label that appears in the legend.</span>
 <span class="sd">            custom_style (PlotStyle): The style definition to use when drawing. This</span>
 <span class="sd">                overwrites style parameters in ``default_style`` in :attr:`options`.</span>
 <span class="sd">                Defaults to an empty PlotStyle instance (i.e., ``PlotStyle()``).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">(</span>
             <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -805,26 +805,26 @@
             <span class="n">series_params</span><span class="o">=</span><span class="p">{},</span>
             <span class="n">custom_style</span><span class="o">=</span><span class="n">PlotStyle</span><span class="p">(),</span>
         <span class="p">)</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="s2">&quot;xscale&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;symlog&quot;</span><span class="p">,</span> <span class="s2">&quot;logit&quot;</span><span class="p">,</span> <span class="s2">&quot;quadratic&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="s2">&quot;yscale&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;symlog&quot;</span><span class="p">,</span> <span class="s2">&quot;logit&quot;</span><span class="p">,</span> <span class="s2">&quot;quadratic&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="s2">"xscale"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"linear"</span><span class="p">,</span> <span class="s2">"log"</span><span class="p">,</span> <span class="s2">"symlog"</span><span class="p">,</span> <span class="s2">"logit"</span><span class="p">,</span> <span class="s2">"quadratic"</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="s2">"yscale"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"linear"</span><span class="p">,</span> <span class="s2">"log"</span><span class="p">,</span> <span class="s2">"symlog"</span><span class="p">,</span> <span class="s2">"logit"</span><span class="p">,</span> <span class="s2">"quadratic"</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">options</span>
 
 <div class="viewcode-block" id="BaseDrawer.set_options">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.html#qiskit_experiments.visualization.BaseDrawer.set_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the drawer options.</span>
+<span class="w">        </span><span class="sd">"""Set the drawer options.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fields: The fields to update the options</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AttributeError: If an unknown options is encountered.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Options field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> is not valid for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Options field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> is not valid for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
@@ -834,18 +834,18 @@
 <div class="viewcode-block" id="BaseDrawer.set_figure_options">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.html#qiskit_experiments.visualization.BaseDrawer.set_figure_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_figure_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the figure options.</span>
+<span class="w">        </span><span class="sd">"""Set the figure options.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fields: The fields to update the figure options</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AttributeError: If an unknown figure option is encountered.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Figure options field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> is not valid for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Figure options field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> is not valid for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_figure_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_figure_options</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
@@ -853,7 +853,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">style</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlotStyle</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The combined plot style for this drawer.</span>
+<span class="w">        </span><span class="sd">"""The combined plot style for this drawer.</span>
 
 <span class="sd">        The returned style instance is a combination of :attr:`options.default_style`</span>
 <span class="sd">        and :attr:`figure_options.custom_style`. Style parameters set in</span>
@@ -863,7 +863,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The plot style for this drawer.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">custom_style</span><span class="p">,</span> <span class="n">PlotStyle</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">PlotStyle</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">default_style</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">custom_style</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">default_style</span>
@@ -872,27 +872,27 @@
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.html#qiskit_experiments.visualization.BaseDrawer.initialize_canvas">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the drawer canvas.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Initialize the drawer canvas."""</span></div>
 
 
 <div class="viewcode-block" id="BaseDrawer.format_canvas">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.html#qiskit_experiments.visualization.BaseDrawer.format_canvas">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">format_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Final cleanup for the canvas appearance.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Final cleanup for the canvas appearance."""</span></div>
 
 
 <div class="viewcode-block" id="BaseDrawer.label_for">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.html#qiskit_experiments.visualization.BaseDrawer.label_for">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">label_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">SeriesName</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="n">SeriesName</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the legend label for the given series, with optional overrides.</span>
+<span class="w">        </span><span class="sd">"""Get the legend label for the given series, with optional overrides.</span>
 
 <span class="sd">        This method determines the legend label for a series, with optional overrides</span>
-<span class="sd">        ``label`` and the ``&quot;label&quot;`` entry in the ``series_params`` option (see</span>
+<span class="sd">        ``label`` and the ``"label"`` entry in the ``series_params`` option (see</span>
 <span class="sd">        :attr:`options`). ``label`` is returned if it is not ``None``, as this is the</span>
 <span class="sd">        override with the highest priority. If it is ``None``, then the drawer will look</span>
-<span class="sd">        for a ``&quot;label&quot;`` entry in ``series_params``, for the series identified by</span>
-<span class="sd">        ``name``. If this entry doesn&#39;t exist, or is ``None``, then ``name`` is used as</span>
+<span class="sd">        for a ``"label"`` entry in ``series_params``, for the series identified by</span>
+<span class="sd">        ``name``. If this entry doesn't exist, or is ``None``, then ``name`` is used as</span>
 <span class="sd">        the label. If all these options are ``None``, then ``None`` is returned;</span>
 <span class="sd">        signifying that a legend entry for the provided series should not be generated.</span>
 <span class="sd">        Note that :meth:`label_for` will convert ``name`` to ``str`` when it is</span>
@@ -904,12 +904,12 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The legend entry label, or ``None``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"label"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
 
@@ -927,7 +927,7 @@
         <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw scatter points, with optional error-bars.</span>
+<span class="w">        </span><span class="sd">"""Draw scatter points, with optional error-bars.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x_data: X values.</span>
@@ -938,12 +938,12 @@
 <span class="sd">            label: Optional legend label to override ``name`` and ``series_params``.</span>
 <span class="sd">            legend: Whether the drawn area must have a legend entry. Defaults to False.</span>
 <span class="sd">                The series label in the legend will be ``label`` if it is not None. If</span>
-<span class="sd">                it is, then ``series_params`` is searched for a ``&quot;label&quot;`` entry for</span>
+<span class="sd">                it is, then ``series_params`` is searched for a ``"label"`` entry for</span>
 <span class="sd">                the series identified by ``name``. If this is also ``None``, then</span>
 <span class="sd">                ``name`` is used as the fallback. If no ``name`` is provided, then no</span>
 <span class="sd">                legend entry is generated.</span>
 <span class="sd">            options: Valid options for the drawer backend API.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="BaseDrawer.line">
@@ -958,7 +958,7 @@
         <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw a line.</span>
+<span class="w">        </span><span class="sd">"""Draw a line.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x_data: X values.</span>
@@ -967,12 +967,12 @@
 <span class="sd">            label: Optional legend label to override ``name`` and ``series_params``.</span>
 <span class="sd">            legend: Whether the drawn area must have a legend entry. Defaults to False.</span>
 <span class="sd">                The series label in the legend will be ``label`` if it is not None. If</span>
-<span class="sd">                it is, then ``series_params`` is searched for a ``&quot;label&quot;`` entry for</span>
+<span class="sd">                it is, then ``series_params`` is searched for a ``"label"`` entry for</span>
 <span class="sd">                the series identified by ``name``. If this is also ``None``, then</span>
 <span class="sd">                ``name`` is used as the fallback. If no ``name`` is provided, then no</span>
 <span class="sd">                legend entry is generated.</span>
 <span class="sd">            options: Valid options for the drawer backend API.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="BaseDrawer.hline">
@@ -986,7 +986,7 @@
         <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw a horizontal line.</span>
+<span class="w">        </span><span class="sd">"""Draw a horizontal line.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            y_value: Y value for line.</span>
@@ -994,12 +994,12 @@
 <span class="sd">            label: Optional legend label to override ``name`` and ``series_params``.</span>
 <span class="sd">            legend: Whether the drawn area must have a legend entry. Defaults to False.</span>
 <span class="sd">                The series label in the legend will be ``label`` if it is not None. If</span>
-<span class="sd">                it is, then ``series_params`` is searched for a ``&quot;label&quot;`` entry for</span>
+<span class="sd">                it is, then ``series_params`` is searched for a ``"label"`` entry for</span>
 <span class="sd">                the series identified by ``name``. If this is also ``None``, then</span>
 <span class="sd">                ``name`` is used as the fallback. If no ``name`` is provided, then no</span>
 <span class="sd">                legend entry is generated.</span>
 <span class="sd">            options: Valid options for the drawer backend API.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="BaseDrawer.filled_y_area">
@@ -1015,7 +1015,7 @@
         <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw filled area as a function of x-values.</span>
+<span class="w">        </span><span class="sd">"""Draw filled area as a function of x-values.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x_data: X values.</span>
@@ -1025,12 +1025,12 @@
 <span class="sd">            label: Optional legend label to override ``name`` and ``series_params``.</span>
 <span class="sd">            legend: Whether the drawn area must have a legend entry. Defaults to False.</span>
 <span class="sd">                The series label in the legend will be ``label`` if it is not None. If</span>
-<span class="sd">                it is, then ``series_params`` is searched for a ``&quot;label&quot;`` entry for</span>
+<span class="sd">                it is, then ``series_params`` is searched for a ``"label"`` entry for</span>
 <span class="sd">                the series identified by ``name``. If this is also ``None``, then</span>
 <span class="sd">                ``name`` is used as the fallback. If no ``name`` is provided, then no</span>
 <span class="sd">                legend entry is generated.</span>
 <span class="sd">            options: Valid options for the drawer backend API.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="BaseDrawer.filled_x_area">
@@ -1046,7 +1046,7 @@
         <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw filled area as a function of y-values.</span>
+<span class="w">        </span><span class="sd">"""Draw filled area as a function of y-values.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x_ub: The upper boundary of X values.</span>
@@ -1056,12 +1056,12 @@
 <span class="sd">            label: Optional legend label to override ``name`` and ``series_params``.</span>
 <span class="sd">            legend: Whether the drawn area must have a legend entry. Defaults to False.</span>
 <span class="sd">                The series label in the legend will be ``label`` if it is not None. If</span>
-<span class="sd">                it is, then ``series_params`` is searched for a ``&quot;label&quot;`` entry for</span>
+<span class="sd">                it is, then ``series_params`` is searched for a ``"label"`` entry for</span>
 <span class="sd">                the series identified by ``name``. If this is also ``None``, then</span>
 <span class="sd">                ``name`` is used as the fallback. If no ``name`` is provided, then no</span>
 <span class="sd">                legend entry is generated.</span>
 <span class="sd">            options: Valid options for the drawer backend API.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="BaseDrawer.textbox">
@@ -1073,14 +1073,14 @@
         <span class="n">rel_pos</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw text box.</span>
+<span class="w">        </span><span class="sd">"""Draw text box.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            description: A string to be drawn inside a report box.</span>
 <span class="sd">            rel_pos: Relative position of the text-box. If None, the default</span>
 <span class="sd">                ``textbox_rel_pos`` from the style is used.</span>
 <span class="sd">            options: Valid options for the drawer backend API.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
 <div class="viewcode-block" id="BaseDrawer.image">
@@ -1097,7 +1097,7 @@
         <span class="n">colorbar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw an image of numerical values, series names, or RGB/A values.</span>
+<span class="w">        </span><span class="sd">"""Draw an image of numerical values, series names, or RGB/A values.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: The two-/three-dimensional data defining an image. If</span>
@@ -1131,27 +1131,27 @@
 <span class="sd">            colorbar: Whether to add a bar showing the color-value mapping for the</span>
 <span class="sd">                image. Defaults to False.</span>
 <span class="sd">            options: Valid options for the drawer backend API.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return figure object handler to be saved in the database.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return figure object handler to be saved in the database."""</span>
 
 <div class="viewcode-block" id="BaseDrawer.config">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BaseDrawer.html#qiskit_experiments.visualization.BaseDrawer.config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the config dictionary for this drawer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the config dictionary for this drawer."""</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_options</span><span class="p">)</span>
         <span class="n">figure_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_figure_options</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;cls&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
-            <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
-            <span class="s2">&quot;figure_options&quot;</span><span class="p">:</span> <span class="n">figure_options</span><span class="p">,</span>
+            <span class="s2">"cls"</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="s2">"options"</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
+            <span class="s2">"figure_options"</span><span class="p">:</span> <span class="n">figure_options</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 
@@ -1161,10 +1161,10 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="n">instance</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;options&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
-            <span class="n">instance</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="s2">&quot;figure_options&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
-            <span class="n">instance</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">"options"</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">[</span><span class="s2">"options"</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">"figure_options"</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">[</span><span class="s2">"figure_options"</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">instance</span></div>
 
 </pre></div>
@@ -1185,7 +1185,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1200,7 +1200,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

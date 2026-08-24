@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.data_processing.nodes - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.data_processing.nodes - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Different data analysis steps.&quot;&quot;&quot;</span>
+<span class="sd">"""Different data analysis steps."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
@@ -576,10 +576,10 @@
 <div class="viewcode-block" id="AverageData">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.AverageData.html#qiskit_experiments.data_processing.AverageData">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AverageData</span><span class="p">(</span><span class="n">DataAction</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A node to average data representable as numpy arrays.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A node to average data representable as numpy arrays."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize a data averaging node.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Initialize a data averaging node.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            axis: The axis along which to average.</span>
@@ -591,12 +591,12 @@
 <span class="sd">            :math:`\sqrt{N}` where :math:`N` is the number of data points.</span>
 <span class="sd">            Otherwise the standard error is given by the square root of :math:`N^{-1}` times</span>
 <span class="sd">            the sum of the squared errors.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">validate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span> <span class="o">=</span> <span class="n">axis</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format the data into numpy arrays.</span>
+<span class="w">        </span><span class="sd">"""Format the data into numpy arrays.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: A data array to format. This is a single numpy array containing</span>
@@ -607,18 +607,18 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            DataProcessorError: When the specified axis does not exist in given array.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Cannot average the </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2"> dimensional &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;array along axis </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Cannot average the </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2"> dimensional "</span>
+                    <span class="sa">f</span><span class="s2">"array along axis </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">data</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Average the data.</span>
+<span class="w">        </span><span class="sd">"""Average the data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: A data array to process. This is a single numpy array containing</span>
@@ -626,12 +626,12 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">             Arrays with one less dimension than the given data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span>
 
         <span class="n">reduced_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
         <span class="n">nominals</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">nominal_values</span><span class="p">(</span><span class="n">reduced_array</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
             <span class="c1"># Setting std_devs to NaN will trigger floating point exceptions</span>
             <span class="c1"># which we can ignore. See https://stackoverflow.com/q/75656026</span>
             <span class="n">errors</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">std_devs</span><span class="p">(</span><span class="n">reduced_array</span><span class="p">)</span>
@@ -644,18 +644,18 @@
         <span class="k">return</span> <span class="n">unp</span><span class="o">.</span><span class="n">uarray</span><span class="p">(</span><span class="n">nominals</span><span class="p">,</span> <span class="n">errors</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;String representation of the node.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(validate=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="si">}</span><span class="s2">, axis=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+<span class="w">        </span><span class="sd">"""String representation of the node."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(validate=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="si">}</span><span class="s2">, axis=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="si">}</span><span class="s2">)"</span></div>
 
 
 
 <div class="viewcode-block" id="MinMaxNormalize">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.MinMaxNormalize.html#qiskit_experiments.data_processing.MinMaxNormalize">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MinMaxNormalize</span><span class="p">(</span><span class="n">DataAction</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalizes the data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Normalizes the data."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalize the data to the interval [0, 1].</span>
+<span class="w">        </span><span class="sd">"""Normalize the data to the interval [0, 1].</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: A data array to process. This is a single numpy array containing</span>
@@ -665,9 +665,9 @@
 <span class="sd">            The normalized data.</span>
 
 <span class="sd">        Notes:</span>
-<span class="sd">            This doesn&#39;t consider the uncertainties of the minimum or maximum values.</span>
+<span class="sd">            This doesn't consider the uncertainties of the minimum or maximum values.</span>
 <span class="sd">            Input data array is just scaled by the data range.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">nominals</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">nominal_values</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">min_y</span><span class="p">,</span> <span class="n">max_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">nominals</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">nominals</span><span class="p">)</span>
 
@@ -678,14 +678,14 @@
 <div class="viewcode-block" id="SVD">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SVD.html#qiskit_experiments.data_processing.SVD">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SVD</span><span class="p">(</span><span class="n">TrainableDataAction</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Singular Value Decomposition of averaged IQ data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Singular Value Decomposition of averaged IQ data."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new action.</span>
+<span class="w">        </span><span class="sd">"""Create new action.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            validate: If set to False the DataAction will not validate its input.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_circs</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_shots</span> <span class="o">=</span> <span class="mi">0</span>
@@ -694,7 +694,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_parameters</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default parameters.</span>
+<span class="w">        </span><span class="sd">"""Default parameters.</span>
 
 <span class="sd">        Parameters are defined for each qubit in the data and thus</span>
 <span class="sd">        represented as an array-like.</span>
@@ -704,7 +704,7 @@
 <span class="sd">            i_means: Mean value of training data along I quadrature.</span>
 <span class="sd">            q_means: Mean value of training data along Q quadrature.</span>
 <span class="sd">            scales: Scaling of IQ signal.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">params</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_parameters</span><span class="p">()</span>
         <span class="n">params</span><span class="o">.</span><span class="n">main_axes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">params</span><span class="o">.</span><span class="n">i_means</span> <span class="o">=</span> <span class="kc">None</span>
@@ -714,7 +714,7 @@
         <span class="k">return</span> <span class="n">params</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check that the IQ data is 2D and convert it to a numpy array.</span>
+<span class="w">        </span><span class="sd">"""Check that the IQ data is 2D and convert it to a numpy array.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: A data array to format. This is a single numpy array containing</span>
@@ -730,7 +730,7 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            DataProcessorError: If the datum does not have the correct format.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_circs</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_shots</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_slots</span> <span class="o">=</span> <span class="mi">0</span>
@@ -746,20 +746,20 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_n_circs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_slots</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_iq</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Data given to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not likely level1 data.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Data given to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not likely level1 data."</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_iq</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;IQ data given to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not have two-dimensions &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;(I and Q). Instead, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_iq</span><span class="si">}</span><span class="s2"> dimensions were found.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"IQ data given to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not have two-dimensions "</span>
+                    <span class="sa">f</span><span class="s2">"(I and Q). Instead, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_iq</span><span class="si">}</span><span class="s2"> dimensions were found."</span>
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">data</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Project the IQ data onto the axis defined by an SVD and scale it.</span>
+<span class="w">        </span><span class="sd">"""Project the IQ data onto the axis defined by an SVD and scale it.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: A data array to process. This is a single numpy array containing</span>
@@ -773,9 +773,9 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            DataProcessorError: If the SVD has not been previously trained on data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_trained</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span><span class="s2">&quot;SVD must be trained on data before it can be used.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span><span class="s2">"SVD must be trained on data before it can be used."</span><span class="p">)</span>
 
         <span class="c1"># IQ axis is reduced by projection</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_shots</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -811,13 +811,13 @@
 <div class="viewcode-block" id="SVD.train">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SVD.html#qiskit_experiments.data_processing.SVD.train">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Train the SVD on the given data.</span>
+<span class="w">        </span><span class="sd">"""Train the SVD on the given data.</span>
 
 <span class="sd">        Each element of the given data will be converted to a 2D array of dimension</span>
 <span class="sd">        n_qubits x 2. The number of qubits is inferred from the shape of the data.</span>
 <span class="sd">        For each qubit the data is collected into an array of shape 2 x n_data_points.</span>
 <span class="sd">        The mean of the in-phase a quadratures is subtracted before passing the data</span>
-<span class="sd">        to numpy&#39;s svd function. The dominant axis and the scale is saved for each</span>
+<span class="sd">        to numpy's svd function. The dominant axis and the scale is saved for each</span>
 <span class="sd">        qubit so that future data points can be projected onto the axis.</span>
 
 <span class="sd">        .. note::</span>
@@ -830,7 +830,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            data: A data array to be trained. This is a single numpy array containing</span>
 <span class="sd">                all circuit results input to the data processor.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
 
@@ -871,14 +871,14 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">IQPart</span><span class="p">(</span><span class="n">DataAction</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract class for IQ data post-processing.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Abstract class for IQ data post-processing."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Args:</span>
 <span class="sd">            scale: Float with which to multiply the IQ data. Defaults to 1.0.</span>
 <span class="sd">            validate: If set to False the DataAction will not validate its input.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">validate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_circs</span> <span class="o">=</span> <span class="mi">0</span>
@@ -888,7 +888,7 @@
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Defines how the IQ point is processed.</span>
+<span class="w">        </span><span class="sd">"""Defines how the IQ point is processed.</span>
 
 <span class="sd">        The last dimension of the array should correspond to [real, imaginary] part of data.</span>
 
@@ -898,10 +898,10 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The data that has been processed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format and validate the input.</span>
+<span class="w">        </span><span class="sd">"""Format and validate the input.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: A data array to format. This is a single numpy array containing</span>
@@ -912,7 +912,7 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            DataProcessorError: When input data is not likely IQ data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_shots</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="c1"># identify shape</span>
@@ -925,39 +925,39 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_n_circs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_slots</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_iq</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Data given to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not likely level1 data.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Data given to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not likely level1 data."</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;IQ data given to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must be a multi-dimensional array&quot;</span>
-                    <span class="s2">&quot;of dimension [d0, d1, ..., 2] in which the last dimension &quot;</span>
-                    <span class="s2">&quot;corresponds to IQ elements.&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Input data contains element with length </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> != 2.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"IQ data given to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must be a multi-dimensional array"</span>
+                    <span class="s2">"of dimension [d0, d1, ..., 2] in which the last dimension "</span>
+                    <span class="s2">"corresponds to IQ elements."</span>
+                    <span class="sa">f</span><span class="s2">"Input data contains element with length </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> != 2."</span>
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">data</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;String representation of the node.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(validate=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="si">}</span><span class="s2">, scale=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="w">        </span><span class="sd">"""String representation of the node."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(validate=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="si">}</span><span class="s2">, scale=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="si">}</span><span class="s2">)"</span>
 
 
 <div class="viewcode-block" id="ToReal">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.ToReal.html#qiskit_experiments.data_processing.ToReal">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ToReal</span><span class="p">(</span><span class="n">IQPart</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;IQ data post-processing. Isolate the real part of single-shot IQ data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""IQ data post-processing. Isolate the real part of single-shot IQ data."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Take the real part of the IQ data.</span>
+<span class="w">        </span><span class="sd">"""Take the real part of the IQ data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: An N-dimensional array of complex IQ point as [real, imaginary].</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A N-1 dimensional array, each entry is the real part of the given IQ data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span></div>
 
 
@@ -965,33 +965,33 @@
 <div class="viewcode-block" id="ToImag">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.ToImag.html#qiskit_experiments.data_processing.ToImag">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ToImag</span><span class="p">(</span><span class="n">IQPart</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;IQ data post-processing. Isolate the imaginary part of single-shot IQ data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""IQ data post-processing. Isolate the imaginary part of single-shot IQ data."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Take the imaginary part of the IQ data.</span>
+<span class="w">        </span><span class="sd">"""Take the imaginary part of the IQ data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: An N-dimensional array of complex IQ point as [real, imaginary].</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A N-1 dimensional array, each entry is the imaginary part of the given IQ data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span></div>
 
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ToAbs</span><span class="p">(</span><span class="n">IQPart</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;IQ data post-processing. Take the absolute value of the IQ point.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""IQ data post-processing. Take the absolute value of the IQ point."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Take the absolute value of the IQ data.</span>
+<span class="w">        </span><span class="sd">"""Take the absolute value of the IQ data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: An N-dimensional array of complex IQ point as [real, imaginary].</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A N-1 dimensional array, each entry is the absolute value of the given IQ data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># pylint: disable=no-member</span>
         <span class="k">return</span> <span class="n">unp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span>
 
@@ -999,7 +999,7 @@
 <div class="viewcode-block" id="DiscriminatorNode">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.DiscriminatorNode.html#qiskit_experiments.data_processing.DiscriminatorNode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DiscriminatorNode</span><span class="p">(</span><span class="n">DataAction</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to discriminate kerneled data, e.g., IQ data, to produce counts.</span>
+<span class="w">    </span><span class="sd">"""A class to discriminate kerneled data, e.g., IQ data, to produce counts.</span>
 
 <span class="sd">    This node integrates into the data processing chain a serializable</span>
 <span class="sd">    :class:`.BaseDiscriminator` subclass instance which must have a</span>
@@ -1015,16 +1015,16 @@
 <span class="sd">    .. note::</span>
 
 <span class="sd">        This node will drop uncertainty from unclassified nodes.</span>
-<span class="sd">        Returned labels don&#39;t have uncertainty.</span>
+<span class="sd">        Returned labels don't have uncertainty.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">discriminators</span><span class="p">:</span> <span class="n">BaseDiscriminator</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseDiscriminator</span><span class="p">],</span>
         <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the node with an object that can discriminate.</span>
+<span class="w">        </span><span class="sd">"""Initialize the node with an object that can discriminate.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            discriminators: The entity that will perform the discrimination. This needs to</span>
@@ -1034,7 +1034,7 @@
 <span class="sd">                will be slots in the memory. The discriminator at the i-th index will be applied</span>
 <span class="sd">                to the i-th memory slot.</span>
 <span class="sd">            validate: If set to False the DataAction will not validate its input.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">validate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span> <span class="o">=</span> <span class="n">discriminators</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_circs</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1043,7 +1043,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_iq</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check that there are as many discriminators as there are slots.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check that there are as many discriminators as there are slots."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_shots</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="c1"># identify shape</span>
@@ -1052,31 +1052,31 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_n_circs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_shots</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_slots</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_iq</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;The data given to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not have the shape of &quot;</span>
-                <span class="s2">&quot;single-shot IQ data; expecting a 4D array.&quot;</span>
+                <span class="sa">f</span><span class="s2">"The data given to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not have the shape of "</span>
+                <span class="s2">"single-shot IQ data; expecting a 4D array."</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;IQ data given to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must be a multi-dimensional array&quot;</span>
-                    <span class="s2">&quot;of dimension [d0, d1, ..., 2] in which the last dimension &quot;</span>
-                    <span class="s2">&quot;corresponds to IQ elements.&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Input data contains element with length </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> != 2.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"IQ data given to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must be a multi-dimensional array"</span>
+                    <span class="s2">"of dimension [d0, d1, ..., 2] in which the last dimension "</span>
+                    <span class="s2">"corresponds to IQ elements."</span>
+                    <span class="sa">f</span><span class="s2">"Input data contains element with length </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> != 2."</span>
                 <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_slots</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;The Discriminator node has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span><span class="p">)</span><span class="si">}</span><span class="s2"> which does &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;not match the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_slots</span><span class="si">}</span><span class="s2"> slots in the data.&quot;</span>
+                        <span class="sa">f</span><span class="s2">"The Discriminator node has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span><span class="p">)</span><span class="si">}</span><span class="s2"> which does "</span>
+                        <span class="sa">f</span><span class="s2">"not match the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_slots</span><span class="si">}</span><span class="s2"> slots in the data."</span>
                     <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">unp</span><span class="o">.</span><span class="n">nominal_values</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Discriminate the data.</span>
+<span class="w">        </span><span class="sd">"""Discriminate the data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: The IQ data as a list of points to discriminate. This data should have</span>
@@ -1084,7 +1084,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The discriminated data as a list of labels with shape dim_1 x ... x dim_k.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Case where one discriminator is applied to all the data.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_discriminator</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="c1"># Reshape the IQ data to an array of size n x 2</span>
@@ -1110,7 +1110,7 @@
         <span class="n">labeled_data</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_circs</span><span class="p">):</span>
             <span class="n">labeled_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">classified</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">jdx</span><span class="p">,</span> <span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">jdx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_shots</span><span class="p">)]</span>
+                <span class="p">[</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">classified</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">jdx</span><span class="p">,</span> <span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">jdx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_shots</span><span class="p">)]</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labeled_data</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_circs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_shots</span><span class="p">))</span></div>
@@ -1120,24 +1120,24 @@
 <div class="viewcode-block" id="MemoryToCounts">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.MemoryToCounts.html#qiskit_experiments.data_processing.MemoryToCounts">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MemoryToCounts</span><span class="p">(</span><span class="n">DataAction</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A data action that takes discriminated data and transforms it into a counts dict.</span>
+<span class="w">    </span><span class="sd">"""A data action that takes discriminated data and transforms it into a counts dict.</span>
 
 <span class="sd">    This node is intended to be used after the :class:`.DiscriminatorNode` node. It will convert</span>
 <span class="sd">    the classified memory into a list of count dictionaries wrapped in a numpy array.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate the input data.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Validate the input data."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                    <span class="s2">&quot;The data should be an array with at least two dimensions.&quot;</span>
+                    <span class="s2">"The data should be an array with at least two dimensions."</span>
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">data</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Args:</span>
 <span class="sd">            data: The classified data to format into a counts dictionary. The first dimension</span>
 <span class="sd">                is assumed to correspond to the different circuit executions.</span>
@@ -1145,7 +1145,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of dictionaries where each dict is a count dictionary over the labels of</span>
 <span class="sd">            the input data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">all_counts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="n">counts</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1159,14 +1159,14 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CountsAction</span><span class="p">(</span><span class="n">DataAction</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An abstract DataAction that acts on count dictionaries.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""An abstract DataAction that acts on count dictionaries."""</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Defines how the counts are processed.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Defines how the counts are processed."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Checks that the given data has a counts format.</span>
 
 <span class="sd">        Args:</span>
@@ -1182,26 +1182,26 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            DataProcessorError: If the data is not a counts dict or a list of counts dicts.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">valid_count_type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">datum</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Data entry must be dictionary of counts, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">datum</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Data entry must be dictionary of counts, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">datum</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
                     <span class="p">)</span>
                 <span class="k">for</span> <span class="n">bit_str</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">datum</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bit_str</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                         <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Key </span><span class="si">{</span><span class="n">bit_str</span><span class="si">}</span><span class="s2"> is not a valid count key in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
+                            <span class="sa">f</span><span class="s2">"Key </span><span class="si">{</span><span class="n">bit_str</span><span class="si">}</span><span class="s2"> is not a valid count key in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">."</span>
                         <span class="p">)</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">valid_count_type</span><span class="p">):</span>
                         <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Count </span><span class="si">{</span><span class="n">bit_str</span><span class="si">}</span><span class="s2"> is not a valid count for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. &quot;</span>
-                            <span class="s2">&quot;The uncertainty of probability is computed based on sampling error, &quot;</span>
-                            <span class="s2">&quot;thus the count should be an error-free discrete quantity &quot;</span>
-                            <span class="s2">&quot;representing the frequency of event.&quot;</span>
+                            <span class="sa">f</span><span class="s2">"Count </span><span class="si">{</span><span class="n">bit_str</span><span class="si">}</span><span class="s2"> is not a valid count for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. "</span>
+                            <span class="s2">"The uncertainty of probability is computed based on sampling error, "</span>
+                            <span class="s2">"thus the count should be an error-free discrete quantity "</span>
+                            <span class="s2">"representing the frequency of event."</span>
                         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">data</span>
@@ -1210,59 +1210,59 @@
 <div class="viewcode-block" id="MarginalizeCounts">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.MarginalizeCounts.html#qiskit_experiments.data_processing.MarginalizeCounts">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MarginalizeCounts</span><span class="p">(</span><span class="n">CountsAction</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A data action to marginalize count dictionaries.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A data action to marginalize count dictionaries.</span>
 
 <span class="sd">    This data action takes a count dictionary and returns a new count dictionary that</span>
 <span class="sd">    is marginalized over a set of specified qubits. For example, given the count</span>
-<span class="sd">    dictionary :code:`{&quot;010&quot;: 1, &quot;110&quot;: 10, &quot;100&quot;: 100}` this node will return the</span>
-<span class="sd">    count dictionary :code:`{&quot;10&quot;: 11, &quot;00&quot;: 100}` when marginalized over qubit 2.</span>
+<span class="sd">    dictionary :code:`{"010": 1, "110": 10, "100": 100}` this node will return the</span>
+<span class="sd">    count dictionary :code:`{"10": 11, "00": 100}` when marginalized over qubit 2.</span>
 
 <span class="sd">    .. note::</span>
 <span class="sd">        This data action can be used to discard one or more qubits in the counts</span>
 <span class="sd">        dictionary. This is, for example, useful when processing two-qubit restless</span>
 <span class="sd">        experiments but can be used in a more general context. In composite</span>
 <span class="sd">        experiments the counts marginalization is already done in the data container.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits_to_keep</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a counts marginalization node.</span>
+<span class="w">        </span><span class="sd">"""Initialize a counts marginalization node.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            qubits_to_keep: A set of qubits to retain during the marginalization process.</span>
 <span class="sd">            validate: If set to False the DataAction will not validate its input.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">validate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_qubits_to_keep</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">qubits_to_keep</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform counts marginalization.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform counts marginalization."""</span>
         <span class="n">marginalized_counts</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="n">new_counts</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">bit_str</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">datum</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">new_counts</span><span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">bit_str</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubits_to_keep</span><span class="p">])]</span> <span class="o">+=</span> <span class="n">count</span>
+                <span class="n">new_counts</span><span class="p">[</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">bit_str</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubits_to_keep</span><span class="p">])]</span> <span class="o">+=</span> <span class="n">count</span>
 
             <span class="n">marginalized_counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_counts</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">marginalized_counts</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;String representation of the node.&quot;&quot;&quot;</span>
-        <span class="n">options_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+<span class="w">        </span><span class="sd">"""String representation of the node."""</span>
+        <span class="n">options_str</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;qubits_to_keep=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_qubits_to_keep</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;validate=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"qubits_to_keep=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_qubits_to_keep</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"validate=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">options_str</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">options_str</span><span class="si">}</span><span class="s2">)"</span></div>
 
 
 
 <div class="viewcode-block" id="Probability">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.Probability.html#qiskit_experiments.data_processing.Probability">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Probability</span><span class="p">(</span><span class="n">CountsAction</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the mean probability of a single measurement outcome from counts.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Compute the mean probability of a single measurement outcome from counts.</span>
 
 <span class="sd">    This node returns the mean and standard deviation of a single measurement</span>
 <span class="sd">    outcome probability :math:`p` estimated from the observed counts. The mean and</span>
@@ -1289,7 +1289,7 @@
 
 <span class="sd">    .. note::</span>
 
-<span class="sd">        The default value for the prior distribution is *Jeffery&#39;s Prior*</span>
+<span class="sd">        The default value for the prior distribution is *Jeffery's Prior*</span>
 <span class="sd">        :math:`\alpha_0 = \alpha_1 = 0.5` which represents ignorance about the true</span>
 <span class="sd">        probability value. Note that for this prior the mean probability estimate</span>
 <span class="sd">        from a finite number of counts can never be exactly 0 or 1. The estimated</span>
@@ -1301,7 +1301,7 @@
 <span class="sd">            \text{Var}[p] = \frac{\text{E}[p] (1 - \text{E}[p])}{N + 2}</span>
 
 <span class="sd">        This node will deprecate standard error provided by the previous node.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1309,7 +1309,7 @@
         <span class="n">alpha_prior</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
         <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a counts to probability data conversion.</span>
+<span class="w">        </span><span class="sd">"""Initialize a counts to probability data conversion.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            outcome: The bitstring for which to return the probability and variance.</span>
@@ -1321,21 +1321,21 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            DataProcessorError: When the dimension of the prior and expected parameter vector</span>
 <span class="sd">                do not match.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_outcome</span> <span class="o">=</span> <span class="n">outcome</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alpha_prior</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_alpha_prior</span> <span class="o">=</span> <span class="p">[</span><span class="n">alpha_prior</span><span class="p">,</span> <span class="n">alpha_prior</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">validate</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_prior</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                    <span class="s2">&quot;Prior for probability node must be a float or pair of floats.&quot;</span>
+                    <span class="s2">"Prior for probability node must be a float or pair of floats."</span>
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_alpha_prior</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">alpha_prior</span><span class="p">)</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">validate</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute mean and standard error from the beta distribution.</span>
+<span class="w">        </span><span class="sd">"""Compute mean and standard error from the beta distribution.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: A data array to process. This is a single numpy array containing</span>
@@ -1345,7 +1345,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The data that has been processed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">counts_dict</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
@@ -1357,7 +1357,7 @@
             <span class="n">p_mean</span> <span class="o">=</span> <span class="n">alpha_posterior</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">alpha_sum</span>
             <span class="n">p_var</span> <span class="o">=</span> <span class="n">p_mean</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p_mean</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">alpha_sum</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
-            <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
                 <span class="c1"># Setting std_devs to NaN will trigger floating point exceptions</span>
                 <span class="c1"># which we can ignore. See https://stackoverflow.com/q/75656026</span>
                 <span class="n">probabilities</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">ufloat</span><span class="p">(</span><span class="n">nominal_value</span><span class="o">=</span><span class="n">p_mean</span><span class="p">,</span> <span class="n">std_dev</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p_var</span><span class="p">))</span>
@@ -1365,29 +1365,29 @@
         <span class="k">return</span> <span class="n">probabilities</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;String representation of the node.&quot;&quot;&quot;</span>
-        <span class="n">options_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+<span class="w">        </span><span class="sd">"""String representation of the node."""</span>
+        <span class="n">options_str</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;validate=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;outcome=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_outcome</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;alpha_prior=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_alpha_prior</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"validate=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"outcome=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_outcome</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"alpha_prior=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_alpha_prior</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">options_str</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">options_str</span><span class="si">}</span><span class="s2">)"</span></div>
 
 
 
 <div class="viewcode-block" id="BasisExpectationValue">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.BasisExpectationValue.html#qiskit_experiments.data_processing.BasisExpectationValue">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BasisExpectationValue</span><span class="p">(</span><span class="n">DataAction</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute expectation value of measured basis from probability.</span>
+<span class="w">    </span><span class="sd">"""Compute expectation value of measured basis from probability.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        The sign becomes P(0) -&gt; 1, P(1) -&gt; -1.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format and validate the input.</span>
+<span class="w">        </span><span class="sd">"""Format and validate the input.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: A data array to format. This is a single numpy array containing</span>
@@ -1398,17 +1398,17 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            DataProcessorError: When input value is not in [0, 1]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="mf">1.0</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">data</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Input data for node </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not likely probability.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Input data for node </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not likely probability."</span>
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">data</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute basis eigenvalue.</span>
+<span class="w">        </span><span class="sd">"""Compute basis eigenvalue.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: A data array to process. This is a single numpy array containing</span>
@@ -1416,13 +1416,13 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The data that has been processed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">-</span> <span class="n">data</span><span class="p">)</span></div>
 
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ProjectorType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Types of projectors for data dimensionality reduction.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Types of projectors for data dimensionality reduction."""</span>
 
     <span class="n">SVD</span> <span class="o">=</span> <span class="n">SVD</span>
     <span class="n">ABS</span> <span class="o">=</span> <span class="n">ToAbs</span>
@@ -1433,24 +1433,24 @@
 <div class="viewcode-block" id="ShotOrder">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.ShotOrder.html#qiskit_experiments.data_processing.ShotOrder">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ShotOrder</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shot order allowed values.</span>
+<span class="w">    </span><span class="sd">"""Shot order allowed values.</span>
 
 <span class="sd">    Generally, there are two possible modes in which a backend measures m</span>
 <span class="sd">    circuits with n shots:</span>
 
-<span class="sd">    - In the &quot;circuit_first&quot; mode, the backend subsequently first measures</span>
+<span class="sd">    - In the "circuit_first" mode, the backend subsequently first measures</span>
 <span class="sd">      all m circuits and then repeats this n times.</span>
 
-<span class="sd">    - In the &quot;shot_first&quot; mode, the backend first measures the 1st circuit</span>
+<span class="sd">    - In the "shot_first" mode, the backend first measures the 1st circuit</span>
 <span class="sd">      n times, then the 2nd circuit n times, and it proceeds with the remaining</span>
 <span class="sd">      circuits in the same way until it measures the m-th circuit n times.</span>
 
-<span class="sd">    The current default mode of IBM Quantum devices is &quot;circuit_first&quot;.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    The current default mode of IBM Quantum devices is "circuit_first".</span>
+<span class="sd">    """</span>
 
     <span class="c1"># pylint: disable=invalid-name</span>
-    <span class="n">circuit_first</span> <span class="o">=</span> <span class="s2">&quot;c&quot;</span>
-    <span class="n">shot_first</span> <span class="o">=</span> <span class="s2">&quot;s&quot;</span></div>
+    <span class="n">circuit_first</span> <span class="o">=</span> <span class="s2">"c"</span>
+    <span class="n">shot_first</span> <span class="o">=</span> <span class="s2">"s"</span></div>
 
 </pre></div>
         </article>
@@ -1470,7 +1470,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1485,7 +1485,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

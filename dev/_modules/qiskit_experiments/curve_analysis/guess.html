@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.curve_analysis.guess - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.curve_analysis.guess - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,9 +556,9 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">A library of parameter guess functions.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="c1"># pylint: disable=invalid-name</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
@@ -578,7 +578,7 @@
     <span class="n">filter_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
     <span class="n">filter_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get frequency of oscillating signal.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Get frequency of oscillating signal.</span>
 
 <span class="sd">    First this tries FFT. If the true value is likely below or near the frequency resolution,</span>
 <span class="sd">    the function tries low frequency fit with</span>
@@ -605,7 +605,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Frequency estimation of oscillation signal.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># to run FFT x interval should be identical</span>
     <span class="n">sampling_interval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">20</span><span class="p">))</span>
 
@@ -651,7 +651,7 @@
     <span class="n">percentile</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">absolute</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get maximum value of y curve and its index.</span>
+<span class="w">    </span><span class="sd">"""Get maximum value of y curve and its index.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        y: Array of y values.</span>
@@ -660,7 +660,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The maximum y value and index.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">percentile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">get_height</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">percentile</span><span class="p">),</span> <span class="n">absolute</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">get_height</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">,</span> <span class="n">absolute</span><span class="p">)</span></div>
@@ -674,7 +674,7 @@
     <span class="n">percentile</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">absolute</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get minimum value of y curve and its index.</span>
+<span class="w">    </span><span class="sd">"""Get minimum value of y curve and its index.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        y: Array of y values.</span>
@@ -683,7 +683,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The minimum y value and index.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">percentile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">get_height</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">percentile</span><span class="p">),</span> <span class="n">absolute</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">get_height</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">,</span> <span class="n">absolute</span><span class="p">)</span></div>
@@ -695,7 +695,7 @@
     <span class="n">find_height</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
     <span class="n">absolute</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get specific value of y curve defined by a callback and its index.</span>
+<span class="w">    </span><span class="sd">"""Get specific value of y curve defined by a callback and its index.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        y: Array of y values.</span>
@@ -704,7 +704,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The target y value and index.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">absolute</span><span class="p">:</span>
         <span class="n">y_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -719,7 +719,7 @@
 <div class="viewcode-block" id="exp_decay">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.guess.exp_decay.html#qiskit_experiments.curve_analysis.guess.exp_decay">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">exp_decay</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get exponential decay parameter from monotonically increasing (decreasing) curve.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Get exponential decay parameter from monotonically increasing (decreasing) curve.</span>
 
 <span class="sd">    This assumes following function form.</span>
 
@@ -741,7 +741,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">         Decay rate of signal.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">inds</span> <span class="o">=</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">inds</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">0</span>
@@ -761,7 +761,7 @@
     <span class="n">filter_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
     <span class="n">freq_guess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get exponential decay parameter from oscillating signal.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Get exponential decay parameter from oscillating signal.</span>
 
 <span class="sd">    This assumes following function form.</span>
 
@@ -788,7 +788,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">         Decay rate of signal.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">y_smoothed</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">window_length</span><span class="o">=</span><span class="n">filter_window</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="n">filter_dim</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">freq_guess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">freq_guess</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -817,7 +817,7 @@
     <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">peak_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get full width half maximum value of the peak. Offset of y should be removed.</span>
+<span class="w">    </span><span class="sd">"""Get full width half maximum value of the peak. Offset of y should be removed.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        x: Array of x values.</span>
@@ -829,7 +829,7 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        AnalysisError: When peak is too broad and line width is not found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">y_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
     <span class="n">peak_height</span> <span class="o">=</span> <span class="n">y_</span><span class="p">[</span><span class="n">peak_index</span><span class="p">]</span>
     <span class="n">halfmax_removed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">y_</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">peak_height</span><span class="p">)</span>
@@ -850,7 +850,7 @@
     <span class="k">elif</span> <span class="n">l_bound</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">peak_index</span><span class="p">]</span> <span class="o">-</span> <span class="n">l_bound</span><span class="p">)</span>
 
-    <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">&quot;FWHM of input curve was not found. Perhaps scanning range is too narrow.&quot;</span><span class="p">)</span></div>
+    <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">"FWHM of input curve was not found. Perhaps scanning range is too narrow."</span><span class="p">)</span></div>
 
 
 
@@ -859,7 +859,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">constant_spectral_offset</span><span class="p">(</span>
     <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">filter_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">filter_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get constant offset of spectral baseline.</span>
+<span class="w">    </span><span class="sd">"""Get constant offset of spectral baseline.</span>
 
 <span class="sd">    This function searches constant offset by finding a region where 1st and 2nd order</span>
 <span class="sd">    differentiation are close to zero. A return value is an average y value of that region.</span>
@@ -878,7 +878,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Offset value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">y_smoothed</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">window_length</span><span class="o">=</span><span class="n">filter_window</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="n">filter_dim</span><span class="p">)</span>
 
     <span class="n">ydiff1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y_smoothed</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
@@ -897,7 +897,7 @@
 <div class="viewcode-block" id="constant_sinusoidal_offset">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.guess.constant_sinusoidal_offset.html#qiskit_experiments.curve_analysis.guess.constant_sinusoidal_offset">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">constant_sinusoidal_offset</span><span class="p">(</span><span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get constant offset of sinusoidal signal.</span>
+<span class="w">    </span><span class="sd">"""Get constant offset of sinusoidal signal.</span>
 
 <span class="sd">    This function finds 95 and 5 percentile y values and take an average of them.</span>
 <span class="sd">    This method is robust to the dependency on sampling window, i.e.</span>
@@ -909,7 +909,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Offset value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">maxv</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">max_height</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">percentile</span><span class="o">=</span><span class="mi">95</span><span class="p">)</span>
     <span class="n">minv</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">min_height</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">percentile</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
@@ -924,7 +924,7 @@
     <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get base of exponential decay function which is assumed to be close to 1.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Get base of exponential decay function which is assumed to be close to 1.</span>
 
 <span class="sd">    This assumes following model:</span>
 
@@ -936,19 +936,19 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        y&#39;(x) = y(x) - b = a \alpha^x,</span>
+<span class="sd">        y'(x) = y(x) - b = a \alpha^x,</span>
 
 <span class="sd">    and thus,</span>
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        y&#39;(x+dx) = a \alpha^x \alpha^{dx}.</span>
+<span class="sd">        y'(x+dx) = a \alpha^x \alpha^{dx}.</span>
 
 <span class="sd">    By considering the ratio of y values at :math:`x+dx` to :math:`x`,</span>
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        ry = \frac{y&#39;(x+dx)}{y(x)} = \frac{a \alpha^x \alpha^{dx}}{a \alpha^x} = \alpha^{dx}.</span>
+<span class="sd">        ry = \frac{y'(x+dx)}{y(x)} = \frac{a \alpha^x \alpha^{dx}}{a \alpha^x} = \alpha^{dx}.</span>
 
 <span class="sd">    From this relationship, we can estimate :math:`\alpha` as</span>
 
@@ -963,7 +963,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">         Base of decay function.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">valid_inds</span> <span class="o">=</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">b</span>
 
     <span class="c1"># Remove y values below b</span>
@@ -1000,7 +1000,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1015,7 +1015,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

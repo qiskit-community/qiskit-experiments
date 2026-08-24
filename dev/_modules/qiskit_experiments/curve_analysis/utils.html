@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.curve_analysis.utils - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.curve_analysis.utils - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Utils in curve analysis.&quot;&quot;&quot;</span>
+<span class="sd">"""Utils in curve analysis."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
@@ -584,7 +584,7 @@
     <span class="n">fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">absolute</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the standard error of given value is not significant.</span>
+<span class="w">    </span><span class="sd">"""Check if the standard error of given value is not significant.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        val: Input value to evaluate. This is assumed to be float or ufloat.</span>
@@ -595,7 +595,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ``True`` if the standard error of given value is not significant.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">True</span>
 
@@ -610,7 +610,7 @@
 <div class="viewcode-block" id="analysis_result_to_repr">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.analysis_result_to_repr.html#qiskit_experiments.curve_analysis.utils.analysis_result_to_repr">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">analysis_result_to_repr</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="n">AnalysisResultData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A helper function to create string representation from analysis result data object.</span>
+<span class="w">    </span><span class="sd">"""A helper function to create string representation from analysis result data object.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        result: Analysis result data.</span>
@@ -620,11 +620,11 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        AnalysisError: When the result data is not likely fit parameter.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">UFloat</span><span class="p">)):</span>
-        <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Result data </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid fit parameter data type.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Result data </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid fit parameter data type."</span><span class="p">)</span>
 
-    <span class="n">unit</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unit&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">unit</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"unit"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_val</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
         <span class="c1"># Return value with unit with prefix, i.e. 1000 Hz -&gt; 1 kHz.</span>
@@ -633,11 +633,11 @@
                 <span class="n">val</span><span class="p">,</span> <span class="n">val_prefix</span> <span class="o">=</span> <span class="n">detach_prefix</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="n">value</span>
-                <span class="n">val_prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">val</span><span class="si">:</span><span class="s2"> .3g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">val_prefix</span><span class="si">}{</span><span class="n">unit</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">val_prefix</span> <span class="o">=</span> <span class="s2">""</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">val</span><span class="si">:</span><span class="s2"> .3g</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">val_prefix</span><span class="si">}{</span><span class="n">unit</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-3</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e3</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2"> .4e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2"> .4g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2"> .4e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2"> .4g</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">""</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
         <span class="c1"># Only nominal part</span>
@@ -651,13 +651,13 @@
         <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">std_dev</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">std_dev</span><span class="p">):</span>
             <span class="n">s_repr</span><span class="p">,</span> <span class="n">s_unit</span> <span class="o">=</span> <span class="n">_format_val</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">std_dev</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">n_unit</span> <span class="o">==</span> <span class="n">s_unit</span><span class="p">:</span>
-                <span class="n">value_repr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">n_repr</span><span class="si">}</span><span class="s2"> </span><span class="se">\u00b1</span><span class="s2"> </span><span class="si">{</span><span class="n">s_repr</span><span class="si">}{</span><span class="n">n_unit</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">value_repr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">n_repr</span><span class="si">}</span><span class="s2"> </span><span class="se">\u00b1</span><span class="s2"> </span><span class="si">{</span><span class="n">s_repr</span><span class="si">}{</span><span class="n">n_unit</span><span class="si">}</span><span class="s2">"</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">value_repr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">n_repr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n_unit</span><span class="si">}</span><span class="s2"> </span><span class="se">\u00b1</span><span class="s2"> </span><span class="si">{</span><span class="n">s_repr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s_unit</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">value_repr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">n_repr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n_unit</span><span class="si">}</span><span class="s2"> </span><span class="se">\u00b1</span><span class="s2"> </span><span class="si">{</span><span class="n">s_repr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s_unit</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">value_repr</span> <span class="o">=</span> <span class="n">n_repr</span> <span class="o">+</span> <span class="n">n_unit</span>
 
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value_repr</span><span class="si">}</span><span class="s2">&quot;</span></div>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value_repr</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 
@@ -670,7 +670,7 @@
     <span class="n">ydata</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">residuals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CurveFitResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A helper function to convert LMFIT ``MinimizerResult`` into :class:`.CurveFitResult`.</span>
+<span class="w">    </span><span class="sd">"""A helper function to convert LMFIT ``MinimizerResult`` into :class:`.CurveFitResult`.</span>
 
 <span class="sd">    :class:`.CurveFitResult` is a dataclass that can be serialized with the experiment JSON decoder.</span>
 <span class="sd">    In addition, this class converts LMFIT ``Parameter`` objects into ufloats so that</span>
@@ -686,14 +686,14 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        QiskitExperiments :class:`.CurveFitResult` object.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">model_descriptions</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;expr&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">"expr"</span><span class="p">):</span>
             <span class="n">func_repr</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">expr</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">signature</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">independent_vars</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">param_names</span><span class="p">)</span>
-            <span class="n">func_repr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;F(</span><span class="si">{</span><span class="n">signature</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="n">signature</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">independent_vars</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">param_names</span><span class="p">)</span>
+            <span class="n">func_repr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"F(</span><span class="si">{</span><span class="n">signature</span><span class="si">}</span><span class="s2">)"</span>
         <span class="n">model_descriptions</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">func_repr</span>
 
     <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -704,7 +704,7 @@
             <span class="n">y_data</span><span class="o">=</span><span class="n">ydata</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="n">covar</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;covar&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">covar</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">"covar"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">covar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">covar</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
         <span class="n">covar</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -738,7 +738,7 @@
     <span class="n">model</span><span class="p">:</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span>
     <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">UFloat</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute Y values with error propagation.</span>
+<span class="w">    </span><span class="sd">"""Compute Y values with error propagation.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        x: X values.</span>
@@ -747,18 +747,18 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Y values with uncertainty (uarray).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">sub_params</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">param_names</span><span class="p">}</span>
 
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;expr&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">"expr"</span><span class="p">):</span>
         <span class="c1"># If the model has string expression, we regenerate unumpy fit function.</span>
         <span class="c1"># Note that propagating the error through the function requires computation of</span>
         <span class="c1"># derivatives, which is done by uncertainties.wrap (or perhaps manually).</span>
         <span class="c1"># However, usually computation of derivative is heavy computing overhead,</span>
         <span class="c1"># and it is better to use hard-coded derivative functions if it is known.</span>
-        <span class="c1"># The unumpy functions provide such derivatives, and it&#39;s much faster.</span>
+        <span class="c1"># The unumpy functions provide such derivatives, and it's much faster.</span>
         <span class="c1"># Here we parse the expression with ASTEVAL, and replace the mapping to</span>
-        <span class="c1"># the functions in Python&#39;s math or numpy with one in unumpy module.</span>
+        <span class="c1"># the functions in Python's math or numpy with one in unumpy module.</span>
         <span class="c1"># Benchmarking with RamseyXY experiment with 100 data points,</span>
         <span class="c1"># this yields roughly 60% computation time reduction.</span>
         <span class="n">interpreter</span> <span class="o">=</span> <span class="n">asteval</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">()</span>
@@ -769,7 +769,7 @@
         <span class="c1"># Add parameters</span>
         <span class="n">interpreter</span><span class="o">.</span><span class="n">symtable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_params</span><span class="p">)</span>
         <span class="c1"># Add x values</span>
-        <span class="n">interpreter</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">interpreter</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
 
         <span class="n">interpreter</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
@@ -792,7 +792,7 @@
     <span class="n">yerrs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">shots</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute shot based variance and weighted average of the categorized data frame.</span>
+<span class="w">    </span><span class="sd">"""Compute shot based variance and weighted average of the categorized data frame.</span>
 
 <span class="sd">    Sample is weighted by the shot number.</span>
 
@@ -803,7 +803,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Averaged Y value, Y error, and total shots.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">yvals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">yvals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">yerrs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -828,7 +828,7 @@
     <span class="n">yerrs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">shots</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute inverse weighted variance and weighted average of the categorized data frame.</span>
+<span class="w">    </span><span class="sd">"""Compute inverse weighted variance and weighted average of the categorized data frame.</span>
 
 <span class="sd">    Sample is weighted by the inverse of the data variance.</span>
 
@@ -839,7 +839,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Averaged Y value, Y error, and total shots.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">yvals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">yvals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">yerrs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -862,7 +862,7 @@
     <span class="n">yerrs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">shots</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute sample based variance and average of the categorized data frame.</span>
+<span class="w">    </span><span class="sd">"""Compute sample based variance and average of the categorized data frame.</span>
 
 <span class="sd">    Original variance of the data is ignored and variance is computed with the y values.</span>
 
@@ -873,7 +873,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Averaged Y value, Y error, and total shots.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">yvals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">yvals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">shots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -889,7 +889,7 @@
 <div class="viewcode-block" id="level2_probability">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.level2_probability.html#qiskit_experiments.curve_analysis.utils.level2_probability">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">level2_probability</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">],</span> <span class="n">outcome</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the outcome probability mean and variance.</span>
+<span class="w">    </span><span class="sd">"""Return the outcome probability mean and variance.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        data: A data dict containing count data.</span>
@@ -905,8 +905,8 @@
 <span class="sd">        of the desired outcome from :math:`N` shots the</span>
 <span class="sd">        mean probability is :math:`p = K / N` and the variance is</span>
 <span class="sd">        :math:`\\sigma^2 = p (1-p) / N`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">counts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"counts"</span><span class="p">]</span>
 
     <span class="n">shots</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="n">p_mean</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">outcome</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">shots</span>
@@ -918,7 +918,7 @@
 <div class="viewcode-block" id="probability">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.utils.probability.html#qiskit_experiments.curve_analysis.utils.probability">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">probability</span><span class="p">(</span><span class="n">outcome</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return probability data processor callback used by the analysis classes.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return probability data processor callback used by the analysis classes."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">data_processor</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">level2_probability</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">outcome</span><span class="p">)</span>
@@ -943,7 +943,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -958,7 +958,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

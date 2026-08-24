@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.clifford_synthesis - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.clifford_synthesis - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Clifford synthesis plugins for randomized benchmarking</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
@@ -581,7 +581,7 @@
 <div class="viewcode-block" id="RBDefaultCliffordSynthesis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis.html#qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RBDefaultCliffordSynthesis</span><span class="p">(</span><span class="n">HighLevelSynthesisPlugin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Default Clifford synthesis plugin for randomized benchmarking.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Default Clifford synthesis plugin for randomized benchmarking."""</span>
 
 <div class="viewcode-block" id="RBDefaultCliffordSynthesis.run">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis.html#qiskit_experiments.library.randomized_benchmarking.RBDefaultCliffordSynthesis.run">[docs]</a>
@@ -593,7 +593,7 @@
         <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run synthesis for the given Clifford.</span>
+<span class="w">        </span><span class="sd">"""Run synthesis for the given Clifford.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            high_level_object: The operation to synthesize to a</span>
@@ -613,7 +613,7 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If basis_gates is not supplied.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># synthesize cliffords</span>
         <span class="n">circ</span> <span class="o">=</span> <span class="n">synth_clifford_full</span><span class="p">(</span><span class="n">high_level_object</span><span class="p">)</span>
 
@@ -621,9 +621,9 @@
         <span class="k">if</span> <span class="n">coupling_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Sabre does not work with coupling_map=None</span>
             <span class="k">return</span> <span class="n">circ</span>
 
-        <span class="n">basis_gates</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basis_gates&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">basis_gates</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"basis_gates"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">basis_gates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;basis_gates are required to run this synthesis plugin&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"basis_gates are required to run this synthesis plugin"</span><span class="p">)</span>
 
         <span class="n">basis_gates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">basis_gates</span><span class="p">)</span>
 
@@ -632,11 +632,11 @@
         <span class="c1"># And then decompose swap gates, fix 2q-gate direction and optimize 1q gates</span>
         <span class="n">initial_layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="o">.</span><span class="n">generate_trivial_layout</span><span class="p">(</span><span class="o">*</span><span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
         <span class="n">undo_layout_change</span> <span class="o">=</span> <span class="n">LayoutTransformation</span><span class="p">(</span>
-            <span class="n">coupling_map</span><span class="o">=</span><span class="n">coupling_map</span><span class="p">,</span> <span class="n">from_layout</span><span class="o">=</span><span class="s2">&quot;final_layout&quot;</span><span class="p">,</span> <span class="n">to_layout</span><span class="o">=</span><span class="n">initial_layout</span>
+            <span class="n">coupling_map</span><span class="o">=</span><span class="n">coupling_map</span><span class="p">,</span> <span class="n">from_layout</span><span class="o">=</span><span class="s2">"final_layout"</span><span class="p">,</span> <span class="n">to_layout</span><span class="o">=</span><span class="n">initial_layout</span>
         <span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">_direction_condition</span><span class="p">(</span><span class="n">property_set</span><span class="p">):</span>
-            <span class="k">return</span> <span class="ow">not</span> <span class="n">property_set</span><span class="p">[</span><span class="s2">&quot;is_direction_mapped&quot;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="ow">not</span> <span class="n">property_set</span><span class="p">[</span><span class="s2">"is_direction_mapped"</span><span class="p">]</span>
 
         <span class="n">pm</span> <span class="o">=</span> <span class="n">PassManager</span><span class="p">(</span>
             <span class="p">[</span>
@@ -669,7 +669,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -684,7 +684,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

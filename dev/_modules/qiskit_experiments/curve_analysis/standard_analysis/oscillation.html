@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.curve_analysis.standard_analysis.oscillation - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.curve_analysis.standard_analysis.oscillation - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Analyze oscillating data such as a Rabi amplitude experiment.&quot;&quot;&quot;</span>
+<span class="sd">"""Analyze oscillating data such as a Rabi amplitude experiment."""</span>
 
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
@@ -568,7 +568,7 @@
 <div class="viewcode-block" id="OscillationAnalysis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.OscillationAnalysis.html#qiskit_experiments.curve_analysis.OscillationAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">OscillationAnalysis</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">CurveAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Oscillation analysis class based on a fit of the data to a cosine function.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Oscillation analysis class based on a fit of the data to a cosine function.</span>
 
 <span class="sd">    # section: fit_model</span>
 
@@ -600,7 +600,7 @@
 <span class="sd">            desc: Phase of the oscillation.</span>
 <span class="sd">            init_guess: Zero.</span>
 <span class="sd">            bounds: [-pi, pi].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -609,8 +609,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">models</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
-                    <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;amp * cos(2 * pi * freq * x + phase) + base&quot;</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cos&quot;</span><span class="p">,</span>
+                    <span class="n">expr</span><span class="o">=</span><span class="s2">"amp * cos(2 * pi * freq * x + phase) + base"</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"cos"</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">],</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -621,7 +621,7 @@
         <span class="n">user_opt</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">ScatterTable</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create algorithmic initial fit guess from analysis options and curve data.</span>
+<span class="w">        </span><span class="sd">"""Create algorithmic initial fit guess from analysis options and curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            user_opt: Fit options filled with user provided guess and bounds.</span>
@@ -629,7 +629,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of fit options that are passed to the fitter function.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">max_abs_y</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">max_height</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">user_opt</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span>
@@ -643,7 +643,7 @@
             <span class="n">base</span><span class="o">=</span><span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">constant_sinusoidal_offset</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span>
-            <span class="n">amp</span><span class="o">=</span><span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">max_height</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">],</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">amp</span><span class="o">=</span><span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">max_height</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">"base"</span><span class="p">],</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
         <span class="p">)</span>
 
         <span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
@@ -655,15 +655,15 @@
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">CurveFitResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithmic criteria for whether the fit is good or bad.</span>
+<span class="w">        </span><span class="sd">"""Algorithmic criteria for whether the fit is good or bad.</span>
 
 <span class="sd">        A good fit has:</span>
 <span class="sd">            - a reduced chi-squared lower than three and greater than zero,</span>
 <span class="sd">            - more than a quarter of a full period,</span>
 <span class="sd">            - less than 10 full periods, and</span>
 <span class="sd">            - an error on the fit frequency lower than the fit frequency.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">fit_freq</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;freq&quot;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="n">fit_freq</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"freq"</span><span class="p">]</span>
 
         <span class="n">criteria</span> <span class="o">=</span> <span class="p">[</span>
             <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">,</span>
@@ -672,16 +672,16 @@
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">criteria</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;good&quot;</span>
+            <span class="k">return</span> <span class="s2">"good"</span>
 
-        <span class="k">return</span> <span class="s2">&quot;bad&quot;</span></div>
+        <span class="k">return</span> <span class="s2">"bad"</span></div>
 
 
 
 <div class="viewcode-block" id="DampedOscillationAnalysis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.DampedOscillationAnalysis.html#qiskit_experiments.curve_analysis.DampedOscillationAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DampedOscillationAnalysis</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">CurveAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A class to analyze general exponential decay curve with sinusoidal oscillation.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A class to analyze general exponential decay curve with sinusoidal oscillation.</span>
 
 <span class="sd">    # section: fit_model</span>
 <span class="sd">        This class is based on the fit model of sinusoidal signal with exponential decay.</span>
@@ -720,7 +720,7 @@
 <span class="sd">            desc: Phase. Relative shift of the sinusoidal function from the origin.</span>
 <span class="sd">            init_guess: Set multiple guesses within [-pi, pi]</span>
 <span class="sd">            bounds: [-pi, pi]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -729,8 +729,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">models</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
-                    <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;amp * exp(-x / tau) * cos(2 * pi * freq * x + phi) + base&quot;</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cos_decay&quot;</span><span class="p">,</span>
+                    <span class="n">expr</span><span class="o">=</span><span class="s2">"amp * exp(-x / tau) * cos(2 * pi * freq * x + phi) + base"</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"cos_decay"</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">],</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -741,7 +741,7 @@
         <span class="n">user_opt</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">ScatterTable</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create algorithmic initial fit guess from analysis options and curve data.</span>
+<span class="w">        </span><span class="sd">"""Create algorithmic initial fit guess from analysis options and curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            user_opt: Fit options filled with user provided guess and bounds.</span>
@@ -749,7 +749,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of fit options that are passed to the fitter function.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span>
             <span class="n">amp</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
             <span class="n">base</span><span class="o">=</span><span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">constant_sinusoidal_offset</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
@@ -758,13 +758,13 @@
         <span class="c1"># frequency resolution of this scan</span>
         <span class="n">df</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">((</span><span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">&quot;freq&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">"freq"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># If freq guess is provided</span>
-            <span class="n">freq_guess</span> <span class="o">=</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">&quot;freq&quot;</span><span class="p">]</span>
+            <span class="n">freq_guess</span> <span class="o">=</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">"freq"</span><span class="p">]</span>
 
             <span class="n">freqs</span> <span class="o">=</span> <span class="p">[</span><span class="n">freq_guess</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">freq_guess</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">frequency</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">])</span>
+            <span class="n">freq_guess</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">frequency</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">"base"</span><span class="p">])</span>
 
             <span class="c1"># The FFT might be up to 1/2 bin off</span>
             <span class="k">if</span> <span class="n">freq_guess</span> <span class="o">&gt;</span> <span class="n">df</span><span class="p">:</span>
@@ -775,7 +775,7 @@
         <span class="c1"># Set guess for decay parameter based on estimated frequency</span>
         <span class="k">if</span> <span class="n">freq_guess</span> <span class="o">&gt;</span> <span class="n">df</span><span class="p">:</span>
             <span class="n">alpha</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">oscillation_exp_decay</span><span class="p">(</span>
-                <span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">],</span> <span class="n">freq_guess</span><span class="o">=</span><span class="n">freq_guess</span>
+                <span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">"base"</span><span class="p">],</span> <span class="n">freq_guess</span><span class="o">=</span><span class="n">freq_guess</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Very low frequency. Assume standard exponential decay</span>
@@ -807,15 +807,15 @@
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">CurveFitResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithmic criteria for whether the fit is good or bad.</span>
+<span class="w">        </span><span class="sd">"""Algorithmic criteria for whether the fit is good or bad.</span>
 
 <span class="sd">        A good fit has:</span>
 <span class="sd">            - a reduced chi-squared lower than three and greater than zero</span>
 <span class="sd">            - relative error of tau is less than its value</span>
 <span class="sd">            - relative error of freq is less than its value</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">tau</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;tau&quot;</span><span class="p">]</span>
-        <span class="n">freq</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;freq&quot;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"tau"</span><span class="p">]</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"freq"</span><span class="p">]</span>
 
         <span class="n">criteria</span> <span class="o">=</span> <span class="p">[</span>
             <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">,</span>
@@ -824,9 +824,9 @@
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">criteria</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;good&quot;</span>
+            <span class="k">return</span> <span class="s2">"good"</span>
 
-        <span class="k">return</span> <span class="s2">&quot;bad&quot;</span></div>
+        <span class="k">return</span> <span class="s2">"bad"</span></div>
 
 </pre></div>
         </article>
@@ -846,7 +846,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -861,7 +861,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

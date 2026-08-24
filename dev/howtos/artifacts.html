@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Save and load experiment data with an experiment service" href="experiment_service.html"><link rel="prev" title="How-To Guides" href="index.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Work with experiment artifacts - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>Work with experiment artifacts - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -592,10 +592,10 @@ artifacts as a list of <a class="reference internal" href="../stubs/qiskit_exper
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[ArtifactData(name=curve_data, dtype=ScatterTable, uid=99056eb2-9f5b-4814-9469-23bc52324b35, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
- ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=ceb2f078-a998-41fe-8e38-6ff503f7e663, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
- ArtifactData(name=curve_data, dtype=ScatterTable, uid=b7180619-b0da-4d42-bd37-58f65440c38b, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;]),
- ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=1353957e-67a3-4988-863d-0049b1a12805, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;])]
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[ArtifactData(name=curve_data, dtype=ScatterTable, uid=9ee34f86-e11b-4168-9c69-f6f3e89f7281, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
+ ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=f8ab8c2e-5c1f-4d09-9e03-2b5adfdc1f57, experiment=T1, device_components=[&lt;Qubit(Q0)&gt;]),
+ ArtifactData(name=curve_data, dtype=ScatterTable, uid=acf50d7c-df6f-4eb9-a4a5-f72dc84b05a6, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;]),
+ ArtifactData(name=fit_summary, dtype=CurveFitResult, uid=3f867d5b-45fe-4220-87a5-b9ba0314716d, experiment=T1, device_components=[&lt;Qubit(Q1)&gt;])]
 </pre></div>
 </div>
 </div>
@@ -605,12 +605,12 @@ artifacts as a list of <a class="reference internal" href="../stubs/qiskit_exper
 all artifacts with the same name:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of curve_data artifacts:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="s2">&quot;curve_data&quot;</span><span class="p">)))</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"Number of curve_data artifacts:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="s2">"curve_data"</span><span class="p">)))</span>
 <span class="c1"># retrieve by name and index</span>
-<span class="n">curve_data_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="s2">&quot;curve_data&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">artifact_id</span>
+<span class="n">curve_data_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="s2">"curve_data"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">artifact_id</span>
 <span class="c1"># retrieve by ID</span>
 <span class="n">scatter_table</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="n">curve_data_id</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The first curve_data artifact:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"The first curve_data artifact:</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 <span class="n">scatter_table</span><span class="o">.</span><span class="n">dataframe</span>
 </pre></div>
 </div>
@@ -653,8 +653,8 @@ The first curve_data artifact:
     <tr>
       <th>0</th>
       <td>0.000001</td>
-      <td>0.943902</td>
-      <td>0.007184</td>
+      <td>0.954634</td>
+      <td>0.006497</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -664,8 +664,8 @@ The first curve_data artifact:
     <tr>
       <th>1</th>
       <td>0.000051</td>
-      <td>0.405366</td>
-      <td>0.015328</td>
+      <td>0.429756</td>
+      <td>0.015455</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -675,8 +675,8 @@ The first curve_data artifact:
     <tr>
       <th>2</th>
       <td>0.000101</td>
-      <td>0.184878</td>
-      <td>0.012119</td>
+      <td>0.154634</td>
+      <td>0.011288</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -686,8 +686,8 @@ The first curve_data artifact:
     <tr>
       <th>3</th>
       <td>0.000151</td>
-      <td>0.088293</td>
-      <td>0.008858</td>
+      <td>0.089268</td>
+      <td>0.008902</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -697,8 +697,8 @@ The first curve_data artifact:
     <tr>
       <th>4</th>
       <td>0.000201</td>
-      <td>0.053171</td>
-      <td>0.007005</td>
+      <td>0.06</td>
+      <td>0.007414</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>raw</td>
@@ -719,8 +719,8 @@ The first curve_data artifact:
     <tr>
       <th>119</th>
       <td>0.000529</td>
-      <td>0.032813</td>
-      <td>0.002231</td>
+      <td>0.027054</td>
+      <td>0.00207</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -730,8 +730,8 @@ The first curve_data artifact:
     <tr>
       <th>120</th>
       <td>0.000534</td>
-      <td>0.032807</td>
-      <td>0.002232</td>
+      <td>0.027048</td>
+      <td>0.00207</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -741,8 +741,8 @@ The first curve_data artifact:
     <tr>
       <th>121</th>
       <td>0.00054</td>
-      <td>0.032802</td>
-      <td>0.002232</td>
+      <td>0.027042</td>
+      <td>0.002071</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -752,8 +752,8 @@ The first curve_data artifact:
     <tr>
       <th>122</th>
       <td>0.000545</td>
-      <td>0.032796</td>
-      <td>0.002233</td>
+      <td>0.027037</td>
+      <td>0.002071</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -763,8 +763,8 @@ The first curve_data artifact:
     <tr>
       <th>123</th>
       <td>0.000551</td>
-      <td>0.032792</td>
-      <td>0.002233</td>
+      <td>0.027032</td>
+      <td>0.002072</td>
       <td>exp_decay</td>
       <td>0</td>
       <td>fitted</td>
@@ -792,16 +792,16 @@ can work with the dataframe using standard pandas dataframe methods or the built
 <span class="n">exp_type</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="n">curve_data_id</span><span class="p">)</span><span class="o">.</span><span class="n">experiment</span>
 <span class="n">component</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="n">curve_data_id</span><span class="p">)</span><span class="o">.</span><span class="n">device_components</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<span class="n">raw_data</span> <span class="o">=</span> <span class="n">scatter_table</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span>
-<span class="n">fitted_data</span> <span class="o">=</span> <span class="n">scatter_table</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;fitted&quot;</span><span class="p">)</span>
+<span class="n">raw_data</span> <span class="o">=</span> <span class="n">scatter_table</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">"raw"</span><span class="p">)</span>
+<span class="n">fitted_data</span> <span class="o">=</span> <span class="n">scatter_table</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">"fitted"</span><span class="p">)</span>
 
 <span class="c1"># visualize the data</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">raw_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">raw_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">raw_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;raw data&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">fitted_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">fitted_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">fitted_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;fitted data&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">exp_type</span><span class="si">}</span><span class="s2"> experiment on </span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">raw_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">raw_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">raw_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"raw data"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">fitted_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">fitted_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">fitted_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"fitted data"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">exp_type</span><span class="si">}</span><span class="s2"> experiment on </span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'x'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'y'</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
@@ -821,26 +821,26 @@ Qiskit Experiments.</p>
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArtifactData</span>
 
-<span class="n">new_artifact</span> <span class="o">=</span> <span class="n">ArtifactData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;experiment_notes&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Testing some new ideas.&quot;</span><span class="p">})</span>
+<span class="n">new_artifact</span> <span class="o">=</span> <span class="n">ArtifactData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"experiment_notes"</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">"content"</span><span class="p">:</span> <span class="s2">"Testing some new ideas."</span><span class="p">})</span>
 <span class="n">data</span><span class="o">.</span><span class="n">add_artifacts</span><span class="p">(</span><span class="n">new_artifact</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="s2">&quot;experiment_notes&quot;</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="s2">"experiment_notes"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ArtifactData(name=experiment_notes, dtype=dict, uid=8211843d-98c7-4cf3-9ae6-6ea657c445bb, experiment=None, device_components=[])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>ArtifactData(name=experiment_notes, dtype=dict, uid=3edbb9b1-fa0d-49c8-bdec-1a726b7a20e7, experiment=None, device_components=[])
 </pre></div>
 </div>
 </div>
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="s2">&quot;experiment_notes&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="s2">"experiment_notes"</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;content&#39;: &#39;Testing some new ideas.&#39;}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{'content': 'Testing some new ideas.'}
 </pre></div>
 </div>
 </div>
@@ -856,13 +856,13 @@ by their unique artifact ID:</p>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>fit_summary.zip
-|- ceb2f078-a998-41fe-8e38-6ff503f7e663.json
-|- 1353957e-67a3-4988-863d-0049b1a12805.json
+|- f8ab8c2e-5c1f-4d09-9e03-2b5adfdc1f57.json
+|- 3f867d5b-45fe-4220-87a5-b9ba0314716d.json
 curve_data.zip
-|- 99056eb2-9f5b-4814-9469-23bc52324b35.json
-|- b7180619-b0da-4d42-bd37-58f65440c38b.json
+|- 9ee34f86-e11b-4168-9c69-f6f3e89f7281.json
+|- acf50d7c-df6f-4eb9-a4a5-f72dc84b05a6.json
 experiment_notes.zip
-|- 8211843d-98c7-4cf3-9ae6-6ea657c445bb.json
+|- 3edbb9b1-fa0d-49c8-bdec-1a726b7a20e7.json
 </pre></div>
 </div>
 </div>
@@ -918,7 +918,7 @@ service.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -959,7 +959,7 @@ service.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../_static/documentation_options.js?v=78f35329"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

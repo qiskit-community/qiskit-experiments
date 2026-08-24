@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="QuantumVolumePlotter" href="stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Release Notes - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>Release Notes - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -557,10 +557,10 @@ released.</p>
 </div>
 <section id="release-notes">
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
-<section id="relnotes-0-14-0-12">
-<span id="id1"></span><h2>0.14.0-12<a class="headerlink" href="#relnotes-0-14-0-12" title="Link to this heading">¶</a></h2>
+<section id="relnotes-0-14-0-13">
+<span id="id1"></span><h2>0.14.0-13<a class="headerlink" href="#relnotes-0-14-0-13" title="Link to this heading">¶</a></h2>
 <section id="bug-fixes">
-<span id="relnotes-0-14-0-12-bug-fixes"></span><h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">¶</a></h3>
+<span id="relnotes-0-14-0-13-bug-fixes"></span><h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The logic for guessing decay curve parameters used by
 <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis" title="qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerFidelityAnalysis</span></code></a>, <a class="reference internal" href="stubs/qiskit_experiments.library.randomized_benchmarking.RBAnalysis.html#qiskit_experiments.library.randomized_benchmarking.RBAnalysis" title="qiskit_experiments.library.randomized_benchmarking.RBAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">RBAnalysis</span></code></a>, and
@@ -574,6 +574,22 @@ other analysis classes.</p></li>
 <code class="docutils literal notranslate"><span class="pre">run()</span></code> method through to the sampler’s <code class="docutils literal notranslate"><span class="pre">run()</span></code> method when it is
 passed a <code class="docutils literal notranslate"><span class="pre">sampler</span></code> argument. Previously, <code class="docutils literal notranslate"><span class="pre">shots</span></code> was only honored when
 no sampler was passed and the experiment generated a sampler internally.</p></li>
+</ul>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">run()</span></code> method of <a class="reference internal" href="stubs/qiskit_experiments.framework.CompositeAnalysis.html#qiskit_experiments.framework.CompositeAnalysis" title="qiskit_experiments.framework.CompositeAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompositeAnalysis</span></code></a> had been updated to
+block for results on each sub-analysis’s <code class="docutils literal notranslate"><span class="pre">run()</span></code> call when looping over
+them. This change forces the analysis runs to be serialized. Previously,
+<code class="docutils literal notranslate"><span class="pre">CompositeAnalysis</span></code> would call all the <code class="docutils literal notranslate"><span class="pre">run()</span></code> methods first, leading
+to all of them starting their analysis back ground threads separately, and
+the wait for all of them to finish. Since Python is typically run with the
+global interpreter lock (GIL) which allows only one thread of Python code
+to execute at a time, the analysis was already mostly serialized in
+practice, but, when running many sub-analysis routines in parallel such as
+when running one or more experiments across all qubits of a large device,
+the large number of threads simultaneously can be difficult for the system
+running Qiskit Experiments to deal with. This change keeps the number of
+threads low and avoids resource exhaustion and contention. A future
+enhancement might reintroduce meaningful analysis parallelism.</p></li>
 </ul>
 <ul class="simple">
 <li><p>Fixed description of the gates used in the <a class="reference internal" href="stubs/qiskit_experiments.library.characterization.T2Ramsey.html#qiskit_experiments.library.characterization.T2Ramsey" title="qiskit_experiments.library.characterization.T2Ramsey"><code class="xref py py-class docutils literal notranslate"><span class="pre">T2Ramsey</span></code></a> documentation.</p></li>
@@ -1153,8 +1169,8 @@ major change to the interface, it is not planned that the default will
 change in the next three months (the shortest allowed deprecation cycle).</p>
 <p>A previously common pattern was to retrieve a single result by name from an
 <a class="reference internal" href="stubs/qiskit_experiments.framework.ExperimentData.html#qiskit_experiments.framework.ExperimentData" title="qiskit_experiments.framework.ExperimentData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExperimentData</span></code></a> object <code class="docutils literal notranslate"><span class="pre">expdata</span></code> like:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T1 is </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">"T1"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"T1 is </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>which makes use of implicit returning the result directly instead of a list
@@ -1162,8 +1178,8 @@ when there is only one match. With <code class="docutils literal notranslate"><s
 implicitly truncated so the first match must be selected.
 <a class="reference external" href="http://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iloc.html#pandas.DataFrame.iloc" title="(in pandas v3.0.5)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">pandas.DataFrame.iloc</span></code></a> can be used to select the first match. The
 following block is equivalent to the previous example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;T1 is </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">"T1"</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"T1 is </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
@@ -1441,7 +1457,7 @@ which contains several <code class="docutils literal notranslate"><span class="p
 <code class="docutils literal notranslate"><span class="pre">reason</span></code> to tell users why the <code class="docutils literal notranslate"><span class="pre">quality</span></code> of the analysis was <code class="docutils literal notranslate"><span class="pre">&quot;bad&quot;</span></code>.</p>
 <p>For example, the syntax for pulling out the individual fidelities looks like below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">exp_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="s2">&quot;ProcessFidelity&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">qubits</span><span class="o">==</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span> <span class="mi">60</span><span class="p">))]</span><span class="o">.</span><span class="n">value</span>
+<span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="s2">"ProcessFidelity"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">qubits</span><span class="o">==</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span> <span class="mi">60</span><span class="p">))]</span><span class="o">.</span><span class="n">value</span>
 </pre></div>
 </div>
 <p>See <a class="reference external" href="https://github.com/qiskit-community/qiskit-device-benchmarking/blob/main/notebooks/layer_fidelity.ipynb">an example notebook</a>
@@ -1680,7 +1696,7 @@ analysis results all in one piece with the table format. For example,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span> <span class="o">=</span> <span class="n">StandardRB</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
 <span class="n">experiment_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 
-<span class="n">experiment_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+<span class="n">experiment_data</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">"default"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Information contained in the returned table can be filtered with <code class="docutils literal notranslate"><span class="pre">columns</span></code> argument,
@@ -2680,15 +2696,15 @@ The <code class="docutils literal notranslate"><span class="pre">data_subfit_map
   <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
       <span class="n">models</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span><span class="n">expr</span><span class="o">=</span><span class="s2">&quot;x+a0&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;expr1&quot;</span><span class="p">),</span>
-        <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span><span class="n">expr</span><span class="o">=</span><span class="s2">&quot;x+a1&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;expr2&quot;</span><span class="p">),</span>
+        <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span><span class="n">expr</span><span class="o">=</span><span class="s2">"x+a0"</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"expr1"</span><span class="p">),</span>
+        <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span><span class="n">expr</span><span class="o">=</span><span class="s2">"x+a1"</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"expr2"</span><span class="p">),</span>
       <span class="p">]</span>
     <span class="p">)</span>
 
   <span class="nd">@classmethod</span>
   <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
     <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
-    <span class="n">options</span><span class="o">.</span><span class="n">data_subfit_map</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;expr1&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">},</span> <span class="s2">&quot;expr2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">}}</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">data_subfit_map</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"expr1"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"tag"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">},</span> <span class="s2">"expr2"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"tag"</span><span class="p">:</span> <span class="s2">"2"</span><span class="p">}}</span>
     <span class="k">return</span> <span class="n">options</span>
 </pre></div>
 </div>
@@ -2803,7 +2819,7 @@ matched metadata are only used for the fitting.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">figure_title</span></code> option has been added. This allows user to show an arbitrary string
 in the output figure title. See the example code below to learn how to set the option.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span> <span class="o">=</span> <span class="n">MyExperiment</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">figure_title</span><span class="o">=</span><span class="s2">&quot;Qubit0&quot;</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">figure_title</span><span class="o">=</span><span class="s2">"Qubit0"</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
@@ -2816,8 +2832,8 @@ This option is a dictionary that defines three properties, for example,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span> <span class="o">=</span> <span class="n">MyExperiment</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span>
   <span class="n">plot_options</span><span class="o">=</span><span class="p">{</span>
-    <span class="s2">&quot;curve1&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="s2">&quot;canvas&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-    <span class="s2">&quot;curve2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;canvas&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="s2">"curve1"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="s2">"r"</span><span class="p">,</span> <span class="s2">"symbol"</span><span class="p">:</span> <span class="s2">"o"</span><span class="p">,</span> <span class="s2">"canvas"</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+    <span class="s2">"curve2"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"symbol"</span><span class="p">:</span> <span class="s2">"x"</span><span class="p">,</span> <span class="s2">"canvas"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
   <span class="p">}</span>
 <span class="p">)</span>
 </pre></div>
@@ -3398,7 +3414,7 @@ error for your fit values.</p></li>
 <a class="reference external" href="https://pythonhosted.org/uncertainties/">uncertainties</a> package to support
 error propagation for post analysis computation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">expdata</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">delays</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="n">fit_t1</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+<span class="n">fit_t1</span> <span class="o">=</span> <span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">"T1"</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
 
 <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fit_t1</span><span class="p">,</span> <span class="n">UFloat</span><span class="p">)</span>
 
@@ -4284,7 +4300,7 @@ stored in the experiments analysis result extra field.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -4306,7 +4322,7 @@ stored in the experiments analysis result extra field.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Release Notes</a><ul>
-<li><a class="reference internal" href="#relnotes-0-14-0-12">0.14.0-12</a><ul>
+<li><a class="reference internal" href="#relnotes-0-14-0-13">0.14.0-13</a><ul>
 <li><a class="reference internal" href="#bug-fixes">Bug Fixes</a></li>
 </ul>
 </li>
@@ -4508,7 +4524,7 @@ stored in the experiments analysis result extra field.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=2357b384"></script>
+</div><script src="_static/documentation_options.js?v=78f35329"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

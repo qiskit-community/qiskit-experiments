@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html"><link rel="search" title="Search" href="../../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.analysis.readout_angle_analysis - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.characterization.analysis.readout_angle_analysis - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Readout Angle Analysis class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -569,18 +569,18 @@
 <div class="viewcode-block" id="ReadoutAngleAnalysis">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.characterization.ReadoutAngleAnalysis.html#qiskit_experiments.library.characterization.ReadoutAngleAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ReadoutAngleAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A class to analyze readout angle experiments</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default analysis options.</span>
+<span class="w">        </span><span class="sd">"""Return default analysis options.</span>
 
 <span class="sd">        Analysis Options:</span>
 <span class="sd">            plot (bool): Set ``True`` to create figure for fit result.</span>
 <span class="sd">            ax (AxesSubplot): Optional. A matplotlib axis object to draw.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">plot</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">options</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span>
@@ -591,7 +591,7 @@
         <span class="n">radii</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">centers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
-            <span class="n">center</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="o">*</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">i</span><span class="p">)[</span><span class="s2">&quot;memory&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">center</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="o">*</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">i</span><span class="p">)[</span><span class="s2">"memory"</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">angles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">center</span><span class="p">))</span>
             <span class="n">radii</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">center</span><span class="p">))</span>
             <span class="n">centers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
@@ -601,13 +601,13 @@
             <span class="n">angle</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
 
         <span class="n">extra_results</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">extra_results</span><span class="p">[</span><span class="s2">&quot;readout_angle_0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">extra_results</span><span class="p">[</span><span class="s2">&quot;readout_angle_1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">extra_results</span><span class="p">[</span><span class="s2">&quot;readout_radius_0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radii</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">extra_results</span><span class="p">[</span><span class="s2">&quot;readout_radius_1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radii</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">extra_results</span><span class="p">[</span><span class="s2">"readout_angle_0"</span><span class="p">]</span> <span class="o">=</span> <span class="n">angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">extra_results</span><span class="p">[</span><span class="s2">"readout_angle_1"</span><span class="p">]</span> <span class="o">=</span> <span class="n">angles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">extra_results</span><span class="p">[</span><span class="s2">"readout_radius_0"</span><span class="p">]</span> <span class="o">=</span> <span class="n">radii</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">extra_results</span><span class="p">[</span><span class="s2">"readout_radius_1"</span><span class="p">]</span> <span class="o">=</span> <span class="n">radii</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">AnalysisResultData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;readout_angle&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_results</span><span class="p">)</span>
+            <span class="n">AnalysisResultData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"readout_angle"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra_results</span><span class="p">)</span>
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot</span><span class="p">:</span>
@@ -619,8 +619,8 @@
         <span class="k">return</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="n">figures</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_format_plot</span><span class="p">(</span><span class="n">centers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">complex</span><span class="p">],</span> <span class="n">ax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;matplotlib.pyplot.AxesSubplot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format the readout_angle plot</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_plot</span><span class="p">(</span><span class="n">centers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">complex</span><span class="p">],</span> <span class="n">ax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"matplotlib.pyplot.AxesSubplot"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Format the readout_angle plot</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            centers: the two centers of the level 1 measurements for 0 and for 1.</span>
@@ -628,20 +628,20 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            AxesSubPlot: the matplotlib axes containing the plot.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">largest_extent</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">centers</span><span class="p">))),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">centers</span><span class="p">)))])</span> <span class="o">*</span> <span class="mf">1.1</span>
         <span class="p">)</span>
 
         <span class="n">ax</span> <span class="o">=</span> <span class="n">get_non_gui_ax</span><span class="p">()</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">centers</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">centers</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;ro&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">centers</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">centers</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s2">&quot;bo&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">centers</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">centers</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">"ro"</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">centers</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">centers</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s2">"bo"</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="n">largest_extent</span><span class="p">,</span> <span class="n">largest_extent</span><span class="p">])</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="o">-</span><span class="n">largest_extent</span><span class="p">,</span> <span class="n">largest_extent</span><span class="p">])</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;I [arb.]&quot;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Q [arb.]&quot;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Centroid Positions&quot;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"I [arb.]"</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Q [arb.]"</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Centroid Positions"</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">"0"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">ax</span></div>
 
 </pre></div>
@@ -662,7 +662,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -677,7 +677,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.framework.backend_timing - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.framework.backend_timing - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,7 +555,7 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;Backend timing helper functions&quot;&quot;&quot;</span>
+<span class="sd">"""Backend timing helper functions"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
@@ -568,7 +568,7 @@
 <div class="viewcode-block" id="BackendTiming">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendTiming.html#qiskit_experiments.framework.BackendTiming">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BackendTiming</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper for calculating pulse and delay times for an experiment</span>
+<span class="w">    </span><span class="sd">"""Helper for calculating pulse and delay times for an experiment</span>
 
 <span class="sd">    The methods and properties provided by this class help with calculating</span>
 <span class="sd">    delay timing that depends on the timing constraints of the backend.</span>
@@ -616,14 +616,14 @@
 
 <span class="sd">                # Use delay_time to get the actual value in seconds that was</span>
 <span class="sd">                # set on the backend for the xval rather than the delay</span>
-<span class="sd">                # variable&#39;s nominal value.</span>
+<span class="sd">                # variable's nominal value.</span>
 <span class="sd">                circ.metadata = {</span>
-<span class="sd">                    &quot;unit&quot;: &quot;s&quot;,</span>
-<span class="sd">                    &quot;xval&quot;: timing.delay_time(time=delay),</span>
+<span class="sd">                    "unit": "s",</span>
+<span class="sd">                    "xval": timing.delay_time(time=delay),</span>
 <span class="sd">                }</span>
 
 <span class="sd">                circuits.append(circ)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -635,7 +635,7 @@
         <span class="n">pulse_alignment</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize backend timing object</span>
+<span class="w">        </span><span class="sd">"""Initialize backend timing object</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            Backend may not accept user defined constraint value.</span>
@@ -652,38 +652,38 @@
 <span class="sd">            min_length: Optional. Deprecated and unused.</span>
 <span class="sd">            pulse_alignment: Optional. Deprecated and unused.</span>
 <span class="sd">            dt: Optional. Time interval of pulse samples. Default to the backend value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">backend_data</span> <span class="o">=</span> <span class="n">BackendData</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
 
         <span class="c1"># Pull all the timing data from the backend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_granularity</span> <span class="o">=</span> <span class="n">granularity</span> <span class="ow">or</span> <span class="n">backend_data</span><span class="o">.</span><span class="n">granularity</span>
-        <span class="c1">#: The backend&#39;s ``dt`` value, copied to :class:`.BackendTiming` for convenience</span>
+        <span class="c1">#: The backend's ``dt`` value, copied to :class:`.BackendTiming` for convenience</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span> <span class="ow">or</span> <span class="n">backend_data</span><span class="o">.</span><span class="n">dt</span>
 
         <span class="k">if</span> <span class="n">min_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">acquire_alignment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">pulse_alignment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Arguments acquire_alignment, min_length, and pulse_alignment &quot;</span>
-                <span class="s2">&quot;are no longer used by BackendTiming.&quot;</span>
+                <span class="s2">"Arguments acquire_alignment, min_length, and pulse_alignment "</span>
+                <span class="s2">"are no longer used by BackendTiming."</span>
             <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">delay_unit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The delay unit for the current backend</span>
+<span class="w">        </span><span class="sd">"""The delay unit for the current backend</span>
 
-<span class="sd">        &quot;dt&quot; is used if dt is present in the backend configuration. Otherwise</span>
-<span class="sd">        &quot;s&quot; is used.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        "dt" is used if dt is present in the backend configuration. Otherwise</span>
+<span class="sd">        "s" is used.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;dt&quot;</span>
+            <span class="k">return</span> <span class="s2">"dt"</span>
 
-        <span class="k">return</span> <span class="s2">&quot;s&quot;</span>
+        <span class="k">return</span> <span class="s2">"s"</span>
 
 <div class="viewcode-block" id="BackendTiming.round_delay">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendTiming.html#qiskit_experiments.framework.BackendTiming.round_delay">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">round_delay</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delay duration closest to input and consistent with timing constraints</span>
+<span class="w">        </span><span class="sd">"""Delay duration closest to input and consistent with timing constraints</span>
 
 <span class="sd">        This method produces the value to pass for the ``duration`` of a</span>
 <span class="sd">        ``Delay`` instruction of a ``QuantumCircuit`` so that the delay fills</span>
@@ -712,11 +712,11 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If either both ``time`` and ``samples`` are passed or</span>
 <span class="sd">                neither is passed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Either time or samples must be a numerical value.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"Either time or samples must be a numerical value."</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">samples</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Only one of time and samples can be a numerical value.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"Only one of time and samples can be a numerical value."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">time</span>
@@ -732,7 +732,7 @@
 <div class="viewcode-block" id="BackendTiming.delay_time">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendTiming.html#qiskit_experiments.framework.BackendTiming.delay_time">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">delay_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The closest valid delay time in seconds to the input</span>
+<span class="w">        </span><span class="sd">"""The closest valid delay time in seconds to the input</span>
 
 <span class="sd">        If the backend reports ``dt``, this method uses</span>
 <span class="sd">        :meth:`.BackendTiming.round_delay` and converts the result back into</span>
@@ -748,8 +748,8 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If either both ``time`` and ``samples`` are passed or</span>
 <span class="sd">                neither is passed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delay_unit</span> <span class="o">==</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delay_unit</span> <span class="o">==</span> <span class="s2">"s"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">time</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_delay</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="n">samples</span><span class="p">)</span></div>
@@ -773,7 +773,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -788,7 +788,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

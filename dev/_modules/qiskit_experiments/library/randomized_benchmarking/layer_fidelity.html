@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.layer_fidelity - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.layer_fidelity - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Layer Fidelity RB Experiment class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -607,7 +607,7 @@
 <div class="viewcode-block" id="LayerFidelity">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LayerFidelity</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A holistic benchmarking experiment to characterize the full quality of the devices at scale.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A holistic benchmarking experiment to characterize the full quality of the devices at scale.</span>
 
 <span class="sd">    # section: overview</span>
 <span class="sd">        Layer Fidelity (LF) is a method to estimate the fidelity of</span>
@@ -638,9 +638,9 @@
 <span class="sd">            from qiskit_aer.noise import NoiseModel, depolarizing_error</span>
 
 <span class="sd">            noise_model = NoiseModel()</span>
-<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), [&quot;sx&quot;, &quot;x&quot;])</span>
-<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), [&quot;rz&quot;])</span>
-<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), [&quot;cx&quot;])</span>
+<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])</span>
+<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])</span>
+<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["cx"])</span>
 <span class="sd">            backend = AerSimulator(noise_model=noise_model)</span>
 
 <span class="sd">        .. jupyter-execute::</span>
@@ -670,10 +670,10 @@
 <span class="sd">            results = exp_data.analysis_results(dataframe=True)</span>
 
 <span class="sd">            display(exp_data.figure(0)) # one of 6 figures</span>
-<span class="sd">            display(exp_data.analysis_results(&quot;EPLG&quot;, dataframe=True))</span>
+<span class="sd">            display(exp_data.analysis_results("EPLG", dataframe=True))</span>
 
-<span class="sd">            print(f&quot;Available results: {set(results.name)}&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">            print(f"Available results: {set(results.name)}")</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -687,9 +687,9 @@
         <span class="n">one_qubit_basis_gates</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">layer_barrier</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">min_delay</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">benchmark_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">benchmark_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a layer fidelity experiment.</span>
+<span class="w">        </span><span class="sd">"""Initialize a layer fidelity experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            physical_qubits: List of physical qubits for the experiment.</span>
@@ -702,7 +702,7 @@
 <span class="sd">            seed: Optional, seed used to initialize ``numpy.random.default_rng``.</span>
 <span class="sd">                  when generating circuits. The ``default_rng`` will be initialized</span>
 <span class="sd">                  with this seed value every time :meth:~.LayerFidelity.circuits` is called.</span>
-<span class="sd">            two_qubit_gate: Optional, 2q-gate name (e.g. &quot;cx&quot;, &quot;cz&quot;, &quot;ecr&quot;)</span>
+<span class="sd">            two_qubit_gate: Optional, 2q-gate name (e.g. "cx", "cz", "ecr")</span>
 <span class="sd">                            of which the two qubit layers consist.</span>
 <span class="sd">                            If not specified (but ``backend`` is supplied),</span>
 <span class="sd">                            one of 2q-gates supported in the backend is automatically set.</span>
@@ -727,16 +727,16 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If any invalid argument is supplied.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Compute full layers</span>
         <span class="n">full_layers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">two_q_layer</span> <span class="ow">in</span> <span class="n">two_qubit_layers</span><span class="p">:</span>
             <span class="n">qubits_in_layer</span> <span class="o">=</span> <span class="p">{</span><span class="n">q</span> <span class="k">for</span> <span class="n">qpair</span> <span class="ow">in</span> <span class="n">two_q_layer</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qpair</span><span class="p">}</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits_in_layer</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">two_q_layer</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;two_qubit_layers have a layer with gates on non-disjoint qubits&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"two_qubit_layers have a layer with gates on non-disjoint qubits"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qubits_in_layer</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">q</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">physical_qubits</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Qubit </span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2"> in two_qubit_layers is not in physical_qubits&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Qubit </span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2"> in two_qubit_layers is not in physical_qubits"</span><span class="p">)</span>
             <span class="n">layer</span> <span class="o">=</span> <span class="n">two_q_layer</span> <span class="o">+</span> <span class="p">[(</span><span class="n">q</span><span class="p">,)</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">physical_qubits</span> <span class="k">if</span> <span class="n">q</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">qubits_in_layer</span><span class="p">]</span>
             <span class="n">full_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
 
@@ -745,7 +745,7 @@
             <span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">LayerFidelityAnalysis</span><span class="p">(</span><span class="n">full_layers</span><span class="p">),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span>
         <span class="p">)</span>
         <span class="c1"># These will be set by `_set_backend` in `super().__init__` if the backend was</span>
-        <span class="c1"># set. We don&#39;t want them to be overwritten by the default None values</span>
+        <span class="c1"># set. We don't want them to be overwritten by the default None values</span>
         <span class="c1"># in `set_experiment_options` below in that case. Because</span>
         <span class="c1"># BaseExperiment.__init__ sets up the experiment options, we can not</span>
         <span class="c1"># set them before calling super().__init__</span>
@@ -762,19 +762,19 @@
 
         <span class="c1"># Verify parameters</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">lengths</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lengths</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The lengths list </span><span class="si">{</span><span class="n">lengths</span><span class="si">}</span><span class="s2"> should not contain duplicate elements.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The lengths list </span><span class="si">{</span><span class="n">lengths</span><span class="si">}</span><span class="s2"> should not contain duplicate elements."</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">num_samples</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The number of samples </span><span class="si">{</span><span class="n">num_samples</span><span class="si">}</span><span class="s2"> should be positive.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The number of samples </span><span class="si">{</span><span class="n">num_samples</span><span class="si">}</span><span class="s2"> should be positive."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">one_qubit_basis_gates</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">filtered_gates</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">gate</span> <span class="ow">in</span> <span class="n">one_qubit_basis_gates</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">gate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">GATE_NAME_MAP</span><span class="p">:</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;Not using single qubit gate &quot;</span><span class="si">{</span><span class="n">gate</span><span class="si">}</span><span class="s1">&quot;. Please &#39;</span>
-                        <span class="s2">&quot;open an issue if support for using gates outside &quot;</span>
-                        <span class="s2">&quot;of Qiskit&#39;s standard gates is needed for layer &quot;</span>
-                        <span class="s2">&quot;fidelity.&quot;</span>
+                        <span class="sa">f</span><span class="s1">'Not using single qubit gate "</span><span class="si">{</span><span class="n">gate</span><span class="si">}</span><span class="s1">". Please '</span>
+                        <span class="s2">"open an issue if support for using gates outside "</span>
+                        <span class="s2">"of Qiskit's standard gates is needed for layer "</span>
+                        <span class="s2">"fidelity."</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">filtered_gates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gate</span><span class="p">)</span>
@@ -804,12 +804,12 @@
                     <span class="n">one_qubit_basis_gates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;Not using single qubit gate &quot;</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;. Please &#39;</span>
-                        <span class="s2">&quot;open an issue if support for using gates outside &quot;</span>
-                        <span class="s2">&quot;of Qiskit&#39;s standard gates is needed for layer &quot;</span>
-                        <span class="s2">&quot;fidelity.&quot;</span>
+                        <span class="sa">f</span><span class="s1">'Not using single qubit gate "</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">". Please '</span>
+                        <span class="s2">"open an issue if support for using gates outside "</span>
+                        <span class="s2">"of Qiskit's standard gates is needed for layer "</span>
+                        <span class="s2">"fidelity."</span>
                     <span class="p">)</span>
-        <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is set for one_qubit_basis_gates&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">one_qubit_basis_gates</span><span class="p">))</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2"> is set for one_qubit_basis_gates"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">one_qubit_basis_gates</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">one_qubit_basis_gates</span>
 
     <span class="nd">@staticmethod</span>
@@ -818,13 +818,13 @@
         <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">operations</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">Gate</span><span class="p">)</span> <span class="ow">and</span> <span class="n">op</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">two_qubit_gate</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">name</span>
-                <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is set for two_qubit_gate&quot;</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2"> is set for two_qubit_gate"</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="k">break</span>
         <span class="k">return</span> <span class="n">two_qubit_gate</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default experiment options.</span>
+<span class="w">        </span><span class="sd">"""Default experiment options.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            two_qubit_layers (List[List[Tuple[int, int]]]): List of two-qubit gate layers to run on.</span>
@@ -835,7 +835,7 @@
 <span class="sd">                used to initialize ``numpy.random.default_rng`` when generating circuits.</span>
 <span class="sd">                The ``default_rng`` will be initialized with this seed value every time</span>
 <span class="sd">                :meth:`circuits` is called.</span>
-<span class="sd">            two_qubit_gate (str): Two-qubit gate name (e.g. &quot;cx&quot;, &quot;cz&quot;, &quot;ecr&quot;)</span>
+<span class="sd">            two_qubit_gate (str): Two-qubit gate name (e.g. "cx", "cz", "ecr")</span>
 <span class="sd">                of which the two qubit layers consist.</span>
 <span class="sd">            one_qubit_basis_gates (Tuple[str]): One-qubit gates to use for implementing 1q Cliffords.</span>
 <span class="sd">            clifford_synthesis_method (str): The name of the Clifford synthesis plugin to use</span>
@@ -852,7 +852,7 @@
 <span class="sd">                this options requires at least one 1Q edge (a qubit in physical_qubits but</span>
 <span class="sd">                not in two_qubit_layers) to be applied. Also will not have an impact on the 2Q gates</span>
 <span class="sd">                if layer_barrier=False.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span>
             <span class="n">lengths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -870,53 +870,53 @@
 <div class="viewcode-block" id="LayerFidelity.set_experiment_options">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity.set_experiment_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_experiment_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the experiment options.</span>
+<span class="w">        </span><span class="sd">"""Set the experiment options.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fields: The fields to update the options</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AttributeError: If the field passed in is not a supported options</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;two_qubit_layers&quot;</span><span class="p">}:</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"two_qubit_layers"</span><span class="p">}:</span>
                 <span class="k">if</span> <span class="p">(</span>
                     <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_experiment_options</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
                     <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_options</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                 <span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Options field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> is not allowed to update.&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Options field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> is not allowed to update."</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span></div>
 
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_transpile_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default transpiler options for transpiling RB circuits.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default transpiler options for transpiling RB circuits."""</span>
         <span class="k">return</span> <span class="n">Options</span><span class="p">(</span><span class="n">optimization_level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LayerFidelity.set_transpile_options">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity.set_transpile_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_transpile_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transpile options is not supported for LayerFidelity experiments.</span>
+<span class="w">        </span><span class="sd">"""Transpile options is not supported for LayerFidelity experiments.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If `set_transpile_options` is called.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-            <span class="s2">&quot;Custom transpile options is not supported for LayerFidelity experiments.&quot;</span>
+            <span class="s2">"Custom transpile options is not supported for LayerFidelity experiments."</span>
         <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the backend V2 for RB experiments since RB experiments only support BackendV2.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set the backend V2 for RB experiments since RB experiments only support BackendV2."""</span>
         <span class="k">if</span> <span class="n">BackendV1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">BackendV1</span><span class="p">):</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">BackendV2Converter</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">add_delay</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
         <span class="n">new_opts</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">two_qubit_gate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">new_opts</span><span class="p">[</span><span class="s2">&quot;two_qubit_gate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_two_qubit_gate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
+            <span class="n">new_opts</span><span class="p">[</span><span class="s2">"two_qubit_gate"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_two_qubit_gate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">one_qubit_basis_gates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">new_opts</span><span class="p">[</span><span class="s2">&quot;one_qubit_basis_gates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_one_qubit_basis_gates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
+            <span class="n">new_opts</span><span class="p">[</span><span class="s2">"one_qubit_basis_gates"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_one_qubit_basis_gates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="o">**</span><span class="n">new_opts</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__validate_basis_gates</span><span class="p">()</span>
 
@@ -934,19 +934,19 @@
         <span class="c1"># later in __init__.</span>
         <span class="k">if</span> <span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_gate</span> <span class="ow">and</span> <span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_layers</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_gate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">target</span><span class="o">.</span><span class="n">operation_names</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;two_qubit_gate </span><span class="si">{</span><span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_gate</span><span class="si">}</span><span class="s2"> is not in backend.target&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"two_qubit_gate </span><span class="si">{</span><span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_gate</span><span class="si">}</span><span class="s2"> is not in backend.target"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">two_q_layer</span> <span class="ow">in</span> <span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_layers</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">qpair</span> <span class="ow">in</span> <span class="n">two_q_layer</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">instruction_supported</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_gate</span><span class="p">,</span> <span class="n">qpair</span><span class="p">):</span>
-                        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_gate</span><span class="si">}{</span><span class="n">qpair</span><span class="si">}</span><span class="s2"> is not in backend.target&quot;</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_gate</span><span class="si">}{</span><span class="n">qpair</span><span class="si">}</span><span class="s2"> is not in backend.target"</span><span class="p">)</span>
         <span class="c1"># validate one_qubit_basis_gates if it is set</span>
         <span class="k">for</span> <span class="n">gate</span> <span class="ow">in</span> <span class="n">opts</span><span class="o">.</span><span class="n">one_qubit_basis_gates</span> <span class="ow">or</span> <span class="p">[]:</span>
             <span class="k">if</span> <span class="n">gate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">target</span><span class="o">.</span><span class="n">operation_names</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gate</span><span class="si">}</span><span class="s2"> in one_qubit_basis_gates is not in backend.target&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">gate</span><span class="si">}</span><span class="s2"> in one_qubit_basis_gates is not in backend.target"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">gate</span> <span class="ow">in</span> <span class="n">opts</span><span class="o">.</span><span class="n">one_qubit_basis_gates</span> <span class="ow">or</span> <span class="p">[]:</span>
             <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">instruction_supported</span><span class="p">(</span><span class="n">gate</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span><span class="p">,)):</span>
-                    <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gate</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">) is not in backend.target&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">gate</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">) is not in backend.target"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__residual_qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">two_qubit_layer</span><span class="p">):</span>
         <span class="n">qubits_in_layer</span> <span class="o">=</span> <span class="p">{</span><span class="n">q</span> <span class="k">for</span> <span class="n">qpair</span> <span class="ow">in</span> <span class="n">two_qubit_layer</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qpair</span><span class="p">}</span>
@@ -955,32 +955,32 @@
 <div class="viewcode-block" id="LayerFidelity.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity.circuits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a list of physical circuits to measure layer fidelity.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Return a list of physical circuits to measure layer fidelity.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`QuantumCircuit`\s.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits_generator</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="LayerFidelity.circuits_generator">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity.circuits_generator">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits_generator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a generator of physical circuits to measure layer fidelity.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Return a generator of physical circuits to measure layer fidelity.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A generator of :class:`QuantumCircuit`\s.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_gate</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;two_qubit_gate was not provided or inferred from backend.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"two_qubit_gate was not provided or inferred from backend."</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">opts</span><span class="o">.</span><span class="n">one_qubit_basis_gates</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                <span class="s2">&quot;one_qubit_basis_gates is not provided and failed to set from backend.&quot;</span>
+                <span class="s2">"one_qubit_basis_gates is not provided and failed to set from backend."</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">and</span> <span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_gate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">GATE_NAME_MAP</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown two_qubit_gate: </span><span class="si">{</span><span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_gate</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown two_qubit_gate: </span><span class="si">{</span><span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_gate</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
 
         <span class="n">residal_qubits_by_layer</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__residual_qubits</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">opts</span><span class="o">.</span><span class="n">two_qubit_layers</span><span class="p">]</span>
         <span class="n">rng</span> <span class="o">=</span> <span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">opts</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
@@ -1004,7 +1004,7 @@
 
         <span class="c1"># warn if min delay is not None and barrier is false</span>
         <span class="k">if</span> <span class="n">opts</span><span class="o">.</span><span class="n">min_delay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">opts</span><span class="o">.</span><span class="n">layer_barrier</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Min delay applied when layer_barrier is False.&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"Min delay applied when layer_barrier is False."</span><span class="p">)</span>
 
         <span class="c1"># Circuit generation</span>
         <span class="n">num_qubits</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
@@ -1064,34 +1064,34 @@
                         <span class="n">circ</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">clbits</span><span class="p">)</span>
                     <span class="c1"># store composite structure in metadata</span>
                     <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-                        <span class="s2">&quot;experiment_type&quot;</span><span class="p">:</span> <span class="s2">&quot;BatchExperiment&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;composite_metadata&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="s2">"experiment_type"</span><span class="p">:</span> <span class="s2">"BatchExperiment"</span><span class="p">,</span>
+                        <span class="s2">"composite_metadata"</span><span class="p">:</span> <span class="p">[</span>
                             <span class="p">{</span>
-                                <span class="s2">&quot;experiment_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ParallelExperiment&quot;</span><span class="p">,</span>
-                                <span class="s2">&quot;composite_index&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">composite_qubits</span><span class="p">))),</span>
-                                <span class="s2">&quot;composite_metadata&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                <span class="s2">"experiment_type"</span><span class="p">:</span> <span class="s2">"ParallelExperiment"</span><span class="p">,</span>
+                                <span class="s2">"composite_index"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">composite_qubits</span><span class="p">))),</span>
+                                <span class="s2">"composite_metadata"</span><span class="p">:</span> <span class="p">[</span>
                                     <span class="p">{</span>
-                                        <span class="s2">&quot;experiment_type&quot;</span><span class="p">:</span> <span class="s2">&quot;SubLayerFidelity&quot;</span><span class="p">,</span>
-                                        <span class="s2">&quot;physical_qubits&quot;</span><span class="p">:</span> <span class="n">qpair</span><span class="p">,</span>
-                                        <span class="s2">&quot;sample&quot;</span><span class="p">:</span> <span class="n">i_sample</span><span class="p">,</span>
-                                        <span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                                        <span class="s2">"experiment_type"</span><span class="p">:</span> <span class="s2">"SubLayerFidelity"</span><span class="p">,</span>
+                                        <span class="s2">"physical_qubits"</span><span class="p">:</span> <span class="n">qpair</span><span class="p">,</span>
+                                        <span class="s2">"sample"</span><span class="p">:</span> <span class="n">i_sample</span><span class="p">,</span>
+                                        <span class="s2">"xval"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
                                     <span class="p">}</span>
                                     <span class="k">for</span> <span class="n">qpair</span> <span class="ow">in</span> <span class="n">two_qubit_layer</span>
                                 <span class="p">]</span>
                                 <span class="o">+</span> <span class="p">[</span>
                                     <span class="p">{</span>
-                                        <span class="s2">&quot;experiment_type&quot;</span><span class="p">:</span> <span class="s2">&quot;SubLayerFidelity&quot;</span><span class="p">,</span>
-                                        <span class="s2">&quot;physical_qubits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">q</span><span class="p">,),</span>
-                                        <span class="s2">&quot;sample&quot;</span><span class="p">:</span> <span class="n">i_sample</span><span class="p">,</span>
-                                        <span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                                        <span class="s2">"experiment_type"</span><span class="p">:</span> <span class="s2">"SubLayerFidelity"</span><span class="p">,</span>
+                                        <span class="s2">"physical_qubits"</span><span class="p">:</span> <span class="p">(</span><span class="n">q</span><span class="p">,),</span>
+                                        <span class="s2">"sample"</span><span class="p">:</span> <span class="n">i_sample</span><span class="p">,</span>
+                                        <span class="s2">"xval"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
                                     <span class="p">}</span>
                                     <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">one_qubits</span>
                                 <span class="p">],</span>
-                                <span class="s2">&quot;composite_qubits&quot;</span><span class="p">:</span> <span class="n">composite_qubits</span><span class="p">,</span>
-                                <span class="s2">&quot;composite_clbits&quot;</span><span class="p">:</span> <span class="n">composite_clbits</span><span class="p">,</span>
+                                <span class="s2">"composite_qubits"</span><span class="p">:</span> <span class="n">composite_qubits</span><span class="p">,</span>
+                                <span class="s2">"composite_clbits"</span><span class="p">:</span> <span class="n">composite_clbits</span><span class="p">,</span>
                             <span class="p">}</span>
                         <span class="p">],</span>
-                        <span class="s2">&quot;composite_index&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">i_set</span><span class="p">],</span>
+                        <span class="s2">"composite_index"</span><span class="p">:</span> <span class="p">[</span><span class="n">i_set</span><span class="p">],</span>
                     <span class="p">}</span>
                     <span class="k">yield</span> <span class="n">circ</span></div>
 
@@ -1113,7 +1113,7 @@
 
         <span class="c1"># warn if min_delay is not none and one_qubits is empty</span>
         <span class="k">if</span> <span class="n">min_delay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">one_qubits</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Min delay will not be applied because there are no 1Q edges.&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"Min delay will not be applied because there are no 1Q edges."</span><span class="p">)</span>
 
         <span class="c1"># initialize cliffords and a ciruit (0: identity clifford)</span>
         <span class="n">cliffs_2q</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">two_qubit_layer</span><span class="p">)</span>
@@ -1126,7 +1126,7 @@
                 <span class="n">cliffs_2q</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">compose_2q</span><span class="p">(</span><span class="n">cliffs_2q</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">_tensor_1q_nums</span><span class="p">(</span><span class="o">*</span><span class="n">samples</span><span class="p">))</span>
                 <span class="c1"># For Clifford 1 (x) Clifford 2, in its circuit representation,</span>
                 <span class="c1"># Clifford 1 acts on the 2nd qubit and Clifford 2 acts on the 1st qubit.</span>
-                <span class="c1"># That&#39;s why the qpair is reversed here.</span>
+                <span class="c1"># That's why the qpair is reversed here.</span>
                 <span class="k">for</span> <span class="n">sample</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">qpair</span><span class="p">)):</span>
                     <span class="n">circ</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">_to_gate_1q</span><span class="p">(</span><span class="n">sample</span><span class="p">),</span> <span class="p">(</span><span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">[</span><span class="n">q</span><span class="p">],),</span> <span class="p">())</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">one_qubits</span><span class="p">):</span>
@@ -1158,21 +1158,21 @@
         <span class="k">return</span> <span class="n">circ</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_transpiled_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of experiment circuits, transpiled.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a list of experiment circuits, transpiled."""</span>
         <span class="n">transpiled</span> <span class="o">=</span> <span class="p">[</span><span class="n">_decompose_clifford_ops</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span> <span class="k">for</span> <span class="n">circ</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">()]</span>
 
         <span class="k">return</span> <span class="n">transpiled</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;two_qubit_layers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">two_qubit_layers</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"two_qubit_layers"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">two_qubit_layers</span>
         <span class="k">return</span> <span class="n">metadata</span>
 
 <div class="viewcode-block" id="LayerFidelity.from_config">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelity.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelity.from_config">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ExperimentConfig</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;LayerFidelity&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize an experiment from experiment config&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ExperimentConfig</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"LayerFidelity"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize an experiment from experiment config"""</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">ExperimentConfig</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">*</span><span class="n">config</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
@@ -1199,7 +1199,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1214,7 +1214,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

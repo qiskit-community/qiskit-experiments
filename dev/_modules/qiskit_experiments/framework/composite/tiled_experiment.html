@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.framework.composite.tiled_experiment - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.framework.composite.tiled_experiment - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Build composite experiments for entire backends</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span>
@@ -570,20 +570,20 @@
 <div class="viewcode-block" id="BasicExperiment">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.BasicExperiment.html#qiskit_experiments.framework.BasicExperiment">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BasicExperiment</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    This is an internal helper class used by :class:`.TiledExperiment` to create</span>
 <span class="sd">    experiment instances with remapped qubits from a transpiled template.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">template_circs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span> <span class="n">analysis</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize a BasicExperiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            qubits: Physical qubit indices for this experiment instance</span>
 <span class="sd">            template_circs: Pre-transpiled circuits to remap</span>
 <span class="sd">            analysis: Analysis instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_template_circs</span> <span class="o">=</span> <span class="n">template_circs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span> <span class="o">=</span> <span class="n">analysis</span>
@@ -591,24 +591,24 @@
 <div class="viewcode-block" id="BasicExperiment.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.BasicExperiment.html#qiskit_experiments.framework.BasicExperiment.circuits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the template circuits.</span>
 
 <span class="sd">        Required by BaseExperiment but not used since we override _transpiled_circuits.</span>
 
 <span class="sd">        .. warning::</span>
 <span class="sd">            Do not mutate the returned circuits as they are shared across all experiment instances.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template_circs</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_transpiled_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Remap the template circuits to the physical qubits for this experiment.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of circuits with remapped qubits</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">res_circs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">circ</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template_circs</span><span class="p">:</span>
             <span class="n">qubit_indices</span> <span class="o">=</span> <span class="p">{</span><span class="n">bit</span><span class="p">:</span> <span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">bit</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">circ</span><span class="o">.</span><span class="n">qubits</span><span class="p">)}</span>
@@ -643,7 +643,7 @@
 <div class="viewcode-block" id="TiledExperiment">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.TiledExperiment.html#qiskit_experiments.framework.TiledExperiment">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TiledExperiment</span><span class="p">(</span><span class="n">BatchExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Composite experiment that duplicates a given experiment across the device.</span>
+<span class="w">    </span><span class="sd">"""Composite experiment that duplicates a given experiment across the device.</span>
 
 <span class="sd">    .. rubric:: Overview</span>
 
@@ -698,10 +698,10 @@
 <span class="sd">        tiled_exp = TiledExperiment(template_exp, groups)</span>
 <span class="sd">        exp_data = tiled_exp.run().block_for_results()</span>
 <span class="sd">        exp_data.analysis_results(dataframe=True)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_experiment</span><span class="p">:</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">groups</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize a TiledExperiment.</span>
 
 <span class="sd">        Args:</span>
@@ -718,7 +718,7 @@
 <span class="sd">                        [[0, 1], [3, 4], [6, 7]],  # First parallel group</span>
 <span class="sd">                        [[2, 3], [5, 6], [8, 9]],  # Second parallel group</span>
 <span class="sd">                    ]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">circs</span> <span class="o">=</span> <span class="n">template_experiment</span><span class="o">.</span><span class="n">_transpiled_circuits</span><span class="p">()</span>
 
         <span class="n">parexps</span> <span class="o">=</span> <span class="p">[]</span>
@@ -755,7 +755,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -770,7 +770,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

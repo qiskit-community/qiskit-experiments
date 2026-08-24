@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.tomography.tomography_analysis - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.tomography.tomography_analysis - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Quantum process tomography analysis</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
@@ -585,12 +585,12 @@
 <div class="viewcode-block" id="TomographyAnalysis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.tomography.TomographyAnalysis.html#qiskit_experiments.library.tomography.TomographyAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TomographyAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base analysis for state and process tomography experiments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Base analysis for state and process tomography experiments."""</span>
 
     <span class="n">_builtin_fitters</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;linear_inversion&quot;</span><span class="p">:</span> <span class="n">linear_inversion</span><span class="p">,</span>
-        <span class="s2">&quot;cvxpy_linear_lstsq&quot;</span><span class="p">:</span> <span class="n">cvxpy_linear_lstsq</span><span class="p">,</span>
-        <span class="s2">&quot;cvxpy_gaussian_lstsq&quot;</span><span class="p">:</span> <span class="n">cvxpy_gaussian_lstsq</span><span class="p">,</span>
+        <span class="s2">"linear_inversion"</span><span class="p">:</span> <span class="n">linear_inversion</span><span class="p">,</span>
+        <span class="s2">"cvxpy_linear_lstsq"</span><span class="p">:</span> <span class="n">cvxpy_linear_lstsq</span><span class="p">,</span>
+        <span class="s2">"cvxpy_gaussian_lstsq"</span><span class="p">:</span> <span class="n">cvxpy_gaussian_lstsq</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">_cvxpy_fitters</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">cvxpy_linear_lstsq</span><span class="p">,</span>
@@ -599,7 +599,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default analysis options</span>
+<span class="w">        </span><span class="sd">"""Default analysis options</span>
 
 <span class="sd">        Analysis Options:</span>
 <span class="sd">            measurement_basis</span>
@@ -649,28 +649,28 @@
 <span class="sd">                Enabling this will return a list of reconstructed state components</span>
 <span class="sd">                conditional on the values of these clbit values. The integer value of the</span>
 <span class="sd">                conditioning clbits is stored in state analysis result extra field</span>
-<span class="sd">                `&quot;conditional_circuit_outcome&quot;`.</span>
+<span class="sd">                `"conditional_circuit_outcome"`.</span>
 <span class="sd">            conditional_measurement_indices (list[int]): Optional, indices of tomography</span>
 <span class="sd">                measurement qubits to used for conditional state reconstruction. Enabling</span>
 <span class="sd">                this will return a list of reconstructed state components conditioned on</span>
 <span class="sd">                the remaining tomographic bases conditional on the basis index, and outcome</span>
 <span class="sd">                value for these measurements. The conditional measurement basis index and</span>
 <span class="sd">                integer value of the measurement outcome is stored in state analysis result</span>
-<span class="sd">                extra fields `&quot;conditional_measurement_index&quot;` and</span>
-<span class="sd">                `&quot;conditional_measurement_outcome&quot;` respectively.</span>
+<span class="sd">                extra fields `"conditional_measurement_index"` and</span>
+<span class="sd">                `"conditional_measurement_outcome"` respectively.</span>
 <span class="sd">            conditional_preparation_indices (list[int]): Optional, indices of tomography</span>
 <span class="sd">                preparation qubits to used for conditional state reconstruction. Enabling</span>
 <span class="sd">                this will return a list of reconstructed channel components conditioned on</span>
 <span class="sd">                the remaining tomographic bases conditional on the basis index. The</span>
 <span class="sd">                conditional preparation basis index is stored in state analysis result</span>
-<span class="sd">                extra fields `&quot;conditional_preparation_index&quot;`.</span>
+<span class="sd">                extra fields `"conditional_preparation_index"`.</span>
 <span class="sd">            extra (Dict[str, Any]): Extra metadata dictionary attached to analysis results.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
 
         <span class="n">options</span><span class="o">.</span><span class="n">measurement_basis</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">options</span><span class="o">.</span><span class="n">preparation_basis</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">fitter</span> <span class="o">=</span> <span class="s2">&quot;linear_inversion&quot;</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">fitter</span> <span class="o">=</span> <span class="s2">"linear_inversion"</span>
         <span class="n">options</span><span class="o">.</span><span class="n">fitter_options</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">options</span><span class="o">.</span><span class="n">rescale_positive</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">options</span><span class="o">.</span><span class="n">rescale_trace</span> <span class="o">=</span> <span class="kc">True</span>
@@ -687,14 +687,14 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_fitter</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fitter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return fitter function for named builtin fitters&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return fitter function for named builtin fitters"""</span>
         <span class="k">if</span> <span class="n">fitter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">&quot;No tomography fitter given&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">"No tomography fitter given"</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fitter</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">fitter</span>
         <span class="k">if</span> <span class="n">fitter</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_builtin_fitters</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_builtin_fitters</span><span class="p">[</span><span class="n">fitter</span><span class="p">]</span>
-        <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized tomography fitter </span><span class="si">{</span><span class="n">fitter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unrecognized tomography fitter </span><span class="si">{</span><span class="n">fitter</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">):</span>
 
@@ -702,11 +702,11 @@
         <span class="n">meas_basis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">measurement_basis</span>
         <span class="n">meas_qubits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">measurement_qubits</span>
         <span class="k">if</span> <span class="n">meas_basis</span> <span class="ow">and</span> <span class="n">meas_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">meas_qubits</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;m_qubits&quot;</span><span class="p">)</span>
+            <span class="n">meas_qubits</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"m_qubits"</span><span class="p">)</span>
         <span class="n">prep_basis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">preparation_basis</span>
         <span class="n">prep_qubits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">preparation_qubits</span>
         <span class="k">if</span> <span class="n">prep_basis</span> <span class="ow">and</span> <span class="n">prep_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">prep_qubits</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;p_qubits&quot;</span><span class="p">)</span>
+            <span class="n">prep_qubits</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"p_qubits"</span><span class="p">)</span>
         <span class="n">cond_meas_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">conditional_measurement_indices</span>
         <span class="k">if</span> <span class="n">cond_meas_indices</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">cond_meas_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">meas_qubits</span><span class="p">)))</span>
@@ -728,17 +728,17 @@
         <span class="c1"># Get fitter kwargs</span>
         <span class="n">fitter_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">meas_basis</span><span class="p">:</span>
-            <span class="n">fitter_kwargs</span><span class="p">[</span><span class="s2">&quot;measurement_basis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meas_basis</span>
+            <span class="n">fitter_kwargs</span><span class="p">[</span><span class="s2">"measurement_basis"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meas_basis</span>
         <span class="k">if</span> <span class="n">meas_qubits</span><span class="p">:</span>
-            <span class="n">fitter_kwargs</span><span class="p">[</span><span class="s2">&quot;measurement_qubits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meas_qubits</span>
+            <span class="n">fitter_kwargs</span><span class="p">[</span><span class="s2">"measurement_qubits"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meas_qubits</span>
         <span class="k">if</span> <span class="n">cond_meas_indices</span><span class="p">:</span>
-            <span class="n">fitter_kwargs</span><span class="p">[</span><span class="s2">&quot;conditional_measurement_indices&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cond_meas_indices</span>
+            <span class="n">fitter_kwargs</span><span class="p">[</span><span class="s2">"conditional_measurement_indices"</span><span class="p">]</span> <span class="o">=</span> <span class="n">cond_meas_indices</span>
         <span class="k">if</span> <span class="n">prep_basis</span><span class="p">:</span>
-            <span class="n">fitter_kwargs</span><span class="p">[</span><span class="s2">&quot;preparation_basis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prep_basis</span>
+            <span class="n">fitter_kwargs</span><span class="p">[</span><span class="s2">"preparation_basis"</span><span class="p">]</span> <span class="o">=</span> <span class="n">prep_basis</span>
         <span class="k">if</span> <span class="n">prep_qubits</span><span class="p">:</span>
-            <span class="n">fitter_kwargs</span><span class="p">[</span><span class="s2">&quot;preparation_qubits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prep_qubits</span>
+            <span class="n">fitter_kwargs</span><span class="p">[</span><span class="s2">"preparation_qubits"</span><span class="p">]</span> <span class="o">=</span> <span class="n">prep_qubits</span>
         <span class="k">if</span> <span class="n">cond_prep_indices</span><span class="p">:</span>
-            <span class="n">fitter_kwargs</span><span class="p">[</span><span class="s2">&quot;conditional_preparation_indices&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cond_prep_indices</span>
+            <span class="n">fitter_kwargs</span><span class="p">[</span><span class="s2">"conditional_preparation_indices"</span><span class="p">]</span> <span class="o">=</span> <span class="n">cond_prep_indices</span>
         <span class="n">fitter_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fitter_options</span><span class="p">)</span>
         <span class="n">fitter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_fitter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fitter</span><span class="p">)</span>
 
@@ -779,7 +779,7 @@
         <span class="c1"># Finally format state result metadata to remove eigenvectors</span>
         <span class="c1"># which are no longer needed to reduce size</span>
         <span class="k">for</span> <span class="n">state_result</span> <span class="ow">in</span> <span class="n">state_results</span><span class="p">:</span>
-            <span class="n">state_result</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;eigvecs&quot;</span><span class="p">)</span>
+            <span class="n">state_result</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"eigvecs"</span><span class="p">)</span>
 
         <span class="n">analysis_results</span> <span class="o">=</span> <span class="n">state_results</span> <span class="o">+</span> <span class="n">other_results</span>
 
@@ -795,10 +795,10 @@
         <span class="n">shot_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">measurement_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">preparation_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-        <span class="n">qpt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="n">qpt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
         <span class="o">**</span><span class="n">fitter_kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit state results from tomography data,&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Fit state results from tomography data,"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">fits</span><span class="p">,</span> <span class="n">fitter_metadata</span> <span class="o">=</span> <span class="n">fitter</span><span class="p">(</span>
                 <span class="n">outcome_data</span><span class="p">,</span>
@@ -808,20 +808,20 @@
                 <span class="o">**</span><span class="n">fitter_kwargs</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="n">AnalysisError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tomography fitter failed with error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
+            <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Tomography fitter failed with error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
 
         <span class="c1"># Post process fit</span>
         <span class="n">states</span><span class="p">,</span> <span class="n">states_metadata</span> <span class="o">=</span> <span class="n">postprocess_fitter</span><span class="p">(</span>
             <span class="n">fits</span><span class="p">,</span>
             <span class="n">fitter_metadata</span><span class="p">,</span>
             <span class="n">make_positive</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">rescale_positive</span><span class="p">,</span>
-            <span class="n">trace</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">rescale_trace</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">trace</span><span class="o">=</span><span class="s2">"auto"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">rescale_trace</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">qpt</span><span class="o">=</span><span class="n">qpt</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Convert to results</span>
         <span class="n">state_results</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">AnalysisResultData</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">)</span>
+            <span class="n">AnalysisResultData</span><span class="p">(</span><span class="s2">"state"</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">state</span><span class="p">,</span> <span class="n">extra</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">states_metadata</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">state_results</span>
@@ -837,13 +837,13 @@
         <span class="n">qpt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">fitter_kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate fidelity result if a target has been set&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Calculate fidelity result if a target has been set"""</span>
         <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">target</span>
         <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
 
         <span class="c1"># Compute fidelity</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;process_fidelity&quot;</span> <span class="k">if</span> <span class="n">qpt</span> <span class="k">else</span> <span class="s2">&quot;state_fidelity&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"process_fidelity"</span> <span class="k">if</span> <span class="n">qpt</span> <span class="k">else</span> <span class="s2">"state_fidelity"</span>
         <span class="n">fidelity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_fidelity</span><span class="p">(</span><span class="n">state_result</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">qpt</span><span class="o">=</span><span class="n">qpt</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">target_bootstrap_samples</span><span class="p">:</span>
@@ -860,7 +860,7 @@
         <span class="n">bs_fidelities</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">target_bootstrap_samples</span><span class="p">):</span>
             <span class="c1"># TODO: remove conditional once numpy is pinned at 1.22 and above</span>
-            <span class="k">if</span> <span class="n">version_is_at_least</span><span class="p">(</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="s2">&quot;1.22&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">version_is_at_least</span><span class="p">(</span><span class="s2">"numpy"</span><span class="p">,</span> <span class="s2">"1.22"</span><span class="p">):</span>
                 <span class="n">sampled_data</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">shot_data</span><span class="p">,</span> <span class="n">prob_data</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">sampled_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">outcome_data</span><span class="p">)</span>
@@ -887,7 +887,7 @@
             <span class="n">AnalysisResultData</span><span class="p">(</span>
                 <span class="n">name</span><span class="p">,</span>
                 <span class="n">ufloat</span><span class="p">(</span><span class="n">fidelity</span><span class="p">,</span> <span class="n">bs_stderr</span><span class="p">),</span>
-                <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;bootstrap_samples&quot;</span><span class="p">:</span> <span class="n">bs_fidelities</span><span class="p">},</span>
+                <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"bootstrap_samples"</span><span class="p">:</span> <span class="n">bs_fidelities</span><span class="p">},</span>
             <span class="p">)</span>
         <span class="p">]</span>
 
@@ -895,14 +895,14 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_positivity_result</span><span class="p">(</span>
         <span class="n">state_results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span> <span class="n">qpt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if eigenvalues are positive&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check if eigenvalues are positive"""</span>
         <span class="n">total_cond</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">comps_cond</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
         <span class="n">comps_pos</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;completely_positive&quot;</span> <span class="k">if</span> <span class="n">qpt</span> <span class="k">else</span> <span class="s2">&quot;positive&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"completely_positive"</span> <span class="k">if</span> <span class="n">qpt</span> <span class="k">else</span> <span class="s2">"positive"</span>
         <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">state_results</span><span class="p">:</span>
-            <span class="n">cond_idx</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditional_measurement_index&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">evals</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;eigvals&quot;</span><span class="p">]</span>
+            <span class="n">cond_idx</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"conditional_measurement_index"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">evals</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"eigvals"</span><span class="p">]</span>
 
             <span class="c1"># Check if component is positive and add to extra if so</span>
             <span class="n">cond</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">evals</span><span class="p">[</span><span class="n">evals</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]))</span>
@@ -912,7 +912,7 @@
             <span class="c1"># Add component to combined result</span>
             <span class="n">comps_cond</span><span class="p">[</span><span class="n">cond_idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
             <span class="n">comps_pos</span><span class="p">[</span><span class="n">cond_idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
-            <span class="n">total_cond</span><span class="p">[</span><span class="n">cond_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cond</span> <span class="o">*</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;conditional_probability&quot;</span><span class="p">]</span>
+            <span class="n">total_cond</span><span class="p">[</span><span class="n">cond_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cond</span> <span class="o">*</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"conditional_probability"</span><span class="p">]</span>
 
         <span class="c1"># Check if combined conditional state is positive</span>
         <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
@@ -921,12 +921,12 @@
             <span class="n">result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">is_pos</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">is_pos</span><span class="p">:</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">extra</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;delta&quot;</span><span class="p">:</span> <span class="n">delta</span><span class="p">,</span>
-                    <span class="s2">&quot;components&quot;</span><span class="p">:</span> <span class="n">comps_pos</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
-                    <span class="s2">&quot;components_delta&quot;</span><span class="p">:</span> <span class="n">comps_cond</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                    <span class="s2">"delta"</span><span class="p">:</span> <span class="n">delta</span><span class="p">,</span>
+                    <span class="s2">"components"</span><span class="p">:</span> <span class="n">comps_pos</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                    <span class="s2">"components_delta"</span><span class="p">:</span> <span class="n">comps_cond</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
                 <span class="p">}</span>
             <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
-                <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;conditional_measurement_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"conditional_measurement_index"</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span>
 
@@ -935,21 +935,21 @@
         <span class="n">state_results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span>
         <span class="n">output_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if QPT channel is trace preserving&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check if QPT channel is trace preserving"""</span>
         <span class="c1"># Construct the Kraus TP condition matrix sum_i K_i^dag K_i</span>
         <span class="c1"># summed over all components k</span>
         <span class="n">kraus_cond</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">state_results</span><span class="p">:</span>
-            <span class="n">evals</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;eigvals&quot;</span><span class="p">]</span>
-            <span class="n">evecs</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;eigvecs&quot;</span><span class="p">]</span>
-            <span class="n">prob</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;conditional_probability&quot;</span><span class="p">]</span>
-            <span class="n">cond_meas_idx</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditional_measurement_index&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">cond_prep_idx</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditional_preparation_index&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">evals</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"eigvals"</span><span class="p">]</span>
+            <span class="n">evecs</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"eigvecs"</span><span class="p">]</span>
+            <span class="n">prob</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"conditional_probability"</span><span class="p">]</span>
+            <span class="n">cond_meas_idx</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"conditional_measurement_index"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">cond_prep_idx</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"conditional_preparation_index"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="n">cond_idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">cond_prep_idx</span><span class="p">,</span> <span class="n">cond_meas_idx</span><span class="p">)</span>
             <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">evals</span><span class="p">)</span>
             <span class="n">input_dim</span> <span class="o">=</span> <span class="n">size</span> <span class="o">//</span> <span class="n">output_dim</span>
-            <span class="n">mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">evecs</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">input_dim</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">)</span>
-            <span class="n">comp_cond</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;i,iaj,ibj-&gt;ab&quot;</span><span class="p">,</span> <span class="n">evals</span><span class="p">,</span> <span class="n">mats</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">mats</span><span class="p">)</span>
+            <span class="n">mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">evecs</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">input_dim</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span><span class="p">)</span>
+            <span class="n">comp_cond</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"i,iaj,ibj-&gt;ab"</span><span class="p">,</span> <span class="n">evals</span><span class="p">,</span> <span class="n">mats</span><span class="o">.</span><span class="n">conj</span><span class="p">(),</span> <span class="n">mats</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">cond_idx</span> <span class="ow">in</span> <span class="n">kraus_cond</span><span class="p">:</span>
                 <span class="n">kraus_cond</span><span class="p">[</span><span class="n">cond_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">prob</span> <span class="o">*</span> <span class="n">comp_cond</span>
             <span class="k">else</span><span class="p">:</span>
@@ -959,11 +959,11 @@
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kraus_cond</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">tp_cond</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="n">val</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">input_dim</span><span class="p">))))</span>
             <span class="n">is_tp</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">tp_cond</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">))</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span><span class="s2">&quot;trace_preserving&quot;</span><span class="p">,</span> <span class="n">is_tp</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{})</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span><span class="s2">"trace_preserving"</span><span class="p">,</span> <span class="n">is_tp</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{})</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">is_tp</span><span class="p">:</span>
-                <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;delta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tp_cond</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"delta"</span><span class="p">]</span> <span class="o">=</span> <span class="n">tp_cond</span>
             <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
-                <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;conditional_measurement_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"conditional_measurement_index"</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span>
 
@@ -973,21 +973,21 @@
         <span class="n">target</span><span class="p">:</span> <span class="n">Choi</span> <span class="o">|</span> <span class="n">DensityMatrix</span><span class="p">,</span>
         <span class="n">qpt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnalysisResultData</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Faster computation of fidelity from eigen decomposition&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Faster computation of fidelity from eigen decomposition"""</span>
         <span class="k">if</span> <span class="n">qpt</span><span class="p">:</span>
             <span class="n">input_dim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">state_result</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">input_dims</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">input_dim</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">evals</span> <span class="o">=</span> <span class="n">state_result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;eigvals&quot;</span><span class="p">]</span>
-        <span class="n">evecs</span> <span class="o">=</span> <span class="n">state_result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;eigvecs&quot;</span><span class="p">]</span>
+        <span class="n">evals</span> <span class="o">=</span> <span class="n">state_result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"eigvals"</span><span class="p">]</span>
+        <span class="n">evecs</span> <span class="o">=</span> <span class="n">state_result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"eigvecs"</span><span class="p">]</span>
 
         <span class="c1"># Format target to statevector or densitymatrix array</span>
         <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">&quot;No target state provided&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">"No target state provided"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">QuantumChannel</span><span class="p">):</span>
             <span class="n">target_state</span> <span class="o">=</span> <span class="n">Choi</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">data</span> <span class="o">/</span> <span class="n">input_dim</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">BaseOperator</span><span class="p">):</span>
-            <span class="n">target_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">Operator</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">input_dim</span><span class="p">)</span>
+            <span class="n">target_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">Operator</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">input_dim</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Statevector or density matrix</span>
             <span class="n">target_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
@@ -1019,7 +1019,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1034,7 +1034,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

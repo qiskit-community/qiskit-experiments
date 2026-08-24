@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Use Experiments with Sampler" href="runtime_sessions.html"><link rel="prev" title="Control the splitting of experiment circuits into jobs" href="job_splitting.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Rerun analysis for an existing experiment - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>Rerun analysis for an existing experiment - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -578,9 +578,9 @@ job IDs:</p>
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">Experiment</span><span class="p">(</span><span class="o">**</span><span class="n">opts</span><span class="p">)</span>
 
 <span class="c1"># List of job IDs for the experiment</span>
-<span class="n">job_ids</span><span class="o">=</span> <span class="p">[</span><span class="s2">&quot;job1_id&quot;</span><span class="p">,</span> <span class="s2">&quot;job2_id&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="n">job_ids</span><span class="o">=</span> <span class="p">[</span><span class="s2">"job1_id"</span><span class="p">,</span> <span class="s2">"job2_id"</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 
-<span class="n">service</span> <span class="o">=</span> <span class="n">QiskitRuntimeService</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">&quot;ibm_quantum&quot;</span><span class="p">)</span>
+<span class="n">service</span> <span class="o">=</span> <span class="n">QiskitRuntimeService</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">"ibm_quantum"</span><span class="p">)</span>
 
 <span class="n">expdata</span> <span class="o">=</span> <span class="n">ExperimentData</span><span class="p">(</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">experiment</span><span class="p">)</span>
 <span class="n">expdata</span><span class="o">.</span><span class="n">add_jobs</span><span class="p">([</span><span class="n">service</span><span class="o">.</span><span class="n">job</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">job_id</span> <span class="ow">in</span> <span class="n">job_ids</span><span class="p">])</span>
@@ -629,7 +629,7 @@ the downloaded directory into <a class="reference external" href="https://quantu
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">Result</span>
 
-<span class="n">result_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*-result.txt&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+<span class="n">result_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*-result.txt"</span><span class="p">))</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">Result</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -670,11 +670,11 @@ first component experiment.</p>
     <span class="n">StandardRB</span><span class="p">((</span><span class="n">i</span><span class="p">,),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)])</span>
 
 <span class="n">pexp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">component_analysis</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gate_error_ratio</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;sx&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;rz&quot;</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="s2">"x"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">"sx"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"rz"</span><span class="p">:</span> <span class="mi">0</span>
 <span class="p">}</span>
 <span class="n">pexp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">component_analysis</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
     <span class="p">{</span>
-        <span class="s2">&quot;rb_decay&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;r&quot;</span><span class="p">}</span>
+        <span class="s2">"rb_decay"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="s2">"r"</span><span class="p">}</span>
     <span class="p">}</span>
 <span class="p">)</span>
 
@@ -732,7 +732,7 @@ first component experiment.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -772,7 +772,7 @@ first component experiment.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../_static/documentation_options.js?v=78f35329"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

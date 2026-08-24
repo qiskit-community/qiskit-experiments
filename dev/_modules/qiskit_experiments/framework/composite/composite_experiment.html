@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.framework.composite.composite_experiment - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.framework.composite.composite_experiment - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Composite Experiment abstract base class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
@@ -571,7 +571,7 @@
 <div class="viewcode-block" id="CompositeExperiment">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CompositeExperiment</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Composite Experiment base class&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Composite Experiment base class"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -582,7 +582,7 @@
         <span class="n">flatten_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">analysis</span><span class="p">:</span> <span class="n">CompositeAnalysis</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the composite experiment object.</span>
+<span class="w">        </span><span class="sd">"""Initialize the composite experiment object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiments: a list of experiment objects.</span>
@@ -602,7 +602,7 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If the provided analysis class is not a CompositeAnalysis</span>
 <span class="sd">                         instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_experiments</span> <span class="o">=</span> <span class="n">experiments</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_experiments</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">analysis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -634,19 +634,19 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">num_experiments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of sub experiments&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of sub experiments"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_experiments</span>
 
 <div class="viewcode-block" id="CompositeExperiment.component_experiment">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment.component_experiment">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">component_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseExperiment</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseExperiment</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the component Experiment object.</span>
+<span class="w">        </span><span class="sd">"""Return the component Experiment object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            index (int): Experiment index, or ``None`` if all experiments are to be returned.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            BaseExperiment: The component experiment(s).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiments</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiments</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
@@ -654,20 +654,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompositeAnalysis</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the analysis instance for the experiment&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the analysis instance for the experiment"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis</span>
 
     <span class="nd">@analysis</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">analysis</span><span class="p">:</span> <span class="n">CompositeAnalysis</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the analysis instance for the experiment&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set the analysis instance for the experiment"""</span>
         <span class="k">if</span> <span class="n">analysis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">analysis</span><span class="p">,</span> <span class="n">CompositeAnalysis</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input is not a None or a CompositeAnalysis subclass.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"Input is not a None or a CompositeAnalysis subclass."</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_analysis</span> <span class="o">=</span> <span class="n">analysis</span>
 
 <div class="viewcode-block" id="CompositeExperiment.copy">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.framework.CompositeExperiment.html#qiskit_experiments.framework.CompositeExperiment.copy">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BaseExperiment&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a copy of the experiment&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"BaseExperiment"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a copy of the experiment"""</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="c1"># Recursively call copy of component experiments</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">_experiments</span> <span class="o">=</span> <span class="p">[</span><span class="n">exp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiments</span><span class="p">]</span>
@@ -721,9 +721,9 @@
 
             <span class="k">if</span> <span class="n">overridden_keys</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Component </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">subexp</span><span class="o">.</span><span class="n">experiment_type</span><span class="si">}</span><span class="s2"> experiment run options&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">overridden_keys</span><span class="si">}</span><span class="s2"> values </span><span class="si">{</span><span class="n">sub_vals</span><span class="si">}</span><span class="s2"> will be overridden with&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_type</span><span class="si">}</span><span class="s2"> values </span><span class="si">{</span><span class="n">comp_vals</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"Component </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">subexp</span><span class="o">.</span><span class="n">experiment_type</span><span class="si">}</span><span class="s2"> experiment run options"</span>
+                    <span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">overridden_keys</span><span class="si">}</span><span class="s2"> values </span><span class="si">{</span><span class="n">sub_vals</span><span class="si">}</span><span class="s2"> will be overridden with"</span>
+                    <span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_type</span><span class="si">}</span><span class="s2"> values </span><span class="si">{</span><span class="n">comp_vals</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
                     <span class="ne">UserWarning</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="c1"># Update sub-experiment options with actual run option values so</span>
@@ -731,23 +731,23 @@
                 <span class="n">subexp</span><span class="o">.</span><span class="n">set_run_options</span><span class="p">(</span><span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">overridden_keys</span><span class="p">,</span> <span class="n">comp_vals</span><span class="p">)))</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s2">&quot;separate_jobs&quot;</span><span class="p">,</span> <span class="kc">False</span>
-            <span class="p">)</span> <span class="ow">and</span> <span class="n">subexp</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;separate_jobs&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="s2">"separate_jobs"</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="p">)</span> <span class="ow">and</span> <span class="n">subexp</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"separate_jobs"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                    <span class="s2">&quot;It is not allowed to request to separate jobs in a child experiment,&quot;</span>
-                    <span class="s2">&quot; if its parent does not separate jobs as well&quot;</span>
+                    <span class="s2">"It is not allowed to request to separate jobs in a child experiment,"</span>
+                    <span class="s2">" if its parent does not separate jobs as well"</span>
                 <span class="p">)</span>
 
             <span class="c1"># Call sub-experiments finalize method</span>
             <span class="n">subexp</span><span class="o">.</span><span class="n">_finalize</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add component experiment metadata&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Add component experiment metadata"""</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;component_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"component_types"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">sub_exp</span><span class="o">.</span><span class="n">experiment_type</span> <span class="k">for</span> <span class="n">sub_exp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">()</span>
         <span class="p">]</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;component_metadata&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"component_metadata"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">sub_exp</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span> <span class="k">for</span> <span class="n">sub_exp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">()</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">metadata</span></div>
@@ -770,7 +770,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -785,7 +785,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

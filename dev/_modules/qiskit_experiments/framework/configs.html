@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.framework.configs - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.framework.configs - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Experiment and analysis config dataclasses.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
@@ -575,13 +575,13 @@
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentConfig.html#qiskit_experiments.framework.ExperimentConfig">[docs]</a>
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExperimentConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Store configuration settings for an Experiment class.</span>
+<span class="w">    </span><span class="sd">"""Store configuration settings for an Experiment class.</span>
 
 <span class="sd">    This stores the current configuration of a :class:`.BaseExperiment` and can be used to</span>
 <span class="sd">    reconstruct the experiment using either the :meth:`experiment` property if the experiment class</span>
 <span class="sd">    type is currently stored, or the :meth:`~.BaseExperiment.from_config` class method of the</span>
 <span class="sd">    appropriate experiment.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
@@ -601,7 +601,7 @@
 <div class="viewcode-block" id="ExperimentConfig.experiment">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentConfig.html#qiskit_experiments.framework.ExperimentConfig.experiment">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the experiment constructed from this config.</span>
+<span class="w">        </span><span class="sd">"""Return the experiment constructed from this config.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            BaseExperiment: The experiment reconstructed from the config.</span>
@@ -610,26 +610,26 @@
 <span class="sd">            QiskitError: If the experiment class is not stored,</span>
 <span class="sd">                         was not successful deserialized, or reconstruction</span>
 <span class="sd">                         of the experiment fails.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span>
         <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;No experiment class in experiment config&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"No experiment class in experiment config"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                <span class="s2">&quot;Unable to load experiment class. Try manually loading &quot;</span>
-                <span class="s2">&quot;experiment using `Experiment.from_config(config)` instead.&quot;</span>
+                <span class="s2">"Unable to load experiment class. Try manually loading "</span>
+                <span class="s2">"experiment using `Experiment.from_config(config)` instead."</span>
             <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Unable to construct experiments from config.&quot;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">"Unable to construct experiments from config."</span>
             <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="n">__version__</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot; Note that config version (</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">) differs from the current&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; qiskit-experiments version (</span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">). You could try&quot;</span>
-                    <span class="s2">&quot; installing a compatible qiskit-experiments version.&quot;</span>
+                    <span class="sa">f</span><span class="s2">" Note that config version (</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">) differs from the current"</span>
+                    <span class="sa">f</span><span class="s2">" qiskit-experiments version (</span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">). You could try"</span>
+                    <span class="s2">" installing a compatible qiskit-experiments version."</span>
                 <span class="p">)</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="se">\n</span><span class="s2">Error Message:</span><span class="se">\n</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span></div>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="se">\n</span><span class="s2">Error Message:</span><span class="se">\n</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span></div>
 </div>
 
 
@@ -638,13 +638,13 @@
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisConfig.html#qiskit_experiments.framework.AnalysisConfig">[docs]</a>
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">AnalysisConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Store configuration settings for an Analysis class.</span>
+<span class="w">    </span><span class="sd">"""Store configuration settings for an Analysis class.</span>
 
 <span class="sd">    This stores the current configuration of a :class:`.BaseAnalysis` and can be used to reconstruct</span>
 <span class="sd">    the analysis class using either the :meth:`analysis` property if the analysis class type is</span>
 <span class="sd">    currently stored, or the :meth:`~.BaseAnalysis.from_config` class method of the appropriate</span>
 <span class="sd">    experiment.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
@@ -662,7 +662,7 @@
 <div class="viewcode-block" id="AnalysisConfig.analysis">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisConfig.html#qiskit_experiments.framework.AnalysisConfig.analysis">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the analysis class constructed from this config.</span>
+<span class="w">        </span><span class="sd">"""Return the analysis class constructed from this config.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            BaseAnalysis: The analysis reconstructed from the config.</span>
@@ -671,26 +671,26 @@
 <span class="sd">            QiskitError: If the analysis class is not stored,</span>
 <span class="sd">                         was not successful deserialized, or reconstruction</span>
 <span class="sd">                         of the analysis class fails.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span>
         <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;No analysis class in analysis config&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"No analysis class in analysis config"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                <span class="s2">&quot;Unable to load analysis class. Try manually loading &quot;</span>
-                <span class="s2">&quot;analysis using `Analysis.from_config(config)` instead.&quot;</span>
+                <span class="s2">"Unable to load analysis class. Try manually loading "</span>
+                <span class="s2">"analysis using `Analysis.from_config(config)` instead."</span>
             <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Unable to construct analysis from config.&quot;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">"Unable to construct analysis from config."</span>
             <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="n">__version__</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot; Note that config version (</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">) differs from the current&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; qiskit-experiments version (</span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">). You could try&quot;</span>
-                    <span class="s2">&quot; installing a compatible qiskit-experiments version.&quot;</span>
+                    <span class="sa">f</span><span class="s2">" Note that config version (</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">) differs from the current"</span>
+                    <span class="sa">f</span><span class="s2">" qiskit-experiments version (</span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">). You could try"</span>
+                    <span class="s2">" installing a compatible qiskit-experiments version."</span>
                 <span class="p">)</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="se">\n</span><span class="s2">Error Message:</span><span class="se">\n</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span></div>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="se">\n</span><span class="s2">Error Message:</span><span class="se">\n</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span></div>
 </div>
 
 </pre></div>
@@ -711,7 +711,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -726,7 +726,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

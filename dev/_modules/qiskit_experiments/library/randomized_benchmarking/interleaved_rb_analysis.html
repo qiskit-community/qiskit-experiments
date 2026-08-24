@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.interleaved_rb_analysis - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.interleaved_rb_analysis - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Interleaved RB analysis class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -569,7 +569,7 @@
 <div class="viewcode-block" id="InterleavedRBAnalysis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRBAnalysis.html#qiskit_experiments.library.randomized_benchmarking.InterleavedRBAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InterleavedRBAnalysis</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">CurveAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A class to analyze interleaved randomized benchmarking experiment.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A class to analyze interleaved randomized benchmarking experiment.</span>
 
 <span class="sd">    # section: overview</span>
 <span class="sd">        This analysis takes only two series for standard and interleaved RB curve fitting.</span>
@@ -635,18 +635,18 @@
 <span class="sd">    # section: reference</span>
 <span class="sd">        .. ref_arxiv:: 1 1203.4550</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">models</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
-                    <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;a * alpha ** x + b&quot;</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;standard&quot;</span><span class="p">,</span>
+                    <span class="n">expr</span><span class="o">=</span><span class="s2">"a * alpha ** x + b"</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"standard"</span><span class="p">,</span>
                 <span class="p">),</span>
                 <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
-                    <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;a * (alpha_c * alpha) ** x + b&quot;</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;interleaved&quot;</span><span class="p">,</span>
+                    <span class="n">expr</span><span class="o">=</span><span class="s2">"a * (alpha_c * alpha) ** x + b"</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"interleaved"</span><span class="p">,</span>
                 <span class="p">),</span>
             <span class="p">]</span>
         <span class="p">)</span>
@@ -654,14 +654,14 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default analysis options.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default analysis options."""</span>
         <span class="n">default_options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">default_options</span><span class="o">.</span><span class="n">data_subfit_map</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;standard&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;interleaved&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
-            <span class="s2">&quot;interleaved&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;interleaved&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+            <span class="s2">"standard"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"interleaved"</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+            <span class="s2">"interleaved"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"interleaved"</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
         <span class="p">}</span>
-        <span class="n">default_options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">,</span> <span class="s2">&quot;alpha_c&quot;</span><span class="p">]</span>
-        <span class="n">default_options</span><span class="o">.</span><span class="n">average_method</span> <span class="o">=</span> <span class="s2">&quot;sample&quot;</span>
+        <span class="n">default_options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"alpha"</span><span class="p">,</span> <span class="s2">"alpha_c"</span><span class="p">]</span>
+        <span class="n">default_options</span><span class="o">.</span><span class="n">average_method</span> <span class="o">=</span> <span class="s2">"sample"</span>
         <span class="k">return</span> <span class="n">default_options</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_generate_fit_guesses</span><span class="p">(</span>
@@ -669,7 +669,7 @@
         <span class="n">user_opt</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">ScatterTable</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create algorithmic initial fit guess from analysis options and curve data.</span>
+<span class="w">        </span><span class="sd">"""Create algorithmic initial fit guess from analysis options and curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            user_opt: Fit options filled with user provided guess and bounds.</span>
@@ -677,7 +677,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of fit options that are passed to the fitter function.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">user_opt</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span>
             <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
             <span class="n">alpha</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
@@ -688,10 +688,10 @@
         <span class="n">b_guess</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_qubits</span>
 
         <span class="c1"># for standard RB curve</span>
-        <span class="n">std_curve</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;standard&quot;</span><span class="p">)</span>
+        <span class="n">std_curve</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">"standard"</span><span class="p">)</span>
         <span class="n">alpha_std</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">rb_decay</span><span class="p">(</span><span class="n">std_curve</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">std_curve</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b_guess</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">alpha_std</span> <span class="o">&lt;</span> <span class="mf">0.6</span><span class="p">:</span>
-            <span class="c1"># Don&#39;t account for decay in estimating a if decay appears to be</span>
+            <span class="c1"># Don't account for decay in estimating a if decay appears to be</span>
             <span class="c1"># very strong</span>
             <span class="n">a_std</span> <span class="o">=</span> <span class="n">std_curve</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">b_guess</span>
         <span class="k">else</span><span class="p">:</span>
@@ -700,10 +700,10 @@
         <span class="n">a_std</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">a_std</span><span class="p">)</span>
 
         <span class="c1"># for interleaved RB curve</span>
-        <span class="n">int_curve</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;interleaved&quot;</span><span class="p">)</span>
+        <span class="n">int_curve</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">"interleaved"</span><span class="p">)</span>
         <span class="n">alpha_int</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">rb_decay</span><span class="p">(</span><span class="n">int_curve</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">int_curve</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b_guess</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">alpha_int</span> <span class="o">&lt;</span> <span class="mf">0.6</span><span class="p">:</span>
-            <span class="c1"># Don&#39;t account for decay in estimating a if decay appears to be</span>
+            <span class="c1"># Don't account for decay in estimating a if decay appears to be</span>
             <span class="c1"># very strong</span>
             <span class="n">a_int</span> <span class="o">=</span> <span class="n">int_curve</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">b_guess</span>
         <span class="k">else</span><span class="p">:</span>
@@ -728,7 +728,7 @@
         <span class="n">quality</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">**</span><span class="n">metadata</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create analysis results for important fit parameters.</span>
+<span class="w">        </span><span class="sd">"""Create analysis results for important fit parameters.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fit_data: Fit outcome.</span>
@@ -736,14 +736,14 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of analysis result data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">outcomes</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_analysis_results</span><span class="p">(</span><span class="n">fit_data</span><span class="p">,</span> <span class="n">quality</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span>
 
         <span class="n">nrb</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_qubits</span>
         <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="n">nrb</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">nrb</span>
 
-        <span class="n">alpha</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span>
-        <span class="n">alpha_c</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;alpha_c&quot;</span><span class="p">]</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"alpha"</span><span class="p">]</span>
+        <span class="n">alpha_c</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"alpha_c"</span><span class="p">]</span>
 
         <span class="c1"># Calculate epc_est (=r_c^est) - Eq. (4):</span>
         <span class="n">epc</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha_c</span><span class="p">)</span>
@@ -761,13 +761,13 @@
 
         <span class="n">outcomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">AnalysisResultData</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;EPC&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"EPC"</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">epc</span><span class="p">,</span>
                 <span class="n">chisq</span><span class="o">=</span><span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span><span class="p">,</span>
                 <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
                 <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;EPC_systematic_err&quot;</span><span class="p">:</span> <span class="n">systematic_err</span><span class="p">,</span>
-                    <span class="s2">&quot;EPC_systematic_bounds&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">systematic_err_l</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">systematic_err_r</span><span class="p">],</span>
+                    <span class="s2">"EPC_systematic_err"</span><span class="p">:</span> <span class="n">systematic_err</span><span class="p">,</span>
+                    <span class="s2">"EPC_systematic_bounds"</span><span class="p">:</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">systematic_err_l</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">systematic_err_r</span><span class="p">],</span>
                     <span class="o">**</span><span class="n">metadata</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">)</span>
@@ -779,17 +779,17 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize curve analysis with experiment data.</span>
+<span class="w">        </span><span class="sd">"""Initialize curve analysis with experiment data.</span>
 
 <span class="sd">        This method is called ahead of other processing.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_data: Experiment data to analyze.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">)</span>
 
         <span class="c1"># Get qubit number</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_num_qubits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;physical_qubits&quot;</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_qubits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">"physical_qubits"</span><span class="p">])</span></div>
 
 </pre></div>
         </article>
@@ -809,7 +809,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -824,7 +824,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.curve_analysis.curve_data - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.curve_analysis.curve_data - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,9 +556,9 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Curve data classes.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
@@ -580,7 +580,7 @@
 <div class="viewcode-block" id="CurveFitResult">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.CurveFitResult.html#qiskit_experiments.curve_analysis.CurveFitResult">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CurveFitResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Result of Qiskit Experiment curve analysis.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Result of Qiskit Experiment curve analysis."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -588,7 +588,7 @@
         <span class="n">model_repr</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">success</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">nfev</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
         <span class="n">dof</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">init_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">chisq</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -603,7 +603,7 @@
         <span class="n">residuals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">covar</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new Qiskit curve analysis result object.</span>
+<span class="w">        </span><span class="sd">"""Create new Qiskit curve analysis result object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            method: A name of fitting algorithm used for the curve fitting.</span>
@@ -615,7 +615,7 @@
 <span class="sd">            init_params: Initial parameters provided to the fitter.</span>
 <span class="sd">            chisq: Chi-squared value.</span>
 <span class="sd">            reduced_chisq: Reduced Chi-squared value.</span>
-<span class="sd">            aic: Akaike&#39;s information criterion.</span>
+<span class="sd">            aic: Akaike's information criterion.</span>
 <span class="sd">            bic: Bayesian information criterion.</span>
 <span class="sd">            params: Estimated fitting parameters keyed on the parameter names in the fit function.</span>
 <span class="sd">            var_names: Name of variables, i.e. fixed parameters are excluded from the list.</span>
@@ -624,7 +624,7 @@
 <span class="sd">            weighted_residuals: The residuals from the fitting after assigning weights for each ydata.</span>
 <span class="sd">            residuals: residuals of the fitted model.</span>
 <span class="sd">            covar: Covariance matrix of fitting variables.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_repr</span> <span class="o">=</span> <span class="n">model_repr</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">success</span> <span class="o">=</span> <span class="n">success</span>
@@ -646,20 +646,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">x_range</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Range of x_data values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Range of x_data values."""</span>
         <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_data</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_data</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">y_range</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Range of y_data values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Range of y_data values."""</span>
         <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_data</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_data</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">ufloat_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">uncertainties</span><span class="o">.</span><span class="n">UFloat</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;UFloat representation of fit parameters.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_ufloat_params&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""UFloat representation of fit parameters."""</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_ufloat_params"</span><span class="p">):</span>
             <span class="c1"># Return cache</span>
-            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_ufloat_params&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_ufloat_params"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ufloat_params</span> <span class="o">=</span> <span class="kc">None</span>
@@ -672,7 +672,7 @@
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Invalid covariance matrix. Std dev is set to nan, i.e. not computed.</span>
-                <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
                     <span class="c1"># Setting std_devs to NaN will trigger floating point exceptions</span>
                     <span class="c1"># which we can ignore. See https://stackoverflow.com/q/75656026</span>
                     <span class="n">ufloat_fitvals</span> <span class="o">=</span> <span class="n">uarray</span><span class="p">(</span>
@@ -701,20 +701,20 @@
                         <span class="c1"># qiskit_experiments and the uncertainties part can be</span>
                         <span class="c1"># removed from the module expression.</span>
                         <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
-                            <span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
-                            <span class="n">module</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;(qiskit_experiments|uncertainties)\.&quot;</span><span class="p">,</span>
+                            <span class="s2">"ignore"</span><span class="p">,</span>
+                            <span class="n">module</span><span class="o">=</span><span class="sa">r</span><span class="s2">"(qiskit_experiments|uncertainties)\."</span><span class="p">,</span>
                         <span class="p">)</span>
                         <span class="n">ufloat_params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">uncertainties</span><span class="o">.</span><span class="n">ufloat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">std_dev</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
 
-        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_ufloat_params&quot;</span><span class="p">,</span> <span class="n">ufloat_params</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_ufloat_params"</span><span class="p">,</span> <span class="n">ufloat_params</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ufloat_params</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">correl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Correlation matrix of fit parameters.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_correl&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Correlation matrix of fit parameters."""</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_correl"</span><span class="p">):</span>
             <span class="c1"># Return cache</span>
-            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_correl&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_correl"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">covar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># This is how uncertainties computes correlation matrix</span>
@@ -723,42 +723,42 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">correl</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_correl&quot;</span><span class="p">,</span> <span class="n">correl</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_correl"</span><span class="p">,</span> <span class="n">correl</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">correl</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;CurveFitResult:&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - fitting method: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - number of sub-models: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_repr</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">"CurveFitResult:"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> - fitting method: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> - number of sub-models: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_repr</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">model_expr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_repr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_expr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">60</span><span class="p">:</span>
-                <span class="n">model_expr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_expr</span><span class="p">[:</span><span class="mi">60</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  * F_</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">(x) = </span><span class="si">{</span><span class="n">model_expr</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - success: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">success</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - number of function evals: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nfev</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - degree of freedom: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dof</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - chi-square: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - reduced chi-square: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reduced_chisq</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - Akaike info crit.: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aic</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - Bayesian info crit.: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bic</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">model_expr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">model_expr</span><span class="p">[:</span><span class="mi">60</span><span class="p">]</span><span class="si">}</span><span class="s2">..."</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">  * F_</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">(x) = </span><span class="si">{</span><span class="n">model_expr</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> - success: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">success</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> - number of function evals: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nfev</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> - degree of freedom: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dof</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> - chi-square: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> - reduced chi-square: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reduced_chisq</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> - Akaike info crit.: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aic</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> - Bayesian info crit.: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bic</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - init params:&quot;</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2"> - init params:"</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  * </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">  * </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ufloat_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - fit params:&quot;</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2"> - fit params:"</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ufloat_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">std_dev</span><span class="p">):</span>
-                    <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  * </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">nominal_value</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">std_dev</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">  * </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">nominal_value</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">std_dev</span><span class="si">}</span><span class="s2">"</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  * </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">nominal_value</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">  * </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">nominal_value</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">correl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - correlations:&quot;</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2"> - correlations:"</span>
             <span class="n">correlated</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">pi</span><span class="p">,</span> <span class="n">pj</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_names</span><span class="p">)),</span> <span class="mi">2</span><span class="p">):</span>
                 <span class="n">correlated</span><span class="p">[(</span><span class="n">pi</span><span class="p">,</span> <span class="n">pj</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">correl</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">pj</span><span class="p">]</span>
             <span class="k">for</span> <span class="p">(</span><span class="n">pi</span><span class="p">,</span> <span class="n">pj</span><span class="p">),</span> <span class="n">corr</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">correlated</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-                <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  * (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="n">pi</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="n">pj</span><span class="p">]</span><span class="si">}</span><span class="s2">) = </span><span class="si">{</span><span class="n">corr</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">  * (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="n">pi</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="n">pj</span><span class="p">]</span><span class="si">}</span><span class="s2">) = </span><span class="si">{</span><span class="n">corr</span><span class="si">}</span><span class="s2">"</span>
 
         <span class="k">return</span> <span class="n">ret</span>
 
@@ -777,22 +777,22 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
-            <span class="s2">&quot;model_repr&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_repr</span><span class="p">,</span>
-            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">success</span><span class="p">,</span>
-            <span class="s2">&quot;nfev&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nfev</span><span class="p">,</span>
-            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
-            <span class="s2">&quot;dof&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dof</span><span class="p">,</span>
-            <span class="s2">&quot;init_params&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_params</span><span class="p">,</span>
-            <span class="s2">&quot;chisq&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span>
-            <span class="s2">&quot;reduced_chisq&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_chisq</span><span class="p">,</span>
-            <span class="s2">&quot;aic&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">aic</span><span class="p">,</span>
-            <span class="s2">&quot;bic&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bic</span><span class="p">,</span>
-            <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
-            <span class="s2">&quot;var_names&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_names</span><span class="p">,</span>
-            <span class="s2">&quot;x_data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_data</span><span class="p">,</span>
-            <span class="s2">&quot;y_data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_data</span><span class="p">,</span>
-            <span class="s2">&quot;covar&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">covar</span><span class="p">,</span>
+            <span class="s2">"method"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+            <span class="s2">"model_repr"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_repr</span><span class="p">,</span>
+            <span class="s2">"success"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">success</span><span class="p">,</span>
+            <span class="s2">"nfev"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nfev</span><span class="p">,</span>
+            <span class="s2">"message"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
+            <span class="s2">"dof"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dof</span><span class="p">,</span>
+            <span class="s2">"init_params"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_params</span><span class="p">,</span>
+            <span class="s2">"chisq"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span>
+            <span class="s2">"reduced_chisq"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_chisq</span><span class="p">,</span>
+            <span class="s2">"aic"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">aic</span><span class="p">,</span>
+            <span class="s2">"bic"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bic</span><span class="p">,</span>
+            <span class="s2">"params"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
+            <span class="s2">"var_names"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_names</span><span class="p">,</span>
+            <span class="s2">"x_data"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_data</span><span class="p">,</span>
+            <span class="s2">"y_data"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_data</span><span class="p">,</span>
+            <span class="s2">"covar"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">covar</span><span class="p">,</span>
         <span class="p">}</span>
 
     <span class="nd">@classmethod</span>
@@ -805,13 +805,13 @@
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ParameterRepr.html#qiskit_experiments.curve_analysis.ParameterRepr">[docs]</a>
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ParameterRepr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detailed description of fitting parameter.</span>
+<span class="w">    </span><span class="sd">"""Detailed description of fitting parameter.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        name: Original name of the fit parameter being defined in the fit model.</span>
 <span class="sd">        repr: Optional. Human-readable parameter name shown in the analysis result and in the figure.</span>
 <span class="sd">        unit: Optional. Physical unit of this parameter if applicable.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Fitter argument name</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
@@ -832,20 +832,20 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">OptionsDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;General extended dictionary for fit options.</span>
+<span class="w">    </span><span class="sd">"""General extended dictionary for fit options.</span>
 
 <span class="sd">    This dictionary provides several extra features.</span>
 
 <span class="sd">    - A value setting method which validates the dict key and value.</span>
 <span class="sd">    - Dictionary keys are limited to those specified in the constructor as ``parameters``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">parameters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">defaults</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new dictionary.</span>
+<span class="w">        </span><span class="sd">"""Create new dictionary.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            parameters: List of parameter names used in the fit model.</span>
@@ -853,15 +853,15 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AnalysisError: When defaults is provided as array-like but the number of</span>
-<span class="sd">                element doesn&#39;t match with the number of fit parameters.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">                element doesn't match with the number of fit parameters.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">defaults</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">defaults</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Default parameter </span><span class="si">{</span><span class="n">defaults</span><span class="si">}</span><span class="s2"> is provided with array-like &quot;</span>
-                        <span class="s2">&quot;but the number of element doesn&#39;t match. &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;This fit requires </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span><span class="si">}</span><span class="s2"> parameters.&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Default parameter </span><span class="si">{</span><span class="n">defaults</span><span class="si">}</span><span class="s2"> is provided with array-like "</span>
+                        <span class="s2">"but the number of element doesn't match. "</span>
+                        <span class="sa">f</span><span class="s2">"This fit requires </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span><span class="si">}</span><span class="s2"> parameters."</span>
                     <span class="p">)</span>
                 <span class="n">defaults</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">defaults</span><span class="p">))</span>
 
@@ -872,31 +872,31 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">full_options</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set value with validations.</span>
+<span class="w">        </span><span class="sd">"""Set value with validations.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AnalysisError: When key is not previously defined.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameter </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is not defined in this fit model.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is not defined in this fit model."</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">())))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">set_if_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set value to the dictionary if not assigned.</span>
+<span class="w">        </span><span class="sd">"""Set value to the dictionary if not assigned.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">              kwargs: Key and new value to assign.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format dictionary value.</span>
+<span class="w">        </span><span class="sd">"""Format dictionary value.</span>
 
 <span class="sd">        Subclasses may override this method to provide their own validation.</span>
 
@@ -905,16 +905,16 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Formatted value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">value</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">InitialGuesses</span><span class="p">(</span><span class="n">OptionsDict</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dictionary providing a float validation for initial guesses.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Dictionary providing a float validation for initial guesses."""</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate that value is float a float or None.</span>
+<span class="w">        </span><span class="sd">"""Validate that value is float a float or None.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            value: New value to assign.</span>
@@ -924,22 +924,22 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AnalysisError: When value is not a float or None.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input value </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> is not valid initial guess. &quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
+            <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Input value </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> is not valid initial guess. "</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Boundaries</span><span class="p">(</span><span class="n">OptionsDict</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dictionary providing a validation for boundaries.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Dictionary providing a validation for boundaries."""</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate if value is a min-max value tuple.</span>
+<span class="w">        </span><span class="sd">"""Validate if value is a min-max value tuple.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            value: New value to assign.</span>
@@ -949,7 +949,7 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AnalysisError: When value is invalid format.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
@@ -957,24 +957,24 @@
             <span class="n">minv</span><span class="p">,</span> <span class="n">maxv</span> <span class="o">=</span> <span class="n">value</span>
             <span class="k">if</span> <span class="n">minv</span> <span class="o">&gt;=</span> <span class="n">maxv</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;The first value is greater than the second value </span><span class="si">{</span><span class="n">minv</span><span class="si">}</span><span class="s2"> &gt;= </span><span class="si">{</span><span class="n">maxv</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"The first value is greater than the second value </span><span class="si">{</span><span class="n">minv</span><span class="si">}</span><span class="s2"> &gt;= </span><span class="si">{</span><span class="n">maxv</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">minv</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">maxv</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input boundary </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> is not a min-max value tuple.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
+            <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Input boundary </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> is not a min-max value tuple."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
 
 
 <span class="c1"># pylint: disable=invalid-name</span>
 <div class="viewcode-block" id="FitOptions">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.FitOptions.html#qiskit_experiments.curve_analysis.FitOptions">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FitOptions</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Collection of fitting options.</span>
+<span class="w">    </span><span class="sd">"""Collection of fitting options.</span>
 
 <span class="sd">    This class is initialized with a list of parameter names used in the fit model</span>
 <span class="sd">    and corresponding default values provided by users.</span>
 
 <span class="sd">    This class is hashable, and generates fitter keyword arguments.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1005,14 +1005,14 @@
 <div class="viewcode-block" id="FitOptions.add_extra_options">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.FitOptions.html#qiskit_experiments.curve_analysis.FitOptions.add_extra_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_extra_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add more fitter options.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Add more fitter options."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FitOptions.copy">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.FitOptions.html#qiskit_experiments.curve_analysis.FitOptions.copy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create copy of this option.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create copy of this option."""</span>
         <span class="k">return</span> <span class="n">FitOptions</span><span class="p">(</span>
             <span class="n">parameters</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__p0</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
             <span class="n">default_p0</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__p0</span><span class="p">),</span>
@@ -1023,24 +1023,24 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">p0</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InitialGuesses</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return initial guess dictionary.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return initial guess dictionary."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__p0</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Boundaries</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return bounds dictionary.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return bounds dictionary."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bounds</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fitter_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Boundaries</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return fitter options dictionary.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return fitter options dictionary."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__extra</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate keyword arguments of the curve fitter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Generate keyword arguments of the curve fitter."""</span>
         <span class="n">bounds</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bounds</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;p0&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__p0</span><span class="p">),</span> <span class="s2">&quot;bounds&quot;</span><span class="p">:</span> <span class="n">bounds</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__extra</span><span class="p">}</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"p0"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__p0</span><span class="p">),</span> <span class="s2">"bounds"</span><span class="p">:</span> <span class="n">bounds</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__extra</span><span class="p">}</span></div>
 
 </pre></div>
         </article>
@@ -1060,7 +1060,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1075,7 +1075,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

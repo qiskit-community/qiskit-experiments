@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.data_processing.sklearn_discriminators - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.data_processing.sklearn_discriminators - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Discriminators that wrap SKLearn.&quot;&quot;&quot;</span>
+<span class="sd">"""Discriminators that wrap SKLearn."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
@@ -573,87 +573,87 @@
 <div class="viewcode-block" id="SkLDA">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SkLDA.html#qiskit_experiments.data_processing.SkLDA">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SkLDA</span><span class="p">(</span><span class="n">BaseDiscriminator</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A wrapper for the scikit-learn linear discriminant analysis.</span>
+<span class="w">    </span><span class="sd">"""A wrapper for the scikit-learn linear discriminant analysis.</span>
 
 <span class="sd">    .. note::</span>
 <span class="sd">        This class requires that scikit-learn is installed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lda</span><span class="p">:</span> <span class="s2">&quot;LinearDiscriminantAnalysis&quot;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lda</span><span class="p">:</span> <span class="s2">"LinearDiscriminantAnalysis"</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Args:</span>
 <span class="sd">            lda: The sklearn linear discriminant analysis. This may be a trained or an</span>
 <span class="sd">                untrained discriminator.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            DataProcessorError: If SKlearn could not be imported.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lda</span> <span class="o">=</span> <span class="n">lda</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;coef_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;intercept_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;covariance_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;explained_variance_ratio_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;means_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;priors_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;scalings_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;xbar_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;classes_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;n_features_in_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;feature_names_in_&quot;</span><span class="p">,</span>
+            <span class="s2">"coef_"</span><span class="p">,</span>
+            <span class="s2">"intercept_"</span><span class="p">,</span>
+            <span class="s2">"covariance_"</span><span class="p">,</span>
+            <span class="s2">"explained_variance_ratio_"</span><span class="p">,</span>
+            <span class="s2">"means_"</span><span class="p">,</span>
+            <span class="s2">"priors_"</span><span class="p">,</span>
+            <span class="s2">"scalings_"</span><span class="p">,</span>
+            <span class="s2">"xbar_"</span><span class="p">,</span>
+            <span class="s2">"classes_"</span><span class="p">,</span>
+            <span class="s2">"n_features_in_"</span><span class="p">,</span>
+            <span class="s2">"feature_names_in_"</span><span class="p">,</span>
         <span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">discriminator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return then SKLearn object.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return then SKLearn object."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lda</span>
 
 <div class="viewcode-block" id="SkLDA.is_trained">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SkLDA.html#qiskit_experiments.data_processing.SkLDA.is_trained">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_trained</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if the discriminator has been trained on data.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lda</span><span class="p">,</span> <span class="s2">&quot;classes_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span></div>
+<span class="w">        </span><span class="sd">"""Return True if the discriminator has been trained on data."""</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lda</span><span class="p">,</span> <span class="s2">"classes_"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="SkLDA.predict">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SkLDA.html#qiskit_experiments.data_processing.SkLDA.predict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrap the predict method of the LDA.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Wrap the predict method of the LDA."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lda</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SkLDA.fit">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SkLDA.html#qiskit_experiments.data_processing.SkLDA.fit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit the LDA.</span>
+<span class="w">        </span><span class="sd">"""Fit the LDA.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: The independent data.</span>
 <span class="sd">            labels: The labels corresponding to data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lda</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SkLDA.config">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SkLDA.html#qiskit_experiments.data_processing.SkLDA.config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the configuration of the LDA.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the configuration of the LDA."""</span>
         <span class="n">attr_conf</span> <span class="o">=</span> <span class="p">{</span><span class="n">attr</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lda</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">}</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lda</span><span class="o">.</span><span class="n">get_params</span><span class="p">(),</span> <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="n">attr_conf</span><span class="p">}</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"params"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lda</span><span class="o">.</span><span class="n">get_params</span><span class="p">(),</span> <span class="s2">"attributes"</span><span class="p">:</span> <span class="n">attr_conf</span><span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="SkLDA.from_config">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SkLDA.html#qiskit_experiments.data_processing.SkLDA.from_config">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@HAS_SKLEARN</span><span class="o">.</span><span class="n">require_in_call</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;SkLDA&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deserialize from an object.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"SkLDA"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Deserialize from an object."""</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.discriminant_analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearDiscriminantAnalysis</span>
 
         <span class="n">lda</span> <span class="o">=</span> <span class="n">LinearDiscriminantAnalysis</span><span class="p">()</span>
-        <span class="n">lda</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">])</span>
+        <span class="n">lda</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s2">"params"</span><span class="p">])</span>
 
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">"attributes"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">lda</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
@@ -665,88 +665,88 @@
 <div class="viewcode-block" id="SkQDA">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SkQDA.html#qiskit_experiments.data_processing.SkQDA">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SkQDA</span><span class="p">(</span><span class="n">BaseDiscriminator</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A wrapper for the SKlearn quadratic discriminant analysis.</span>
+<span class="w">    </span><span class="sd">"""A wrapper for the SKlearn quadratic discriminant analysis.</span>
 
 <span class="sd">    .. note::</span>
 <span class="sd">        This class requires that scikit-learn is installed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qda</span><span class="p">:</span> <span class="s2">&quot;QuadraticDiscriminantAnalysis&quot;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qda</span><span class="p">:</span> <span class="s2">"QuadraticDiscriminantAnalysis"</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Args:</span>
 <span class="sd">            qda: The sklearn quadratic discriminant analysis. This may be a trained or an</span>
 <span class="sd">                untrained discriminator.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            DataProcessorError: If SKlearn could not be imported.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_qda</span> <span class="o">=</span> <span class="n">qda</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;coef_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;intercept_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;covariance_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;explained_variance_ratio_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;means_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;priors_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;scalings_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;xbar_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;classes_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;n_features_in_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;feature_names_in_&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rotations_&quot;</span><span class="p">,</span>
+            <span class="s2">"coef_"</span><span class="p">,</span>
+            <span class="s2">"intercept_"</span><span class="p">,</span>
+            <span class="s2">"covariance_"</span><span class="p">,</span>
+            <span class="s2">"explained_variance_ratio_"</span><span class="p">,</span>
+            <span class="s2">"means_"</span><span class="p">,</span>
+            <span class="s2">"priors_"</span><span class="p">,</span>
+            <span class="s2">"scalings_"</span><span class="p">,</span>
+            <span class="s2">"xbar_"</span><span class="p">,</span>
+            <span class="s2">"classes_"</span><span class="p">,</span>
+            <span class="s2">"n_features_in_"</span><span class="p">,</span>
+            <span class="s2">"feature_names_in_"</span><span class="p">,</span>
+            <span class="s2">"rotations_"</span><span class="p">,</span>
         <span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">discriminator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return then SKLearn object.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return then SKLearn object."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qda</span>
 
 <div class="viewcode-block" id="SkQDA.is_trained">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SkQDA.html#qiskit_experiments.data_processing.SkQDA.is_trained">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_trained</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if the discriminator has been trained on data.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qda</span><span class="p">,</span> <span class="s2">&quot;classes_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span></div>
+<span class="w">        </span><span class="sd">"""Return True if the discriminator has been trained on data."""</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qda</span><span class="p">,</span> <span class="s2">"classes_"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="SkQDA.predict">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SkQDA.html#qiskit_experiments.data_processing.SkQDA.predict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrap the predict method of the QDA.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Wrap the predict method of the QDA."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qda</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SkQDA.fit">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SkQDA.html#qiskit_experiments.data_processing.SkQDA.fit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit the QDA.</span>
+<span class="w">        </span><span class="sd">"""Fit the QDA.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: The independent data.</span>
 <span class="sd">            labels: The labels corresponding to data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_qda</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SkQDA.config">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SkQDA.html#qiskit_experiments.data_processing.SkQDA.config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the configuration of the QDA.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the configuration of the QDA."""</span>
         <span class="n">attr_conf</span> <span class="o">=</span> <span class="p">{</span><span class="n">attr</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qda</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">}</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qda</span><span class="o">.</span><span class="n">get_params</span><span class="p">(),</span> <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="n">attr_conf</span><span class="p">}</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"params"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qda</span><span class="o">.</span><span class="n">get_params</span><span class="p">(),</span> <span class="s2">"attributes"</span><span class="p">:</span> <span class="n">attr_conf</span><span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="SkQDA.from_config">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.SkQDA.html#qiskit_experiments.data_processing.SkQDA.from_config">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@HAS_SKLEARN</span><span class="o">.</span><span class="n">require_in_call</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;SkQDA&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deserialize from an object.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"SkQDA"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Deserialize from an object."""</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.discriminant_analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuadraticDiscriminantAnalysis</span>
 
         <span class="n">qda</span> <span class="o">=</span> <span class="n">QuadraticDiscriminantAnalysis</span><span class="p">()</span>
-        <span class="n">qda</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">])</span>
+        <span class="n">qda</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s2">"params"</span><span class="p">])</span>
 
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">"attributes"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">qda</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
@@ -771,7 +771,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -786,7 +786,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

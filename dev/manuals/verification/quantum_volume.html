@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="Randomized Benchmarking" href="randomized_benchmarking.html"><link rel="prev" title="Experiment Manuals" href="../index.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Quantum Volume - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>Quantum Volume - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -593,9 +593,9 @@ package to run simulations.  You can install it with <code class="docutils liter
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aer.noise</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span><span class="p">,</span> <span class="n">depolarizing_error</span>
 
 <span class="n">noise_model</span> <span class="o">=</span> <span class="n">NoiseModel</span><span class="p">()</span>
-<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">5e-4</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">])</span>
-<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;rz&quot;</span><span class="p">])</span>
-<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">1e-2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;cx&quot;</span><span class="p">])</span>
+<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">5e-4</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">"sx"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">])</span>
+<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">"rz"</span><span class="p">])</span>
+<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">1e-2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">[</span><span class="s2">"cx"</span><span class="p">])</span>
 <span class="n">backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="p">(</span><span class="n">noise_model</span><span class="o">=</span><span class="n">noise_model</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -700,7 +700,7 @@ does not pass the threshold</p></li>
   </thead>
   <tbody>
     <tr>
-      <th>dc365a55</th>
+      <th>84eefcb5</th>
       <td>mean_HOP</td>
       <td>QuantumVolume</td>
       <td>[Q0, Q1, Q2, Q3]</td>
@@ -716,7 +716,7 @@ does not pass the threshold</p></li>
       <td>None</td>
     </tr>
     <tr>
-      <th>f8ac129b</th>
+      <th>70a72048</th>
       <td>quantum_volume</td>
       <td>QuantumVolume</td>
       <td>[Q0, Q1, Q2, Q3]</td>
@@ -793,7 +793,7 @@ re-running the experiment.</p>
   </thead>
   <tbody>
     <tr>
-      <th>349bf8c6</th>
+      <th>c230f4c1</th>
       <td>mean_HOP</td>
       <td>QuantumVolume</td>
       <td>[Q0, Q1, Q2, Q3]</td>
@@ -809,7 +809,7 @@ re-running the experiment.</p>
       <td>None</td>
     </tr>
     <tr>
-      <th>5bf36429</th>
+      <th>97373a83</th>
       <td>quantum_volume</td>
       <td>QuantumVolume</td>
       <td>[Q0, Q1, Q2, Q3]</td>
@@ -853,9 +853,9 @@ enhancements might be required (See Ref. <a class="footnote-reference brackets" 
 <p>Extracting the maximum Quantum Volume.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qv_values</span> <span class="o">=</span> <span class="n">batch_expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;quantum_volume&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qv_values</span> <span class="o">=</span> <span class="n">batch_expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">"quantum_volume"</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Max quantum volume is: </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">qv_values</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Max quantum volume is: </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">qv_values</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -868,7 +868,7 @@ enhancements might be required (See Ref. <a class="footnote-reference brackets" 
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_exp</span><span class="o">.</span><span class="n">num_experiments</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Component experiment </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Component experiment </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">display</span><span class="p">(</span><span class="n">batch_expdata</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
 <span class="n">display</span><span class="p">(</span><span class="n">batch_expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
@@ -920,55 +920,55 @@ Component experiment 1
   </thead>
   <tbody>
     <tr>
-      <th>736332b4</th>
+      <th>93475aeb</th>
       <td>mean_HOP</td>
       <td>QuantumVolume</td>
       <td>[Q0, Q1, Q2]</td>
-      <td>0.71+/-0.05</td>
-      <td>bad</td>
-      <td>aer_simulator</td>
-      <td>None</td>
-      <td>[0.69921875, 0.876953125, 0.6640625, 0.0, 0.73...</td>
-      <td>0.090705</td>
-      <td>3</td>
-      <td>100</td>
-      <td>None</td>
-      <td>None</td>
-    </tr>
-    <tr>
-      <th>338108c1</th>
-      <td>quantum_volume</td>
-      <td>QuantumVolume</td>
-      <td>[Q0, Q1, Q2]</td>
-      <td>1</td>
-      <td>bad</td>
-      <td>aer_simulator</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>3</td>
-      <td>100</td>
-      <td>False</td>
-      <td>0.833146</td>
-    </tr>
-    <tr>
-      <th>8c153630</th>
-      <td>mean_HOP</td>
-      <td>QuantumVolume</td>
-      <td>[Q0, Q1, Q2, Q3]</td>
-      <td>0.80+/-0.04</td>
+      <td>0.75+/-0.04</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>[0.7705078125, 0.8154296875, 0.7734375, 0.8457...</td>
-      <td>0.080377</td>
+      <td>[0.8134765625, 0.8095703125, 0.8525390625, 0.7...</td>
+      <td>0.086246</td>
+      <td>3</td>
+      <td>100</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>e258868c</th>
+      <td>quantum_volume</td>
+      <td>QuantumVolume</td>
+      <td>[Q0, Q1, Q2]</td>
+      <td>8</td>
+      <td>good</td>
+      <td>aer_simulator</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>3</td>
+      <td>100</td>
+      <td>True</td>
+      <td>0.977442</td>
+    </tr>
+    <tr>
+      <th>428facfc</th>
+      <td>mean_HOP</td>
+      <td>QuantumVolume</td>
+      <td>[Q0, Q1, Q2, Q3]</td>
+      <td>0.79+/-0.04</td>
+      <td>good</td>
+      <td>aer_simulator</td>
+      <td>None</td>
+      <td>[0.80078125, 0.7958984375, 0.7392578125, 0.851...</td>
+      <td>0.081517</td>
       <td>4</td>
       <td>100</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
-      <th>28400167</th>
+      <th>780b2c36</th>
       <td>quantum_volume</td>
       <td>QuantumVolume</td>
       <td>[Q0, Q1, Q2, Q3]</td>
@@ -981,7 +981,7 @@ Component experiment 1
       <td>4</td>
       <td>100</td>
       <td>True</td>
-      <td>0.999433</td>
+      <td>0.998721</td>
     </tr>
   </tbody>
 </table>
@@ -1051,7 +1051,7 @@ a superconducting quantum computing system,
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1089,7 +1089,7 @@ a superconducting quantum computing system,
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

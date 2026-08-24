@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.framework.backend_data - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.framework.backend_data - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,13 +555,13 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Backend data access helper class</span>
 
 <span class="sd">This class was introduced to unify backend data access to either `BackendV1` and `BackendV2`</span>
 <span class="sd">objects, wrapped by an object of this class. This class remains useful as an</span>
 <span class="sd">interface to backend objects for adjusting to provider-specific quirks.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendV2</span>
@@ -572,10 +572,10 @@
 <div class="viewcode-block" id="BackendData">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BackendData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for providing joint interface for accessing backend data&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Class for providing joint interface for accessing backend data"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Inits the backend and verifies version&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Inits the backend and verifies version"""</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span> <span class="o">=</span> <span class="n">backend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span> <span class="o">=</span> <span class="kc">False</span>
@@ -589,9 +589,9 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
                     <span class="n">warn_from_qe</span><span class="p">(</span>
                         <span class="p">(</span>
-                            <span class="s2">&quot;Support for BackendV1 with Qiskit Experiments is &quot;</span>
-                            <span class="s2">&quot;deprecated and will be removed in a future release. &quot;</span>
-                            <span class="s2">&quot;Please update to using BackendV2 backends.&quot;</span>
+                            <span class="s2">"Support for BackendV1 with Qiskit Experiments is "</span>
+                            <span class="s2">"deprecated and will be removed in a future release. "</span>
+                            <span class="s2">"Please update to using BackendV2 backends."</span>
                         <span class="p">),</span>
                         <span class="ne">DeprecationWarning</span><span class="p">,</span>
                     <span class="p">)</span>
@@ -600,7 +600,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the backend name&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the backend name"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v2</span><span class="p">:</span>
@@ -609,10 +609,10 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">granularity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the backend&#39;s time constraint granularity&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the backend's time constraint granularity"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">()</span><span class="o">.</span><span class="n">timing_constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;granularity&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">()</span><span class="o">.</span><span class="n">timing_constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"granularity"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v2</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">granularity</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -621,7 +621,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">dt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the backend&#39;s input time resolution&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the backend's input time resolution"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">()</span><span class="o">.</span><span class="n">dt</span>
@@ -633,33 +633,33 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">max_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the backend&#39;s max experiments value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the backend's max experiments value"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">(),</span> <span class="s2">&quot;max_experiments&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">(),</span> <span class="s2">"max_experiments"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v2</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
                 <span class="c1"># qiskit-ibm-runtime deprecated max_circuits:</span>
                 <span class="c1"># https://github.com/Qiskit/qiskit-ibm-runtime/pull/2166</span>
-                <span class="c1"># Suppress the warning so that we don&#39;t trigger it for the user</span>
+                <span class="c1"># Suppress the warning so that we don't trigger it for the user</span>
                 <span class="c1"># on every experiment run.</span>
                 <span class="c1">#</span>
                 <span class="c1"># Remove this warning filter if qiskit-ibm-runtime backends</span>
                 <span class="c1"># change to reporting max_circuits as None without a warning.</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
-                    <span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
-                    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;.*qiskit-ibm-runtime.*&quot;</span><span class="p">,</span>
+                    <span class="s2">"ignore"</span><span class="p">,</span>
+                    <span class="n">message</span><span class="o">=</span><span class="s2">".*qiskit-ibm-runtime.*"</span><span class="p">,</span>
                     <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">max_circuits</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="p">,</span> <span class="s2">&quot;max_circuits&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">max_circuits</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="p">,</span> <span class="s2">"max_circuits"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">max_circuits</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">coupling_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the backend&#39;s coupling map&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the backend's coupling map"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">(),</span> <span class="s2">&quot;coupling_map&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">(),</span> <span class="s2">"coupling_map"</span><span class="p">,</span> <span class="p">[])</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v2</span><span class="p">:</span>
             <span class="n">coupling_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">coupling_map</span>
             <span class="k">if</span> <span class="n">coupling_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -669,16 +669,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the backend&#39;s version&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the backend's version"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="p">,</span> <span class="s2">"version"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v2</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">version</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">provider</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the backend&#39;s provider&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the backend's provider"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">provider</span><span class="p">()</span>
@@ -690,7 +690,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">num_qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the backend&#39;s number of qubits&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the backend's number of qubits"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">()</span><span class="o">.</span><span class="n">num_qubits</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v2</span><span class="p">:</span>
@@ -701,19 +701,19 @@
 <div class="viewcode-block" id="BackendData.qubit_t1">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BackendData.html#qiskit_experiments.framework.BackendData.qubit_t1">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">qubit_t1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the T1 value for a qubit from the backend properties</span>
+<span class="w">        </span><span class="sd">"""Return the T1 value for a qubit from the backend properties</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            qubit: the qubit index to return T1 for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The T1 value</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span><span class="o">.</span><span class="n">qubit_property</span><span class="p">(</span><span class="n">qubit</span><span class="p">)[</span><span class="s2">&quot;T1&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span><span class="o">.</span><span class="n">qubit_property</span><span class="p">(</span><span class="n">qubit</span><span class="p">)[</span><span class="s2">"T1"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v2</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">qubit_properties</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span><span class="o">.</span><span class="n">t1</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span></div>
 </div>
 
 </pre></div>
@@ -734,7 +734,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -749,7 +749,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

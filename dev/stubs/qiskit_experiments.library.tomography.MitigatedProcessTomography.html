@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="QuantumVolume" href="qiskit_experiments.library.quantum_volume.QuantumVolume.html"><link rel="prev" title="MitigatedStateTomography" href="qiskit_experiments.library.tomography.MitigatedStateTomography.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>MitigatedProcessTomography - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>MitigatedProcessTomography - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -621,7 +621,7 @@ performing readout error mitigated process tomography fitting.</p>
 <span class="n">mitqptexp</span><span class="o">.</span><span class="n">set_run_options</span><span class="p">(</span><span class="n">shots</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 <span class="n">mitqptdata</span> <span class="o">=</span> <span class="n">mitqptexp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
                            <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">100</span><span class="p">,)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
-<span class="n">mitigated_choi_out</span> <span class="o">=</span> <span class="n">mitqptdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+<span class="n">mitigated_choi_out</span> <span class="o">=</span> <span class="n">mitqptdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">"state"</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
 <span class="c1"># extracting a densitymatrix from mitigated_choi_out</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.visualization</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_state_city</span>
@@ -637,7 +637,7 @@ performing readout error mitigated process tomography fitting.</p>
         <span class="n">_rho_exp_00</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">mitigated_choi_out</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
 
 <span class="n">mitigated_rho_exp_00</span> <span class="o">=</span> <span class="n">qinfo</span><span class="o">.</span><span class="n">DensityMatrix</span><span class="p">(</span><span class="n">_rho_exp_00</span><span class="p">)</span>
-<span class="n">display</span><span class="p">(</span><span class="n">plot_state_city</span><span class="p">(</span><span class="n">mitigated_rho_exp_00</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;mitigated Density Matrix&quot;</span><span class="p">))</span>
+<span class="n">display</span><span class="p">(</span><span class="n">plot_state_city</span><span class="p">(</span><span class="n">mitigated_rho_exp_00</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"mitigated Density Matrix"</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -966,7 +966,7 @@ cancelling.</p></li>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1021,7 +1021,7 @@ cancelling.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../_static/documentation_options.js?v=78f35329"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.data_processing.data_processor - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.data_processing.data_processor - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sa">r</span><span class="sd">&quot;&quot;&quot;Actions done on the data to bring it in a usable form.</span>
+<span class="sa">r</span><span class="sd">"""Actions done on the data to bring it in a usable form.</span>
 
 <span class="sd">In Qiskit Experiments, uncertainty propagation is offloaded to the ``uncertainties``</span>
 <span class="sd">package, that offers a python float and numpy-array compatible number</span>
@@ -578,7 +578,7 @@
 <span class="sd">.. _uncertainties:</span>
 <span class="sd">https://pypi.org/project/uncertainties/</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
@@ -592,7 +592,7 @@
 <div class="viewcode-block" id="DataProcessor">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.DataProcessor.html#qiskit_experiments.data_processing.DataProcessor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DataProcessor</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A DataProcessor defines a sequence of operations to perform on experimental data.</span>
 <span class="sd">    Calling an instance of DataProcessor applies this sequence on the input argument.</span>
 <span class="sd">    A DataProcessor is created with a list of DataAction instances. Each DataAction</span>
@@ -604,39 +604,39 @@
 <span class="sd">    possibly counts, like the Result.data property) and produces the formatted data.</span>
 <span class="sd">    ``DataProcessor.__call__(datum)`` extracts the data from the given datum under</span>
 <span class="sd">    ``DataProcessor._input_key`` (which is specified at initialization) of the given datum.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">input_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">data_actions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DataAction</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a chain of data processing actions.</span>
+<span class="w">        </span><span class="sd">"""Create a chain of data processing actions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            input_key: The initial key in the datum Dict[str, Any] under which the data processor</span>
 <span class="sd">                will find the data to process.</span>
 <span class="sd">            data_actions: A list of data processing actions to construct this data processor with.</span>
 <span class="sd">                If nothing is given the processor returns unprocessed data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_input_key</span> <span class="o">=</span> <span class="n">input_key</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span> <span class="o">=</span> <span class="n">data_actions</span> <span class="k">if</span> <span class="n">data_actions</span> <span class="k">else</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="DataProcessor.append">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.DataProcessor.html#qiskit_experiments.data_processing.DataProcessor.append">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">DataAction</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Append new data action node to this data processor.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            node: A DataAction that will process the data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_trained</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if all nodes of the data processor have been trained.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return True if all nodes of the data processor have been trained."""</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">TrainableDataAction</span><span class="p">):</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">is_trained</span><span class="p">:</span>
@@ -647,7 +647,7 @@
 <div class="viewcode-block" id="DataProcessor.__call__">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.DataProcessor.html#qiskit_experiments.data_processing.DataProcessor.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Call self on the given datum. This method sequentially calls the stored data actions</span>
 <span class="sd">        on the datum.</span>
 
@@ -660,7 +660,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The data processed by the data processor. This is an arbitrary numpy array that</span>
 <span class="sd">            may contain standard errors as a ufloat object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_internal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></div>
 
 
@@ -669,7 +669,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">call_with_history</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">history_nodes</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Call self on the given datum. This method sequentially calls the stored data actions</span>
 <span class="sd">        on the datum and also returns the history of the processed data.</span>
 
@@ -684,7 +684,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A tuple of (processed data, history), that are the data processed by the processor</span>
 <span class="sd">            and its intermediate state in each specified node, respectively.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_internal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">history_nodes</span><span class="p">)</span></div>
 
 
@@ -695,7 +695,7 @@
         <span class="n">history_nodes</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">call_up_to_node</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process the data with or without storing the history of the computation.</span>
+<span class="w">        </span><span class="sd">"""Process the data with or without storing the history of the computation.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: The data, typically from ExperimentData.data(...), that needs to be processed.</span>
@@ -712,7 +712,7 @@
 <span class="sd">            When ``with_history`` is ``False`` it returns an numpy array of processed data.</span>
 <span class="sd">            Otherwise it returns a tuple of (processed data, history) in which the `history`</span>
 <span class="sd">            is a list of intermediate data at each step.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">call_up_to_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">call_up_to_node</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">)</span>
 
@@ -749,11 +749,11 @@
 <div class="viewcode-block" id="DataProcessor.train">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.data_processing.DataProcessor.html#qiskit_experiments.data_processing.DataProcessor.train">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Train the nodes of the data processor.</span>
+<span class="w">        </span><span class="sd">"""Train the nodes of the data processor.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: The data to use to train the data processor.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">TrainableDataAction</span><span class="p">):</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">is_trained</span><span class="p">:</span>
@@ -762,7 +762,7 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_data_extraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extracts the data on which to run the nodes.</span>
+<span class="w">        </span><span class="sd">"""Extracts the data on which to run the nodes.</span>
 
 <span class="sd">        If the datum is a list of dicts then the data under self._input_key is extracted</span>
 <span class="sd">        from each dict and appended to a list which therefore contains all the data.</span>
@@ -780,7 +780,7 @@
 <span class="sd">                - If the input key of the data processor is not contained in the data.</span>
 <span class="sd">                - If the data processor receives multiple data with different measurement</span>
 <span class="sd">                  configuration, i.e. Jagged array.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">]</span>
 
@@ -791,15 +791,15 @@
                 <span class="n">outcome</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_key</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> only extracts data from &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;lists or dicts, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> only extracts data from "</span>
+                    <span class="sa">f</span><span class="s2">"lists or dicts, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
             <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;The input key </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_key</span><span class="si">}</span><span class="s2"> was not found in the input datum.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"The input key </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_key</span><span class="si">}</span><span class="s2"> was not found in the input datum."</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_key</span> <span class="o">!=</span> <span class="s2">&quot;counts&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_key</span> <span class="o">!=</span> <span class="s2">"counts"</span><span class="p">:</span>
                 <span class="n">outcome</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span>
                 <span class="c1"># Validate data shape</span>
                 <span class="k">if</span> <span class="n">dims</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -809,8 +809,8 @@
                     <span class="c1"># Jagged array cannot be numerically operated with numpy array.</span>
                     <span class="k">if</span> <span class="n">outcome</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">dims</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                            <span class="s2">&quot;Input data is likely a mixture of job results with different &quot;</span>
-                            <span class="s2">&quot;measurement setup. Data processor doesn&#39;t support jagged array.&quot;</span>
+                            <span class="s2">"Input data is likely a mixture of job results with different "</span>
+                            <span class="s2">"measurement setup. Data processor doesn't support jagged array."</span>
                         <span class="p">)</span>
             <span class="n">data_to_process</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span>
 
@@ -821,7 +821,7 @@
             <span class="c1"># The output data format is a standard ndarray with dtype=object with</span>
             <span class="c1"># arbitrary shape [n_circuits, ...] depending on the measurement setup.</span>
             <span class="n">nominal_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data_to_process</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
-            <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
                 <span class="c1"># Setting std_devs to NaN will trigger floating point exceptions</span>
                 <span class="c1"># which we can ignore. See https://stackoverflow.com/q/75656026</span>
                 <span class="n">uarray</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">uarray</span><span class="p">(</span>
@@ -837,26 +837,26 @@
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data_to_process</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;String representation of data processors.&quot;&quot;&quot;</span>
-        <span class="n">names</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""String representation of data processors."""</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(input_key=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_key</span><span class="si">}</span><span class="s2">, nodes=[</span><span class="si">{</span><span class="n">names</span><span class="si">}</span><span class="s2">])&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(input_key=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_key</span><span class="si">}</span><span class="s2">, nodes=[</span><span class="si">{</span><span class="n">names</span><span class="si">}</span><span class="s2">])"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the config dict for this data processor.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the config dict for this data processor."""</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;cls&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
-            <span class="s2">&quot;input_key&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_key</span><span class="p">,</span>
-            <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">,</span>
+            <span class="s2">"cls"</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="s2">"input_key"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_key</span><span class="p">,</span>
+            <span class="s2">"nodes"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">,</span>
         <span class="p">}</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;DataProcessor&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a data processor from config dict.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"DataProcessor"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize a data processor from config dict."""</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">input_key</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_key&quot;</span><span class="p">],</span> <span class="n">data_actions</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;nodes&quot;</span><span class="p">])</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">input_key</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"input_key"</span><span class="p">],</span> <span class="n">data_actions</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"nodes"</span><span class="p">])</span>
         <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Imperfect configuration data. Cannot load this processor.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span></div>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">"Imperfect configuration data. Cannot load this processor."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span></div>
 
 </pre></div>
         </article>
@@ -876,7 +876,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -891,7 +891,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

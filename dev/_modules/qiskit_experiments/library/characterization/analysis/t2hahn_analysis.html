@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html"><link rel="search" title="Search" href="../../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.analysis.t2hahn_analysis - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.characterization.analysis.t2hahn_analysis - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">T2 Hahn echo Analysis class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -570,31 +570,31 @@
 <div class="viewcode-block" id="T2HahnAnalysis">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.characterization.T2HahnAnalysis.html#qiskit_experiments.library.characterization.T2HahnAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">T2HahnAnalysis</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">DecayAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to analyze T2Hahn experiments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A class to analyze T2Hahn experiments."""</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default analysis options.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default analysis options."""</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
-            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Delay&quot;</span><span class="p">,</span>
-            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;P(0)&quot;</span><span class="p">,</span>
-            <span class="n">xval_unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">,</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">"Delay"</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">"P(0)"</span><span class="p">,</span>
+            <span class="n">xval_unit</span><span class="o">=</span><span class="s2">"s"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">options</span><span class="o">.</span><span class="n">data_processor</span> <span class="o">=</span> <span class="n">DataProcessor</span><span class="p">(</span>
-            <span class="n">input_key</span><span class="o">=</span><span class="s2">&quot;counts&quot;</span><span class="p">,</span> <span class="n">data_actions</span><span class="o">=</span><span class="p">[</span><span class="n">Probability</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">)]</span>
+            <span class="n">input_key</span><span class="o">=</span><span class="s2">"counts"</span><span class="p">,</span> <span class="n">data_actions</span><span class="o">=</span><span class="p">[</span><span class="n">Probability</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">"0"</span><span class="p">)]</span>
         <span class="p">)</span>
         <span class="n">options</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
-            <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span>
-            <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+            <span class="s2">"amp"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+            <span class="s2">"tau"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span>
+            <span class="s2">"base"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
         <span class="p">}</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">ParameterRepr</span><span class="p">(</span><span class="s2">&quot;tau&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">)]</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">ParameterRepr</span><span class="p">(</span><span class="s2">"tau"</span><span class="p">,</span> <span class="s2">"T2"</span><span class="p">,</span> <span class="s2">"s"</span><span class="p">)]</span>
 
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">CurveFitResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithmic criteria for whether the fit is good or bad.</span>
+<span class="w">        </span><span class="sd">"""Algorithmic criteria for whether the fit is good or bad.</span>
 
 <span class="sd">        A good fit has:</span>
 <span class="sd">            - a reduced chi-squared lower than three and greater than zero</span>
@@ -603,10 +603,10 @@
 <span class="sd">            - amp error is less than 0.1</span>
 <span class="sd">            - tau error is less than its value</span>
 <span class="sd">            - base error is less than 0.1</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">amp</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;amp&quot;</span><span class="p">]</span>
-        <span class="n">tau</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;tau&quot;</span><span class="p">]</span>
-        <span class="n">base</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="n">amp</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"amp"</span><span class="p">]</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"tau"</span><span class="p">]</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"base"</span><span class="p">]</span>
 
         <span class="n">criteria</span> <span class="o">=</span> <span class="p">[</span>
             <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">,</span>
@@ -618,9 +618,9 @@
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">criteria</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;good&quot;</span>
+            <span class="k">return</span> <span class="s2">"good"</span>
 
-        <span class="k">return</span> <span class="s2">&quot;bad&quot;</span></div>
+        <span class="k">return</span> <span class="s2">"bad"</span></div>
 
 </pre></div>
         </article>
@@ -640,7 +640,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -655,7 +655,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.visualization.plotters.curve_plotter - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.visualization.plotters.curve_plotter - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,7 +555,7 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;Plotter for curve fits, specifically from :class:`.CurveAnalysis`.&quot;&quot;&quot;</span>
+<span class="sd">"""Plotter for curve fits, specifically from :class:`.CurveAnalysis`."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">uncertainties</span><span class="w"> </span><span class="kn">import</span> <span class="n">UFloat</span>
 
@@ -568,7 +568,7 @@
 <div class="viewcode-block" id="CurvePlotter">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.CurvePlotter.html#qiskit_experiments.visualization.CurvePlotter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CurvePlotter</span><span class="p">(</span><span class="n">BasePlotter</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A plotter class to plot results from :class:`.CurveAnalysis`.</span>
+<span class="w">    </span><span class="sd">"""A plotter class to plot results from :class:`.CurveAnalysis`.</span>
 
 <span class="sd">    ``CurvePlotter`` plots results from curve fits, which includes</span>
 
@@ -577,13 +577,13 @@
 <span class="sd">        - Interpolated fit results from the curve analysis.</span>
 <span class="sd">        - Confidence interval for the fit results.</span>
 <span class="sd">        - A report on the performance of the fit.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="CurvePlotter.expected_series_data_keys">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.CurvePlotter.html#qiskit_experiments.visualization.CurvePlotter.expected_series_data_keys">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">expected_series_data_keys</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the expected series data keys supported by this plotter.</span>
+<span class="w">        </span><span class="sd">"""Returns the expected series data keys supported by this plotter.</span>
 
 <span class="sd">        Data Keys:</span>
 <span class="sd">            x: X-values for raw results.</span>
@@ -597,18 +597,18 @@
 <span class="sd">                ``y_interp``. This data key relates to the option ``plot_sigma``.</span>
 <span class="sd">            x_residuals: The X-values for the residual plot.</span>
 <span class="sd">            y_residuals: The residual from the fitting.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="p">[</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;y&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;x_formatted&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;y_formatted&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;y_formatted_err&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;x_interp&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;y_interp&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;y_interp_err&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;x_residuals&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;y_residuals&quot;</span><span class="p">,</span>
+            <span class="s2">"x"</span><span class="p">,</span>
+            <span class="s2">"y"</span><span class="p">,</span>
+            <span class="s2">"x_formatted"</span><span class="p">,</span>
+            <span class="s2">"y_formatted"</span><span class="p">,</span>
+            <span class="s2">"y_formatted_err"</span><span class="p">,</span>
+            <span class="s2">"x_interp"</span><span class="p">,</span>
+            <span class="s2">"y_interp"</span><span class="p">,</span>
+            <span class="s2">"y_interp_err"</span><span class="p">,</span>
+            <span class="s2">"x_residuals"</span><span class="p">,</span>
+            <span class="s2">"y_residuals"</span><span class="p">,</span>
         <span class="p">]</span></div>
 
 
@@ -616,7 +616,7 @@
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.CurvePlotter.html#qiskit_experiments.visualization.CurvePlotter.expected_supplementary_data_keys">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">expected_supplementary_data_keys</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the expected figures data keys supported by this plotter.</span>
+<span class="w">        </span><span class="sd">"""Returns the expected figures data keys supported by this plotter.</span>
 
 <span class="sd">        This plotter generates a single text box, i.e. fit report, by digesting the</span>
 <span class="sd">        provided supplementary data. The style and position of the report is controlled</span>
@@ -631,16 +631,16 @@
 <span class="sd">                fit consists of multiple sub-fits, this will be a dictionary keyed on</span>
 <span class="sd">                the analysis name. Otherwise, this is a single float value of a</span>
 <span class="sd">                particular analysis.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="p">[</span>
-            <span class="s2">&quot;primary_results&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fit_red_chi&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_results"</span><span class="p">,</span>
+            <span class="s2">"fit_red_chi"</span><span class="p">,</span>
         <span class="p">]</span></div>
 
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return curve-plotter specific default plotter options.</span>
+<span class="w">        </span><span class="sd">"""Return curve-plotter specific default plotter options.</span>
 
 <span class="sd">        Options:</span>
 <span class="sd">            plot_sigma (List[Tuple[float, float]]): A list of two number tuples showing</span>
@@ -649,50 +649,50 @@
 <span class="sd">                is the transparency of the interval plot in ``[0, 1]``. Multiple n_sigma</span>
 <span class="sd">                intervals can be drawn for the same curve.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">plot_sigma</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span> <span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_figure_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return curve-plotter specific default figure options.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Return curve-plotter specific default figure options.</span>
 
 <span class="sd">        Figure Options:</span>
 <span class="sd">            report_red_chi2_label (str): The label for the reduced-chi squared entry of</span>
 <span class="sd">                the fit report. Defaults to the Python string literal</span>
-<span class="sd">                ``&quot;reduced-$\\chi^2$&quot;``, corresponding to the formatted string</span>
+<span class="sd">                ``"reduced-$\\chi^2$"``, corresponding to the formatted string</span>
 <span class="sd">                reduced-:math:`\chi^2`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">fig_opts</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_figure_options</span><span class="p">()</span>
-        <span class="n">fig_opts</span><span class="o">.</span><span class="n">report_red_chi2_label</span> <span class="o">=</span> <span class="s2">&quot;reduced-$</span><span class="se">\\</span><span class="s2">chi^2$&quot;</span>
+        <span class="n">fig_opts</span><span class="o">.</span><span class="n">report_red_chi2_label</span> <span class="o">=</span> <span class="s2">"reduced-$</span><span class="se">\\</span><span class="s2">chi^2$"</span>
 
         <span class="k">return</span> <span class="n">fig_opts</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_plot_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plots a curve fit figure.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Plots a curve fit figure."""</span>
         <span class="k">for</span> <span class="n">ser</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="p">:</span>
             <span class="c1"># Scatter plot with error-bars</span>
             <span class="n">plotted_formatted_data</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x_formatted&quot;</span><span class="p">,</span> <span class="s2">&quot;y_formatted&quot;</span><span class="p">,</span> <span class="s2">&quot;y_formatted_err&quot;</span><span class="p">]):</span>
-                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x_formatted&quot;</span><span class="p">,</span> <span class="s2">&quot;y_formatted&quot;</span><span class="p">,</span> <span class="s2">&quot;y_formatted_err&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x_formatted"</span><span class="p">,</span> <span class="s2">"y_formatted"</span><span class="p">,</span> <span class="s2">"y_formatted_err"</span><span class="p">]):</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x_formatted"</span><span class="p">,</span> <span class="s2">"y_formatted"</span><span class="p">,</span> <span class="s2">"y_formatted_err"</span><span class="p">])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_err</span><span class="o">=</span><span class="n">yerr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">ser</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="n">plotted_formatted_data</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="c1"># Scatter plot</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]):</span>
-                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]):</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">])</span>
                 <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;zorder&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">"zorder"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                 <span class="p">}</span>
                 <span class="c1"># If we plotted formatted data, differentiate scatter points by setting normal X-Y</span>
                 <span class="c1"># markers to gray.</span>
                 <span class="k">if</span> <span class="n">plotted_formatted_data</span><span class="p">:</span>
-                    <span class="n">options</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;gray&quot;</span>
-                <span class="c1"># If we didn&#39;t plot formatted data, the X-Y markers should be used for the legend. We add</span>
-                <span class="c1"># it to ``options`` so it&#39;s easier to pass to ``scatter``.</span>
+                    <span class="n">options</span><span class="p">[</span><span class="s2">"color"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"gray"</span>
+                <span class="c1"># If we didn't plot formatted data, the X-Y markers should be used for the legend. We add</span>
+                <span class="c1"># it to ``options`` so it's easier to pass to ``scatter``.</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">plotted_formatted_data</span><span class="p">:</span>
-                    <span class="n">options</span><span class="p">[</span><span class="s2">&quot;legend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">options</span><span class="p">[</span><span class="s2">"legend"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
                     <span class="n">x</span><span class="p">,</span>
                     <span class="n">y</span><span class="p">,</span>
@@ -701,14 +701,14 @@
                 <span class="p">)</span>
 
             <span class="c1"># Line plot for fit</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x_interp&quot;</span><span class="p">,</span> <span class="s2">&quot;y_interp&quot;</span><span class="p">]):</span>
-                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x_interp&quot;</span><span class="p">,</span> <span class="s2">&quot;y_interp&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x_interp"</span><span class="p">,</span> <span class="s2">"y_interp"</span><span class="p">]):</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x_interp"</span><span class="p">,</span> <span class="s2">"y_interp"</span><span class="p">])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">ser</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
             <span class="c1"># Confidence interval plot</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x_interp&quot;</span><span class="p">,</span> <span class="s2">&quot;y_interp&quot;</span><span class="p">,</span> <span class="s2">&quot;y_interp_err&quot;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x_interp"</span><span class="p">,</span> <span class="s2">"y_interp"</span><span class="p">,</span> <span class="s2">"y_interp_err"</span><span class="p">]):</span>
                 <span class="n">x</span><span class="p">,</span> <span class="n">y_interp</span><span class="p">,</span> <span class="n">y_interp_err</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span>
-                    <span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x_interp&quot;</span><span class="p">,</span> <span class="s2">&quot;y_interp&quot;</span><span class="p">,</span> <span class="s2">&quot;y_interp_err&quot;</span><span class="p">]</span>
+                    <span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x_interp"</span><span class="p">,</span> <span class="s2">"y_interp"</span><span class="p">,</span> <span class="s2">"y_interp_err"</span><span class="p">]</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">n_sigma</span><span class="p">,</span> <span class="n">alpha</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot_sigma</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">filled_y_area</span><span class="p">(</span>
@@ -721,11 +721,11 @@
                     <span class="p">)</span>
 
             <span class="c1"># Plot residuals</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x_residuals&quot;</span><span class="p">,</span> <span class="s2">&quot;y_residuals&quot;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_exists_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x_residuals"</span><span class="p">,</span> <span class="s2">"y_residuals"</span><span class="p">]):</span>
                 <span class="c1"># check if we cancel residuals plotting</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;style&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;style_name&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;canceled_residuals&quot;</span><span class="p">:</span>
-                    <span class="n">series_name</span> <span class="o">=</span> <span class="n">ser</span> <span class="o">+</span> <span class="s2">&quot;_residuals&quot;</span>
-                    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x_residuals&quot;</span><span class="p">,</span> <span class="s2">&quot;y_residuals&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"style"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"style_name"</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">"canceled_residuals"</span><span class="p">:</span>
+                    <span class="n">series_name</span> <span class="o">=</span> <span class="n">ser</span> <span class="o">+</span> <span class="s2">"_residuals"</span>
+                    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x_residuals"</span><span class="p">,</span> <span class="s2">"y_residuals"</span><span class="p">])</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">series_name</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># Fit report</span>
@@ -734,7 +734,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">textbox</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_write_report</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write fit report with supplementary_data.</span>
+<span class="w">        </span><span class="sd">"""Write fit report with supplementary_data.</span>
 
 <span class="sd">        Subclass can override this method to customize fit report. By default, this</span>
 <span class="sd">        writes important fit parameters and chi-squared value of the fit in the fit</span>
@@ -743,22 +743,22 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Fit report.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">report</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="sd">        """</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="s2">""</span>
 
-        <span class="k">if</span> <span class="s2">&quot;primary_results&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"primary_results"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">[</span><span class="s2">&quot;primary_results&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">[</span><span class="s2">"primary_results"</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outcome</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">UFloat</span><span class="p">)):</span>
                     <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">analysis_result_to_repr</span><span class="p">(</span><span class="n">outcome</span><span class="p">))</span>
-            <span class="n">report</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+            <span class="n">report</span> <span class="o">+=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;fit_red_chi&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">:</span>
-            <span class="n">red_chi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">[</span><span class="s2">&quot;fit_red_chi&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"fit_red_chi"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">:</span>
+            <span class="n">red_chi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supplementary_data</span><span class="p">[</span><span class="s2">"fit_red_chi"</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">report</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">report</span> <span class="o">+=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">red_chi</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
-                <span class="n">report</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">report_red_chi2_label</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">red_chi</span><span class="si">:</span><span class="s2"> .4g</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">report</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">report_red_chi2_label</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">red_chi</span><span class="si">:</span><span class="s2"> .4g</span><span class="si">}</span><span class="s2">"</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Composite curve analysis reporting multiple chi-sq values.</span>
                 <span class="c1"># This is usually given by a dict keyed on fit group name.</span>
@@ -766,14 +766,14 @@
                 <span class="c1"># Add gap between primary-results and reduced-chi squared as</span>
                 <span class="c1"># we have multiple values to display. This is easier to read.</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">report</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="n">report</span> <span class="o">+=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
 
                 <span class="c1"># Created indented text of reduced-chi squared results.</span>
-                <span class="n">report</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">report_red_chi2_label</span><span class="si">}</span><span class="s2"> per fit</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">report</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">report_red_chi2_label</span><span class="si">}</span><span class="s2"> per fit</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">mod_chi</span> <span class="ow">in</span> <span class="n">red_chi</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  * </span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">mod_chi</span><span class="si">:</span><span class="s2"> .4g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">report</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  * </span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">mod_chi</span><span class="si">:</span><span class="s2"> .4g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">report</span> <span class="o">+=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">report</span></div>
 
@@ -795,7 +795,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -810,7 +810,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

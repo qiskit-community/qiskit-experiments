@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.test.mock_iq_backend - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.test.mock_iq_backend - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;A mock IQ backend for testing.&quot;&quot;&quot;</span>
+<span class="sd">"""A mock IQ backend for testing."""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
@@ -581,7 +581,7 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseMockBackend</span><span class="p">(</span><span class="n">BackendV2</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple two qubit BackendV2 implementation&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Simple two qubit BackendV2 implementation"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -605,14 +605,14 @@
 
         <span class="n">gate_map</span> <span class="o">=</span> <span class="n">get_standard_gate_name_mapping</span><span class="p">()</span>
         <span class="n">inst_props</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;cx&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">100e-9</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="mf">3e-3</span><span class="p">},</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">30e-9</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="mf">4e-4</span><span class="p">},</span>
-            <span class="s2">&quot;rz&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-            <span class="s2">&quot;sx&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">30e-9</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="mf">4e-4</span><span class="p">},</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">30e-9</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="mf">4e-4</span><span class="p">},</span>
-            <span class="s2">&quot;reset&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-            <span class="s2">&quot;delay&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-            <span class="s2">&quot;measure&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">700e-9</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">},</span>
+            <span class="s2">"cx"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"duration"</span><span class="p">:</span> <span class="mf">100e-9</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">:</span> <span class="mf">3e-3</span><span class="p">},</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"duration"</span><span class="p">:</span> <span class="mf">30e-9</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">:</span> <span class="mf">4e-4</span><span class="p">},</span>
+            <span class="s2">"rz"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"duration"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+            <span class="s2">"sx"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"duration"</span><span class="p">:</span> <span class="mf">30e-9</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">:</span> <span class="mf">4e-4</span><span class="p">},</span>
+            <span class="s2">"x"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"duration"</span><span class="p">:</span> <span class="mf">30e-9</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">:</span> <span class="mf">4e-4</span><span class="p">},</span>
+            <span class="s2">"reset"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"duration"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+            <span class="s2">"delay"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"duration"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+            <span class="s2">"measure"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"duration"</span><span class="p">:</span> <span class="mf">700e-9</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">},</span>
         <span class="p">}</span>
 
         <span class="k">for</span> <span class="n">iname</span><span class="p">,</span> <span class="n">iprops</span> <span class="ow">in</span> <span class="n">inst_props</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -637,14 +637,14 @@
 <div class="viewcode-block" id="MockIQBackend">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.MockIQBackend.html#qiskit_experiments.test.MockIQBackend">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MockIQBackend</span><span class="p">(</span><span class="n">BaseMockBackend</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A mock backend for testing with IQ data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A mock backend for testing with IQ data."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">experiment_helper</span><span class="p">:</span> <span class="n">MockIQExperimentHelper</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">rng_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the backend.</span>
 
 <span class="sd">        Args:</span>
@@ -652,7 +652,7 @@
 <span class="sd">                :meth:`~MockIQExperimentHelper.compute_probabilities` and</span>
 <span class="sd">                :meth:`~MockIQExperimentHelper.iq_phase` methods for the backend to execute.</span>
 <span class="sd">            rng_seed(int): The random seed value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_helper</span> <span class="o">=</span> <span class="n">experiment_helper</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">rng_seed</span><span class="p">)</span>
@@ -662,57 +662,57 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default options of the test backend.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default options of the test backend."""</span>
         <span class="k">return</span> <span class="n">Options</span><span class="p">(</span>
             <span class="n">shots</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
             <span class="n">meas_level</span><span class="o">=</span><span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span><span class="p">,</span>
-            <span class="n">meas_return</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+            <span class="n">meas_return</span><span class="o">=</span><span class="s2">"single"</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">experiment_helper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return the &#39;experiment_helper&#39; attribute&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return the 'experiment_helper' attribute"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_helper</span>
 
     <span class="nd">@experiment_helper</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">experiment_helper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Setter for the experiment helper.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            value(MockIQExperimentHelper): The helper for the backend to use for generating IQ shots.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: Raised if the value to set is not of type `MockIQExperimentHelper`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">cls</span> <span class="o">=</span> <span class="n">MockIQExperimentHelper</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;The input type is </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="si">}</span><span class="s2"> while the type expected type is &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">cls</span><span class="p">()))</span><span class="si">}</span><span class="s2">&gt;.&quot;</span>
+                <span class="sa">f</span><span class="s2">"The input type is </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="si">}</span><span class="s2"> while the type expected type is "</span>
+                <span class="sa">f</span><span class="s2">"&lt;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">cls</span><span class="p">()))</span><span class="si">}</span><span class="s2">&gt;."</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_helper</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_verify_parameters</span><span class="p">(</span><span class="n">output_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">prob_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
         <span class="k">if</span> <span class="n">output_length</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The output length </span><span class="si">{</span><span class="n">output_length</span><span class="si">}</span><span class="s2"> is smaller than 1.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The output length </span><span class="si">{</span><span class="n">output_length</span><span class="si">}</span><span class="s2"> is smaller than 1."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">prob_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The probabilities given don&#39;t sum up to 1.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The probabilities given don't sum up to 1."</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">prob_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">output_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;The output lengths of the circuit and the output lengths in the dictionary&quot;</span>
-                    <span class="s2">&quot; don&#39;t match.&quot;</span>
+                    <span class="s2">"The output lengths of the circuit and the output lengths in the dictionary"</span>
+                    <span class="s2">" don't match."</span>
                 <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_normal_samples_for_shot</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Produce a list in the size of num_qubits. Each entry value is produced from normal distribution</span>
-<span class="sd">        with expected value of &#39;0&#39; and standard deviation of 1. The intention is that these samples are</span>
+<span class="sd">        with expected value of '0' and standard deviation of 1. The intention is that these samples are</span>
 <span class="sd">        scaled by :func:`_scale_samples_for_widths` for various circuits, experiments, and their IQ</span>
 <span class="sd">        widths; removing the need to query a RNG for each new width list.</span>
 
@@ -723,7 +723,7 @@
 <span class="sd">                for i_shot in range(n_shots):</span>
 <span class="sd">                    real_data = self._get_normal_samples_for_shot(qubits)</span>
 <span class="sd">                    imag_data = self._get_normal_samples_for_shot(qubits)</span>
-<span class="sd">                    template_iq_data[i_shot] = np.array([real_data, imag_data], dtype=&quot;float&quot;).T</span>
+<span class="sd">                    template_iq_data[i_shot] = np.array([real_data, imag_data], dtype="float").T</span>
 
 <span class="sd">                # Scale template data to separate widths</span>
 <span class="sd">                iq_data_1 = self._scale_samples_for_widths(template_iq_data, widths_1)</span>
@@ -740,7 +740,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Ndarray: A numpy array with values that were produced from normal distribution.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">qubit</span> <span class="ow">in</span> <span class="n">qubits</span><span class="p">]</span>
         <span class="c1"># we squeeze the second dimension because samples is List[qubit_number][0][0\1] = I\Q</span>
         <span class="c1"># and we want to change it to be List[qubit_number][0\1]</span>
@@ -749,7 +749,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_scale_samples_for_widths</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">widths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Scales `samples` by `widths` so that the data has the necessary std-dev.</span>
+<span class="w">        </span><span class="sd">"""Scales `samples` by `widths` so that the data has the necessary std-dev.</span>
 
 <span class="sd">        `samples` contains `n_shots` elements, each being :math:`n\times{}2` float values, representing</span>
 <span class="sd">        the I and Q values for :math:`n` qubits. `widths` is a list of :math:`n` standard-deviations for</span>
@@ -762,7 +762,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List: A list of samples with standard-deviations matching `widths`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">circ_samples</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">widths</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span> <span class="k">for</span> <span class="n">circ_samples</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_probability_dict_to_probability_array</span><span class="p">(</span>
@@ -783,14 +783,14 @@
         <span class="n">iq_cluster_width</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span> <span class="o">|</span> <span class="nb">complex</span><span class="p">]]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Produce an IQ shot.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            prob: A list of probabilities for each output.</span>
 <span class="sd">            shots: The number of times the circuit will run.</span>
 <span class="sd">            circ_qubits: The qubits of the circuit.</span>
-<span class="sd">            iq_cluster_centers: A list of tuples containing the clusters&#39; centers in the IQ plane. There</span>
+<span class="sd">            iq_cluster_centers: A list of tuples containing the clusters' centers in the IQ plane. There</span>
 <span class="sd">            are different centers for different logical values of the qubit.</span>
 <span class="sd">            iq_cluster_width: A list of standard deviation values for the sampling of each qubit.</span>
 <span class="sd">            phase: The added phase needed to apply to the shot data.</span>
@@ -798,13 +798,13 @@
 <span class="sd">            List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.</span>
 <span class="sd">            The qubits are tuples with two values [I,Q].</span>
 <span class="sd">            The output structure is  - List[shot index][qubit index] = [I,Q]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Randomize samples (width=1)</span>
         <span class="n">qubits_iq_template_rand</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span> <span class="o">*</span> <span class="n">shots</span>
         <span class="k">for</span> <span class="n">shot</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shots</span><span class="p">):</span>
             <span class="n">rand_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_normal_samples_for_shot</span><span class="p">(</span><span class="n">circ_qubits</span><span class="p">)</span>
             <span class="n">rand_q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_normal_samples_for_shot</span><span class="p">(</span><span class="n">circ_qubits</span><span class="p">)</span>
-            <span class="n">qubits_iq_template_rand</span><span class="p">[</span><span class="n">shot</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rand_i</span><span class="p">,</span> <span class="n">rand_q</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">qubits_iq_template_rand</span><span class="p">[</span><span class="n">shot</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rand_i</span><span class="p">,</span> <span class="n">rand_q</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"float"</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
         <span class="c1"># Scale samples to use iq_cluster_width.</span>
         <span class="n">exp_widths</span> <span class="o">=</span> <span class="p">[</span><span class="n">iq_cluster_width</span><span class="p">[</span><span class="n">i_qubit</span><span class="p">]</span> <span class="k">for</span> <span class="n">i_qubit</span> <span class="ow">in</span> <span class="n">circ_qubits</span><span class="p">]</span>
@@ -816,7 +816,7 @@
         <span class="k">for</span> <span class="n">output_number</span><span class="p">,</span> <span class="n">number_of_occurrences</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">shots</span><span class="p">,</span> <span class="n">prob</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="p">):</span>
-            <span class="n">state_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">output_number</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">circ_qubits</span><span class="p">)))</span>
+            <span class="n">state_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">output_number</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">circ_qubits</span><span class="p">)))</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_occurrences</span><span class="p">):</span>
                 <span class="n">shot_memory</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="c1"># the iteration on the string variable state_str starts from the MSB. For readability,</span>
@@ -837,7 +837,7 @@
                         <span class="n">point_i</span><span class="p">,</span> <span class="n">point_q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">complex_iq</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">complex_iq</span><span class="p">)</span>
 
                     <span class="n">shot_memory</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">point_i</span><span class="p">,</span> <span class="n">point_q</span><span class="p">])</span>
-                <span class="c1"># We proceed to the next occurrence - meaning it&#39;s a new shot.</span>
+                <span class="c1"># We proceed to the next occurrence - meaning it's a new shot.</span>
                 <span class="n">memory</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shot_memory</span><span class="p">)</span>
                 <span class="n">shot_num</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -846,7 +846,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_generate_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">prob_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Generate data for the circuit.</span>
 
 <span class="sd">        Args:</span>
@@ -855,35 +855,35 @@
 <span class="sd">            circuit: The circuit that needs to be simulated.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A dictionary that&#39;s filled with the simulated data. The output format is different between</span>
+<span class="sd">            A dictionary that's filled with the simulated data. The output format is different between</span>
 <span class="sd">            measurement level 1 and measurement level 2.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># The output is proportional to the number of classical bit.</span>
         <span class="n">output_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">creg</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">creg</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">cregs</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verify_parameters</span><span class="p">(</span><span class="n">output_length</span><span class="p">,</span> <span class="n">prob_dict</span><span class="p">)</span>
         <span class="n">prob_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_probability_dict_to_probability_array</span><span class="p">(</span><span class="n">prob_dict</span><span class="p">,</span> <span class="n">output_length</span><span class="p">)</span>
-        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span>
-        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_level&quot;</span><span class="p">)</span>
-        <span class="n">meas_return</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_return&quot;</span><span class="p">)</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shots"</span><span class="p">)</span>
+        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"meas_level"</span><span class="p">)</span>
+        <span class="n">meas_return</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"meas_return"</span><span class="p">)</span>
         <span class="n">run_result</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">if</span> <span class="n">meas_level</span> <span class="o">==</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">:</span>
             <span class="n">counts</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">shots</span><span class="p">,</span> <span class="n">prob_arr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">result</span><span class="p">,</span> <span class="n">num_occurrences</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
-                <span class="n">result_in_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="n">output_length</span><span class="p">))</span>
+                <span class="n">result_in_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="n">output_length</span><span class="p">))</span>
                 <span class="n">counts</span><span class="p">[</span><span class="n">result_in_str</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_occurrences</span>
-            <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">counts</span>
-            <span class="k">if</span> <span class="n">meas_return</span> <span class="o">==</span> <span class="s2">&quot;single&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memory&quot;</span><span class="p">):</span>
-                <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="nb">format</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">result</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+            <span class="n">run_result</span><span class="p">[</span><span class="s2">"counts"</span><span class="p">]</span> <span class="o">=</span> <span class="n">counts</span>
+            <span class="k">if</span> <span class="n">meas_return</span> <span class="o">==</span> <span class="s2">"single"</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"memory"</span><span class="p">):</span>
+                <span class="n">run_result</span><span class="p">[</span><span class="s2">"memory"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="nb">format</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">)</span> <span class="k">for</span> <span class="n">result</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
                 <span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Phase has meaning only for IQ shot, so we calculate it here</span>
             <span class="n">phase</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_helper</span><span class="o">.</span><span class="n">iq_phase</span><span class="p">([</span><span class="n">circuit</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">iq_cluster_centers</span><span class="p">,</span> <span class="n">iq_cluster_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_helper</span><span class="o">.</span><span class="n">iq_clusters</span><span class="p">([</span><span class="n">circuit</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
 
-            <span class="c1"># &#39;circ_qubits&#39; get a list of all the qubits</span>
+            <span class="c1"># 'circ_qubits' get a list of all the qubits</span>
             <span class="n">memory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_draw_iq_shots</span><span class="p">(</span>
                 <span class="n">prob_arr</span><span class="p">,</span>
                 <span class="n">shots</span><span class="p">,</span>
@@ -892,16 +892,16 @@
                 <span class="n">iq_cluster_width</span><span class="p">,</span>
                 <span class="n">phase</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">meas_return</span> <span class="o">==</span> <span class="s2">&quot;avg&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">meas_return</span> <span class="o">==</span> <span class="s2">"avg"</span><span class="p">:</span>
                 <span class="n">memory</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">memory</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
-            <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory</span>
+            <span class="n">run_result</span><span class="p">[</span><span class="s2">"memory"</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory</span>
         <span class="k">return</span> <span class="n">run_result</span>
 
 <div class="viewcode-block" id="MockIQBackend.run">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.MockIQBackend.html#qiskit_experiments.test.MockIQBackend.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_input</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span> <span class="o">**</span><span class="n">run_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FakeJob</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run the IQ backend.</span>
 
 <span class="sd">        Args:</span>
@@ -927,34 +927,34 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: Raised if the user try to run the experiment without setting a helper.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_helper</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;The backend `experiment_helper` attribute cannot be &#39;None&#39;.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"The backend `experiment_helper` attribute cannot be 'None'."</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">run_options</span><span class="p">)</span>
-        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span>
-        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_level&quot;</span><span class="p">)</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shots"</span><span class="p">)</span>
+        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"meas_level"</span><span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;backend_name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;backend_version&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;qobj_id&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">"backend_name"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"backend_version"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+            <span class="s2">"qobj_id"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+            <span class="s2">"job_id"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+            <span class="s2">"success"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">"results"</span><span class="p">:</span> <span class="p">[],</span>
         <span class="p">}</span>
         <span class="n">prob_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_helper</span><span class="o">.</span><span class="n">compute_probabilities</span><span class="p">(</span><span class="n">run_input</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">prob</span><span class="p">,</span> <span class="n">circ</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">prob_list</span><span class="p">,</span> <span class="n">run_input</span><span class="p">):</span>
             <span class="n">run_result</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;shots&quot;</span><span class="p">:</span> <span class="n">shots</span><span class="p">,</span>
-                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">},</span>
-                <span class="s2">&quot;meas_level&quot;</span><span class="p">:</span> <span class="n">meas_level</span><span class="p">,</span>
+                <span class="s2">"shots"</span><span class="p">:</span> <span class="n">shots</span><span class="p">,</span>
+                <span class="s2">"success"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">"header"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"metadata"</span><span class="p">:</span> <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">},</span>
+                <span class="s2">"meas_level"</span><span class="p">:</span> <span class="n">meas_level</span><span class="p">,</span>
             <span class="p">}</span>
 
-            <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_data</span><span class="p">(</span><span class="n">prob</span><span class="p">,</span> <span class="n">circ</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_result</span><span class="p">)</span>
+            <span class="n">run_result</span><span class="p">[</span><span class="s2">"data"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_data</span><span class="p">(</span><span class="n">prob</span><span class="p">,</span> <span class="n">circ</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">"results"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_result</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">FakeJob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Result</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="p">))</span></div>
 </div>
@@ -964,31 +964,31 @@
 <div class="viewcode-block" id="MockIQParallelBackend">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.MockIQParallelBackend.html#qiskit_experiments.test.MockIQParallelBackend">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MockIQParallelBackend</span><span class="p">(</span><span class="n">MockIQBackend</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A mock backend for testing parallel experiments with IQ data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A mock backend for testing parallel experiments with IQ data."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">experiment_helper</span><span class="p">:</span> <span class="n">MockIQParallelExperimentHelper</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">rng_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the backend.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_helper: Parallel experiment helper class that contains</span>
 <span class="sd">                helper classes for each experiment.</span>
 <span class="sd">            rng_seed: The random seed value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">experiment_helper</span><span class="p">,</span> <span class="n">rng_seed</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">experiment_helper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return the &#39;experiment_helper&#39; attribute&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return the 'experiment_helper' attribute"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_helper</span>
 
     <span class="nd">@experiment_helper</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">experiment_helper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Setter for the experiment helper.</span>
 
 <span class="sd">        Args:</span>
@@ -997,11 +997,11 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: Raised if the value to set is not of type `MockIQExperimentHelper`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">cls</span> <span class="o">=</span> <span class="n">MockIQParallelExperimentHelper</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;The input type is </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="si">}</span><span class="s2"> while the type expected type is &lt;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="si">}</span><span class="s2">&gt;.&quot;</span>
+                <span class="sa">f</span><span class="s2">"The input type is </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="si">}</span><span class="s2"> while the type expected type is &lt;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="si">}</span><span class="s2">&gt;."</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_helper</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -1012,7 +1012,7 @@
         <span class="n">circ_qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">circ_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span> <span class="o">|</span> <span class="nb">complex</span><span class="p">]]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Produce an IQ shot.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            list_exp_dict: A list of dictionaries for each experiment. It is determined by the</span>
@@ -1025,17 +1025,17 @@
 <span class="sd">            List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.</span>
 <span class="sd">            The qubits are tuples with two values [I,Q].</span>
 <span class="sd">            The output structure is  - List[shot index][qubit index] = [I,Q]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Randomize samples (width=1)</span>
         <span class="n">qubits_iq_template_rand</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span> <span class="o">*</span> <span class="n">shots</span>
         <span class="k">for</span> <span class="n">shot</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shots</span><span class="p">):</span>
             <span class="n">rand_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_normal_samples_for_shot</span><span class="p">(</span><span class="n">circ_qubits</span><span class="p">)</span>
             <span class="n">rand_q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_normal_samples_for_shot</span><span class="p">(</span><span class="n">circ_qubits</span><span class="p">)</span>
-            <span class="n">qubits_iq_template_rand</span><span class="p">[</span><span class="n">shot</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rand_i</span><span class="p">,</span> <span class="n">rand_q</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">qubits_iq_template_rand</span><span class="p">[</span><span class="n">shot</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rand_i</span><span class="p">,</span> <span class="n">rand_q</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"float"</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
         <span class="n">memory</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shots</span><span class="p">)]</span>
 
-        <span class="c1"># The use of idx_shift is to sample &#39;qubits_iq_rand&#39; correctly</span>
+        <span class="c1"># The use of idx_shift is to sample 'qubits_iq_rand' correctly</span>
         <span class="n">sample_idx_shift</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="c1"># The code generates data as follows:</span>
@@ -1043,17 +1043,17 @@
         <span class="c1"># multinomial probability function draws lots for all the shots, and we store this data in the</span>
         <span class="c1"># corresponding position in the output list. After that we move on to the next experiment.</span>
         <span class="k">for</span> <span class="n">exp_dict</span> <span class="ow">in</span> <span class="n">list_exp_dict</span><span class="p">:</span>
-            <span class="c1"># skipping experiments that don&#39;t need data generation for this circuit.</span>
-            <span class="k">if</span> <span class="n">exp_dict</span><span class="p">[</span><span class="s2">&quot;num_circuits&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">circ_idx</span><span class="p">:</span>
+            <span class="c1"># skipping experiments that don't need data generation for this circuit.</span>
+            <span class="k">if</span> <span class="n">exp_dict</span><span class="p">[</span><span class="s2">"num_circuits"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">circ_idx</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="n">qubits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">exp_dict</span><span class="p">[</span><span class="s2">&quot;physical_qubits&quot;</span><span class="p">])</span>
+            <span class="n">qubits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">exp_dict</span><span class="p">[</span><span class="s2">"physical_qubits"</span><span class="p">])</span>
             <span class="n">prob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_probability_dict_to_probability_array</span><span class="p">(</span>
-                <span class="n">exp_dict</span><span class="p">[</span><span class="s2">&quot;prob&quot;</span><span class="p">][</span><span class="n">circ_idx</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+                <span class="n">exp_dict</span><span class="p">[</span><span class="s2">"prob"</span><span class="p">][</span><span class="n">circ_idx</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">phase</span> <span class="o">=</span> <span class="n">exp_dict</span><span class="p">[</span><span class="s2">&quot;phase&quot;</span><span class="p">][</span><span class="n">circ_idx</span><span class="p">]</span>
-            <span class="n">iq_centers</span> <span class="o">=</span> <span class="n">exp_dict</span><span class="p">[</span><span class="s2">&quot;centers&quot;</span><span class="p">][</span><span class="n">circ_idx</span><span class="p">]</span>
-            <span class="n">iq_widths</span> <span class="o">=</span> <span class="n">exp_dict</span><span class="p">[</span><span class="s2">&quot;widths&quot;</span><span class="p">][</span><span class="n">circ_idx</span><span class="p">]</span>
+            <span class="n">phase</span> <span class="o">=</span> <span class="n">exp_dict</span><span class="p">[</span><span class="s2">"phase"</span><span class="p">][</span><span class="n">circ_idx</span><span class="p">]</span>
+            <span class="n">iq_centers</span> <span class="o">=</span> <span class="n">exp_dict</span><span class="p">[</span><span class="s2">"centers"</span><span class="p">][</span><span class="n">circ_idx</span><span class="p">]</span>
+            <span class="n">iq_widths</span> <span class="o">=</span> <span class="n">exp_dict</span><span class="p">[</span><span class="s2">"widths"</span><span class="p">][</span><span class="n">circ_idx</span><span class="p">]</span>
             <span class="n">exp_widths</span> <span class="o">=</span> <span class="p">[</span><span class="n">iq_widths</span><span class="p">[</span><span class="n">i_qubit</span><span class="p">]</span> <span class="k">for</span> <span class="n">i_qubit</span> <span class="ow">in</span> <span class="n">circ_qubits</span><span class="p">]</span>
 
             <span class="c1"># Rescale samples to appropriate width for the given parallel circuits</span>
@@ -1064,7 +1064,7 @@
             <span class="k">for</span> <span class="n">output_number</span><span class="p">,</span> <span class="n">number_of_occurrences</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">shots</span><span class="p">,</span> <span class="n">prob</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="p">):</span>
-                <span class="n">state_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">output_number</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)))</span>
+                <span class="n">state_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">output_number</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)))</span>
                 <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_occurrences</span><span class="p">):</span>
                     <span class="c1"># the iteration on the string variable state_str starts from the MSB. For</span>
                     <span class="c1"># readability, we will reverse the string so the loop will run from the LSB to MSB.</span>
@@ -1075,8 +1075,8 @@
                         <span class="n">i_center</span> <span class="o">=</span> <span class="n">iq_centers</span><span class="p">[</span><span class="n">qubit</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">char_qubit</span><span class="p">)][</span><span class="mi">0</span><span class="p">]</span>
                         <span class="n">q_center</span> <span class="o">=</span> <span class="n">iq_centers</span><span class="p">[</span><span class="n">qubit</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">char_qubit</span><span class="p">)][</span><span class="mi">1</span><span class="p">]</span>
 
-                        <span class="c1"># we use &#39;sample_idx_shift&#39; to take the sample corresponding to the current qubit</span>
-                        <span class="c1"># in &#39;qubits_iq_rand[shot_num]&#39;.</span>
+                        <span class="c1"># we use 'sample_idx_shift' to take the sample corresponding to the current qubit</span>
+                        <span class="c1"># in 'qubits_iq_rand[shot_num]'.</span>
                         <span class="n">point_i</span> <span class="o">=</span> <span class="p">(</span>
                             <span class="n">i_center</span> <span class="o">+</span> <span class="n">qubits_iq_rand</span><span class="p">[</span><span class="n">shot_num</span><span class="p">][</span><span class="n">qubit_idx</span> <span class="o">+</span> <span class="n">sample_idx_shift</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                         <span class="p">)</span>
@@ -1100,45 +1100,45 @@
         <span class="n">list_exp_dict</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">int</span><span class="p">]],</span>
         <span class="n">circ_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Generate data for the circuit.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            list_exp_dict (List): A List of dictionaries, each dictionary contains data of an experiment.</span>
 <span class="sd">            circ_idx (int): The circuit number we simulate.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A dictionary that&#39;s filled with the simulated data.</span>
+<span class="sd">            A dictionary that's filled with the simulated data.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: Raising an error if in the experiment running option, classified data is</span>
 <span class="sd">            requested.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">circ_qubit_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">exp_dict</span> <span class="ow">in</span> <span class="n">list_exp_dict</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">circ_idx</span> <span class="o">&lt;</span> <span class="n">exp_dict</span><span class="p">[</span><span class="s2">&quot;num_circuits&quot;</span><span class="p">]:</span>
-                <span class="n">circ_qubit_list</span> <span class="o">=</span> <span class="n">circ_qubit_list</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">exp_dict</span><span class="p">[</span><span class="s2">&quot;physical_qubits&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">circ_idx</span> <span class="o">&lt;</span> <span class="n">exp_dict</span><span class="p">[</span><span class="s2">"num_circuits"</span><span class="p">]:</span>
+                <span class="n">circ_qubit_list</span> <span class="o">=</span> <span class="n">circ_qubit_list</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">exp_dict</span><span class="p">[</span><span class="s2">"physical_qubits"</span><span class="p">])</span>
 
-        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span>
-        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_level&quot;</span><span class="p">)</span>
-        <span class="n">meas_return</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_return&quot;</span><span class="p">)</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shots"</span><span class="p">)</span>
+        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"meas_level"</span><span class="p">)</span>
+        <span class="n">meas_return</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"meas_return"</span><span class="p">)</span>
         <span class="n">run_result</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">if</span> <span class="n">meas_level</span> <span class="o">==</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span><span class="p">:</span>
             <span class="n">memory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parallel_draw_iq_shots</span><span class="p">(</span><span class="n">list_exp_dict</span><span class="p">,</span> <span class="n">shots</span><span class="p">,</span> <span class="n">circ_qubit_list</span><span class="p">,</span> <span class="n">circ_idx</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">meas_return</span> <span class="o">==</span> <span class="s2">&quot;avg&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">meas_return</span> <span class="o">==</span> <span class="s2">"avg"</span><span class="p">:</span>
                 <span class="n">memory</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">memory</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
-            <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory</span>
+            <span class="n">run_result</span><span class="p">[</span><span class="s2">"memory"</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># The backend doesn&#39;t currently support &#39;meas_level = MeasLevel.CLASSIFIED&#39;.</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Classified data generator isn&#39;t supported for this backend&quot;</span><span class="p">)</span>
+            <span class="c1"># The backend doesn't currently support 'meas_level = MeasLevel.CLASSIFIED'.</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"Classified data generator isn't supported for this backend"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">run_result</span>
 
 <div class="viewcode-block" id="MockIQParallelBackend.run">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.MockIQParallelBackend.html#qiskit_experiments.test.MockIQParallelBackend.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_input</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span> <span class="o">**</span><span class="n">run_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FakeJob</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run the IQ backend.</span>
 
 <span class="sd">        Args:</span>
@@ -1164,35 +1164,35 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: Raised if the user try to run the experiment without setting a helper.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_helper</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;The backend `experiment_helper` attribute cannot be &#39;None&#39;.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"The backend `experiment_helper` attribute cannot be 'None'."</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">run_options</span><span class="p">)</span>
-        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span>
-        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_level&quot;</span><span class="p">)</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shots"</span><span class="p">)</span>
+        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"meas_level"</span><span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;backend_name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;backend_version&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;qobj_id&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">"backend_name"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"backend_version"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+            <span class="s2">"qobj_id"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+            <span class="s2">"job_id"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+            <span class="s2">"success"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">"results"</span><span class="p">:</span> <span class="p">[],</span>
         <span class="p">}</span>
 
         <span class="n">experiment_data_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_helper</span><span class="o">.</span><span class="n">compute_probabilities</span><span class="p">(</span><span class="n">run_input</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">circ_idx</span><span class="p">,</span> <span class="n">circ</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">run_input</span><span class="p">):</span>
             <span class="n">run_result</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;shots&quot;</span><span class="p">:</span> <span class="n">shots</span><span class="p">,</span>
-                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">},</span>
-                <span class="s2">&quot;meas_level&quot;</span><span class="p">:</span> <span class="n">meas_level</span><span class="p">,</span>
+                <span class="s2">"shots"</span><span class="p">:</span> <span class="n">shots</span><span class="p">,</span>
+                <span class="s2">"success"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">"header"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"metadata"</span><span class="p">:</span> <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">},</span>
+                <span class="s2">"meas_level"</span><span class="p">:</span> <span class="n">meas_level</span><span class="p">,</span>
             <span class="p">}</span>
 
-            <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parallel_generate_data</span><span class="p">(</span><span class="n">experiment_data_list</span><span class="p">,</span> <span class="n">circ_idx</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_result</span><span class="p">)</span>
+            <span class="n">run_result</span><span class="p">[</span><span class="s2">"data"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parallel_generate_data</span><span class="p">(</span><span class="n">experiment_data_list</span><span class="p">,</span> <span class="n">circ_idx</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">"results"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_result</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">FakeJob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Result</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="p">))</span></div>
 </div>
@@ -1200,14 +1200,14 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">MockMultiStateBackend</span><span class="p">(</span><span class="n">BaseMockBackend</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A mock backend for testing with multi-state IQ data.</span>
+<span class="w">    </span><span class="sd">"""A mock backend for testing with multi-state IQ data.</span>
 
 <span class="sd">    .. note::</span>
 
 <span class="sd">        This backend does no simulation. It just looks for gates x, x12, and</span>
 <span class="sd">        x23 and sets the qubit state to the highest possible based on the</span>
 <span class="sd">        presence of these gates.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1216,7 +1216,7 @@
         <span class="n">state_noise</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">rng_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the backend.</span>
 
 <span class="sd">        Args:</span>
@@ -1228,10 +1228,10 @@
 <span class="sd">                example, 0.2 for a circuit with an x would mean 0.8 probability</span>
 <span class="sd">                of 1 and 0.2 probability 0 when iq_centers has length 2.</span>
 <span class="sd">            rng_seed(int): The random seed value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">iq_centers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only 4 qubit levels supported!&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Only 4 qubit levels supported!"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iq_centers</span> <span class="o">=</span> <span class="n">iq_centers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iq_noise</span> <span class="o">=</span> <span class="n">iq_noise</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state_noise</span> <span class="o">=</span> <span class="n">state_noise</span>
@@ -1240,30 +1240,30 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="s2">&quot;x&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">Gate</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[]))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">Gate</span><span class="p">(</span><span class="s2">&quot;x12&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[]))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">Gate</span><span class="p">(</span><span class="s2">&quot;x23&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="k">if</span> <span class="s2">"x"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">Gate</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">Gate</span><span class="p">(</span><span class="s2">"x12"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">Gate</span><span class="p">(</span><span class="s2">"x23"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[]))</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default options of the test backend.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default options of the test backend."""</span>
         <span class="k">return</span> <span class="n">Options</span><span class="p">(</span>
             <span class="n">shots</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
             <span class="n">meas_level</span><span class="o">=</span><span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span><span class="p">,</span>
-            <span class="n">meas_return</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+            <span class="n">meas_return</span><span class="o">=</span><span class="s2">"single"</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the probability of being in the various states for each circuit&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the probability of being in the various states for each circuit"""</span>
         <span class="n">output_dict_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">circuit</span> <span class="ow">in</span> <span class="n">circuits</span><span class="p">:</span>
             <span class="n">ops</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">count_ops</span><span class="p">()</span>
-            <span class="k">if</span> <span class="s2">&quot;x23&quot;</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"x23"</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
                 <span class="n">idx</span> <span class="o">=</span> <span class="mi">3</span>
-            <span class="k">elif</span> <span class="s2">&quot;x12&quot;</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="s2">"x12"</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
                 <span class="n">idx</span> <span class="o">=</span> <span class="mi">2</span>
-            <span class="k">elif</span> <span class="s2">&quot;x&quot;</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="s2">"x"</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
                 <span class="n">idx</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1286,18 +1286,18 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_verify_parameters</span><span class="p">(</span><span class="n">output_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">prob_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
         <span class="k">if</span> <span class="n">output_length</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;The output length </span><span class="si">{</span><span class="n">output_length</span><span class="si">}</span><span class="s2"> is not 1 (only one measurement supported).&quot;</span>
+                <span class="sa">f</span><span class="s2">"The output length </span><span class="si">{</span><span class="n">output_length</span><span class="si">}</span><span class="s2"> is not 1 (only one measurement supported)."</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">prob_list</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The probabilities given don&#39;t sum up to 1.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The probabilities given don't sum up to 1."</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_draw_iq_shots</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">prob</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Produce an IQ shot.</span>
 
 <span class="sd">        Args:</span>
@@ -1309,7 +1309,7 @@
 <span class="sd">            values [I,Q]. The output structure is</span>
 
 <span class="sd">                List[shot index][qubit index][I,Q]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Randomize samples (width=1)</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iq_noise</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">shots</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
@@ -1321,7 +1321,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_generate_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">prob_list</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Generate data for the circuit.</span>
 
 <span class="sd">        Args:</span>
@@ -1329,28 +1329,28 @@
 <span class="sd">            circuit: The circuit that needs to be simulated.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A dictionary that&#39;s filled with the simulated data. The output format is different between</span>
+<span class="sd">            A dictionary that's filled with the simulated data. The output format is different between</span>
 <span class="sd">            measurement level 1 and measurement level 2.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># The output is proportional to the number of classical bit.</span>
         <span class="n">output_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">creg</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">creg</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">cregs</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verify_parameters</span><span class="p">(</span><span class="n">output_length</span><span class="p">,</span> <span class="n">prob_list</span><span class="p">)</span>
-        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span>
-        <span class="n">meas_return</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_return&quot;</span><span class="p">)</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shots"</span><span class="p">)</span>
+        <span class="n">meas_return</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"meas_return"</span><span class="p">)</span>
         <span class="n">run_result</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">memory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_draw_iq_shots</span><span class="p">(</span>
             <span class="n">prob_list</span><span class="p">,</span>
             <span class="n">shots</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">meas_return</span> <span class="o">==</span> <span class="s2">&quot;avg&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">meas_return</span> <span class="o">==</span> <span class="s2">"avg"</span><span class="p">:</span>
             <span class="n">memory</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">memory</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
-        <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory</span>
+        <span class="n">run_result</span><span class="p">[</span><span class="s2">"memory"</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory</span>
         <span class="k">return</span> <span class="n">run_result</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_input</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span> <span class="o">**</span><span class="n">run_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FakeJob</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run the IQ backend.</span>
 
 <span class="sd">        Args:</span>
@@ -1377,33 +1377,33 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: Raised if the user try to run the experiment without setting a helper.</span>
 <span class="sd">            ValueError: Raised if ``meas_level`` in ``run_options`` is not 1.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">run_options</span><span class="p">)</span>
-        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span>
-        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shots"</span><span class="p">)</span>
+        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"meas_level"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">meas_level</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only level 1 data supported!&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Only level 1 data supported!"</span><span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;backend_name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;backend_version&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;qobj_id&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">"backend_name"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"backend_version"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+            <span class="s2">"qobj_id"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+            <span class="s2">"job_id"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+            <span class="s2">"success"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">"results"</span><span class="p">:</span> <span class="p">[],</span>
         <span class="p">}</span>
         <span class="n">prob_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_probabilities</span><span class="p">(</span><span class="n">run_input</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">prob</span><span class="p">,</span> <span class="n">circ</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">prob_list</span><span class="p">,</span> <span class="n">run_input</span><span class="p">):</span>
             <span class="n">run_result</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;shots&quot;</span><span class="p">:</span> <span class="n">shots</span><span class="p">,</span>
-                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">},</span>
-                <span class="s2">&quot;meas_level&quot;</span><span class="p">:</span> <span class="n">meas_level</span><span class="p">,</span>
+                <span class="s2">"shots"</span><span class="p">:</span> <span class="n">shots</span><span class="p">,</span>
+                <span class="s2">"success"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">"header"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"metadata"</span><span class="p">:</span> <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">},</span>
+                <span class="s2">"meas_level"</span><span class="p">:</span> <span class="n">meas_level</span><span class="p">,</span>
             <span class="p">}</span>
 
-            <span class="n">run_result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_data</span><span class="p">(</span><span class="n">prob</span><span class="p">,</span> <span class="n">circ</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_result</span><span class="p">)</span>
+            <span class="n">run_result</span><span class="p">[</span><span class="s2">"data"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_data</span><span class="p">(</span><span class="n">prob</span><span class="p">,</span> <span class="n">circ</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">"results"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_result</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">FakeJob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Result</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
 </pre></div>
@@ -1424,7 +1424,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1439,7 +1439,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

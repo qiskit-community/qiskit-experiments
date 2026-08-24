@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.purity_rb - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.purity_rb - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Purity RB Experiment class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">numbers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Integral</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span>
@@ -581,7 +581,7 @@
 <div class="viewcode-block" id="PurityRB">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.PurityRB.html#qiskit_experiments.library.randomized_benchmarking.PurityRB">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PurityRB</span><span class="p">(</span><span class="n">StandardRB</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;An experiment to characterize the error rate of a gate set on a device</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""An experiment to characterize the error rate of a gate set on a device</span>
 <span class="sd">    using purity RB.</span>
 
 <span class="sd">    # section: overview</span>
@@ -617,8 +617,8 @@
 <span class="sd">            from qiskit_aer.noise import NoiseModel, depolarizing_error</span>
 
 <span class="sd">            noise_model = NoiseModel()</span>
-<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), [&quot;sx&quot;, &quot;x&quot;])</span>
-<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), [&quot;rz&quot;])</span>
+<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])</span>
+<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])</span>
 <span class="sd">            backend = AerSimulator(noise_model=noise_model)</span>
 
 <span class="sd">        .. jupyter-execute::</span>
@@ -637,8 +637,8 @@
 <span class="sd">            results = expdata.analysis_results(dataframe=True)</span>
 
 <span class="sd">            display(expdata.figure(0))</span>
-<span class="sd">            print(f&quot;Purity EPC: {results.loc[results[&#39;name&#39;] == &#39;EPC_pur&#39;, &#39;value&#39;].values[0]:.5f}&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">            print(f"Purity EPC: {results.loc[results['name'] == 'EPC_pur', 'value'].values[0]:.5f}")</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -649,7 +649,7 @@
         <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">SeedSequence</span><span class="p">,</span> <span class="n">BitGenerator</span><span class="p">,</span> <span class="n">Generator</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">full_sampling</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a purity randomized benchmarking experiment.</span>
+<span class="w">        </span><span class="sd">"""Initialize a purity randomized benchmarking experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            physical_qubits: List of physical qubits for the experiment.</span>
@@ -666,26 +666,26 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If any invalid argument is supplied.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Initialize base experiment (RB)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">full_sampling</span><span class="p">)</span>
 
         <span class="c1"># override the analysis</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span> <span class="o">=</span> <span class="n">PurityRBAnalysis</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;0&quot;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">"0"</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
-            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Clifford Length&quot;</span><span class="p">,</span>
-            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Purity&quot;</span><span class="p">,</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">"Clifford Length"</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">"Purity"</span><span class="p">,</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="PurityRB.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.PurityRB.html#qiskit_experiments.library.randomized_benchmarking.PurityRB.circuits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of RB circuits.</span>
+<span class="w">        </span><span class="sd">"""Return a list of RB circuits.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`QuantumCircuit`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Sample random Clifford sequences</span>
         <span class="n">sequences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_sequences</span><span class="p">()</span>
         <span class="c1"># Convert each sequence into circuit and append the inverse to the end.</span>
@@ -698,10 +698,10 @@
             <span class="n">trial_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">circ_i</span> <span class="o">/</span> <span class="p">(</span><span class="mi">3</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
             <span class="n">post_rot_idx</span> <span class="o">=</span> <span class="n">circ_i</span> <span class="o">%</span> <span class="p">(</span><span class="mi">3</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
             <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">sequences</span><span class="p">[</span><span class="n">trial_idx</span><span class="p">]),</span>
-                <span class="s2">&quot;trial&quot;</span><span class="p">:</span> <span class="n">trial_idx</span><span class="p">,</span>
-                <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="s2">&quot;Clifford&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;post_rotation_index&quot;</span><span class="p">:</span> <span class="n">post_rot_idx</span><span class="p">,</span>
+                <span class="s2">"xval"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">sequences</span><span class="p">[</span><span class="n">trial_idx</span><span class="p">]),</span>
+                <span class="s2">"trial"</span><span class="p">:</span> <span class="n">trial_idx</span><span class="p">,</span>
+                <span class="s2">"group"</span><span class="p">:</span> <span class="s2">"Clifford"</span><span class="p">,</span>
+                <span class="s2">"post_rotation_index"</span><span class="p">:</span> <span class="n">post_rot_idx</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="k">return</span> <span class="n">circuits</span></div>
 
@@ -709,12 +709,12 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_sequences_to_circuits</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">sequences</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">SequenceElementType</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert an RB sequence into circuit and append the inverse to the end and</span>
+<span class="w">        </span><span class="sd">"""Convert an RB sequence into circuit and append the inverse to the end and</span>
 <span class="sd">        then the post rotations for purity RB</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of purity RB circuits.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">synthesis_opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_synthesis_options</span><span class="p">()</span>
 
         <span class="c1"># post rotations as cliffords</span>
@@ -785,7 +785,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -800,7 +800,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

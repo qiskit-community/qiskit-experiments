@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.fine_drag - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.characterization.fine_drag - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Fine DRAG characterization experiment.&quot;&quot;&quot;</span>
+<span class="sd">"""Fine DRAG characterization experiment."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -572,7 +572,7 @@
 <div class="viewcode-block" id="FineDrag">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.FineDrag.html#qiskit_experiments.library.characterization.FineDrag">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FineDrag</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;An experiment that performs fine characterizations of DRAG pulse coefficients.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""An experiment that performs fine characterizations of DRAG pulse coefficients.</span>
 
 <span class="sd">    # section: overview</span>
 
@@ -590,7 +590,7 @@
 <span class="sd">            meas: 1/══════════════════════════════════════════════════════╩═</span>
 <span class="sd">                                                                          0</span>
 
-<span class="sd">        Here, &quot;Pre&quot; and &quot;Post&quot; designate gates that may be pre-appended and and post-appended,</span>
+<span class="sd">        Here, "Pre" and "Post" designate gates that may be pre-appended and and post-appended,</span>
 <span class="sd">        respectively, to the repeated sequence of Rp - Rz - Rp - Rz gates. When calibrating</span>
 <span class="sd">        a pulse with a target rotation angle of π the Pre and Post gates are Id and RYGate(π/2),</span>
 <span class="sd">        respectively. When calibrating a pulse with a target rotation angle of π/2 the Pre and</span>
@@ -697,7 +697,7 @@
 <span class="sd">            noise_model = NoiseModel()</span>
 <span class="sd">            noise_model.add_all_qubit_quantum_error(</span>
 <span class="sd">                coherent_unitary_error(err_mat),</span>
-<span class="sd">                [&quot;x&quot;],</span>
+<span class="sd">                ["x"],</span>
 <span class="sd">            )</span>
 
 <span class="sd">            backend = AerSimulator(noise_model=noise_model)</span>
@@ -716,17 +716,17 @@
 <span class="sd">    # section: reference</span>
 <span class="sd">        .. ref_arxiv:: 1 1612.00858</span>
 <span class="sd">        .. ref_arxiv:: 2 1011.1949</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Default values for the fine amplitude experiment.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Default values for the fine amplitude experiment.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            repetitions (List[int]): A list of the number of times that Rp - Rm gate sequence</span>
 <span class="sd">                is repeated.</span>
 <span class="sd">            gate (Gate): This is the gate such as XGate() that will be in the circuits.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">repetitions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
         <span class="n">options</span><span class="o">.</span><span class="n">gate</span> <span class="o">=</span> <span class="kc">None</span>
@@ -734,21 +734,21 @@
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">gate</span><span class="p">:</span> <span class="n">Gate</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup a fine amplitude experiment on the given qubit.</span>
+<span class="w">        </span><span class="sd">"""Setup a fine amplitude experiment on the given qubit.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            physical_qubits: List containing the qubit on which to run the fine</span>
 <span class="sd">                amplitude calibration experiment.</span>
 <span class="sd">            gate: The gate that will be repeated.</span>
 <span class="sd">            backend: Optional, the backend to run the experiment on.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">analysis</span> <span class="o">=</span> <span class="n">ErrorAmplificationAnalysis</span><span class="p">()</span>
         <span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span>
             <span class="n">normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">fixed_parameters</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;angle_per_gate&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-                <span class="s2">&quot;phase_offset&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
-                <span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+                <span class="s2">"angle_per_gate"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">"phase_offset"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="s2">"amp"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -757,12 +757,12 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_pre_circuit</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the quantum circuit to apply before repeating the Rp - Rz - Rp - Rz gates.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the quantum circuit to apply before repeating the Rp - Rz - Rp - Rz gates."""</span>
         <span class="k">return</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_post_circuit</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the quantum circuit to apply after repeating the Rp - Rz - Rp - Rz gates.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the quantum circuit to apply after repeating the Rp - Rz - Rp - Rz gates."""</span>
 
         <span class="c1"># Map unwanted Z rotations to qubit population.</span>
         <span class="n">circ</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -773,11 +773,11 @@
 <div class="viewcode-block" id="FineDrag.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.FineDrag.html#qiskit_experiments.library.characterization.FineDrag.circuits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the circuits for the fine DRAG calibration experiment.</span>
+<span class="w">        </span><span class="sd">"""Create the circuits for the fine DRAG calibration experiment.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of circuits with a variable number of gates.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">repetition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">repetitions</span><span class="p">:</span>
@@ -793,7 +793,7 @@
 
             <span class="n">circuit</span><span class="o">.</span><span class="n">measure_all</span><span class="p">()</span>
 
-            <span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="n">repetition</span><span class="p">}</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"xval"</span><span class="p">:</span> <span class="n">repetition</span><span class="p">}</span>
 
             <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
 
@@ -804,7 +804,7 @@
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
         <span class="c1"># Store measurement level and meas return if they have been</span>
         <span class="c1"># set for the experiment</span>
-        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="s2">&quot;meas_return&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"meas_level"</span><span class="p">,</span> <span class="s2">"meas_return"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">):</span>
                 <span class="n">metadata</span><span class="p">[</span><span class="n">run_opt</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metadata</span></div>
@@ -814,7 +814,7 @@
 <div class="viewcode-block" id="FineXDrag">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.FineXDrag.html#qiskit_experiments.library.characterization.FineXDrag">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FineXDrag</span><span class="p">(</span><span class="n">FineDrag</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to fine characterize the DRAG parameter of an X gate.</span>
+<span class="w">    </span><span class="sd">"""Class to fine characterize the DRAG parameter of an X gate.</span>
 
 <span class="sd">    # section: example</span>
 <span class="sd">        .. jupyter-execute::</span>
@@ -851,7 +851,7 @@
 <span class="sd">            noise_model = NoiseModel()</span>
 <span class="sd">            noise_model.add_all_qubit_quantum_error(</span>
 <span class="sd">                coherent_unitary_error(err_mat),</span>
-<span class="sd">                [&quot;x&quot;],</span>
+<span class="sd">                ["x"],</span>
 <span class="sd">            )</span>
 
 <span class="sd">            backend = AerSimulator(noise_model=noise_model)</span>
@@ -865,19 +865,19 @@
 <span class="sd">            exp_data = exp.run().block_for_results()</span>
 <span class="sd">            display(exp_data.figure(0))</span>
 <span class="sd">            exp_data.analysis_results(dataframe=True)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the experiment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the experiment."""</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">XGate</span><span class="p">(),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Default values for the FineXDrag experiment.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Default values for the FineXDrag experiment.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            gate (Gate): FineXDrag calibrates an XGate.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">gate</span> <span class="o">=</span> <span class="n">XGate</span><span class="p">()</span>
 
@@ -885,7 +885,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_pre_circuit</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the quantum circuit done before the Rp - Rz - Rp - Rz gates.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the quantum circuit done before the Rp - Rz - Rp - Rz gates."""</span>
         <span class="k">return</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
 
@@ -893,7 +893,7 @@
 <div class="viewcode-block" id="FineSXDrag">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.FineSXDrag.html#qiskit_experiments.library.characterization.FineSXDrag">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FineSXDrag</span><span class="p">(</span><span class="n">FineDrag</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to fine characterize the DRAG parameter of an :math:`SX` gate.</span>
+<span class="w">    </span><span class="sd">"""Class to fine characterize the DRAG parameter of an :math:`SX` gate.</span>
 
 <span class="sd">    # section: example</span>
 <span class="sd">        .. jupyter-execute::</span>
@@ -918,7 +918,7 @@
 <span class="sd">            noise_model = NoiseModel()</span>
 <span class="sd">            noise_model.add_all_qubit_quantum_error(</span>
 <span class="sd">                coherent_unitary_error(err_mat),</span>
-<span class="sd">                [&quot;sx&quot;],</span>
+<span class="sd">                ["sx"],</span>
 <span class="sd">            )</span>
 
 <span class="sd">            backend = AerSimulator(noise_model=noise_model)</span>
@@ -932,19 +932,19 @@
 <span class="sd">            exp_data = exp.run().block_for_results()</span>
 <span class="sd">            display(exp_data.figure(0))</span>
 <span class="sd">            exp_data.analysis_results(dataframe=True)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the experiment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the experiment."""</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">SXGate</span><span class="p">(),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Default values for the FineSXDrag experiment.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Default values for the FineSXDrag experiment.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            gate (Gate): FineSXDrag calibrates an SXGate.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">gate</span> <span class="o">=</span> <span class="n">SXGate</span><span class="p">()</span>
 
@@ -952,7 +952,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_pre_circuit</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the quantum circuit with an sx gate before the Rp - Rz - Rp - Rz gates.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the quantum circuit with an sx gate before the Rp - Rz - Rp - Rz gates."""</span>
         <span class="n">circ</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">circ</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">circ</span></div>
@@ -975,7 +975,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -990,7 +990,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

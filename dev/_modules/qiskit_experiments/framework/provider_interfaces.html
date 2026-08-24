@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.framework.provider_interfaces - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.framework.provider_interfaces - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,7 +555,7 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Definitions of interfaces for classes working with circuit execution</span>
 
 <span class="sd">Qiskit Experiments tries to maintain the flexibility to work with multiple</span>
@@ -564,7 +564,7 @@
 <span class="sd">follow exactly the same interface. This module provides definitions of the</span>
 <span class="sd">subset of the interfaces that Qiskit Experiments needs in order to analyze</span>
 <span class="sd">experiment results.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -589,33 +589,33 @@
 <div class="viewcode-block" id="BaseJob">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseJob.html#qiskit_experiments.framework.BaseJob">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseJob</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Required interface definition of a job class as needed for experiment data&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Required interface definition of a job class as needed for experiment data"""</span>
 
 <div class="viewcode-block" id="BaseJob.cancel">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseJob.html#qiskit_experiments.framework.BaseJob.cancel">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cancel the job&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Cancel the job"""</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="BaseJob.job_id">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseJob.html#qiskit_experiments.framework.BaseJob.job_id">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">job_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ID string for the job&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the ID string for the job"""</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="BaseJob.result">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseJob.html#qiskit_experiments.framework.BaseJob.result">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span> <span class="o">|</span> <span class="n">PrimitiveResult</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the job result data&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the job result data"""</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="BaseJob.status">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseJob.html#qiskit_experiments.framework.BaseJob.status">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JobStatus</span> <span class="o">|</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the status of the job&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the status of the job"""</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 </div>
 
@@ -624,44 +624,44 @@
 <div class="viewcode-block" id="ExtendedJob">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExtendedJob.html#qiskit_experiments.framework.ExtendedJob">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExtendedJob</span><span class="p">(</span><span class="n">BaseJob</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Job interface with methods to support all of experiment data&#39;s features&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Job interface with methods to support all of experiment data's features"""</span>
 
 <div class="viewcode-block" id="ExtendedJob.backend">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExtendedJob.html#qiskit_experiments.framework.ExtendedJob.backend">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">backend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Backend</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the backend associated with a job&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the backend associated with a job"""</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="ExtendedJob.error_message">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExtendedJob.html#qiskit_experiments.framework.ExtendedJob.error_message">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">error_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the reason the job failed&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the reason the job failed"""</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 </div>
 
 
 
 <span class="n">Job</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">BaseJob</span> <span class="o">|</span> <span class="n">ExtendedJob</span>
-<span class="n">__local_type_aliases__</span><span class="p">[</span><span class="s2">&quot;Job&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Union type of job interfaces supported by Qiskit Experiments&quot;</span>
+<span class="n">__local_type_aliases__</span><span class="p">[</span><span class="s2">"Job"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Union type of job interfaces supported by Qiskit Experiments"</span>
 
 
 <div class="viewcode-block" id="BaseProvider">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseProvider.html#qiskit_experiments.framework.BaseProvider">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseProvider</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Interface definition of a provider class as needed for experiment data&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Interface definition of a provider class as needed for experiment data"""</span>
 
 <div class="viewcode-block" id="BaseProvider.job">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.BaseProvider.html#qiskit_experiments.framework.BaseProvider.job">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Job</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a job object using its job ID</span>
+<span class="w">        </span><span class="sd">"""Retrieve a job object using its job ID</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            job_id: Job ID.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The retrieved job</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 </div>
 
@@ -669,26 +669,26 @@
 
 <span class="c1"># Wrap with Annotated to bypass Sphinx alias detection so that our custom</span>
 <span class="c1"># docstring is used</span>
-<span class="n">Provider</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">BaseProvider</span><span class="p">,</span> <span class="s2">&quot;Provider&quot;</span><span class="p">]</span>
-<span class="n">__local_type_aliases__</span><span class="p">[</span><span class="s2">&quot;Provider&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;Type alias of provider interfaces supported by Qiskit Experiments&quot;</span>
+<span class="n">Provider</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">BaseProvider</span><span class="p">,</span> <span class="s2">"Provider"</span><span class="p">]</span>
+<span class="n">__local_type_aliases__</span><span class="p">[</span><span class="s2">"Provider"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"Type alias of provider interfaces supported by Qiskit Experiments"</span>
 <span class="p">)</span>
 
 
 <div class="viewcode-block" id="MeasReturnType">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.MeasReturnType.html#qiskit_experiments.framework.MeasReturnType">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MeasReturnType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Backend return types for Qobj and backend.run jobs&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Backend return types for Qobj and backend.run jobs"""</span>
 
-    <span class="n">AVERAGE</span> <span class="o">=</span> <span class="s2">&quot;avg&quot;</span>
-    <span class="n">SINGLE</span> <span class="o">=</span> <span class="s2">&quot;single&quot;</span></div>
+    <span class="n">AVERAGE</span> <span class="o">=</span> <span class="s2">"avg"</span>
+    <span class="n">SINGLE</span> <span class="o">=</span> <span class="s2">"single"</span></div>
 
 
 
 <div class="viewcode-block" id="MeasLevel">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.MeasLevel.html#qiskit_experiments.framework.MeasLevel">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MeasLevel</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Measurement level types for legacy Qobj and Sampler jobs&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Measurement level types for legacy Qobj and Sampler jobs"""</span>
 
     <span class="n">RAW</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">KERNELED</span> <span class="o">=</span> <span class="mi">1</span>
@@ -699,7 +699,7 @@
 <div class="viewcode-block" id="ExperimentService">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentService.html#qiskit_experiments.framework.ExperimentService">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExperimentService</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Interface definition for experiment database service.</span>
+<span class="w">    </span><span class="sd">"""Interface definition for experiment database service.</span>
 
 <span class="sd">    This interface defines the methods needed by ExperimentData to interact</span>
 <span class="sd">    with an experiment database service, whether local or remote.</span>
@@ -709,15 +709,15 @@
 <span class="sd">        Some of the type signatures of the methods of this protocol could</span>
 <span class="sd">        change in future versions of Qiskit Experiments without a transition</span>
 <span class="sd">        period.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return service options dictionary.</span>
+<span class="w">        </span><span class="sd">"""Return service options dictionary.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Dictionary of service options</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 <div class="viewcode-block" id="ExperimentService.create_or_update_experiment">
@@ -730,7 +730,7 @@
         <span class="n">max_attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbExperimentData</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create or update an experiment in the database.</span>
+<span class="w">        </span><span class="sd">"""Create or update an experiment in the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: Experiment data to save</span>
@@ -741,7 +741,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Experiment data of the experiment</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
@@ -754,7 +754,7 @@
         <span class="n">create</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">max_attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create or update an analysis result in the database.</span>
+<span class="w">        </span><span class="sd">"""Create or update an analysis result in the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: Analysis result data to save</span>
@@ -764,7 +764,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Analysis result ID</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
@@ -777,7 +777,7 @@
         <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">json_encoder</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">JSONEncoder</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create multiple analysis results in the database.</span>
+<span class="w">        </span><span class="sd">"""Create multiple analysis results in the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: List of analysis result data to save</span>
@@ -787,7 +787,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Status dictionary or handler object</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
@@ -798,7 +798,7 @@
         <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">json_decoder</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">JSONDecoder</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbExperimentData</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a single experiment from the database.</span>
+<span class="w">        </span><span class="sd">"""Retrieve a single experiment from the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_id: Experiment ID</span>
@@ -806,18 +806,18 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Retrieved experiment data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="ExperimentService.delete_experiment">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentService.html#qiskit_experiments.framework.ExperimentService.delete_experiment">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">delete_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete an experiment from the database.</span>
+<span class="w">        </span><span class="sd">"""Delete an experiment from the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_id: Experiment ID to delete</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
@@ -828,7 +828,7 @@
         <span class="n">result_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">json_decoder</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">JSONDecoder</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbAnalysisResultData</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a single analysis result from the database.</span>
+<span class="w">        </span><span class="sd">"""Retrieve a single analysis result from the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            result_id: Analysis result ID</span>
@@ -836,7 +836,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Retrieved analysis result data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
@@ -849,7 +849,7 @@
         <span class="n">json_decoder</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">JSONDecoder</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">filters</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Query analysis results from the database.</span>
+<span class="w">        </span><span class="sd">"""Query analysis results from the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_id: Filter by experiment ID</span>
@@ -859,18 +859,18 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of analysis results</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="ExperimentService.delete_analysis_result">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentService.html#qiskit_experiments.framework.ExperimentService.delete_analysis_result">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">delete_analysis_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete an analysis result from the database.</span>
+<span class="w">        </span><span class="sd">"""Delete an analysis result from the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            result_id: Analysis result ID to delete</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
@@ -884,7 +884,7 @@
         <span class="n">create</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">max_attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create or update a figure in the database.</span>
+<span class="w">        </span><span class="sd">"""Create or update a figure in the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_id: Experiment ID</span>
@@ -895,7 +895,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Tuple of (figure_name, size)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
@@ -908,7 +908,7 @@
         <span class="n">blocking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create multiple figures in the database.</span>
+<span class="w">        </span><span class="sd">"""Create multiple figures in the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_id: Experiment ID</span>
@@ -918,7 +918,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Status dictionary or handler object</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
@@ -930,7 +930,7 @@
         <span class="n">figure_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a figure from the database.</span>
+<span class="w">        </span><span class="sd">"""Retrieve a figure from the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_id: Experiment ID</span>
@@ -939,33 +939,33 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Figure bytes if file_name is None, otherwise size written</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="ExperimentService.delete_figure">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentService.html#qiskit_experiments.framework.ExperimentService.delete_figure">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">delete_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">figure_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete a figure from the database.</span>
+<span class="w">        </span><span class="sd">"""Delete a figure from the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_id: Experiment ID</span>
 <span class="sd">            figure_name: Name of the figure to delete</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="ExperimentService.files">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentService.html#qiskit_experiments.framework.ExperimentService.files">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the file list for an experiment.</span>
+<span class="w">        </span><span class="sd">"""Retrieve the file list for an experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_id: Experiment ID</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Dictionary with file list metadata</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
@@ -978,14 +978,14 @@
         <span class="n">file_data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">,</span>
         <span class="n">json_encoder</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">JSONEncoder</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Upload a file to the database.</span>
+<span class="w">        </span><span class="sd">"""Upload a file to the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_id: Experiment ID</span>
 <span class="sd">            file_name: Name for the file</span>
 <span class="sd">            file_data: File data (dict or JSON string or file bytes)</span>
 <span class="sd">            json_encoder: Custom JSON encoder</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
@@ -996,12 +996,12 @@
         <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete a file from the database</span>
+<span class="w">        </span><span class="sd">"""Delete a file from the database</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_id: Experiment ID</span>
 <span class="sd">            file_name: Name for the file</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
@@ -1013,7 +1013,7 @@
         <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">json_decoder</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">JSONDecoder</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download a file from the database.</span>
+<span class="w">        </span><span class="sd">"""Download a file from the database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_id: Experiment ID</span>
@@ -1022,7 +1022,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Deserialized file data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 </div>
 
@@ -1044,7 +1044,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1059,7 +1059,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

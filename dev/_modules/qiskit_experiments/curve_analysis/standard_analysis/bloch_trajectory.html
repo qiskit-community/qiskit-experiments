@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.curve_analysis.standard_analysis.bloch_trajectory - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.curve_analysis.standard_analysis.bloch_trajectory - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Bloch trajectory analysis of a single qubit.&quot;&quot;&quot;</span>
+<span class="sd">"""Bloch trajectory analysis of a single qubit."""</span>
 
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
@@ -569,7 +569,7 @@
 <div class="viewcode-block" id="BlochTrajectoryAnalysis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.BlochTrajectoryAnalysis.html#qiskit_experiments.curve_analysis.BlochTrajectoryAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BlochTrajectoryAnalysis</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">CurveAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A class to analyze a trajectory of the Bloch vector of a single qubit.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A class to analyze a trajectory of the Bloch vector of a single qubit.</span>
 
 <span class="sd">    # section: fit_model</span>
 
@@ -579,16 +579,16 @@
 
 <span class="sd">            \begin{align}</span>
 <span class="sd">                F_x(t) &amp;= \frac{1}{\Omega^2} \left(</span>
-<span class="sd">                    - p_z p_x + p_z p_x \cos(\Omega t&#39;) +</span>
-<span class="sd">                    \Omega p_y \sin(\Omega t&#39;) \right) + b \tag{1} \\</span>
+<span class="sd">                    - p_z p_x + p_z p_x \cos(\Omega t') +</span>
+<span class="sd">                    \Omega p_y \sin(\Omega t') \right) + b \tag{1} \\</span>
 <span class="sd">                F_y(t) &amp;= \frac{1}{\Omega^2} \left(</span>
-<span class="sd">                    p_z p_y - p_z p_y \cos(\Omega t&#39;) -</span>
-<span class="sd">                    \Omega p_x \sin(\Omega t&#39;) \right) + b \tag{2} \\</span>
+<span class="sd">                    p_z p_y - p_z p_y \cos(\Omega t') -</span>
+<span class="sd">                    \Omega p_x \sin(\Omega t') \right) + b \tag{2} \\</span>
 <span class="sd">                F_z(t) &amp;= \frac{1}{\Omega^2} \left(</span>
-<span class="sd">                    p_z^2 + (p_x^2 + p_y^2) \cos(\Omega t&#39;) \right) + b \tag{3}</span>
+<span class="sd">                    p_z^2 + (p_x^2 + p_y^2) \cos(\Omega t') \right) + b \tag{3}</span>
 <span class="sd">            \end{align}</span>
 
-<span class="sd">        where :math:`t&#39; = t + t_{\rm offset}` with :math:`t` is pulse duration to scan</span>
+<span class="sd">        where :math:`t' = t + t_{\rm offset}` with :math:`t` is pulse duration to scan</span>
 <span class="sd">        and :math:`t_{\rm offset}` is an extra fit parameter that may represent an edge effect.</span>
 <span class="sd">        Note that this analysis assumes a microwave drive with the flat top Gaussian envelope,</span>
 <span class="sd">        where the amplitude of edges, namely Hamiltonian coefficients of interest,</span>
@@ -646,7 +646,7 @@
 <span class="sd">            init_guess: 0</span>
 <span class="sd">            bounds: None</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -654,16 +654,16 @@
     <span class="p">):</span>
 
         <span class="n">eqr_temps</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="s2">&quot;(-pz * px + pz * px * cos(W * X) + W * py * sin(W * X)) / W**2 + b&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="s2">&quot;(pz * py - pz * py * cos(W * X) - W * px * sin(W * X)) / W**2 + b&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="s2">&quot;(pz**2 + (px**2 + py**2) * cos(W * X)) / W**2 + b&quot;</span><span class="p">,</span>
+            <span class="s2">"x"</span><span class="p">:</span> <span class="s2">"(-pz * px + pz * px * cos(W * X) + W * py * sin(W * X)) / W**2 + b"</span><span class="p">,</span>
+            <span class="s2">"y"</span><span class="p">:</span> <span class="s2">"(pz * py - pz * py * cos(W * X) - W * px * sin(W * X)) / W**2 + b"</span><span class="p">,</span>
+            <span class="s2">"z"</span><span class="p">:</span> <span class="s2">"(pz**2 + (px**2 + py**2) * cos(W * X)) / W**2 + b"</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">temp_eq</span> <span class="ow">in</span> <span class="n">eqr_temps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">eq</span> <span class="o">=</span> <span class="n">temp_eq</span>
-            <span class="n">eq</span> <span class="o">=</span> <span class="n">eq</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;W&quot;</span><span class="p">,</span> <span class="s2">&quot;sqrt(px**2 + py**2 + pz**2)&quot;</span><span class="p">)</span>
-            <span class="n">eq</span> <span class="o">=</span> <span class="n">eq</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;(x + t_off)&quot;</span><span class="p">)</span>
+            <span class="n">eq</span> <span class="o">=</span> <span class="n">eq</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"W"</span><span class="p">,</span> <span class="s2">"sqrt(px**2 + py**2 + pz**2)"</span><span class="p">)</span>
+            <span class="n">eq</span> <span class="o">=</span> <span class="n">eq</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"X"</span><span class="p">,</span> <span class="s2">"(x + t_off)"</span><span class="p">)</span>
             <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
                     <span class="n">expr</span><span class="o">=</span><span class="n">eq</span><span class="p">,</span>
@@ -678,22 +678,22 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default analysis options.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the default analysis options."""</span>
         <span class="n">default_options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">default_options</span><span class="o">.</span><span class="n">data_processor</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataProcessor</span><span class="p">(</span>
-            <span class="n">input_key</span><span class="o">=</span><span class="s2">&quot;counts&quot;</span><span class="p">,</span>
-            <span class="n">data_actions</span><span class="o">=</span><span class="p">[</span><span class="n">dp</span><span class="o">.</span><span class="n">Probability</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">),</span> <span class="n">dp</span><span class="o">.</span><span class="n">BasisExpectationValue</span><span class="p">()],</span>
+            <span class="n">input_key</span><span class="o">=</span><span class="s2">"counts"</span><span class="p">,</span>
+            <span class="n">data_actions</span><span class="o">=</span><span class="p">[</span><span class="n">dp</span><span class="o">.</span><span class="n">Probability</span><span class="p">(</span><span class="s2">"1"</span><span class="p">),</span> <span class="n">dp</span><span class="o">.</span><span class="n">BasisExpectationValue</span><span class="p">()],</span>
         <span class="p">)</span>
         <span class="n">default_options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
-            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Flat top width&quot;</span><span class="p">,</span>
-            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Pauli expectation values&quot;</span><span class="p">,</span>
-            <span class="n">xval_unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">,</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">"Flat top width"</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">"Pauli expectation values"</span><span class="p">,</span>
+            <span class="n">xval_unit</span><span class="o">=</span><span class="s2">"s"</span><span class="p">,</span>
             <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">default_options</span><span class="o">.</span><span class="n">data_subfit_map</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;meas_basis&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">},</span>
-            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;meas_basis&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">},</span>
-            <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;meas_basis&quot;</span><span class="p">:</span> <span class="s2">&quot;z&quot;</span><span class="p">},</span>
+            <span class="s2">"x"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"meas_basis"</span><span class="p">:</span> <span class="s2">"x"</span><span class="p">},</span>
+            <span class="s2">"y"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"meas_basis"</span><span class="p">:</span> <span class="s2">"y"</span><span class="p">},</span>
+            <span class="s2">"z"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"meas_basis"</span><span class="p">:</span> <span class="s2">"z"</span><span class="p">},</span>
         <span class="p">}</span>
 
         <span class="k">return</span> <span class="n">default_options</span>
@@ -703,7 +703,7 @@
         <span class="n">user_opt</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">ScatterTable</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create algorithmic initial fit guess from analysis options and curve data.</span>
+<span class="w">        </span><span class="sd">"""Create algorithmic initial fit guess from analysis options and curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            user_opt: Fit options filled with user provided guess and bounds.</span>
@@ -711,15 +711,15 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of fit options that are passed to the fitter function.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">fit_options</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="n">user_opt</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span><span class="n">t_off</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="n">b</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">)</span>
 
-        <span class="n">x_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
-        <span class="n">y_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
-        <span class="n">z_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">)</span>
+        <span class="n">x_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">"x"</span><span class="p">)</span>
+        <span class="n">y_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">"y"</span><span class="p">)</span>
+        <span class="n">z_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">"z"</span><span class="p">)</span>
 
         <span class="n">omega_xyz</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span><span class="p">,</span> <span class="n">z_data</span><span class="p">):</span>
@@ -775,7 +775,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -790,7 +790,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

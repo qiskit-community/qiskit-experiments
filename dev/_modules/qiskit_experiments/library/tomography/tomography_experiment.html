@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.tomography.tomography_experiment - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.tomography.tomography_experiment - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Quantum Tomography experiment</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
@@ -575,22 +575,22 @@
 <div class="viewcode-block" id="TomographyExperiment">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.tomography.TomographyExperiment.html#qiskit_experiments.library.tomography.TomographyExperiment">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TomographyExperiment</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base experiment for quantum state and process tomography.</span>
+<span class="w">    </span><span class="sd">"""Base experiment for quantum state and process tomography.</span>
 
 <span class="sd">    # section: analysis_ref</span>
 <span class="sd">        :class:`TomographyAnalysis`</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default experiment options.</span>
+<span class="w">        </span><span class="sd">"""Default experiment options.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            basis_indices (Iterable[Tuple[List[int], List[int]]]): The basis elements to be measured.</span>
 <span class="sd">                If None All basis elements will be measured.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">basis_indices</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">options</span>
@@ -606,9 +606,9 @@
         <span class="n">preparation_indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">conditional_circuit_clbits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Clbit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">basis_indices</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">analysis</span><span class="p">:</span> <span class="n">BaseAnalysis</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">analysis</span><span class="p">:</span> <span class="n">BaseAnalysis</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"default"</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a tomography experiment.</span>
+<span class="w">        </span><span class="sd">"""Initialize a tomography experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circuit: the quantum process circuit. If not a quantum circuit</span>
@@ -632,17 +632,17 @@
 <span class="sd">                circuit to treat as conditioning bits for conditional tomography.</span>
 <span class="sd">                If set to True all circuit clbits will be treated as conditional.</span>
 <span class="sd">                If False all circuit clbits will be marginalized over (Default: False).</span>
-<span class="sd">            analysis: Optional, a custom analysis instance to use. If ``&quot;default&quot;``</span>
+<span class="sd">            analysis: Optional, a custom analysis instance to use. If ``"default"``</span>
 <span class="sd">                :class:`~.TomographyAnalysis` will be used. If None no analysis</span>
 <span class="sd">                instance will be set.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If input params are invalid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Initialize BaseExperiment</span>
         <span class="k">if</span> <span class="n">physical_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">physical_qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">analysis</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">analysis</span> <span class="o">==</span> <span class="s2">"default"</span><span class="p">:</span>
             <span class="n">analysis</span> <span class="o">=</span> <span class="n">TomographyAnalysis</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">analysis</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
@@ -668,7 +668,7 @@
                     <span class="n">cond_clbits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Circuit </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> does not contain conditional clbit </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Circuit </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> does not contain conditional clbit </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cond_clbits</span> <span class="o">=</span> <span class="n">cond_clbits</span>
 
@@ -681,8 +681,8 @@
             <span class="k">for</span> <span class="n">qubit</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meas_indices</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">qubit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;measurement qubit (</span><span class="si">{</span><span class="n">qubit</span><span class="si">}</span><span class="s2">) is outside the range&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot; of circuit qubits [0, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="si">}</span><span class="s2">).&quot;</span>
+                        <span class="sa">f</span><span class="s2">"measurement qubit (</span><span class="si">{</span><span class="n">qubit</span><span class="si">}</span><span class="s2">) is outside the range"</span>
+                        <span class="sa">f</span><span class="s2">" of circuit qubits [0, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="si">}</span><span class="s2">)."</span>
                     <span class="p">)</span>
         <span class="k">elif</span> <span class="n">measurement_basis</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_meas_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
@@ -699,8 +699,8 @@
             <span class="k">for</span> <span class="n">qubit</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prep_indices</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">qubit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;preparation qubit (</span><span class="si">{</span><span class="n">qubit</span><span class="si">}</span><span class="s2">) is outside the range&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot; of circuit qubits [0, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="si">}</span><span class="s2">).&quot;</span>
+                        <span class="sa">f</span><span class="s2">"preparation qubit (</span><span class="si">{</span><span class="n">qubit</span><span class="si">}</span><span class="s2">) is outside the range"</span>
+                        <span class="sa">f</span><span class="s2">" of circuit qubits [0, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="si">}</span><span class="s2">)."</span>
                     <span class="p">)</span>
         <span class="k">elif</span> <span class="n">preparation_basis</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_prep_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
@@ -717,13 +717,13 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="p">,</span> <span class="n">TomographyAnalysis</span><span class="p">):</span>
             <span class="n">analysis_options</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">if</span> <span class="n">measurement_basis</span><span class="p">:</span>
-                <span class="n">analysis_options</span><span class="p">[</span><span class="s2">&quot;measurement_basis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">measurement_basis</span>
-                <span class="n">analysis_options</span><span class="p">[</span><span class="s2">&quot;measurement_qubits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meas_physical_qubits</span>
+                <span class="n">analysis_options</span><span class="p">[</span><span class="s2">"measurement_basis"</span><span class="p">]</span> <span class="o">=</span> <span class="n">measurement_basis</span>
+                <span class="n">analysis_options</span><span class="p">[</span><span class="s2">"measurement_qubits"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meas_physical_qubits</span>
             <span class="k">if</span> <span class="n">preparation_basis</span><span class="p">:</span>
-                <span class="n">analysis_options</span><span class="p">[</span><span class="s2">&quot;preparation_basis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">preparation_basis</span>
-                <span class="n">analysis_options</span><span class="p">[</span><span class="s2">&quot;preparation_qubits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prep_physical_qubits</span>
+                <span class="n">analysis_options</span><span class="p">[</span><span class="s2">"preparation_basis"</span><span class="p">]</span> <span class="o">=</span> <span class="n">preparation_basis</span>
+                <span class="n">analysis_options</span><span class="p">[</span><span class="s2">"preparation_qubits"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prep_physical_qubits</span>
             <span class="k">if</span> <span class="n">conditional_circuit_clbits</span><span class="p">:</span>
-                <span class="n">analysis_options</span><span class="p">[</span><span class="s2">&quot;conditional_circuit_clbits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cond_clbits</span>
+                <span class="n">analysis_options</span><span class="p">[</span><span class="s2">"conditional_circuit_clbits"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cond_clbits</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="o">**</span><span class="n">analysis_options</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TomographyExperiment.circuits">
@@ -731,9 +731,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">circ_qubits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">qubits</span>
         <span class="n">circ_clbits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">clbits</span>
-        <span class="n">meas_creg</span> <span class="o">=</span> <span class="n">ClassicalRegister</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_meas_indices</span><span class="p">)),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;c_tomo&quot;</span><span class="p">)</span>
+        <span class="n">meas_creg</span> <span class="o">=</span> <span class="n">ClassicalRegister</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_meas_indices</span><span class="p">)),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"c_tomo"</span><span class="p">)</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span>
-            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">qregs</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">cregs</span><span class="p">,</span> <span class="n">meas_creg</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">qregs</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">cregs</span><span class="p">,</span> <span class="n">meas_creg</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
             <span class="n">template</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -745,13 +745,13 @@
         <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">prep_element</span><span class="p">,</span> <span class="n">meas_element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_basis_indices</span><span class="p">():</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">name</span>
-            <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;clbits&quot;</span><span class="p">:</span> <span class="n">meas_clbits</span><span class="p">,</span> <span class="s2">&quot;cond_clbits&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cond_clbits</span><span class="p">}</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"clbits"</span><span class="p">:</span> <span class="n">meas_clbits</span><span class="p">,</span> <span class="s2">"cond_clbits"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cond_clbits</span><span class="p">}</span>
             <span class="k">if</span> <span class="n">meas_element</span><span class="p">:</span>
-                <span class="n">name</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">meas_element</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;m_idx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">meas_element</span><span class="p">)</span>
+                <span class="n">name</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"_</span><span class="si">{</span><span class="n">meas_element</span><span class="si">}</span><span class="s2">"</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">"m_idx"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">meas_element</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">prep_element</span><span class="p">:</span>
-                <span class="n">name</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">prep_element</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;p_idx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">prep_element</span><span class="p">)</span>
+                <span class="n">name</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"_</span><span class="si">{</span><span class="n">prep_element</span><span class="si">}</span><span class="s2">"</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">"p_idx"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">prep_element</span><span class="p">)</span>
 
             <span class="n">circ</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
@@ -781,13 +781,13 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meas_physical_qubits</span><span class="p">:</span>
-            <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;m_qubits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_meas_physical_qubits</span><span class="p">)</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">"m_qubits"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_meas_physical_qubits</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prep_physical_qubits</span><span class="p">:</span>
-            <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;p_qubits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prep_physical_qubits</span><span class="p">)</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">"p_qubits"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prep_physical_qubits</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metadata</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_basis_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of basis element indices&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return list of basis element indices"""</span>
         <span class="n">basis_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">basis_indices</span>
         <span class="k">if</span> <span class="n">basis_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">basis_indices</span>
@@ -806,12 +806,12 @@
         <span class="k">return</span> <span class="n">product</span><span class="p">(</span><span class="n">prep_elements</span><span class="p">,</span> <span class="n">meas_elements</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_permute_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Permute circuit qubits.</span>
+<span class="w">        </span><span class="sd">"""Permute circuit qubits.</span>
 
 <span class="sd">        This permutes the circuit so that the specified preparation and measurement</span>
 <span class="sd">        qubits correspond to input and output qubits [0, ..., N-1] and [0, ..., M-1]</span>
 <span class="sd">        respectively for the returned circuit.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">default_range</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
         <span class="n">permute_meas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meas_indices</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meas_indices</span> <span class="o">!=</span> <span class="n">default_range</span>
         <span class="n">permute_prep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prep_indices</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prep_indices</span> <span class="o">!=</span> <span class="n">default_range</span>
@@ -865,7 +865,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -880,7 +880,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

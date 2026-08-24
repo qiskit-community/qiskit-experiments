@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.interleaved_rb_experiment - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.interleaved_rb_experiment - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Interleaved RB Experiment class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Sequence</span>
@@ -580,7 +580,7 @@
 <div class="viewcode-block" id="InterleavedRB">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html#qiskit_experiments.library.randomized_benchmarking.InterleavedRB">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InterleavedRB</span><span class="p">(</span><span class="n">StandardRB</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An experiment to characterize the error rate of a specific gate on a device.</span>
+<span class="w">    </span><span class="sd">"""An experiment to characterize the error rate of a specific gate on a device.</span>
 
 <span class="sd">    # section: overview</span>
 <span class="sd">        Interleaved Randomized Benchmarking (RB) is a method</span>
@@ -610,9 +610,9 @@
 <span class="sd">            from qiskit_aer.noise import NoiseModel, depolarizing_error</span>
 
 <span class="sd">            noise_model = NoiseModel()</span>
-<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), [&quot;sx&quot;, &quot;x&quot;])</span>
-<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), [&quot;rz&quot;])</span>
-<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), [&quot;cx&quot;])</span>
+<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])</span>
+<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])</span>
+<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["cx"])</span>
 <span class="sd">            backend = AerSimulator(noise_model=noise_model)</span>
 
 <span class="sd">        .. jupyter-execute::</span>
@@ -634,8 +634,8 @@
 <span class="sd">            int_results2 = int_expdata2.analysis_results(dataframe=True)</span>
 <span class="sd">            display(int_expdata2.figure(0))</span>
 
-<span class="sd">            print(f&quot;Available results: {set(int_results2.name)}&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">            print(f"Available results: {set(int_results2.name)}")</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -646,9 +646,9 @@
         <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
         <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">SeedSequence</span> <span class="o">|</span> <span class="n">BitGenerator</span> <span class="o">|</span> <span class="n">Generator</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">full_sampling</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">circuit_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;RIRIRI&quot;</span><span class="p">,</span>
+        <span class="n">circuit_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"RIRIRI"</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize an interleaved randomized benchmarking experiment.</span>
+<span class="w">        </span><span class="sd">"""Initialize an interleaved randomized benchmarking experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            interleaved_element: The element to interleave,</span>
@@ -671,8 +671,8 @@
 <span class="sd">                           sequences are constructed by appending additional</span>
 <span class="sd">                           Clifford samples to shorter sequences.</span>
 <span class="sd">            circuit_order: How to order the reference and the interleaved circuits.</span>
-<span class="sd">                ``&quot;RIRIRI&quot;`` (default) - Alternate a reference and an interleaved circuit. Or</span>
-<span class="sd">                ``&quot;RRRIII&quot;`` - Push all reference circuits first, then all interleaved ones.</span>
+<span class="sd">                ``"RIRIRI"`` (default) - Alternate a reference and an interleaved circuit. Or</span>
+<span class="sd">                ``"RRRIII"`` - Push all reference circuits first, then all interleaved ones.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: When interleaved_element has different number of qubits</span>
@@ -680,27 +680,27 @@
 <span class="sd">            QiskitError: When interleaved_element is not convertible to Clifford object.</span>
 <span class="sd">            QiskitError: When interleaved_element has an invalid delay</span>
 <span class="sd">                (e.g. violating the timing constraints of the backend).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Validations of interleaved_element</span>
         <span class="c1"># - validate number of qubits of interleaved_element</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">)</span> <span class="o">!=</span> <span class="n">interleaved_element</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Mismatch in number of qubits between qubits (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; and interleaved element (</span><span class="si">{</span><span class="n">interleaved_element</span><span class="o">.</span><span class="n">num_qubits</span><span class="si">}</span><span class="s2">).&quot;</span>
+                <span class="sa">f</span><span class="s2">"Mismatch in number of qubits between qubits (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span>
+                <span class="sa">f</span><span class="s2">" and interleaved element (</span><span class="si">{</span><span class="n">interleaved_element</span><span class="o">.</span><span class="n">num_qubits</span><span class="si">}</span><span class="s2">)."</span>
             <span class="p">)</span>
         <span class="c1"># - validate if interleaved_element is Clifford</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">interleaved_clifford</span> <span class="o">=</span> <span class="n">Clifford</span><span class="p">(</span><span class="n">interleaved_element</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">QiskitError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Interleaved element </span><span class="si">{</span><span class="n">interleaved_element</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> could not be converted to Clifford.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Interleaved element </span><span class="si">{</span><span class="n">interleaved_element</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> could not be converted to Clifford."</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
         <span class="c1"># - validate delays in interleaved_element</span>
         <span class="n">delay_ops</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">interleaved_element</span><span class="p">,</span> <span class="n">Delay</span><span class="p">):</span>
             <span class="n">delay_ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">interleaved_element</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">interleaved_element</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">):</span>
-            <span class="n">delay_ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">delay</span><span class="o">.</span><span class="n">operation</span> <span class="k">for</span> <span class="n">delay</span> <span class="ow">in</span> <span class="n">interleaved_element</span><span class="o">.</span><span class="n">get_instructions</span><span class="p">(</span><span class="s2">&quot;delay&quot;</span><span class="p">)]</span>
+            <span class="n">delay_ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">delay</span><span class="o">.</span><span class="n">operation</span> <span class="k">for</span> <span class="n">delay</span> <span class="ow">in</span> <span class="n">interleaved_element</span><span class="o">.</span><span class="n">get_instructions</span><span class="p">(</span><span class="s2">"delay"</span><span class="p">)]</span>
         <span class="k">if</span> <span class="n">delay_ops</span><span class="p">:</span>
             <span class="n">timing</span> <span class="o">=</span> <span class="n">BackendTiming</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -708,16 +708,16 @@
         <span class="k">for</span> <span class="n">delay_op</span> <span class="ow">in</span> <span class="n">delay_ops</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">delay_op</span><span class="o">.</span><span class="n">unit</span> <span class="o">!=</span> <span class="n">timing</span><span class="o">.</span><span class="n">delay_unit</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Interleaved delay for backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> must have time unit </span><span class="si">{</span><span class="n">timing</span><span class="o">.</span><span class="n">delay_unit</span><span class="si">}</span><span class="s2">.&quot;</span>
-                    <span class="s2">&quot; Use BackendTiming to set valid duration and unit for delays.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Interleaved delay for backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> must have time unit </span><span class="si">{</span><span class="n">timing</span><span class="o">.</span><span class="n">delay_unit</span><span class="si">}</span><span class="s2">."</span>
+                    <span class="s2">" Use BackendTiming to set valid duration and unit for delays."</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="n">timing</span><span class="o">.</span><span class="n">delay_unit</span> <span class="o">==</span> <span class="s2">&quot;dt&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">timing</span><span class="o">.</span><span class="n">delay_unit</span> <span class="o">==</span> <span class="s2">"dt"</span><span class="p">:</span>
                 <span class="n">valid_duration</span> <span class="o">=</span> <span class="n">timing</span><span class="o">.</span><span class="n">round_delay</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="n">delay_op</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">delay_op</span><span class="o">.</span><span class="n">duration</span> <span class="o">!=</span> <span class="n">valid_duration</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Interleaved delay duration </span><span class="si">{</span><span class="n">delay_op</span><span class="o">.</span><span class="n">duration</span><span class="si">}</span><span class="s2">[dt] violates the timing&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot; constraints of the backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">. It could be </span><span class="si">{</span><span class="n">valid_duration</span><span class="si">}</span><span class="s2">[dt].&quot;</span>
-                        <span class="s2">&quot; Use BackendTiming to set valid duration for delays.&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Interleaved delay duration </span><span class="si">{</span><span class="n">delay_op</span><span class="o">.</span><span class="n">duration</span><span class="si">}</span><span class="s2">[dt] violates the timing"</span>
+                        <span class="sa">f</span><span class="s2">" constraints of the backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">. It could be </span><span class="si">{</span><span class="n">valid_duration</span><span class="si">}</span><span class="s2">[dt]."</span>
+                        <span class="s2">" Use BackendTiming to set valid duration for delays."</span>
                     <span class="p">)</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -740,34 +740,34 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_interleaved_op</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Transpiled interleaved element for speed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">circuit_order</span><span class="o">=</span><span class="n">circuit_order</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span> <span class="o">=</span> <span class="n">InterleavedRBAnalysis</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;0&quot;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">"0"</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default InterleavedRB experiment options.</span>
+<span class="w">        </span><span class="sd">"""Default InterleavedRB experiment options.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            circuit_order (str): How to order the reference and the interleaved circuits.</span>
-<span class="sd">                ``&quot;RIRIRI&quot;`` (alternate a reference and an interleaved circuit) or</span>
-<span class="sd">                ``&quot;RRRIII&quot;`` (push all reference circuits first, then all interleaved ones).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">                ``"RIRIRI"`` (alternate a reference and an interleaved circuit) or</span>
+<span class="sd">                ``"RRRIII"`` (push all reference circuits first, then all interleaved ones).</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span>
-            <span class="n">circuit_order</span><span class="o">=</span><span class="s2">&quot;RIRIRI&quot;</span><span class="p">,</span>
+            <span class="n">circuit_order</span><span class="o">=</span><span class="s2">"RIRIRI"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">options</span>
 
 <div class="viewcode-block" id="InterleavedRB.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.InterleavedRB.html#qiskit_experiments.library.randomized_benchmarking.InterleavedRB.circuits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of RB circuits.</span>
+<span class="w">        </span><span class="sd">"""Return a list of RB circuits.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`QuantumCircuit`.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If interleaved_element has non-supported instruction in the backend.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Convert interleaved element to transpiled circuit operation and store it for speed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__set_up_interleaved_op</span><span class="p">()</span>
 
@@ -776,9 +776,9 @@
         <span class="n">reference_circuits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequences_to_circuits</span><span class="p">(</span><span class="n">reference_sequences</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">circ</span><span class="p">,</span> <span class="n">seq</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">reference_circuits</span><span class="p">,</span> <span class="n">reference_sequences</span><span class="p">):</span>
             <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">),</span>
-                <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="s2">&quot;Clifford&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;interleaved&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">"xval"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">),</span>
+                <span class="s2">"group"</span><span class="p">:</span> <span class="s2">"Clifford"</span><span class="p">,</span>
+                <span class="s2">"interleaved"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="c1"># Build circuits of interleaved sequences</span>
         <span class="n">interleaved_sequences</span> <span class="o">=</span> <span class="p">[]</span>
@@ -791,12 +791,12 @@
         <span class="n">interleaved_circuits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequences_to_circuits</span><span class="p">(</span><span class="n">interleaved_sequences</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">circ</span><span class="p">,</span> <span class="n">seq</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">interleaved_circuits</span><span class="p">,</span> <span class="n">reference_sequences</span><span class="p">):</span>
             <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">),</span>  <span class="c1"># set length of the reference sequence</span>
-                <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="s2">&quot;Clifford&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;interleaved&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">"xval"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">),</span>  <span class="c1"># set length of the reference sequence</span>
+                <span class="s2">"group"</span><span class="p">:</span> <span class="s2">"Clifford"</span><span class="p">,</span>
+                <span class="s2">"interleaved"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
             <span class="p">}</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">circuit_order</span> <span class="o">==</span> <span class="s2">&quot;RRRIII&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">circuit_order</span> <span class="o">==</span> <span class="s2">"RRRIII"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">reference_circuits</span> <span class="o">+</span> <span class="n">interleaved_circuits</span>
         <span class="c1"># Default order: RIRIRI</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">reference_circuits</span><span class="p">,</span> <span class="n">interleaved_circuits</span><span class="p">)))</span></div>
@@ -829,21 +829,21 @@
             <span class="n">interleaved_circ</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Validate if all instructions in the interleaved circuit are supported in the backend</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="s2">"target"</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">interleaved_circ</span><span class="p">:</span>
                 <span class="n">qargs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">[</span><span class="n">interleaved_circ</span><span class="o">.</span><span class="n">find_bit</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">inst</span><span class="o">.</span><span class="n">qubits</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">instruction_supported</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">qargs</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> in interleaved element is not supported&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot; on qubits </span><span class="si">{</span><span class="n">qargs</span><span class="si">}</span><span class="s2"> in the backend.&quot;</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">inst</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> in interleaved element is not supported"</span>
+                        <span class="sa">f</span><span class="s2">" on qubits </span><span class="si">{</span><span class="n">qargs</span><span class="si">}</span><span class="s2"> in the backend."</span>
                     <span class="p">)</span>
 
         <span class="c1"># Store interleaved operation as Instruction</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interleaved_op</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interleaved_op</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Clifford&quot;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_interleaved_op</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Clifford-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_interleaved_op</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interleaved_op</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"Clifford"</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_interleaved_op</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Clifford-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_interleaved_op</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_interleaved_op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interleaved_op</span><span class="o">.</span><span class="n">to_instruction</span><span class="p">()</span></div>
 
 </pre></div>
@@ -864,7 +864,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -879,7 +879,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

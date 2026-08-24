@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html"><link rel="search" title="Search" href="../../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.analysis.correlated_readout_error_analysis - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.library.characterization.analysis.correlated_readout_error_analysis - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Analysis class to characterize correlated readout error</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.data_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelatedReadoutMitigator</span>
@@ -569,7 +569,7 @@
 <div class="viewcode-block" id="CorrelatedReadoutErrorAnalysis">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.characterization.CorrelatedReadoutErrorAnalysis.html#qiskit_experiments.library.characterization.CorrelatedReadoutErrorAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CorrelatedReadoutErrorAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;An analysis to characterize correlated readout error.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""An analysis to characterize correlated readout error.</span>
 
 <span class="sd">    # section: overview</span>
 
@@ -585,23 +585,23 @@
 <span class="sd">        each :math:`y` is determined, and :math:`A_{y,x}` is set accordingly.</span>
 
 <span class="sd">        Analysis Results:</span>
-<span class="sd">           * &quot;Local Readout Mitigator&quot;: The :class:`~qiskit.result.LocalReadoutMitigator`.</span>
+<span class="sd">           * "Local Readout Mitigator": The :class:`~qiskit.result.LocalReadoutMitigator`.</span>
 
 <span class="sd">        Analysis Figures:</span>
 <span class="sd">           * (Optional) A figure of the assignment matrix.</span>
 
 <span class="sd">    # section: reference</span>
 <span class="sd">        .. ref_arxiv:: 1 2006.14044</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default analysis options.</span>
+<span class="w">        </span><span class="sd">"""Return default analysis options.</span>
 
 <span class="sd">        Analysis Options:</span>
 <span class="sd">            plot (bool): Set ``True`` to create figure for fit result.</span>
 <span class="sd">            ax (AxesSubplot): Optional. A matplotlib axis object to draw.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">plot</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">options</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span>
@@ -609,15 +609,15 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_analysis</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"matplotlib.figure.Figure"</span><span class="p">]]:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
-        <span class="n">qubits</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;physical_qubits&quot;</span><span class="p">]</span>
-        <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">datum</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;state_label&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+        <span class="n">qubits</span> <span class="o">=</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">"physical_qubits"</span><span class="p">]</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">datum</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">][</span><span class="s2">"state_label"</span><span class="p">]</span> <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
         <span class="n">matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_matrix</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
         <span class="n">result_mitigator</span> <span class="o">=</span> <span class="n">CorrelatedReadoutMitigator</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">qubits</span><span class="o">=</span><span class="n">qubits</span><span class="p">)</span>
-        <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">(</span><span class="s2">&quot;Correlated Readout Mitigator&quot;</span><span class="p">,</span> <span class="n">result_mitigator</span><span class="p">)]</span>
+        <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">(</span><span class="s2">"Correlated Readout Mitigator"</span><span class="p">,</span> <span class="n">result_mitigator</span><span class="p">)]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot</span><span class="p">:</span>
-            <span class="n">ax</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ax&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ax"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="n">figures</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_assignment_matrix_visualization</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">ax</span><span class="p">)]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">figures</span> <span class="o">=</span> <span class="p">[]</span>
@@ -628,18 +628,18 @@
         <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">list_size</span><span class="p">,</span> <span class="n">list_size</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="c1"># matrix[i][j] is the probability of counting i for expected j</span>
         <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">expected_outcome</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;state_label&quot;</span><span class="p">]</span>
+            <span class="n">expected_outcome</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">][</span><span class="s2">"state_label"</span><span class="p">]</span>
             <span class="n">j</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">expected_outcome</span><span class="p">)</span>
-            <span class="n">total_counts</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">datum</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-            <span class="k">for</span> <span class="n">measured_outcome</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">total_counts</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">datum</span><span class="p">[</span><span class="s2">"counts"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">measured_outcome</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">datum</span><span class="p">[</span><span class="s2">"counts"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">i</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">measured_outcome</span><span class="p">)</span>
                 <span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span> <span class="o">/</span> <span class="n">total_counts</span>
         <span class="k">return</span> <span class="n">matrix</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_assignment_matrix_visualization</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"matplotlib.figure.Figure"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Plot the assignment matrix (2D color grid plot).</span>
 
 <span class="sd">        Args:</span>
@@ -654,15 +654,15 @@
 
 <span class="sd">            ImportError: If matplotlib was not installed.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="n">get_non_gui_ax</span><span class="p">()</span>
         <span class="n">figure</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">binary</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Prepared State&quot;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;top&quot;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Measured State&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"Prepared State"</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">"top"</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Measured State"</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
@@ -687,7 +687,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -702,7 +702,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/scripts/furo.js?v=46bd48cc"></script>

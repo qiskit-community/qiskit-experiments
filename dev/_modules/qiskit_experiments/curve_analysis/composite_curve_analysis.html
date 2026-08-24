@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.curve_analysis.composite_curve_analysis - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.curve_analysis.composite_curve_analysis - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,9 +556,9 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Analysis class for multi-group curve fitting.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="c1"># pylint: disable=invalid-name</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
@@ -588,7 +588,7 @@
 <div class="viewcode-block" id="CompositeCurveAnalysis">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.CompositeCurveAnalysis.html#qiskit_experiments.curve_analysis.CompositeCurveAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CompositeCurveAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Composite Curve Analysis.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Composite Curve Analysis.</span>
 
 <span class="sd">    The :class:`.CompositeCurveAnalysis` takes multiple curve analysis instances</span>
 <span class="sd">    and performs each analysis on the same experimental results.</span>
@@ -617,17 +617,17 @@
 
 <span class="sd">            analyses = []</span>
 <span class="sd">            for qi in (0, 1):</span>
-<span class="sd">                analysis = curve.OscillationAnalysis(name=f&quot;init{qi}&quot;)</span>
+<span class="sd">                analysis = curve.OscillationAnalysis(name=f"init{qi}")</span>
 <span class="sd">                analysis.set_options(</span>
-<span class="sd">                    filter_data={&quot;init_state&quot;: qi},</span>
+<span class="sd">                    filter_data={"init_state": qi},</span>
 <span class="sd">                )</span>
 <span class="sd">            analysis = CompositeCurveAnalysis(analyses=analyses)</span>
 
-<span class="sd">        This ``analysis`` will return two analysis result data for the fit parameter &quot;freq&quot;</span>
+<span class="sd">        This ``analysis`` will return two analysis result data for the fit parameter "freq"</span>
 <span class="sd">        for experiments with the initial state :math:`|0\rangle` and :math:`|1\rangle`.</span>
 <span class="sd">        The experimental circuits starting with different initial states must be</span>
-<span class="sd">        distinguished by the circuit metadata ``{&quot;init_state&quot;: 0}`` or ``{&quot;init_state&quot;: 1}``,</span>
-<span class="sd">        along with the &quot;xval&quot; in the same dictionary.</span>
+<span class="sd">        distinguished by the circuit metadata ``{"init_state": 0}`` or ``{"init_state": 1}``,</span>
+<span class="sd">        along with the "xval" in the same dictionary.</span>
 
 <span class="sd">    :class:`.CompositeCurveAnalysis` subclass may override following methods.</span>
 
@@ -635,8 +635,8 @@
 
 <span class="sd">    This method evaluates the quality of the composite fit based on</span>
 <span class="sd">    the all analysis outcomes.</span>
-<span class="sd">    This returns &quot;good&quot; when all fit outcomes are evaluated as &quot;good&quot;,</span>
-<span class="sd">    otherwise it returns &quot;bad&quot;.</span>
+<span class="sd">    This returns "good" when all fit outcomes are evaluated as "good",</span>
+<span class="sd">    otherwise it returns "bad".</span>
 
 <span class="sd">    .. rubric:: _create_analysis_results</span>
 
@@ -648,7 +648,7 @@
 <span class="sd">    This method creates figures by consuming the scatter table data.</span>
 <span class="sd">    Figures are created when the analysis option ``plot`` is ``True``.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -662,7 +662,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return parameters of this curve analysis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return parameters of this curve analysis."""</span>
         <span class="n">unite_params</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">:</span>
             <span class="c1"># Respect ordering of parameters</span>
@@ -673,12 +673,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return name of this analysis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return name of this analysis."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return fit models.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return fit models."""</span>
         <span class="n">models</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">:</span>
             <span class="n">models</span><span class="p">[</span><span class="n">analysis</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">models</span>
@@ -686,7 +686,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">plotter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePlotter</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A short-cut to the plotter instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A short-cut to the plotter instance."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">plotter</span>
 
 <div class="viewcode-block" id="CompositeCurveAnalysis.analyses">
@@ -694,14 +694,14 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">analyses</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseCurveAnalysis</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseCurveAnalysis</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return curve analysis instance.</span>
+<span class="w">        </span><span class="sd">"""Return curve analysis instance.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            index: Name of group or numerical index.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Curve analysis instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -715,18 +715,18 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">fit_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CurveFitResult</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate quality of the fit result.</span>
+<span class="w">        </span><span class="sd">"""Evaluate quality of the fit result.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fit_data: Fit outcome keyed on the analysis name.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            String that represents fit result quality. Usually &quot;good&quot; or &quot;bad&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            String that represents fit result quality. Usually "good" or "bad".</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_evaluate_quality</span><span class="p">(</span><span class="n">fit_data</span><span class="p">[</span><span class="n">analysis</span><span class="o">.</span><span class="n">name</span><span class="p">])</span> <span class="o">!=</span> <span class="s2">&quot;good&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;bad&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;good&quot;</span>
+            <span class="k">if</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_evaluate_quality</span><span class="p">(</span><span class="n">fit_data</span><span class="p">[</span><span class="n">analysis</span><span class="o">.</span><span class="n">name</span><span class="p">])</span> <span class="o">!=</span> <span class="s2">"good"</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">"bad"</span>
+        <span class="k">return</span> <span class="s2">"good"</span>
 
     <span class="c1"># pylint: disable=unused-argument</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_analysis_results</span><span class="p">(</span>
@@ -735,7 +735,7 @@
         <span class="n">quality</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">**</span><span class="n">metadata</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create analysis results based on all analysis outcomes.</span>
+<span class="w">        </span><span class="sd">"""Create analysis results based on all analysis outcomes.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fit_data: Fit outcome keyed on the analysis name.</span>
@@ -743,29 +743,29 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of analysis result data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_figures</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a list of figures from the curve data.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"matplotlib.figure.Figure"</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Create a list of figures from the curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            curve_data: Scatter data table containing all data points.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of figures.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">analyses</span><span class="p">():</span>
             <span class="n">group_data</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">analysis</span><span class="o">=</span><span class="n">analysis</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="n">model_names</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">model_names</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">series_id</span><span class="p">,</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="n">group_data</span><span class="o">.</span><span class="n">iter_by_series_id</span><span class="p">():</span>
-                <span class="n">full_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_names</span><span class="p">[</span><span class="n">series_id</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">analysis</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">full_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">model_names</span><span class="p">[</span><span class="n">series_id</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">analysis</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
                 <span class="c1"># Plot raw data scatters</span>
                 <span class="k">if</span> <span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot_raw_data</span><span class="p">:</span>
-                    <span class="n">raw_data</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span>
+                    <span class="n">raw_data</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">"raw"</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
                         <span class="n">series_name</span><span class="o">=</span><span class="n">full_name</span><span class="p">,</span>
                         <span class="n">x</span><span class="o">=</span><span class="n">raw_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
@@ -780,7 +780,7 @@
                     <span class="n">y_formatted_err</span><span class="o">=</span><span class="n">formatted_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="c1"># Plot fit lines</span>
-                <span class="n">line_data</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;fitted&quot;</span><span class="p">)</span>
+                <span class="n">line_data</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">"fitted"</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">continue</span>
                 <span class="n">fit_stdev</span> <span class="o">=</span> <span class="n">line_data</span><span class="o">.</span><span class="n">y_err</span>
@@ -795,7 +795,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default analysis options.</span>
+<span class="w">        </span><span class="sd">"""Default analysis options.</span>
 
 <span class="sd">        Analysis Options:</span>
 <span class="sd">            plotter (BasePlotter): A plotter instance to visualize</span>
@@ -804,7 +804,7 @@
 <span class="sd">                This is ``True`` by default.</span>
 <span class="sd">            extra (Dict[str, Any]): A dictionary that is appended to all database entries</span>
 <span class="sd">                as extra information.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span>
             <span class="n">plotter</span><span class="o">=</span><span class="n">CurvePlotter</span><span class="p">(</span><span class="n">MplDrawer</span><span class="p">()),</span>
@@ -813,7 +813,7 @@
         <span class="p">)</span>
 
         <span class="c1"># Set automatic validator for particular option values</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s2">&quot;plotter&quot;</span><span class="p">,</span> <span class="n">validator_value</span><span class="o">=</span><span class="n">BasePlotter</span><span class="p">)</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s2">"plotter"</span><span class="p">,</span> <span class="n">validator_value</span><span class="o">=</span><span class="n">BasePlotter</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">options</span>
 
@@ -823,11 +823,11 @@
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Specified option </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> doesn&#39;t exist in this analysis instance. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Note that </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is a composite curve analysis instance, &quot;</span>
-                    <span class="s2">&quot;which consists of multiple child curve analyses. &quot;</span>
-                    <span class="s2">&quot;This options may exist in each analysis instance. &quot;</span>
-                    <span class="s2">&quot;Please try setting options to child analyses through &#39;.analyses()&#39;.&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"Specified option </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> doesn't exist in this analysis instance. "</span>
+                    <span class="sa">f</span><span class="s2">"Note that </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is a composite curve analysis instance, "</span>
+                    <span class="s2">"which consists of multiple child curve analyses. "</span>
+                    <span class="s2">"This options may exist in each analysis instance. "</span>
+                    <span class="s2">"Please try setting options to child analyses through '.analyses()'."</span><span class="p">,</span>
                     <span class="ne">UserWarning</span><span class="p">,</span>
                 <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span></div>
@@ -841,20 +841,20 @@
         <span class="n">figures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FigureType</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">artifacts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ArtifactData</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="c1"># Flag for plotting can be &quot;always&quot;, &quot;never&quot;, or &quot;selective&quot;</span>
+        <span class="c1"># Flag for plotting can be "always", "never", or "selective"</span>
         <span class="c1"># the analysis option overrides self._generate_figures if set</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="n">plot</span> <span class="o">=</span> <span class="s2">&quot;always&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="n">plot</span> <span class="o">=</span> <span class="s2">&quot;never&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">plot</span> <span class="o">=</span> <span class="s2">"always"</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">plot</span> <span class="o">=</span> <span class="s2">"never"</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">plot</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_generate_figures&quot;</span><span class="p">,</span> <span class="s2">&quot;always&quot;</span><span class="p">)</span>
+            <span class="n">plot</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_generate_figures"</span><span class="p">,</span> <span class="s2">"always"</span><span class="p">)</span>
 
         <span class="n">sub_artifacts</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">source_analysis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">:</span>
             <span class="n">analysis</span> <span class="o">=</span> <span class="n">source_analysis</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">metadata</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">extra</span>
-            <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;group&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">"group"</span><span class="p">]</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">name</span>
             <span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
             <span class="n">results</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_run_analysis</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
@@ -863,25 +863,25 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">result_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;curve_data&quot;</span> <span class="ow">in</span> <span class="n">sub_artifacts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"curve_data"</span> <span class="ow">in</span> <span class="n">sub_artifacts</span><span class="p">:</span>
             <span class="n">combined_curve_data</span> <span class="o">=</span> <span class="n">ScatterTable</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">d</span><span class="o">.</span><span class="n">dataframe</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">sub_artifacts</span><span class="p">[</span><span class="s2">&quot;curve_data&quot;</span><span class="p">]])</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">d</span><span class="o">.</span><span class="n">dataframe</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">sub_artifacts</span><span class="p">[</span><span class="s2">"curve_data"</span><span class="p">]])</span>
             <span class="p">)</span>
-            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ArtifactData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;curve_data&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">combined_curve_data</span><span class="p">))</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ArtifactData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"curve_data"</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">combined_curve_data</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">combined_curve_data</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="s2">&quot;fit_summary&quot;</span> <span class="ow">in</span> <span class="n">sub_artifacts</span><span class="p">:</span>
-            <span class="n">combined_summary</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sub_artifacts</span><span class="p">[</span><span class="s2">&quot;fit_summary&quot;</span><span class="p">])</span>
-            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ArtifactData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;fit_summary&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">combined_summary</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s2">"fit_summary"</span> <span class="ow">in</span> <span class="n">sub_artifacts</span><span class="p">:</span>
+            <span class="n">combined_summary</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sub_artifacts</span><span class="p">[</span><span class="s2">"fit_summary"</span><span class="p">])</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ArtifactData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"fit_summary"</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">combined_summary</span><span class="p">))</span>
             <span class="n">total_quality</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_quality</span><span class="p">(</span><span class="n">combined_summary</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">combined_summary</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">total_quality</span> <span class="o">=</span> <span class="s2">&quot;No Information&quot;</span>
+            <span class="n">total_quality</span> <span class="o">=</span> <span class="s2">"No Information"</span>
 
         <span class="c1"># After the quality is determined, plot can become a boolean flag for whether</span>
         <span class="c1"># to generate the figure</span>
-        <span class="n">plot_bool</span> <span class="o">=</span> <span class="n">plot</span> <span class="o">==</span> <span class="s2">&quot;always&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">plot</span> <span class="o">==</span> <span class="s2">&quot;selective&quot;</span> <span class="ow">and</span> <span class="n">total_quality</span> <span class="o">==</span> <span class="s2">&quot;bad&quot;</span><span class="p">)</span>
+        <span class="n">plot_bool</span> <span class="o">=</span> <span class="n">plot</span> <span class="o">==</span> <span class="s2">"always"</span> <span class="ow">or</span> <span class="p">(</span><span class="n">plot</span> <span class="o">==</span> <span class="s2">"selective"</span> <span class="ow">and</span> <span class="n">total_quality</span> <span class="o">==</span> <span class="s2">"bad"</span><span class="p">)</span>
 
         <span class="c1"># Create analysis results by combining all fit data</span>
         <span class="k">if</span> <span class="n">combined_summary</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">fit_data</span><span class="o">.</span><span class="n">success</span> <span class="k">for</span> <span class="n">fit_data</span> <span class="ow">in</span> <span class="n">combined_summary</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
@@ -927,7 +927,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -942,7 +942,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

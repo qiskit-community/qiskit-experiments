@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.curve_analysis.scatter_table - Qiskit Experiments 0.14.0-12-gb9040d3c3</title>
+        <title>qiskit_experiments.curve_analysis.scatter_table - Qiskit Experiments 0.14.0-13-g7ca8b8c2d</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-12-gb9040d3c3</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-12-gb9040d3c3</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.0-13-g7ca8b8c2d</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Table representation of the x, y data for curve fitting.&quot;&quot;&quot;</span>
+<span class="sd">"""Table representation of the x, y data for curve fitting."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -578,7 +578,7 @@
 <div class="viewcode-block" id="ScatterTable">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ScatterTable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A table-like dataset for the intermediate data used for curve fitting.</span>
+<span class="w">    </span><span class="sd">"""A table-like dataset for the intermediate data used for curve fitting.</span>
 
 <span class="sd">    Default table columns are defined in the class attribute :attr:`.COLUMNS`.</span>
 <span class="sd">    This table cannot be expanded with user-provided column names.</span>
@@ -597,28 +597,28 @@
 <span class="sd">    See the tutorial of :ref:`data_management_with_scatter_table` for the</span>
 <span class="sd">    role of each table column and how values are typically provided.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">COLUMNS</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;xval&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;yval&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;yerr&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;series_name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;series_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;shots&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;analysis&quot;</span><span class="p">,</span>
+        <span class="s2">"xval"</span><span class="p">,</span>
+        <span class="s2">"yval"</span><span class="p">,</span>
+        <span class="s2">"yerr"</span><span class="p">,</span>
+        <span class="s2">"series_name"</span><span class="p">,</span>
+        <span class="s2">"series_id"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">,</span>
+        <span class="s2">"shots"</span><span class="p">,</span>
+        <span class="s2">"analysis"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="n">DTYPES</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;Float64&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Float64&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Float64&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;string&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Int64&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;string&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Int64&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">"Float64"</span><span class="p">,</span>
+        <span class="s2">"Float64"</span><span class="p">,</span>
+        <span class="s2">"Float64"</span><span class="p">,</span>
+        <span class="s2">"string"</span><span class="p">,</span>
+        <span class="s2">"Int64"</span><span class="p">,</span>
+        <span class="s2">"string"</span><span class="p">,</span>
+        <span class="s2">"Int64"</span><span class="p">,</span>
+        <span class="s2">"string"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -632,16 +632,16 @@
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScatterTable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new dataset with existing dataframe.</span>
+<span class="w">        </span><span class="sd">"""Create new dataset with existing dataframe.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: Data dataframe object.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new ScatterTable instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">COLUMNS</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input dataframe columns don&#39;t match with the ScatterTable spec.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Input dataframe columns don't match with the ScatterTable spec."</span><span class="p">)</span>
         <span class="n">format_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_format_table</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_create_new_instance</span><span class="p">(</span><span class="n">format_data</span><span class="p">)</span></div>
 
@@ -661,7 +661,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dataframe object of data points.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Dataframe object of data points."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_add_rows</span><span class="p">:</span>
             <span class="c1"># Add data when table element is called.</span>
             <span class="c1"># Adding rows in loop is extremely slow in pandas.</span>
@@ -676,13 +676,13 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;X values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""X values."""</span>
         <span class="c1"># For backward compatibility with CurveData.x</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">xval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">na_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
     <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;xval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"xval"</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
 
 <div class="viewcode-block" id="ScatterTable.xvals">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.xvals">[docs]</a>
@@ -693,7 +693,7 @@
         <span class="n">analysis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">check_unique</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get subset of X values.</span>
+<span class="w">        </span><span class="sd">"""Get subset of X values.</span>
 
 <span class="sd">        A convenient shortcut for getting X data with filtering.</span>
 
@@ -706,7 +706,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Numpy array of X values.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">sub_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">analysis</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">check_unique</span><span class="p">:</span>
             <span class="n">sub_table</span><span class="o">.</span><span class="n">_warn_composite_data</span><span class="p">()</span>
@@ -715,13 +715,13 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Y values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Y values."""</span>
         <span class="c1"># For backward compatibility with CurveData.y</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">yval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">na_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
     <span class="nd">@y</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;yval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"yval"</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
 
 <div class="viewcode-block" id="ScatterTable.yvals">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.yvals">[docs]</a>
@@ -732,7 +732,7 @@
         <span class="n">analysis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">check_unique</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get subset of Y values.</span>
+<span class="w">        </span><span class="sd">"""Get subset of Y values.</span>
 
 <span class="sd">        A convenient shortcut for getting Y data with filtering.</span>
 
@@ -745,7 +745,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Numpy array of Y values.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">sub_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">analysis</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">check_unique</span><span class="p">:</span>
             <span class="n">sub_table</span><span class="o">.</span><span class="n">_warn_composite_data</span><span class="p">()</span>
@@ -754,13 +754,13 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">y_err</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Standard deviation of Y values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Standard deviation of Y values."""</span>
         <span class="c1"># For backward compatibility with CurveData.y_err</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">yerr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">na_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
     <span class="nd">@y_err</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">y_err</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;yerr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"yerr"</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
 
 <div class="viewcode-block" id="ScatterTable.yerrs">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.yerrs">[docs]</a>
@@ -771,7 +771,7 @@
         <span class="n">analysis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">check_unique</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get subset of standard deviation of Y values.</span>
+<span class="w">        </span><span class="sd">"""Get subset of standard deviation of Y values.</span>
 
 <span class="sd">        A convenient shortcut for getting Y error data with filtering.</span>
 
@@ -784,7 +784,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Numpy array of Y error values.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">sub_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">analysis</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">check_unique</span><span class="p">:</span>
             <span class="n">sub_table</span><span class="o">.</span><span class="n">_warn_composite_data</span><span class="p">()</span>
@@ -793,48 +793,48 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">series_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Corresponding data name for each data point.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Corresponding data name for each data point."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">series_name</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span> <span class="n">na_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
     <span class="nd">@series_name</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">series_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;series_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"series_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">series_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Corresponding data UID for each data point.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Corresponding data UID for each data point."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">series_id</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span> <span class="n">na_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
     <span class="nd">@series_id</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">series_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;series_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"series_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">category</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Array of categories of the data points.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Array of categories of the data points."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">category</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span> <span class="n">na_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
     <span class="nd">@category</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"category"</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shots</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shot number used to acquire each data point.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Shot number used to acquire each data point."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">shots</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span> <span class="n">na_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
     <span class="nd">@shots</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;shots&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"shots"</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Corresponding analysis name for each data point.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Corresponding analysis name for each data point."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span> <span class="n">na_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
     <span class="nd">@analysis</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;analysis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"analysis"</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span>
 
 <div class="viewcode-block" id="ScatterTable.filter">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.filter">[docs]</a>
@@ -844,7 +844,7 @@
         <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">analysis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScatterTable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter data by series, category, and/or analysis name.</span>
+<span class="w">        </span><span class="sd">"""Filter data by series, category, and/or analysis name.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            series: Identifier of the data series, either integer series index or name.</span>
@@ -853,7 +853,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            New ScatterTable object with filtered data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">filt_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span>
 
         <span class="k">if</span> <span class="n">series</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -863,7 +863,7 @@
                 <span class="n">index</span> <span class="o">=</span> <span class="n">filt_data</span><span class="o">.</span><span class="n">series_name</span> <span class="o">==</span> <span class="n">series</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Invalid series identifier </span><span class="si">{</span><span class="n">series</span><span class="si">}</span><span class="s2">. This must be integer or string.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Invalid series identifier </span><span class="si">{</span><span class="n">series</span><span class="si">}</span><span class="s2">. This must be integer or string."</span>
                 <span class="p">)</span>
             <span class="n">filt_data</span> <span class="o">=</span> <span class="n">filt_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span>
         <span class="k">if</span> <span class="n">category</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -878,11 +878,11 @@
 <div class="viewcode-block" id="ScatterTable.iter_by_series_id">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.iter_by_series_id">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">iter_by_series_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ScatterTable</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate over subset of data sorted by the data series index.</span>
+<span class="w">        </span><span class="sd">"""Iterate over subset of data sorted by the data series index.</span>
 
 <span class="sd">        Yields:</span>
 <span class="sd">            Tuple of data series index and subset of ScatterTable.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">id_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">series_id</span>
         <span class="k">for</span> <span class="n">did</span> <span class="ow">in</span> <span class="n">id_values</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
             <span class="k">yield</span> <span class="n">did</span><span class="p">,</span> <span class="n">ScatterTable</span><span class="o">.</span><span class="n">_create_new_instance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">id_values</span> <span class="o">==</span> <span class="n">did</span><span class="p">,</span> <span class="p">:])</span></div>
@@ -894,20 +894,20 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">group_by</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">ScatterTable</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate over the subset sorted by multiple column values.</span>
+<span class="w">        </span><span class="sd">"""Iterate over the subset sorted by multiple column values.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            group_by: Names of columns to group by.</span>
 
 <span class="sd">        Yields:</span>
 <span class="sd">            Tuple of values for the grouped columns and the corresponding subset of the scatter table.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">values_iter</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">group_by</span><span class="p">])</span>
         <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Specified columns don&#39;t exist: </span><span class="si">{</span><span class="n">group_by</span><span class="si">}</span><span class="s2"> is not a subset of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">COLUMNS</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Specified columns don't exist: </span><span class="si">{</span><span class="n">group_by</span><span class="si">}</span><span class="s2"> is not a subset of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">COLUMNS</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
 
         <span class="k">for</span> <span class="n">values</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">values_iter</span><span class="p">):</span>
@@ -931,7 +931,7 @@
         <span class="n">shots</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">NAType</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
         <span class="n">analysis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">NAType</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add new data point to the table.</span>
+<span class="w">        </span><span class="sd">"""Add new data point to the table.</span>
 
 <span class="sd">        Data must be the same length.</span>
 
@@ -944,7 +944,7 @@
 <span class="sd">            category: Data category if available.</span>
 <span class="sd">            shots: Shot number used to acquire this data point.</span>
 <span class="sd">            analysis: Analysis name if available.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_add_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">[</span><span class="n">xval</span><span class="p">,</span> <span class="n">yval</span><span class="p">,</span> <span class="n">yerr</span><span class="p">,</span> <span class="n">series_name</span><span class="p">,</span> <span class="n">series_id</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">shots</span><span class="p">,</span> <span class="n">analysis</span><span class="p">]</span>
         <span class="p">)</span></div>
@@ -961,27 +961,27 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_warn_composite_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">series_name</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Table data contains multiple data series. &quot;</span>
-                <span class="s2">&quot;You may want to filter the data by a specific series_id or series_name.&quot;</span><span class="p">,</span>
+                <span class="s2">"Table data contains multiple data series. "</span>
+                <span class="s2">"You may want to filter the data by a specific series_id or series_name."</span><span class="p">,</span>
                 <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">category</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Table data contains multiple categories. &quot;</span>
-                <span class="s2">&quot;You may want to filter the data by a specific category name.&quot;</span><span class="p">,</span>
+                <span class="s2">"Table data contains multiple categories. "</span>
+                <span class="s2">"You may want to filter the data by a specific category name."</span><span class="p">,</span>
                 <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Table data contains multiple datasets from different component analyses. &quot;</span>
-                <span class="s2">&quot;You may want to filter the data by a specific analysis name.&quot;</span><span class="p">,</span>
+                <span class="s2">"Table data contains multiple datasets from different component analyses. "</span>
+                <span class="s2">"You may want to filter the data by a specific analysis name."</span><span class="p">,</span>
                 <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
 
 <div class="viewcode-block" id="ScatterTable.__len__">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.ScatterTable.html#qiskit_experiments.curve_analysis.ScatterTable.__len__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of data points stored in the table.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of data points stored in the table."""</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">)</span></div>
 
 
@@ -990,15 +990,15 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;ScatterTable&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">),</span>
+            <span class="s2">"class"</span><span class="p">:</span> <span class="s2">"ScatterTable"</span><span class="p">,</span>
+            <span class="s2">"data"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">"index"</span><span class="p">),</span>
         <span class="p">}</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ScatterTable</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;ScatterTable&quot;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;JSON decoded value for ScatterTable is not valid class type.&quot;</span><span class="p">)</span>
-        <span class="n">tmp_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">{}),</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"class"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"ScatterTable"</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"JSON decoded value for ScatterTable is not valid class type."</span><span class="p">)</span>
+        <span class="n">tmp_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data"</span><span class="p">,</span> <span class="p">{}),</span> <span class="n">orient</span><span class="o">=</span><span class="s2">"index"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ScatterTable</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span><span class="n">tmp_df</span><span class="p">)</span></div>
 
 </pre></div>
@@ -1019,7 +1019,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/08/12</div>
+              Last updated on 2026/08/24</div>
           </div>
           <div class="right-details">
             
@@ -1034,7 +1034,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2357b384"></script>
+</div><script src="../../../_static/documentation_options.js?v=78f35329"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
