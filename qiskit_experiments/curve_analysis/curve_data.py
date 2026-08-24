@@ -13,139 +13,22 @@
 """
 Curve data classes.
 """
+from __future__ import annotations
+
 import dataclasses
 import itertools
-import inspect
-from typing import Any, Dict, Union, List, Tuple, Optional, Iterable, Callable
+import warnings
+from typing import Any, TYPE_CHECKING
+from collections.abc import Iterable
 
 import numpy as np
 import uncertainties
 from uncertainties.unumpy import uarray
 
-from qiskit.utils.deprecation import deprecate_func
-
 from qiskit_experiments.exceptions import AnalysisError
 
-
-@dataclasses.dataclass(frozen=True)
-class SeriesDef:
-    """A dataclass to describe the definition of the curve.
-
-    Attributes:
-        fit_func: A callable that defines the fit model of this curve. The argument names
-            in the callable are parsed to create the fit parameter list, which will appear
-            in the analysis results. The first argument should be ``x`` that represents
-            X-values that the experiment sweeps.
-        filter_kwargs: Optional. Dictionary of properties that uniquely identifies this series.
-            This dictionary is used for data processing.
-            This must be provided when the curve analysis consists of multiple series.
-        name: Optional. Name of this series.
-        plot_color: Optional. String representation of the color that is used to draw fit data
-            and data points in the output figure. This depends on the drawer class
-            being set to the curve analysis options. Usually this conforms to the
-            Matplotlib color names.
-        plot_symbol: Optional. String representation of the marker shape that is used to draw
-            data points in the output figure. This depends on the drawer class
-            being set to the curve analysis options. Usually this conforms to the
-            Matplotlib symbol names.
-        canvas: Optional. Index of sub-axis in the output figure that draws this curve.
-            This option is valid only when the drawer instance provides multi-axis drawing.
-        model_description: Optional. Arbitrary string representation of this fit model.
-            This string will appear in the analysis results as a part of metadata.
-    """
-
-    fit_func: Callable
-    filter_kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    name: str = "Series-0"
-    plot_color: str = "black"
-    plot_symbol: str = "o"
-    canvas: Optional[int] = None
-    model_description: Optional[str] = None
-    signature: Tuple[str, ...] = dataclasses.field(init=False)
-
-    @deprecate_func(
-        since="0.5",
-        additional_msg="SeriesDef has been replaced by the LMFIT module.",
-        removal_timeline="after 0.6",
-        package_name="qiskit-experiments",
-    )
-    def __init__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
-
-    def __post_init__(self):
-        """Parse the fit function signature to extract the names of the variables.
-        Fit functions take arguments F(x, p0, p1, p2, ...) thus the first value should be excluded.
-        """
-        signature = list(inspect.signature(self.fit_func).parameters.keys())
-        fitparams = tuple(signature[1:])
-
-        # Note that this dataclass is frozen
-        object.__setattr__(self, "signature", fitparams)
-
-
-@dataclasses.dataclass(frozen=True)
-class CurveData:
-    """A dataclass that manages the multiple arrays comprising the dataset for fitting.
-
-    This dataset can consist of X, Y values from multiple series.
-    To extract curve data of the particular series, :meth:`get_subset_of` can be used.
-
-    Attributes:
-        x: X-values that experiment sweeps.
-        y: Y-values that observed and processed by the data processor.
-        y_err: Uncertainty of the Y-values which is created by the data processor.
-            Usually this assumes standard error.
-        shots: Number of shots used in the experiment to obtain the Y-values.
-        data_allocation: List with identical size with other arrays.
-            The value indicates the series index of the corresponding element.
-            This is classified based upon the matching of :attr:`SeriesDef.filter_kwargs`
-            with the circuit metadata of the corresponding data index.
-            If metadata doesn't match with any series definition, element is filled with ``-1``.
-        labels: List of curve labels. The list index corresponds to the series index.
-    """
-
-    x: np.ndarray
-    y: np.ndarray
-    y_err: np.ndarray
-    shots: np.ndarray
-    data_allocation: np.ndarray
-    labels: List[str]
-
-    @deprecate_func(
-        since="0.6",
-        additional_msg="CurveData is replaced by `ScatterTable`'s DataFrame representation.",
-        removal_timeline="after 0.7",
-        package_name="qiskit-experiments",
-    )
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def get_subset_of(self, index: Union[str, int]) -> "CurveData":
-        """Filter data by series name or index.
-
-        Args:
-            index: Series index of name.
-
-        Returns:
-            A subset of data corresponding to a particular series.
-        """
-        if isinstance(index, int):
-            _index = index
-            _name = self.labels[index]
-        else:
-            _index = self.labels.index(index)
-            _name = index
-
-        locs = self.data_allocation == _index
-        return CurveData(
-            x=self.x[locs],
-            y=self.y[locs],
-            y_err=self.y_err[locs],
-            shots=self.shots[locs],
-            data_allocation=np.full(np.count_nonzero(locs), _index),
-            labels=[_name],
-        )
+if TYPE_CHECKING:
+    from typing import Self
 
 
 class CurveFitResult:
@@ -153,24 +36,24 @@ class CurveFitResult:
 
     def __init__(
         self,
-        method: Optional[str] = None,
-        model_repr: Optional[Dict[str, str]] = None,
-        success: Optional[bool] = True,
-        nfev: Optional[int] = None,
-        message: Optional[str] = "",
-        dof: Optional[float] = None,
-        init_params: Optional[Dict[str, float]] = None,
-        chisq: Optional[float] = None,
-        reduced_chisq: Optional[float] = None,
-        aic: Optional[float] = None,
-        bic: Optional[float] = None,
-        params: Optional[Dict[str, float]] = None,
-        var_names: Optional[List[str]] = None,
-        x_data: Optional[np.ndarray] = None,
-        y_data: Optional[np.ndarray] = None,
-        weighted_residuals: Optional[np.ndarray] = None,
-        residuals: Optional[np.ndarray] = None,
-        covar: Optional[np.ndarray] = None,
+        method: str | None = None,
+        model_repr: dict[str, str] | None = None,
+        success: bool | None = True,
+        nfev: int | None = None,
+        message: str | None = "",
+        dof: float | None = None,
+        init_params: dict[str, float] | None = None,
+        chisq: float | None = None,
+        reduced_chisq: float | None = None,
+        aic: float | None = None,
+        bic: float | None = None,
+        params: dict[str, float] | None = None,
+        var_names: list[str] | None = None,
+        x_data: np.ndarray | None = None,
+        y_data: np.ndarray | None = None,
+        weighted_residuals: np.ndarray | None = None,
+        residuals: np.ndarray | None = None,
+        covar: np.ndarray | None = None,
     ):
         """Create new Qiskit curve analysis result object.
 
@@ -214,17 +97,17 @@ class CurveFitResult:
         self.covar = covar
 
     @property
-    def x_range(self) -> Tuple[float, float]:
+    def x_range(self) -> tuple[float, float]:
         """Range of x_data values."""
         return min(self.x_data), max(self.x_data)
 
     @property
-    def y_range(self) -> Tuple[float, float]:
+    def y_range(self) -> tuple[float, float]:
         """Range of y_data values."""
         return min(self.y_data), max(self.y_data)
 
     @property
-    def ufloat_params(self) -> Dict[str, uncertainties.UFloat]:
+    def ufloat_params(self) -> dict[str, uncertainties.UFloat]:
         """UFloat representation of fit parameters."""
         if hasattr(self, "_ufloat_params"):
             # Return cache
@@ -256,7 +139,24 @@ class CurveFitResult:
                     uind = self.var_names.index(name)
                     ufloat_params[name] = ufloat_fitvals[uind]
                 except ValueError:
-                    ufloat_params[name] = uncertainties.ufloat(self.params[name], std_dev=0.0)
+                    with warnings.catch_warnings():
+                        # As of Uncertainties 3.2.3, ufloat() warns about std_dev=0
+                        # We want to return UFloats uniformly (not a mix of
+                        # UFloats and plain floats) so we need to ignore this
+                        # warning and trust the user not to use the results
+                        # with std_dev==0 in a way that causes problems.
+                        #
+                        # In Uncertainties 3.2.3, the module of the warning is
+                        # uncertainties.core. Once
+                        # https://github.com/lmfit/uncertainties/pull/305 is
+                        # released, the module will be curve_data.py in
+                        # qiskit_experiments and the uncertainties part can be
+                        # removed from the module expression.
+                        warnings.filterwarnings(
+                            "ignore",
+                            module=r"(qiskit_experiments|uncertainties)\.",
+                        )
+                        ufloat_params[name] = uncertainties.ufloat(self.params[name], std_dev=0.0)
 
         setattr(self, "_ufloat_params", ufloat_params)
         return ufloat_params
@@ -327,7 +227,7 @@ class CurveFitResult:
     def __deepcopy__(self, memo):
         return self.__copy__()
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         return {
             "method": self.method,
             "model_repr": self.model_repr,
@@ -348,69 +248,8 @@ class CurveFitResult:
         }
 
     @classmethod
-    def __json_decode__(cls, value):
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
         return cls(**value)
-
-
-@dataclasses.dataclass(frozen=True)
-class FitData:
-    """A dataclass to store the outcome of the fitting.
-
-    Attributes:
-        popt: List of optimal parameter values with uncertainties if available.
-        popt_keys: List of parameter names being fit.
-        pcov: Covariance matrix from the least square fitting.
-        reduced_chisq: Reduced Chi-squared value for the fit curve.
-        dof: Degree of freedom in this fit model.
-        x_data: X-values provided to the fitter.
-        y_data: Y-values provided to the fitter.
-    """
-
-    popt: List[uncertainties.UFloat]
-    popt_keys: List[str]
-    pcov: np.ndarray
-    reduced_chisq: float
-    dof: int
-    x_data: np.ndarray
-    y_data: np.ndarray
-
-    @deprecate_func(
-        since="0.5",
-        additional_msg="Fit data is replaced with 'CurveFitResult' based on LMFIT minimizer result.",
-        removal_timeline="after 0.6",
-        package_name="qiskit-experiments",
-    )
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    @property
-    def x_range(self) -> Tuple[float, float]:
-        """Range of x values."""
-        return np.min(self.x_data), np.max(self.x_data)
-
-    @property
-    def y_range(self) -> Tuple[float, float]:
-        """Range of y values."""
-        return np.min(self.y_data), np.max(self.y_data)
-
-    def fitval(self, key: str) -> uncertainties.UFloat:
-        """A helper method to get fit value object from parameter key name.
-
-        Args:
-            key: Name of parameters to extract.
-
-        Returns:
-            A UFloat object which functions as a standard Python float object
-            but with automatic error propagation.
-
-        Raises:
-            ValueError: When specified parameter is not defined.
-        """
-        try:
-            index = self.popt_keys.index(key)
-            return self.popt[index]
-        except ValueError as ex:
-            raise ValueError(f"Parameter {key} is not defined.") from ex
 
 
 @dataclasses.dataclass
@@ -427,10 +266,17 @@ class ParameterRepr:
     name: str
 
     # Unicode representation
-    repr: Optional[str] = None
+    repr: str | None = None
 
     # Unit
-    unit: Optional[str] = None
+    unit: str | None = None
+
+    def __json_encode__(self) -> dict[str, Any]:
+        return self.__dict__
+
+    @classmethod
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
+        return cls(**value)
 
 
 class OptionsDict(dict):
@@ -444,8 +290,8 @@ class OptionsDict(dict):
 
     def __init__(
         self,
-        parameters: List[str],
-        defaults: Optional[Union[Iterable[Any], Dict[str, Any]]] = None,
+        parameters: list[str],
+        defaults: Iterable[Any] | dict[str, Any] | None = None,
     ):
         """Create new dictionary.
 
@@ -515,7 +361,7 @@ class InitialGuesses(OptionsDict):
     """Dictionary providing a float validation for initial guesses."""
 
     @staticmethod
-    def format(value: Any) -> Optional[float]:
+    def format(value: Any) -> float | None:
         """Validate that value is float a float or None.
 
         Args:
@@ -540,7 +386,7 @@ class Boundaries(OptionsDict):
     """Dictionary providing a validation for boundaries."""
 
     @staticmethod
-    def format(value: Any) -> Optional[Tuple[float, float]]:
+    def format(value: Any) -> tuple[float, float] | None:
         """Validate if value is a min-max value tuple.
 
         Args:
@@ -578,9 +424,9 @@ class FitOptions:
 
     def __init__(
         self,
-        parameters: List[str],
-        default_p0: Optional[Union[Iterable[float], Dict[str, float]]] = None,
-        default_bounds: Optional[Union[Iterable[Tuple], Dict[str, Tuple]]] = None,
+        parameters: list[str],
+        default_p0: Iterable[float] | dict[str, float] | None = None,
+        default_bounds: Iterable[tuple] | dict[str, tuple] | None = None,
         **extra,
     ):
         # These are private members so that user cannot directly override values

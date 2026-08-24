@@ -12,9 +12,9 @@ error estimates for the quantum device, by calculating the Error Per Clifford. S
 explanation on the RB method, which is based on Refs. [1]_ [2]_.
 
 .. note::
-    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
-    packages to run simulations.  You can install them with ``python -m pip
-    install qiskit-aer qiskit-ibm-runtime``.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>`
+    package to run simulations.  You can install it with ``python -m pip
+    install qiskit-aer``.
 
 .. jupyter-execute::
 
@@ -25,9 +25,13 @@ explanation on the RB method, which is based on Refs. [1]_ [2]_.
     
     # For simulation
     from qiskit_aer import AerSimulator
-    from qiskit_ibm_runtime.fake_provider import FakePerth
-    
-    backend = AerSimulator.from_backend(FakePerth())
+    from qiskit_aer.noise import NoiseModel, depolarizing_error
+
+    noise_model = NoiseModel()
+    noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])
+    noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])
+    noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["cx"])
+    backend = AerSimulator(noise_model=noise_model)
 
 Standard RB experiment
 ----------------------
@@ -50,6 +54,12 @@ in order to generate the RB circuits and run them on a backend:
    sampled for all lengths. If ``False`` for sample of lengths longer
    sequences are constructed by appending additional Clifford samples to
    shorter sequences. The default is ``False``
+
+.. note::
+   In the examples here, the sequence lengths and number of samples are chosen
+   to be as low as possible while still producing typical results in order to
+   minimize the simulation times. For accurate results, larger numbers may be
+   necessary.
 
 The analysis results of the RB Experiment may include:
 
@@ -101,22 +111,19 @@ interleaved RB experiment will always give you accurate error value :math:`e_i`.
 
 .. jupyter-execute::
 
-    lengths = np.arange(1, 800, 200)
-    num_samples = 10
+    lengths = [1, 10, 30, 80, 150] + np.arange(200, 1100, 200).tolist()
+    num_samples = 5
     seed = 1010
     qubits = [0]
     
     # Run an RB experiment on qubit 0
     exp1 = StandardRB(qubits, lengths, num_samples=num_samples, seed=seed)
     expdata1 = exp1.run(backend).block_for_results()
-    results1 = expdata1.analysis_results()
     
     # View result data
     print("Gate error ratio: %s" % expdata1.experiment.analysis.options.gate_error_ratio)
     display(expdata1.figure(0))
-    for result in results1:
-        print(result)
-
+    display(expdata1.analysis_results(dataframe=True))
 
 
 Running a 2-qubit RB experiment
@@ -171,9 +178,9 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
 
 .. jupyter-execute::
 
-    lengths_2_qubit = np.arange(1, 200, 30)
-    lengths_1_qubit = np.arange(1, 800, 200)
-    num_samples = 10
+    lengths_2_qubit = np.arange(1, 80, 10)
+    lengths_1_qubit = [1, 10, 30, 80, 150] + np.arange(200, 1100, 200).tolist()
+    num_samples = 5
     seed = 1010
     qubits = (1, 2)
 
@@ -182,8 +189,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
         [
             StandardRB((qubit,), lengths_1_qubit, num_samples=num_samples, seed=seed)
             for qubit in qubits
-        ],
-        flatten_results=True,
+        ]
     )
     expdata_1q = single_exps.run(backend).block_for_results()
 
@@ -194,7 +200,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
     exp_2q = StandardRB(qubits, lengths_2_qubit, num_samples=num_samples, seed=seed)
     
     # Use the EPG data of the 1-qubit runs to ensure correct 2-qubit EPG computation
-    exp_2q.analysis.set_options(epg_1_qubit=expdata_1q.analysis_results())
+    exp_2q.analysis.set_options(epg_1_qubit=expdata_1q.analysis_results(dataframe=True))
     
     # Run the 2-qubit experiment
     expdata_2q = exp_2q.run(backend).block_for_results()
@@ -202,12 +208,13 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
     # View result data
     print("Gate error ratio: %s" % expdata_2q.experiment.analysis.options.gate_error_ratio)
     display(expdata_2q.figure(0))
-    for result in expdata_2q.analysis_results():
-        print(result)
+    display(expdata_2q.analysis_results(dataframe=True))
 
 
 Note that ``EPC_corrected`` value is smaller than one of raw ``EPC``, which indicates
 contribution of depolarization from single-qubit error channels.
+If you don't need ``EPG`` value, you can skip its computation by
+``exp_2q.analysis.set_options(gate_error_ratio=False)``.
 
 
 Displaying the RB circuits
@@ -269,8 +276,8 @@ Let's run an interleaved RB experiment on two qubits:
 
 .. jupyter-execute::
 
-    lengths = np.arange(1, 200, 30)
-    num_samples = 10
+    lengths = [1, 2, 4, 8] + np.arange(10, 80, 10).tolist()
+    num_samples = 3
     seed = 1010
     qubits = (1, 2)
     
@@ -279,14 +286,11 @@ Let's run an interleaved RB experiment on two qubits:
         circuits.CXGate(), qubits, lengths, num_samples=num_samples, seed=seed)
     
     int_expdata2 = int_exp2.run(backend).block_for_results()
-    int_results2 = int_expdata2.analysis_results()
-
-.. jupyter-execute::
+    int_results2 = int_expdata2.analysis_results(dataframe=True)
 
     # View result data
     display(int_expdata2.figure(0))
-    for result in int_results2:
-        print(result)
+    display(int_results2)
 
 
 References

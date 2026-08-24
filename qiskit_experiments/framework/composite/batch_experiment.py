@@ -12,16 +12,19 @@
 """
 Batch Experiment class.
 """
+from __future__ import annotations
 
-from typing import List, Optional, Dict
+from typing import TYPE_CHECKING
 from collections import OrderedDict, defaultdict
-import warnings
 
 from qiskit import QuantumCircuit
-from qiskit.providers import Job, Backend, Options
 
 from .composite_experiment import CompositeExperiment, BaseExperiment
 from .composite_analysis import CompositeAnalysis
+
+if TYPE_CHECKING:
+    from qiskit.primitives.base import BaseSamplerV2
+    from qiskit.providers import Job, Backend, Options
 
 
 class BatchExperiment(CompositeExperiment):
@@ -45,11 +48,11 @@ class BatchExperiment(CompositeExperiment):
 
     def __init__(
         self,
-        experiments: List[BaseExperiment],
-        backend: Optional[Backend] = None,
-        flatten_results: bool = None,
-        analysis: Optional[CompositeAnalysis] = None,
-        experiment_type: Optional[str] = None,
+        experiments: list[BaseExperiment],
+        backend: Backend | None = None,
+        flatten_results: bool = True,
+        analysis: CompositeAnalysis | None = None,
+        experiment_type: str | None = None,
     ):
         """Initialize a batch experiment.
 
@@ -66,17 +69,6 @@ class BatchExperiment(CompositeExperiment):
                       provided this will be initialized automatically from the
                       supplied experiments.
         """
-        if flatten_results is None:
-            # Backward compatibility for 0.6
-            # This if-clause will be removed in 0.7 and flatten_result=True is set in arguments.
-            warnings.warn(
-                "Default value of flatten_results will be turned to True in Qiskit Experiments 0.7. "
-                "If you want child experiment data for each subset experiment, "
-                "set 'flatten_results=False' explicitly.",
-                DeprecationWarning,
-            )
-            flatten_results = False
-
         # Generate qubit map
         self._qubit_map = OrderedDict()
         logical_qubit = 0
@@ -146,8 +138,12 @@ class BatchExperiment(CompositeExperiment):
         return new_circuit
 
     def _run_jobs_recursive(
-        self, circuits: List[QuantumCircuit], truncated_metadata: List[Dict], **run_options
-    ) -> List[Job]:
+        self,
+        circuits: list[QuantumCircuit],
+        truncated_metadata: list[dict],
+        sampler: BaseSamplerV2 = None,
+        **run_options,
+    ) -> list[Job]:
         # The truncated metadata is a truncation of the original composite metadata.
         # During the recursion, the current experiment (self) will be at the head of the truncated
         # metadata.
@@ -173,19 +169,21 @@ class BatchExperiment(CompositeExperiment):
                 # even if they run in different jobs
                 if isinstance(exp, BatchExperiment):
                     new_jobs = exp._run_jobs_recursive(
-                        circs_by_subexps[index], truncated_metadata, **run_options
+                        circs_by_subexps[index], truncated_metadata, sampler, **run_options
                     )
                 else:
-                    new_jobs = exp._run_jobs(circs_by_subexps[index], **run_options)
+                    new_jobs = exp._run_jobs(circs_by_subexps[index], sampler, **run_options)
                 jobs.extend(new_jobs)
         else:
-            jobs = super()._run_jobs(circuits, **run_options)
+            jobs = super()._run_jobs(circuits, sampler, **run_options)
 
         return jobs
 
-    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
+    def _run_jobs(
+        self, circuits: list[QuantumCircuit], sampler: BaseSamplerV2 = None, **run_options
+    ) -> list[Job]:
         truncated_metadata = [circ.metadata for circ in circuits]
-        jobs = self._run_jobs_recursive(circuits, truncated_metadata, **run_options)
+        jobs = self._run_jobs_recursive(circuits, truncated_metadata, sampler, **run_options)
         return jobs
 
     @classmethod

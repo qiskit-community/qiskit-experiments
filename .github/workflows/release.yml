@@ -11,19 +11,18 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         name: Install Python
         with:
-          python-version: '3.8'
+          python-version: '3.14'
       - name: Install Deps
-        run: pip install -U wheel
+        run: pip install -U build
       - name: Build Artifacts
         run: |
-          python setup.py sdist
-          python setup.py bdist_wheel
+          python -m build
         shell: bash
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           path: ./dist/qiskit*
       - name: Publish to PyPi

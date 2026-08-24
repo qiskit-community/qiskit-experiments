@@ -13,7 +13,7 @@
 Composite Experiment abstract base class.
 """
 
-from typing import List, Sequence, Optional, Union
+from collections.abc import Sequence
 from abc import abstractmethod
 import warnings
 from qiskit.providers.backend import Backend
@@ -27,12 +27,12 @@ class CompositeExperiment(BaseExperiment):
 
     def __init__(
         self,
-        experiments: List[BaseExperiment],
+        experiments: list[BaseExperiment],
         physical_qubits: Sequence[int],
-        backend: Optional[Backend] = None,
-        experiment_type: Optional[str] = None,
-        flatten_results: bool = None,
-        analysis: Optional[CompositeAnalysis] = None,
+        backend: Backend | None = None,
+        experiment_type: str | None = None,
+        flatten_results: bool = True,
+        analysis: CompositeAnalysis | None = None,
     ):
         """Initialize the composite experiment object.
 
@@ -55,17 +55,6 @@ class CompositeExperiment(BaseExperiment):
             QiskitError: If the provided analysis class is not a CompositeAnalysis
                          instance.
         """
-        if flatten_results is None:
-            # Backward compatibility for 0.6
-            # This if-clause will be removed in 0.7 and flatten_result=True is set in arguments.
-            warnings.warn(
-                "Default value of flatten_results will be turned to True in Qiskit Experiments 0.7. "
-                "If you want child experiment data for each subset experiment, "
-                "set 'flatten_results=False' explicitly.",
-                DeprecationWarning,
-            )
-            flatten_results = False
-
         self._experiments = experiments
         self._num_experiments = len(experiments)
         if analysis is None:
@@ -94,7 +83,7 @@ class CompositeExperiment(BaseExperiment):
         """Return the number of sub experiments"""
         return self._num_experiments
 
-    def component_experiment(self, index=None) -> Union[BaseExperiment, List[BaseExperiment]]:
+    def component_experiment(self, index=None) -> BaseExperiment | list[BaseExperiment]:
         """Return the component Experiment object.
 
         Args:
@@ -107,12 +96,12 @@ class CompositeExperiment(BaseExperiment):
         return self._experiments[index]
 
     @property
-    def analysis(self) -> Union[CompositeAnalysis, None]:
+    def analysis(self) -> CompositeAnalysis | None:
         """Return the analysis instance for the experiment"""
         return self._analysis
 
     @analysis.setter
-    def analysis(self, analysis: Union[CompositeAnalysis, None]) -> None:
+    def analysis(self, analysis: CompositeAnalysis | None) -> None:
         """Set the analysis instance for the experiment"""
         if analysis is not None and not isinstance(analysis, CompositeAnalysis):
             raise TypeError("Input is not a None or a CompositeAnalysis subclass.")

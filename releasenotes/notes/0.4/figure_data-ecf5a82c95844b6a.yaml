@@ -1,9 +1,0 @@
----
-upgrade:
-  - |
-    Added a :class:`.FigureData` class for adding metadata to analysis result figures. Figures added to
-    :class:`.ExperimentData` are now stored using this class. The raw image object (SVG or matplotlib.Figure)
-    can be accessed using the :attr:`.FigureData.figure` attribute.
-
-    Note that currently metadata is only stored locally and will be discarded when saved to the cloud
-    experiment service database.

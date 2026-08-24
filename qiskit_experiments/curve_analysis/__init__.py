@@ -40,20 +40,9 @@ Data Classes
     :toctree: ../stubs/
 
     ScatterTable
-    SeriesDef
-    CurveData
     CurveFitResult
     ParameterRepr
     FitOptions
-
-Visualization
-=============
-
-.. autosummary::
-    :toctree: ../stubs/
-
-    BaseCurveDrawer
-    MplCurveDrawer
 
 Standard Analysis Library
 =========================
@@ -66,7 +55,6 @@ Standard Analysis Library
     DecayAnalysis
     DampedOscillationAnalysis
     OscillationAnalysis
-    ResonanceAnalysis
     GaussianAnalysis
     ErrorAmplificationAnalysis
 
@@ -103,16 +91,15 @@ Utilities
 .. autosummary::
     :toctree: ../stubs/
 
-    utils.is_error_not_significant
     utils.analysis_result_to_repr
     utils.convert_lmfit_result
     utils.eval_with_uncertainties
-    utils.filter_data
-    utils.mean_xy_data
-    utils.multi_mean_xy_data
-    utils.data_sort
+    utils.inverse_weighted_variance
+    utils.is_error_not_significant
     utils.level2_probability
     utils.probability
+    utils.sample_average
+    utils.shot_weighted_average
 
 """
 from .base_curve_analysis import BaseCurveAnalysis
@@ -120,18 +107,10 @@ from .curve_analysis import CurveAnalysis
 from .composite_curve_analysis import CompositeCurveAnalysis
 from .scatter_table import ScatterTable
 from .curve_data import (
-    CurveData,
     CurveFitResult,
-    FitData,
     FitOptions,
     ParameterRepr,
-    SeriesDef,
 )
-from .curve_fit import (
-    process_curve_data,
-    process_multi_curve_data,
-)
-from .visualization import BaseCurveDrawer, MplCurveDrawer
 from . import guess
 from . import fit_function
 from . import utils
@@ -141,11 +120,7 @@ from .standard_analysis import (
     DecayAnalysis,
     DampedOscillationAnalysis,
     OscillationAnalysis,
-    ResonanceAnalysis,
     GaussianAnalysis,
     ErrorAmplificationAnalysis,
     BlochTrajectoryAnalysis,
 )
-
-# deprecated
-from .visualization import plot_curve_fit, plot_errorbar, plot_scatter, FitResultPlotters

@@ -13,7 +13,7 @@
 Readout Angle Analysis class.
 """
 
-from typing import List, Optional
+from typing import Optional
 import numpy as np
 
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
@@ -71,7 +71,7 @@ class ReadoutAngleAnalysis(BaseAnalysis):
         return analysis_results, figures
 
     @staticmethod
-    def _format_plot(centers: List[complex], ax: Optional["matplotlib.pyplot.AxesSubplot"] = None):
+    def _format_plot(centers: list[complex], ax: Optional["matplotlib.pyplot.AxesSubplot"] = None):
         """Format the readout_angle plot
 
         Args:

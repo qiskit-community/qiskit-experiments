@@ -35,10 +35,10 @@ os.environ["QISKIT_DOCS"] = "TRUE"
 
 # -- Project information -----------------------------------------------------
 # The short X.Y version
-version = os.getenv("VERSION_STRING", "0.7")
+version = os.getenv("VERSION_STRING", "0.15")
 
 # The full version, including alpha/beta/rc tags
-release = os.getenv("RELEASE_STRING", "0.7.0")
+release = os.getenv("RELEASE_STRING", "0.15.0")
 
 project = "Qiskit Experiments"
 copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
@@ -78,9 +78,7 @@ else:
 
 html_static_path = ["_static"]
 templates_path = ["_templates"]
-# Manually add the gallery CSS file for now
-# TODO: Figure out why the styling is not working by default
-html_css_files = ["nbsphinx-gallery.css", "customstyles.css"]
+html_css_files = ["customstyles.css"]
 
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
@@ -92,15 +90,13 @@ exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 # chosen cells for thumbnails, like the nbsphinx-gallery tag
 nbsphinx_thumbnails = {
     "manuals/verification/quantum_volume": "_images/quantum_volume_2_0.png",
-    "manuals/measurement/readout_mitigation": "_images/readout_mitigation_4_0.png",
+    "manuals/measurement/readout_mitigation": "_images/readout_mitigation_2_0.png",
     "manuals/verification/randomized_benchmarking": "_images/randomized_benchmarking_3_1.png",
-    "manuals/measurement/restless_measurements": "_images/restless_shots.png",
     "manuals/verification/state_tomography": "_images/state_tomography_3_0.png",
     "manuals/characterization/t1": "_images/t1_0_0.png",
     "manuals/characterization/t2ramsey": "_images/t2ramsey_4_0.png",
     "manuals/characterization/tphi": "_images/tphi_5_1.png",
     "manuals/characterization/t2hahn": "_images/t2hahn_5_0.png",
-    "manuals/characterization/stark_experiment": "_images/stark_experiment_1_0.png",
     "**": "_static/images/logo.png",
 }
 
@@ -153,6 +149,9 @@ modindex_common_prefix = ["qiskit_experiments."]
 
 html_theme = "qiskit-ecosystem"
 html_title = f"{project} {release}"
+html_theme_options = {
+    "sidebar_qiskit_ecosystem_member": True,
+}
 
 docs_url_prefix = "qiskit-experiments"
 
@@ -161,13 +160,11 @@ html_last_updated_fmt = "%Y/%m/%d"
 autoclass_content = "both"
 intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
-    "qiskit": ("https://docs.quantum.ibm.com/api/qiskit/", None),
+    "qiskit": ("https://quantum.cloud.ibm.com/docs/api/qiskit/", None),
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
     "pandas": ("http://pandas.pydata.org/docs/", None),
     "qiskit_aer": ("https://qiskit.github.io/qiskit-aer/", None),
-    "qiskit_dynamics": ("https://qiskit-extensions.github.io/qiskit-dynamics/", None),
-    "qiskit_ibm_runtime": ("https://docs.quantum.ibm.com/api/qiskit-ibm-runtime/", None),
-    "qiskit_ibm_provider": ("https://docs.quantum.ibm.com/api/qiskit-ibm-provider/", None),
+    "qiskit_ibm_runtime": ("https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime/", None),
 }
 
 
@@ -177,7 +174,7 @@ if os.getenv("EXPERIMENTS_DEV_DOCS", None):
     rst_prolog = """
 .. note::
     This is the documentation for the current state of the `development branch 
-    <https://github.com/Qiskit-Extensions/qiskit-experiments/tree/main>`_
+    <https://github.com/Qiskit-Community/qiskit-experiments/tree/main>`_
     of Qiskit Experiments. The documentation or APIs here can change prior to being
     released.
 """
@@ -189,7 +186,7 @@ def _get_versions(app, config):
     current_version = release
     current_version_info = current_version.split(".")
     if current_version_info[0] == "0":
-        version_list = ["0.%s" % x for x in range(start_version[1], int(current_version_info[1]))]
+        version_list = [f"0.{x}" for x in range(start_version[1], int(current_version_info[1]))]
     else:
         # TODO: When 1.0.0 add code to handle 0.x version list
         version_list = []
@@ -205,19 +202,51 @@ def _get_version_label(current_version):
         return "Development"
 
 
+def convert_type_alias_docstrings(app, what, name, obj, options, lines):
+    """Check objects marked as type aliases, which we handle in a custom way
+
+    Sphinx autodoc does not handle type aliases well so we bypass its system
+    and just use our own system of saving descriptions next to the aliases in
+    the code and retrieving those descriptions here.
+    """
+    mod_name, _, _ = name.rpartition(".")
+    mod = sys.modules.get(mod_name)
+    if mod is None:
+        return
+
+    aliases_mapping = getattr(mod, "__type_aliases__", None)
+    if aliases_mapping is None:
+        return
+
+    if name not in aliases_mapping:
+        return
+
+    description = aliases_mapping[name]
+    lines.clear()
+    lines.append(description)
+
+
 def setup(app):
     app.connect("config-inited", _get_versions)
     app.connect("autodoc-skip-member", maybe_skip_member)
+    app.connect("autodoc-process-docstring", convert_type_alias_docstrings)
+    # Explicitly add nbsphinx-gallery.css to the app because it otherwise does
+    # not get added to the output html pages. Debugging shows that nbsphinx
+    # does call app.add_css_file itself but perhaps it calls it too late and
+    # there is a bug that could be reported upstream.
+    app.add_css_file("nbsphinx-gallery.css")
 
 
 # Hardcoded list of class variables to skip in autodoc to avoid warnings
 # Should come up with better way to address this
 
 from qiskit_experiments.curve_analysis import ParameterRepr
-from qiskit_experiments.curve_analysis import SeriesDef
+from qiskit_experiments.framework import MeasLevel, MeasReturnType
 
 
 def maybe_skip_member(app, what, name, obj, skip, options):
+    if skip:
+        return True
     skip_names = [
         "analysis",
         "set_run_options",
@@ -228,9 +257,6 @@ def maybe_skip_member(app, what, name, obj, skip, options):
         "y",
         "y_err",
         "name",
-        "filter_kwargs",
-        "fit_func",
-        "signature",
         "artifact_id",
         "artifact_data",
         "device_components",
@@ -240,11 +266,12 @@ def maybe_skip_member(app, what, name, obj, skip, options):
     skip_members = [
         ParameterRepr.repr,
         ParameterRepr.unit,
-        SeriesDef.plot_color,
-        SeriesDef.plot_symbol,
-        SeriesDef.model_description,
-        SeriesDef.canvas,
     ]
+    if (
+        not name.isupper() and
+        (getattr(MeasLevel, name, None) == obj or getattr(MeasReturnType, name, None) == obj)
+    ):
+        return True
     if not skip:
         return (name in skip_names or obj in skip_members) and what == "attribute"
     return skip

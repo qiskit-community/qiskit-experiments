@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 """Decay analysis class."""
 
-from typing import List, Union, Optional
 
 import lmfit
 import numpy as np
@@ -50,7 +49,7 @@ class DecayAnalysis(curve.CurveAnalysis):
 
     def __init__(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
     ):
         super().__init__(
             models=[
@@ -66,7 +65,7 @@ class DecayAnalysis(curve.CurveAnalysis):
         self,
         user_opt: curve.FitOptions,
         curve_data: curve.ScatterTable,
-    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+    ) -> curve.FitOptions | list[curve.FitOptions]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
@@ -94,7 +93,7 @@ class DecayAnalysis(curve.CurveAnalysis):
             )
         return user_opt
 
-    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> str | None:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:

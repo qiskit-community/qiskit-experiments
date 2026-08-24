@@ -13,10 +13,9 @@
 Common utility functions for tomography fitters.
 """
 
-from typing import Optional, Tuple, Callable, Sequence, Union
+from collections.abc import Callable, Sequence
 import functools
 import numpy as np
-from qiskit.utils.deprecation import deprecate_arg
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.library.tomography.basis import (
     MeasurementBasis,
@@ -29,14 +28,14 @@ def lstsq_data(
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: Optional[MeasurementBasis] = None,
-    preparation_basis: Optional[PreparationBasis] = None,
-    measurement_qubits: Optional[Tuple[int, ...]] = None,
-    preparation_qubits: Optional[Tuple[int, ...]] = None,
-    weights: Optional[np.ndarray] = None,
-    conditional_measurement_indices: Optional[Sequence[int]] = None,
-    conditional_preparation_indices: Optional[Sequence[int]] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+    measurement_basis: MeasurementBasis | None = None,
+    preparation_basis: PreparationBasis | None = None,
+    measurement_qubits: tuple[int, ...] | None = None,
+    preparation_qubits: tuple[int, ...] | None = None,
+    weights: np.ndarray | None = None,
+    conditional_measurement_indices: Sequence[int] | None = None,
+    conditional_preparation_indices: Sequence[int] | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
     """Return stacked vectorized basis matrix A for least squares."""
     if measurement_basis is None and preparation_basis is None:
         raise AnalysisError("`measurement_basis` and `preparation_basis` cannot both be None")
@@ -49,6 +48,7 @@ def lstsq_data(
     cdim = 1
     num_meas_cond = 0
     num_prep_cond = 0
+    bsize = None
 
     # Get full and conditional measurement basis dimensions
     if measurement_basis:
@@ -189,16 +189,10 @@ def lstsq_data(
     return basis_mat, probs, prob_weights
 
 
-@deprecate_arg(
-    "beta",
-    new_alias="outcome_prior",
-    since="0.5",
-    package_name="qiskit-experiments",
-)
 def binomial_weights(
     outcome_data: np.ndarray,
-    shot_data: Optional[Union[np.ndarray, int]] = None,
-    outcome_prior: Union[np.ndarray, int] = 0.5,
+    shot_data: np.ndarray | int | None = None,
+    outcome_prior: np.ndarray | int = 0.5,
     max_weight: float = 1e10,
 ) -> np.ndarray:
     r"""Compute weights from tomography data variance.
@@ -245,9 +239,9 @@ def binomial_weights(
 
 def dirichlet_mean_and_var(
     outcome_data: np.ndarray,
-    shot_data: Optional[Union[np.ndarray, int]] = None,
-    outcome_prior: Union[np.ndarray, int] = 0.5,
-) -> Tuple[np.ndarray, np.ndarray]:
+    shot_data: np.ndarray | int | None = None,
+    outcome_prior: np.ndarray | int = 0.5,
+) -> tuple[np.ndarray, np.ndarray]:
     r"""Compute mean probabilities and variance from outcome data.
 
     This is computed via a Bayesian update of a Dirichlet distribution
@@ -299,7 +293,7 @@ def dirichlet_mean_and_var(
 
 
 @functools.lru_cache(None)
-def _partial_outcome_function(indices: Tuple[int]) -> Callable:
+def _partial_outcome_function(indices: tuple[int]) -> Callable:
     """Return function for computing partial outcome of specified indices"""
     # NOTE: This function only works for 2-outcome subsystem measurements
     ind_array = np.asarray(indices, dtype=int)

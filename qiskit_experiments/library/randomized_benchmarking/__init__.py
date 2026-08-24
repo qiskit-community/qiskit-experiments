@@ -25,6 +25,9 @@ Experiments
 
     StandardRB
     InterleavedRB
+    PurityRB
+    LayerFidelity
+    LayerFidelityUnitary
 
 
 Analysis
@@ -36,6 +39,8 @@ Analysis
 
     RBAnalysis
     InterleavedRBAnalysis
+    PurityRBAnalysis
+    LayerFidelityAnalysis
 
 Synthesis
 =========
@@ -53,11 +58,34 @@ Utilities
 
     RBUtils
     CliffordUtils
+
+.. _synth-methods-lbl:
+
+Synthesis Methods
+=================
+
+There are a few built-in options for the Clifford synthesis method:
+
+* ``rb_default`` (default) for n<=2 Cliffords this methods will transpile using ``optimization_level=1``.
+  For 3 or more qubits the behavior is similar but a custom transpilation sequence is used to avoid
+  the transpiler changing the layout of the circuit.
+
+* ``clifford_synthesis_method='basis_only'`` will use ``optimization_level=0``.
+
+* ``clifford_synthesis_method='1Q_fixed`` will use a ``rz-sx-rz-sx-rz`` decomposition for the 1Q
+  Cliffords and the default for the 2Q cliffords. This is most relevant for :class:`.LayerFidelity`
+  experiments because it will keep a fixed structure.
+
 """
 from .standard_rb import StandardRB
 from .interleaved_rb_experiment import InterleavedRB
+from .purity_rb import PurityRB
 from .rb_analysis import RBAnalysis
 from .interleaved_rb_analysis import InterleavedRBAnalysis
+from .purity_rb_analysis import PurityRBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
 from .clifford_synthesis import RBDefaultCliffordSynthesis
+from .layer_fidelity import LayerFidelity
+from .layer_fidelity_unitary import LayerFidelityUnitary
+from .layer_fidelity_analysis import LayerFidelityAnalysis

@@ -1,9 +1,0 @@
----
-fixes_expdata:
-  - |
-    Fixed :mod:`pickle` deserialization of :class:`.ExperimentData` objects.
-    Previously, :class:`.ExperimentData` objects could be serialized and
-    deserialized using Python's ``pickle`` module, but deserialized objects
-    were not completely restored and an exception would be raised when doing
-    some operations like running analysis on the restored object. See `#1326
-    <https://github.com/Qiskit-Extensions/qiskit-experiments/pull/1326/files>`__.

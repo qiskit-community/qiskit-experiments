@@ -6,8 +6,8 @@ Installation
 ============
 
 Qiskit Experiments is built on top of Qiskit, so we recommend that you first install
-Qiskit following its `installation guide <https://docs.quantum.ibm.com/start/install>`__. Qiskit
-Experiments supports the same platforms as Qiskit itself and Python versions 3.8 through 3.12.
+Qiskit following its `installation guide <https://quantum.cloud.ibm.com/docs/guides/install-qiskit>`__. Qiskit
+Experiments supports the same platforms as Qiskit itself and Python versions 3.10 through 3.14.
 
 Qiskit Experiments releases can be installed via the Python package manager ``pip``
 in your shell environment:
@@ -28,18 +28,20 @@ install the latest main branch:
 
 .. code-block::
 
-    python -m pip install git+https://github.com/Qiskit-Extensions/qiskit-experiments.git
+    python -m pip install git+https://github.com/Qiskit-Community/qiskit-experiments.git
 
 If you want to develop the package, you can install Qiskit Experiments from source by
 cloning the repository:
 
 .. code-block::
 
-    git clone https://github.com/Qiskit-Extensions/qiskit-experiments.git
+    git clone https://github.com/Qiskit-Community/qiskit-experiments.git
     python -m pip install -e "qiskit-experiments[extras]"
 
 The ``-e`` option will keep your installed package up to date as you make or pull new
-changes.
+changes. See also the `contributing document
+<https://github.com/qiskit-community/qiskit-experiments/blob/main/CONTRIBUTING.md>`__
+in the source code repository for more information on developing the package.
 
 Upgrading Qiskit Experiments
 ----------------------------
@@ -193,37 +195,15 @@ results will be retrieved in the pandas :class:`~pandas:pandas.DataFrame` format
 
     exp_data.analysis_results(dataframe=True)
 
-Alternatively, analysis results can be accessed via the legacy list format:
-
-.. jupyter-execute::
-
-    for result in exp_data.analysis_results():
-        print(result)
-
-Individual results can be retrieved using their name or their long or short IDs, which will all
-return the corresponding :class:`AnalysisResult` object:
-
-.. jupyter-execute::
-    :hide-code:
-
-    result_id = exp_data.analysis_results("T1").result_id
-    short_id = result_id.split("-")[0]
-    print(f"exp_data.analysis_results(\"T1\")")
-    print(f"exp_data.analysis_results(\"{result_id}\")")
-    print(f"exp_data.analysis_results(\"{short_id}\")")
-
-.. attention::
-    Retrieving analysis results by a numerical index, whether an integer or a slice, is deprecated
-    as of 0.6 and will be removed in a future release.
-
 Each analysis
 result value is a ``UFloat`` object from the ``uncertainties`` package. The nominal
 value and standard deviation of each value can be accessed as follows:
 
 .. jupyter-execute::
 
-    print(exp_data.analysis_results("T1").value.nominal_value)
-    print(exp_data.analysis_results("T1").value.std_dev)
+    t1 = exp_data.analysis_results("T1", dataframe=True).iloc[0]
+    print(t1.value.nominal_value)
+    print(t1.value.std_dev)
 
 For further documentation on how to work with UFloats, consult the ``uncertainties``
 :external+uncertainties:doc:`user_guide`.
@@ -297,7 +277,7 @@ supports can be set:
 
 .. jupyter-execute::
 
-  from qiskit.qobj.utils import MeasLevel
+  from qiskit_experiments.framework import MeasLevel
 
   exp.set_run_options(shots=1000,
                       meas_level=MeasLevel.CLASSIFIED)
@@ -306,7 +286,7 @@ supports can be set:
 
 Consult the documentation of the run method of your
 specific backend type for valid options.
-For example, see :meth:`qiskit_ibm_provider.IBMBackend.run` for IBM backends.
+For example, see :meth:`qiskit_ibm_runtime.IBMBackend.run` for IBM backends.
 
 Transpile options
 -----------------
@@ -384,7 +364,7 @@ simultaneously on the same device:
 
     child_exp1 = T1(physical_qubits=(2,), delays=delays)
     child_exp2 = StandardRB(physical_qubits=(3,1), lengths=np.arange(1,100,10), num_samples=2)
-    parallel_exp = ParallelExperiment([child_exp1, child_exp2], flatten_results=False)
+    parallel_exp = ParallelExperiment([child_exp1, child_exp2])
 
 Note that when the transpile and run options are set for a composite experiment, the
 child experiments's options are also set to the same options recursively. Let's examine
@@ -437,35 +417,19 @@ arbitrarily to make complex composite experiments.
 Viewing child experiment data
 -----------------------------
 
-The experiment data returned from a composite experiment contains individual analysis
-results for each child experiment that can be accessed using
-:meth:`~.ExperimentData.child_data`. By default, the parent data object does not contain
-analysis results.
+The experiment data returned from a composite experiment contains analysis
+results for each child experiment in the parent experiment.
 
 .. note::
 
-    This behavior will be updated in Qiskit Experiments 0.7.
     By default, all analysis results will be stored in the parent data object,
-    and you need to explicitly set ``flatten_results=False`` to generate child data objects.
-
-.. jupyter-execute::
-
-    parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
-
-    for i, sub_data in enumerate(parallel_data.child_data()):
-        print("Component experiment",i)
-        display(sub_data.figure(0))
-        for result in sub_data.analysis_results():
-            print(result)
-
-If you want the parent data object to contain the analysis results instead, you can set
-the ``flatten_results`` flag to true to flatten the results of all component experiments
-into one level:
+    and you need to explicitly set ``flatten_results=False`` to generate child
+    data objects in the legacy format.
 
 .. jupyter-execute::
 
     parallel_exp = ParallelExperiment(
-        [T1(physical_qubits=(i,), delays=delays) for i in range(2)], flatten_results=True
+        [T1(physical_qubits=(i,), delays=delays) for i in range(2)]
     )
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 

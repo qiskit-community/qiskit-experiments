@@ -12,7 +12,7 @@
 
 """Half angle characterization."""
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -89,6 +89,55 @@ class HalfAngle(BaseExperiment):
     # section: analysis_ref
         :class:`.ErrorAmplificationAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from math import pi
+
+            import numpy as np
+            from scipy.linalg import expm
+
+            from qiskit.circuit.library import RXGate, RZGate, XGate, ZGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            err = 0.01
+
+            err_mat = (
+                RZGate(err).to_matrix()
+                @ RXGate(pi/2).to_matrix()
+                @ RZGate(-err).to_matrix()
+                @ RXGate(-pi/2).to_matrix()
+            )
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(
+                coherent_unitary_error(err_mat),
+                ["sx"],
+            )
+            # Add neglibile x error becuase otherwise x gets dropped from the target and
+            # the x's get transpiled as two sx's, spoiling the calibration.
+            noise_model.add_all_qubit_quantum_error(
+                coherent_unitary_error([[np.exp(1j * 1e-4), 0], [0, np.exp(-1j * 1e-4)]]),
+                ["x"],
+            )
+
+            backend = AerSimulator(noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import HalfAngle
+
+            exp = HalfAngle((0,), backend=backend)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
+
     # section: reference
         .. ref_arxiv:: 1 1504.06597
     """
@@ -105,7 +154,7 @@ class HalfAngle(BaseExperiment):
         options.repetitions = list(range(15))
         return options
 
-    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
+    def __init__(self, physical_qubits: Sequence[int], backend: Backend | None = None):
         """Setup a half angle experiment on the given qubit.
 
         Args:
@@ -136,7 +185,7 @@ class HalfAngle(BaseExperiment):
         """Return the preparation circuit for the experiment."""
         return QuantumCircuit(1)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Create the circuits for the half angle calibration experiment."""
 
         circuits = []

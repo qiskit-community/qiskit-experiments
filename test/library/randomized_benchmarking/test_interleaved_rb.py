@@ -16,14 +16,13 @@ from test.base import QiskitExperimentsTestCase
 from test.library.randomized_benchmarking.mixin import RBTestMixin
 from ddt import ddt, data, unpack
 
-from qiskit import pulse
 from qiskit.circuit import Delay, QuantumCircuit, Parameter, Gate
 from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
-from qiskit.transpiler import InstructionProperties
+from qiskit.providers.fake_provider import GenericBackendV2
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
-from qiskit_ibm_runtime.fake_provider import FakeManila, FakeManilaV2, FakeWashington
+from qiskit_ibm_runtime.fake_provider import FakeManilaV2
 from qiskit_experiments.library import randomized_benchmarking as rb
 
 
@@ -34,8 +33,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
     def setUp(self):
         """Setup the tests."""
         super().setUp()
-        self.backend = FakeManila()
-        self.backend_with_timing_constraint = FakeWashington()
+        self.backend = FakeManilaV2()
 
     # ### Tests for configuration ###
     def test_non_clifford_interleaved_element(self):
@@ -56,7 +54,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
                 interleaved_element=Delay(duration, unit=unit),
                 physical_qubits=[0],
                 lengths=[1, 2, 3],
-                backend=self.backend_with_timing_constraint,
+                backend=self.backend,
             )
 
     def test_experiment_config(self):
@@ -150,11 +148,11 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
             # clifford
             self.assertEqual(c_std[std_idx], c_int[int_idx])
             # barrier
-            self.assertEqual(c_std[std_idx + 1][0].name, "barrier")
-            self.assertEqual(c_int[std_idx + 1][0].name, "barrier")
+            self.assertEqual(c_std[std_idx + 1].operation.name, "barrier")
+            self.assertEqual(c_int[std_idx + 1].operation.name, "barrier")
             # for interleaved circuit: interleaved element + barrier
-            self.assertEqual(c_int[int_idx + 2][0].name, interleaved_element.name)
-            self.assertEqual(c_int[int_idx + 3][0].name, "barrier")
+            self.assertEqual(c_int[int_idx + 2].operation.name, interleaved_element.name)
+            self.assertEqual(c_int[int_idx + 3].operation.name, "barrier")
             std_idx += 2
             int_idx += 4
 
@@ -269,43 +267,18 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
 
     def test_interleaving_cnot_gate_with_non_supported_direction(self):
         """Test if fails to interleave cx(1, 2) for backend that support only cx(2, 1)."""
-        my_backend = FakeManilaV2()
-        del my_backend.target["cx"][(1, 2)]  # make support only cx(2, 1)
+        backend = GenericBackendV2(3, coupling_map=[[0, 1], [2, 1]])
 
         exp = rb.InterleavedRB(
             interleaved_element=CXGate(),
             physical_qubits=(1, 2),
             lengths=[3],
             num_samples=4,
-            backend=my_backend,
+            backend=backend,
             seed=1234,
         )
         with self.assertRaises(QiskitError):
             exp.circuits()
-
-    def test_interleaving_three_qubit_gate_with_calibration(self):
-        """Test if circuits for 3Q InterleavedRB contain custom calibrations supplied via target."""
-        my_backend = FakeManilaV2()
-        with pulse.build(my_backend) as custom_3q_sched:  # meaningless schedule
-            pulse.play(pulse.GaussianSquare(1600, 0.2, 64, 1300), pulse.drive_channel(0))
-
-        physical_qubits = (2, 1, 3)
-        custom_3q_gate = self.ThreeQubitGate()
-        my_backend.target.add_instruction(
-            custom_3q_gate, {physical_qubits: InstructionProperties(calibration=custom_3q_sched)}
-        )
-
-        exp = rb.InterleavedRB(
-            interleaved_element=custom_3q_gate,
-            physical_qubits=physical_qubits,
-            lengths=[3],
-            num_samples=1,
-            backend=my_backend,
-            seed=1234,
-        )
-        circuits = exp._transpiled_circuits()
-        qubits = tuple(circuits[0].qubits[q] for q in physical_qubits)
-        self.assertTrue(circuits[0].has_calibration_for((custom_3q_gate, qubits, [])))
 
 
 class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
@@ -362,7 +335,7 @@ class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(expdata)
 
         # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
         epc_expected = 1 / 2 * self.p1q
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
@@ -382,7 +355,7 @@ class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(expdata)
 
         # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
         epc_expected = 3 / 4 * self.p2q
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
@@ -396,7 +369,7 @@ class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
             interleaved_element=CZGate(),
             physical_qubits=(0, 1),
             lengths=list(range(1, 30, 3)),
-            seed=1234,
+            seed=1235,
             backend=self.backend,
         )
         exp.set_transpile_options(**transpiler_options)
@@ -406,7 +379,7 @@ class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(expdata)
 
         # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
         epc_expected = 3 / 4 * self.pcz
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 

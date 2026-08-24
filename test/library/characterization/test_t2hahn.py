@@ -71,7 +71,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata, timeout=300)
         self.assertRoundTripSerializable(expdata)
         self.assertRoundTripPickle(expdata)
-        result = expdata.analysis_results("T2")
+        result = expdata.analysis_results("T2", dataframe=True).iloc[0]
         fitval = result.value
         if num_of_echoes != 0:
             self.assertEqual(result.quality, "good")
@@ -114,7 +114,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
 
         for i in range(2):
-            res_t2 = expdata.child_data(i).analysis_results("T2")
+            res_t2 = expdata.child_data(i).analysis_results("T2", dataframe=True).iloc[0]
 
             fitval = res_t2.value
             self.assertEqual(res_t2.quality, "good")
@@ -144,7 +144,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         expdata0 = exp0.run(backend=backend, shots=1000)
         self.assertExperimentDone(expdata0)
 
-        res_t2_0 = expdata0.analysis_results("T2")
+        res_t2_0 = expdata0.analysis_results("T2", dataframe=True).iloc[0]
         # second experiment
         delays1 = list(range(4, 180, 6))
         exp1 = T2Hahn([qubit], delays1)
@@ -154,7 +154,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         expdata1.add_data(expdata0.data())
         exp1.analysis.run(expdata1)
 
-        res_t2_1 = expdata1.analysis_results("T2")
+        res_t2_1 = expdata1.analysis_results("T2", dataframe=True).iloc[0]
 
         fitval = res_t2_1.value
         self.assertEqual(res_t2_1.quality, "good")
@@ -199,9 +199,6 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
         # Checking serialization of the experiment data
         self.assertRoundTripSerializable(expdata)
-
-        # Checking serialization of the analysis
-        self.assertRoundTripSerializable(expdata.analysis_results("T2"))
 
     def test_circuit_roundtrip_serializable(self):
         """Test round trip JSON serialization"""

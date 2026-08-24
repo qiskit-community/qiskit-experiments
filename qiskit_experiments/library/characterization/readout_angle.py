@@ -13,13 +13,12 @@
 Readout Angle Experiment class.
 """
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 
 from qiskit.circuit import QuantumCircuit
-from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, MeasLevel, Options
 from qiskit_experiments.library.characterization.analysis.readout_angle_analysis import (
     ReadoutAngleAnalysis,
 )
@@ -48,6 +47,29 @@ class ReadoutAngle(BaseExperiment):
 
     # section: analysis_ref
         :class:`ReadoutAngleAnalysis`
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+            from qiskit_experiments.test.mock_iq_helpers import MockIQReadoutAngleHelper
+
+
+            backend = MockIQBackend(
+                MockIQReadoutAngleHelper(iq_cluster_centers=[((-3.0, 3.0), (5.0, 5.0))]),
+            )
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import ReadoutAngle
+
+            exp = ReadoutAngle((0,), backend=backend)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     @classmethod
@@ -63,7 +85,7 @@ class ReadoutAngle(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        backend: Optional[Backend] = None,
+        backend: Backend | None = None,
     ):
         """
         Initialize the readout angle experiment class
@@ -76,7 +98,7 @@ class ReadoutAngle(BaseExperiment):
         # Initialize base experiment
         super().__init__(physical_qubits, analysis=ReadoutAngleAnalysis(), backend=backend)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """
         Return a list of experiment circuits
 

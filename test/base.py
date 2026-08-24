@@ -18,13 +18,13 @@ import json
 import pickle
 import unittest
 import warnings
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 import fixtures
 import testtools
-import uncertainties
-from qiskit.utils.deprecation import deprecate_func
 
+import qiskit_experiments.framework.json
 from qiskit_experiments.framework import (
     ExperimentDecoder,
     ExperimentEncoder,
@@ -32,6 +32,7 @@ from qiskit_experiments.framework import (
 )
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
 from .extended_equality import is_equivalent
+
 
 # Fail tests that take longer than this
 TEST_TIMEOUT = int(os.environ.get("TEST_TIMEOUT", 60))
@@ -98,41 +99,23 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             """Set-up test class."""
             super().setUpClass()
 
-            warnings.filterwarnings("error", category=DeprecationWarning)
             # Tests should not generate any warnings unless testing those
             # warnings. In that case, the test should catch the warning
             # assertWarns or warnings.catch_warnings.
-            warnings.filterwarnings("error", module="qiskit_experiments")
-            # Ideally, changes introducing pending deprecations should include
-            # alternative code paths and not need to generate warnings in the
-            # tests but until this exception is necessary until the use of the
-            # deprecated ScatterTable methods are removed.
+            warnings.filterwarnings("error", module=r"qiskit_experiments\..*")
+            warnings.filterwarnings("error", module=r"test\..*")
             warnings.filterwarnings(
                 "default",
                 module="qiskit_experiments",
-                message=".*Curve data uses dataframe representation.*",
-                category=PendingDeprecationWarning,
+                message=".*Could not determine job completion time.*",
+                category=UserWarning,
             )
-            warnings.filterwarnings(
-                "default",
-                module="qiskit_experiments",
-                message=".*The curve data representation has been replaced by the `DataFrame` format.*",
-                category=PendingDeprecationWarning,
-            )
-
-            # Some functionality may be deprecated in Qiskit Experiments. If
-            # the deprecation warnings aren't filtered, the tests will fail as
-            # ``QiskitTestCase`` sets all warnings to be treated as an error by
-            # default.
-            # pylint: disable=invalid-name
-            allow_deprecationwarning_message = []
-            for msg in allow_deprecationwarning_message:
-                warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
+            qiskit_experiments.framework.json._strict_serialization = True
 
         def assertExperimentDone(
             self,
             experiment_data: ExperimentData,
-            timeout: Optional[float] = None,
+            timeout: float | None = None,
         ):
             """Blocking execution of next line until all threads are completed then
             checks if status returns Done.
@@ -142,7 +125,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 timeout: The maximum time in seconds to wait for executor to
                     complete. Defaults to the value of ``TEST_TIMEOUT``.
             """
-            if timeout is None:
+            if timeout is None and TEST_TIMEOUT != 0:
                 timeout = TEST_TIMEOUT
             experiment_data.block_for_results(timeout=timeout)
 
@@ -157,7 +140,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             first: Any,
             second: Any,
             *,
-            msg: Optional[str] = None,
+            msg: str | None = None,
             strict_type: bool = False,
         ):
             """Extended equality assertion which covers Qiskit Experiments classes.
@@ -187,7 +170,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             self,
             obj: Any,
             *,
-            check_func: Optional[Callable] = None,
+            check_func: Callable | None = None,
             strict_type: bool = False,
         ):
             """Assert that an object is round trip serializable.
@@ -217,7 +200,7 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
             self,
             obj: Any,
             *,
-            check_func: Optional[Callable] = None,
+            check_func: Callable | None = None,
             strict_type: bool = False,
         ):
             """Assert that an object is round trip serializable using pickle module.
@@ -242,61 +225,6 @@ def create_base_test_case(use_testtools: bool) -> unittest.TestCase:
                 self.assertTrue(check_func(obj, decoded), msg=f"{obj} != {decoded}")
             else:
                 self.assertEqualExtended(obj, decoded, strict_type=strict_type)
-
-        @classmethod
-        @deprecate_func(
-            since="0.6",
-            additional_msg="Use test.extended_equality.is_equivalent instead.",
-            pending=True,
-            package_name="qiskit-experiments",
-        )
-        def json_equiv(cls, data1, data2) -> bool:
-            """Check if two experiments are equivalent by comparing their configs"""
-            return is_equivalent(data1, data2)
-
-        @staticmethod
-        @deprecate_func(
-            since="0.6",
-            additional_msg="Use test.extended_equality.is_equivalent instead.",
-            pending=True,
-            package_name="qiskit-experiments",
-        )
-        def ufloat_equiv(data1: uncertainties.UFloat, data2: uncertainties.UFloat) -> bool:
-            """Check if two values with uncertainties are equal. No correlation is considered."""
-            return is_equivalent(data1, data2)
-
-        @classmethod
-        @deprecate_func(
-            since="0.6",
-            additional_msg="Use test.extended_equality.is_equivalent instead.",
-            pending=True,
-            package_name="qiskit-experiments",
-        )
-        def analysis_result_equiv(cls, result1, result2):
-            """Test two analysis results are equivalent"""
-            return is_equivalent(result1, result2)
-
-        @classmethod
-        @deprecate_func(
-            since="0.6",
-            additional_msg="Use test.extended_equality.is_equivalent instead.",
-            pending=True,
-            package_name="qiskit-experiments",
-        )
-        def curve_fit_data_equiv(cls, data1, data2):
-            """Test two curve fit result are equivalent."""
-            return is_equivalent(data1, data2)
-
-        @classmethod
-        @deprecate_func(
-            since="0.6",
-            additional_msg="Use test.extended_equality.is_equivalent instead.",
-            pending=True,
-            package_name="qiskit-experiments",
-        )
-        def experiment_data_equiv(cls, data1, data2):
-            """Check two experiment data containers are equivalent"""
-            return is_equivalent(data1, data2)
 
     return QETestCase
 

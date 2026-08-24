@@ -13,7 +13,6 @@
 Mock plotter for testing.
 """
 
-from typing import Dict, List, Union
 
 from qiskit_experiments.visualization import BaseDrawer, BasePlotter
 from qiskit_experiments.visualization.drawers import SeriesName
@@ -84,7 +83,7 @@ class MockPlotter(BasePlotter):
         return self._plotting_enabled
 
     @property
-    def plotted_data_log(self) -> Dict[SeriesName, Dict[str, int]]:
+    def plotted_data_log(self) -> dict[SeriesName, dict[str, int]]:
         """Returns a dictionary of counters representing the number of times a given series and data-key
         were plotted.
 
@@ -105,7 +104,7 @@ class MockPlotter(BasePlotter):
         """
         return self.plotted_data_log.get(series_name, {}).get(data_key, 0)
 
-    def _log_plotted_data(self, series_name: SeriesName, data_keys: Union[str, List[str]]):
+    def _log_plotted_data(self, series_name: SeriesName, data_keys: str | list[str]):
         """Logs that the following data-keys, for the given series, were plotted.
 
         This method helps track the data that is plotted by :class:`MockPlotter`. When called, an
@@ -228,7 +227,7 @@ class MockPlotter(BasePlotter):
                     )
 
     @classmethod
-    def expected_series_data_keys(cls) -> List[str]:
+    def expected_series_data_keys(cls) -> list[str]:
         """Dummy data-keys.
 
         Data Keys:
@@ -271,7 +270,7 @@ class MockPlotter(BasePlotter):
         ]
 
     @classmethod
-    def expected_supplementary_data_keys(cls) -> List[str]:
+    def expected_supplementary_data_keys(cls) -> list[str]:
         """Dummy supplementary data-keys.
 
         Data Keys:

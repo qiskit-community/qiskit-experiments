@@ -12,13 +12,13 @@
 
 """Container of experiment data components."""
 
-from __future__ import annotations
-
 import copy
 import io
-from typing import Dict, Optional, Union, Any
+from typing import Any
 
 from matplotlib.figure import Figure as MatplotlibFigure
+
+from qiskit_experiments.database_service.utils import plot_to_svg_bytes
 
 
 class FigureData:
@@ -68,17 +68,21 @@ class FigureData:
             raise ValueError("figure metadata must be a dictionary")
         self._metadata = new_metadata
 
-    def copy(self, new_name: Optional[str] = None):
+    def copy(self, new_name: str | None = None):
         """Creates a copy of the figure data"""
         name = new_name or self.name
         return FigureData(figure=self.figure, name=name, metadata=copy.deepcopy(self.metadata))
 
-    def __json_encode__(self) -> Dict[str, Any]:
+    def __json_encode__(self) -> dict[str, Any]:
         """Return the json representation of the figure data"""
-        return {"figure": self.figure, "name": self.name, "metadata": self.metadata}
+        data = {"figure": self.figure, "name": self.name, "metadata": self.metadata}
+        if isinstance(self.figure, MatplotlibFigure):
+            # Convert to svg because there is no serialization support for matplotlib figures
+            data["figure"] = plot_to_svg_bytes(self.figure)
+        return data
 
     @classmethod
-    def __json_decode__(cls, args: Dict[str, Any]) -> "FigureData":
+    def __json_decode__(cls, args: dict[str, Any]) -> "FigureData":
         """Initialize a figure data from the json representation"""
         return cls(**args)
 
@@ -99,4 +103,4 @@ class FigureData:
         return None
 
 
-FigureType = Union[str, bytes, MatplotlibFigure, FigureData]
+FigureType = str | bytes | MatplotlibFigure | FigureData

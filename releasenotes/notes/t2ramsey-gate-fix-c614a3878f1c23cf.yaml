@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Fixed description of the gates used in the :class:`~.T2Ramsey` documentation.

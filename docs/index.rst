@@ -62,7 +62,7 @@ We've divided up the documentation into four sections with different purposes:
         these manuals:
         
         * How to analyze 1- and 2-qubit errors in :doc:`randomized benchmarking </manuals/verification/randomized_benchmarking>`
-        * How to calculate the speedup from using :doc:`restless measurements </manuals/measurement/restless_measurements>`
+        * How to characterize a quantum circuit using :doc:`state tomography </manuals/verification/state_tomography>`
 
         +++
 
@@ -102,8 +102,8 @@ We've divided up the documentation into four sections with different purposes:
     manuals/index
     apidocs/index
     release_notes
-    GitHub <https://github.com/Qiskit-Extensions/qiskit-experiments>
-    Development Branch Docs <https://qiskit-extensions.github.io/qiskit-experiments/dev/>
+    GitHub <https://github.com/Qiskit-Community/qiskit-experiments>
+    Development Branch Docs <https://qiskit-community.github.io/qiskit-experiments/dev/>
 
 |
 

@@ -13,7 +13,7 @@
 Quantum State Tomography experiment
 """
 
-from typing import Union, Optional, List, Sequence
+from collections.abc import Sequence
 from qiskit.providers.backend import Backend
 from qiskit.circuit import QuantumCircuit, Instruction, Clbit
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -50,17 +50,54 @@ class MitigatedStateTomography(BatchExperiment):
         * :py:class:`qiskit_experiments.library.tomography.StateTomography`
         * :py:class:`qiskit_experiments.library.characterization.LocalReadoutError`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+            from qiskit_aer.noise import NoiseModel
+
+            noise_model = NoiseModel.from_backend(FakePerth(),
+                                                  thermal_relaxation=False,
+                                                  gate_error=False,
+                                                  readout_error=True,
+                                                 )
+
+            backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            from qiskit import QuantumCircuit
+            from qiskit_experiments.library import MitigatedStateTomography
+            from qiskit.visualization import plot_state_city
+
+            nq = 2
+            qc_ghz = QuantumCircuit(nq)
+            qc_ghz.h(0)
+            qc_ghz.s(0)
+
+            for i in range(1, nq):
+                qc_ghz.cx(0, i)
+
+            mitqstexp = MitigatedStateTomography(qc_ghz)
+            mitqstexp.set_run_options(shots=1000)
+            mitqstdata = mitqstexp.run(backend=backend,
+                                       seed_simulator=100,).block_for_results()
+            state_result = mitqstdata.analysis_results("state", dataframe=True).iloc[0]
+            plot_state_city(state_result.value, title="mitigated Density Matrix")
     """
 
     def __init__(
         self,
-        circuit: Union[QuantumCircuit, Instruction, BaseOperator],
-        backend: Optional[Backend] = None,
-        physical_qubits: Optional[Sequence[int]] = None,
-        measurement_indices: Optional[Sequence[int]] = None,
-        basis_indices: Optional[Sequence[List[int]]] = None,
-        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
-        analysis: Union[BaseAnalysis, None, str] = "default",
+        circuit: QuantumCircuit | Instruction | BaseOperator,
+        backend: Backend | None = None,
+        physical_qubits: Sequence[int] | None = None,
+        measurement_indices: Sequence[int] | None = None,
+        basis_indices: Sequence[list[int]] | None = None,
+        conditional_circuit_clbits: bool | Sequence[int] | Sequence[Clbit] = False,
+        analysis: BaseAnalysis | None | str = "default",
     ):
         """Initialize a quantum process tomography experiment.
 

@@ -15,7 +15,7 @@ Entry for artifact data.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Optional, List
+from typing import Any
 from datetime import datetime
 import uuid
 
@@ -32,7 +32,7 @@ class ArtifactData:
     fit status, and any other JSON-based data needed to serialize experiments and experiment data.
 
     Attributes:
-        name: The name of the artifact. When saved to the cloud service, this will be the name
+        name: The name of the artifact. When saved in an experiment service, this will be the name
             of the zipfile this artifact object is stored in.
         data: The artifact payload.
         artifact_id: Artifact ID. Must be unique inside an :class:`ExperimentData` object.
@@ -44,11 +44,18 @@ class ArtifactData:
 
     name: str
     data: Any
-    artifact_id: Optional[str] = field(default_factory=lambda: str(uuid.uuid4()))
-    experiment_id: Optional[str] = None
-    experiment: Optional[str] = None
-    device_components: List = field(default_factory=list)
-    created_time: Optional[datetime] = field(default_factory=lambda: datetime.now(tz.tzlocal()))
+    artifact_id: str | None = field(default_factory=lambda: str(uuid.uuid4()))
+    experiment_id: str | None = None
+    experiment: str | None = None
+    device_components: list = field(default_factory=list)
+    created_time: datetime | None = field(default_factory=lambda: datetime.now(tz.tzlocal()))
+
+    def __json_encode__(self) -> dict[str, Any]:
+        return self.__dict__
+
+    @classmethod
+    def __json_decode__(cls, value: dict[str, Any]):
+        return cls(**value)
 
     @property
     def dtype(self):

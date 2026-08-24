@@ -1,6 +1,0 @@
----
-upgrade:
-  - |
-    The function :func:`get_processor` of the data processing package has an
-    updated signature to make the method easy to extend. This will allow a
-    more flexible creation of data processors.

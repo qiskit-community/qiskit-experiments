@@ -1,4 +1,0 @@
----
-fixes:
-  - |
-    A bug related to single-shot data in the SVD data processing node is fixed.

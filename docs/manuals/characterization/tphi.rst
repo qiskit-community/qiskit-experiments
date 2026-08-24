@@ -45,8 +45,8 @@ From the :math:`T_1` and :math:`T_2` estimates, we compute the results for
     backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
     
     # Time intervals to wait before measurement for t1 and t2
-    delays_t1 = np.arange(1e-6, 300e-6, 10e-6)
-    delays_t2 = np.arange(1e-6, 50e-6, 2e-6)
+    delays_t1 = np.arange(1e-6, 300e-6, 30e-6)
+    delays_t2 = np.arange(1e-6, 600e-6, 30e-6)
     
 By default, the :class:`.Tphi` experiment will use the Hahn echo experiment for its transverse
 relaxation time estimate. We can see that the component experiments of the batch 
@@ -65,22 +65,21 @@ Run the experiment and print results:
 
 .. jupyter-execute::
 
-    expdata = exp.run(backend=backend, seed_simulator=100).block_for_results()
-    result = expdata.analysis_results("T_phi")
-    print(result)
+    expdata = exp.run(backend=backend, seed_simulator=100, shots=2000).block_for_results()
+    display(expdata.analysis_results("T_phi", dataframe=True))
 
 You can also retrieve the results and figures of the constituent experiments. :class:`.T1`:
 
 .. jupyter-execute::
 
-    print(expdata.analysis_results("T1"))
+    display(expdata.analysis_results("T1", dataframe=True))
     display(expdata.figure(0))
 
 And :class:`.T2Hahn`:
 
 .. jupyter-execute::
 
-    print(expdata.analysis_results("T2"))
+    display(expdata.analysis_results("T2", dataframe=True))
     display(expdata.figure(1))
 
 Let's now run the experiment with :class:`.T2Ramsey` by setting the ``t2type`` option to
@@ -89,11 +88,12 @@ experiment:
 
 .. jupyter-execute::
 
+    delays_t2ramsey = np.arange(1e-6, 200e-6, 10e-6)
     exp = Tphi(physical_qubits=(0,), 
                delays_t1=delays_t1, 
-               delays_t2=delays_t2, 
+               delays_t2=delays_t2ramsey,
                t2type="ramsey", 
-               osc_freq=1e5)
+               osc_freq=15e3)
 
     exp.component_experiment(1).circuits()[-1].draw(output="mpl", style="iqp")
 
@@ -101,8 +101,8 @@ Run and display results:
 
 .. jupyter-execute::
 
-    expdata = exp.run(backend=backend, seed_simulator=100).block_for_results()
-    print(expdata.analysis_results("T_phi"))
+    expdata = exp.run(backend=backend, seed_simulator=100, shots=2000).block_for_results()
+    display(expdata.analysis_results("T_phi", dataframe=True))
     display(expdata.figure(1))
 
 Because we are using a simulator that doesn't model inhomogeneous broadening, the

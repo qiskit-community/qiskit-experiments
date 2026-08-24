@@ -1,6 +1,0 @@
----
-fixes_explib:
-  - |
-    Fixed a bug in :func:`~.rb_decay` where it unintentionally raises
-    an ``IndexError`` if all ``y`` values are below ``b`` value
-    so that it returns ``0`` for the case.

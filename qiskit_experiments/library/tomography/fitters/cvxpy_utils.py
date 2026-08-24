@@ -12,31 +12,24 @@
 """
 Utility functions for CVXPy module
 """
+from __future__ import annotations
 
-from typing import Callable, List, Tuple, Optional, Union
 import functools
+from typing import TYPE_CHECKING
+from collections.abc import Callable
+
 import numpy as np
 import scipy.sparse as sps
 
 from qiskit_experiments.exceptions import AnalysisError
 
-# Check if CVXPY package is installed
-try:
-    import cvxpy
+# NOTE: this module gets eagerly imported with `qiskit_experiments/__init__.py`
+# so it should not eagerly import cvxpy (a bit expensive to import when not
+# needed). Any function outside of this module importing cvxpy or using a
+# function from this module should be decorated with `requires_cvxpy`.
+if TYPE_CHECKING:
     from cvxpy import Problem, Variable
     from cvxpy.constraints.constraint import Constraint
-
-    HAS_CVXPY = True
-
-except ImportError:
-    cvxpy = None
-
-    HAS_CVXPY = False
-
-    # Used for type hints
-    Problem = None
-    Variable = None
-    Constraint = None
 
 
 def requires_cvxpy(func: Callable) -> Callable:
@@ -49,16 +42,18 @@ def requires_cvxpy(func: Callable) -> Callable:
         The decorated function.
 
     Raises:
-        QiskitError: If CVXPy is not installed.
+        ImportError: If CVXPy is not installed.
     """
 
     @functools.wraps(func)
     def decorated_func(*args, **kwargs):
-        if not HAS_CVXPY:
+        try:
+            import cvxpy  # pylint: disable=unused-import
+        except ImportError as err:
             raise ImportError(
-                f"The CVXPY package is required to for {func}."
+                f"The CVXPY package is required for {func}."
                 "You can install it with 'pip install cvxpy'."
-            )
+            ) from err
         return func(*args, **kwargs)
 
     return decorated_func
@@ -110,8 +105,8 @@ def solve_iteratively(
 
 
 def complex_matrix_variable(
-    dim: int, hermitian: bool = False, psd: bool = False, trace: Optional[complex] = None
-) -> Tuple[Variable, Variable, List[Constraint]]:
+    dim: int, hermitian: bool = False, psd: bool = False, trace: complex | None = None
+) -> tuple[Variable, Variable, list[Constraint]]:
     """Construct a pair of real variables and constraints for a Hermitian matrix
 
     Args:
@@ -127,6 +122,8 @@ def complex_matrix_variable(
         A tuple ``(mat.real, mat.imag, constraints)`` of two real CVXPY
         matrix variables, and constraints.
     """
+    import cvxpy
+
     mat_r = cvxpy.Variable((dim, dim))
     mat_i = cvxpy.Variable((dim, dim))
     cons = []
@@ -140,7 +137,7 @@ def complex_matrix_variable(
     return mat_r, mat_i, cons
 
 
-def hermitian_constraint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
+def hermitian_constraint(mat_r: Variable, mat_i: Variable) -> list[Constraint]:
     """Return CVXPY constraint for a Hermitian matrix variable.
 
     Args:
@@ -153,7 +150,7 @@ def hermitian_constraint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
     return [mat_r == mat_r.T, mat_i == -mat_i.T]
 
 
-def psd_constraint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
+def psd_constraint(mat_r: Variable, mat_i: Variable) -> list[Constraint]:
     """Return CVXPY Hermitian constraints for a complex matrix.
 
     Args:
@@ -163,16 +160,18 @@ def psd_constraint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
     Returns:
         A list of constraints on the real and imaginary parts.
     """
+    import cvxpy
+
     bmat = cvxpy.bmat([[mat_r, -mat_i], [mat_i, mat_r]])
     return [bmat >> 0]
 
 
 def trace_constraint(
-    mat_r: Union[Variable, List[Variable]],
-    mat_i: Union[Variable, List[Variable]],
+    mat_r: Variable | list[Variable],
+    mat_i: Variable | list[Variable],
     trace: complex,
     hermitian: bool = False,
-) -> List[Constraint]:
+) -> list[Constraint]:
     """Return CVXPY trace constraints for a complex matrix.
 
     Args:
@@ -187,9 +186,11 @@ def trace_constraint(
     Raises:
         TypeError: If input variables are not valid.
     """
+    import cvxpy
+
     if isinstance(mat_r, (list, tuple)):
         arg_r = cvxpy.sum(mat_r)
-    elif isinstance(mat_r, Variable):
+    elif isinstance(mat_r, cvxpy.Variable):
         arg_r = mat_r
     else:
         raise TypeError("Input must be a cvxpy variable or list of variables")
@@ -201,7 +202,7 @@ def trace_constraint(
     # If not hermitian add imaginary trace constraint
     if isinstance(mat_i, (list, tuple)):
         arg_i = cvxpy.sum(mat_i)
-    elif isinstance(mat_i, Variable):
+    elif isinstance(mat_i, cvxpy.Variable):
         arg_i = mat_i
     else:
         raise TypeError("Input must be a cvxpy variable or list of variables")
@@ -214,7 +215,7 @@ def partial_trace_constaint(
     mat_r: Variable,
     mat_i: Variable,
     constraint: np.ndarray,
-) -> List[Constraint]:
+) -> list[Constraint]:
     """Return CVXPY partial trace constraints for a complex matrix.
 
     Args:
@@ -228,23 +229,25 @@ def partial_trace_constaint(
     Raises:
         TypeError: If input variables are not valid.
     """
+    import cvxpy
+
     sdim = mat_r.shape[0]
     output_dim = constraint.shape[0]
     input_dim = sdim // output_dim
     ptr = partial_trace_super(input_dim, output_dim)
     vec_cons = np.ravel(constraint, order="F")
     return [
-        ptr @ cvxpy.vec(mat_r) == vec_cons.real.round(12),
-        ptr @ cvxpy.vec(mat_i) == vec_cons.imag.round(12),
+        ptr @ cvxpy.vec(mat_r, order="F") == vec_cons.real.round(12),
+        ptr @ cvxpy.vec(mat_i, order="F") == vec_cons.imag.round(12),
     ]
 
 
 def trace_preserving_constaint(
-    mat_r: Union[Variable, List[Variable]],
-    mat_i: Union[Variable, List[Variable]],
-    input_dim: Optional[int] = None,
+    mat_r: Variable | list[Variable],
+    mat_i: Variable | list[Variable],
+    input_dim: int | None = None,
     hermitian: bool = False,
-) -> List[Constraint]:
+) -> list[Constraint]:
     """Return CVXPY trace preserving constraints for a complex matrix.
 
     Args:
@@ -261,10 +264,12 @@ def trace_preserving_constaint(
     Raises:
         TypeError: If input variables are not valid.
     """
+    import cvxpy
+
     if isinstance(mat_r, (tuple, list)):
         sdim = mat_r[0].shape[0]
         arg_r = cvxpy.sum(mat_r)
-    elif isinstance(mat_r, Variable):
+    elif isinstance(mat_r, cvxpy.Variable):
         sdim = mat_r.shape[0]
         arg_r = mat_r
     else:
@@ -274,19 +279,19 @@ def trace_preserving_constaint(
     output_dim = sdim // input_dim
 
     ptr = partial_trace_super(input_dim, output_dim)
-    cons = [ptr @ cvxpy.vec(arg_r) == np.identity(input_dim).ravel()]
+    cons = [ptr @ cvxpy.vec(arg_r, order="F") == np.identity(input_dim).ravel()]
 
     if hermitian:
         return cons
 
     # If not hermitian add imaginary partial trace constraint
     if isinstance(mat_i, (tuple, list)):
-        arg_r = cvxpy.sum(mat_i)
-    elif isinstance(mat_i, Variable):
+        arg_i = cvxpy.sum(mat_i)
+    elif isinstance(mat_i, cvxpy.Variable):
         arg_i = mat_i
     else:
         raise TypeError("Input must be a cvxpy variable or list of variables")
-    cons.append(ptr @ cvxpy.vec(arg_i) == np.zeros(input_dim**2))
+    cons.append(ptr @ cvxpy.vec(arg_i, order="F") == np.zeros(input_dim**2))
     return cons
 
 

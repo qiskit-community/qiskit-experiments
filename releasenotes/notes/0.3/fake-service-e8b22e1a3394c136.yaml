@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Exposed and expanded the class :class:`~qiskit_experiments.test.FakeService`. 
-    The fake service will allow enhanced testing of qiskit-experiments and external packages.

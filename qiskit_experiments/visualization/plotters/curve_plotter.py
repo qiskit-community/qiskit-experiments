@@ -10,7 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Plotter for curve fits, specifically from :class:`.CurveAnalysis`."""
-from typing import List
 
 from uncertainties import UFloat
 
@@ -33,7 +32,7 @@ class CurvePlotter(BasePlotter):
     """
 
     @classmethod
-    def expected_series_data_keys(cls) -> List[str]:
+    def expected_series_data_keys(cls) -> list[str]:
         """Returns the expected series data keys supported by this plotter.
 
         Data Keys:
@@ -63,7 +62,7 @@ class CurvePlotter(BasePlotter):
         ]
 
     @classmethod
-    def expected_supplementary_data_keys(cls) -> List[str]:
+    def expected_supplementary_data_keys(cls) -> list[str]:
         """Returns the expected figures data keys supported by this plotter.
 
         This plotter generates a single text box, i.e. fit report, by digesting the

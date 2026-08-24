@@ -1,8 +1,0 @@
----
-upgrade:
-  - |
-    The :class:`.Tphi` has been changed to use :class:`.T2Hahn` as the default T2 
-    estimate because it provides a more meaningful measurement on superconducting
-    devices. An option ``t2type`` has been added to allow the user to toggle between
-    using :math:`T_2^*` from :class:`.T2Ramsey` by specifying "ramsey" or :math:`T_2` 
-    from :class:`.T2Hahn`, which is the default value "hahn".

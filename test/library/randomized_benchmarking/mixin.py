@@ -23,4 +23,21 @@ class RBTestMixin:
             num_qubits = circ.num_qubits
             qc_iden = QuantumCircuit(num_qubits)
             circ.remove_final_measurements()
+
+            # For Purity RB, remove post-rotations (everything after the barrier
+            # that separates RB from post-rotations)
+            if "post_rotation_index" in circ.metadata:
+                # Find all barriers
+                barrier_indices = []
+                for i, instruction in enumerate(circ.data):
+                    if instruction.operation.name == "barrier":
+                        barrier_indices.append(i)
+
+                # After remove_final_measurements, the last barrier is the one
+                # before measurements (now removed). The second-to-last barrier
+                # is the one before post-rotations. Keep everything before that.
+                if len(barrier_indices) >= 1:
+                    # Keep everything up to (but not including) the last barrier
+                    circ.data = circ.data[: barrier_indices[-1]]
+
             self.assertTrue(Operator(circ).equiv(Operator(qc_iden)))

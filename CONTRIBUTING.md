@@ -38,7 +38,7 @@ experimentalist community.
 
 If there is an experiment you would like to see added, you can propose it by creating a
 [new experiment proposal
-issue](https://github.com/Qiskit-Extensions/qiskit-experiments/issues/new?assignees=&labels=enhancement&template=NEW_EXPERIMENT.md&title=)
+issue](https://github.com/Qiskit-Community/qiskit-experiments/issues/new?assignees=&labels=enhancement&template=NEW_EXPERIMENT.md&title=)
 in GitHub. The issue template will ask you to fill in details about the experiment type,
 protocol, analysis, and implementation, which will give us the necessary information to
 decide whether the experiment is feasible to implement and useful to include in our
@@ -49,12 +49,12 @@ We use the following labels to help non-maintainers find issues best suited to t
 interests and experience level:
 
 * [good first
-  issue](https://github.com/Qiskit-Extensions/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+  issue](https://github.com/Qiskit-Community/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
   - these issues are typically the simplest available to work on, perfect for newcomers.
   They should already be fully scoped, with a clear approach outlined in the
   descriptions.
 * [help
-  wanted](https://github.com/Qiskit-Extensions/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22)
+  wanted](https://github.com/Qiskit-Community/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22)
   - these issues are generally more complex than good first issues. They typically cover
   work that core maintainers don't currently have capacity to implement and may require
   more investigation/discussion. These are a great option for experienced contributors
@@ -74,9 +74,10 @@ When submitting a pull request for review, please ensure that:
    etc.), you've added or updated a reno release note for that change and tagged the PR
    for the changelog.
 6. If your code requires a change to dependencies, you've updated the corresponding
-   requirements file: `requirements.txt` for core dependencies,
-   `requirements-extras.txt` for dependencies for optional features, and `requirements-dev.txt`
-   for dependencies required for running tests and building documentation.
+   sections of `pyproject.toml`: `project.dependencies` for core dependencies,
+   `project.optional-dependencies` for dependencies for optional features, and
+    `dependency-groups.dev` for dependencies required for running tests and
+    building documentation.
 
 The sections below go into more detail on the guidelines for each point.
 
@@ -94,11 +95,24 @@ python when running. Additionally, the environment that tox sets up matches the 
 environment more closely and it runs the tests in parallel (resulting in much faster
 execution). To run tests on all installed supported python versions and lint/style
 checks you can simply run `tox`. Or if you just want to run the tests once for a
-specific python version such as 3.10: `tox -epy310`.
+specific python version such as 3.10: `tox run -epy310`. Using `tox run -epy`
+will run the tests with the same Python version as used to install `tox`.
+
+> [!TIP]
+> Install `tox` with [tox-uv](https://github.com/tox-dev/tox-uv) using `pip
+> install tox tox-uv` (or `uv pip install tox tox-uv`) for a smoother
+> experience working with the Qiskit Experiments `tox` environments. The
+> `tox.ini` file defines several similar environments because `tox` ties an
+> environment to a single set of commands.  It can be slow to recreate each of
+> these environments when switching between commands and updating dependencies.
+> When `tox-uv` is installed, `tox` uses [uv](https://docs.astral.sh/uv/)
+> instead of `pip` for package installation.  `uv` makes better use of caching
+> and hardlinking to set up similar environments much more quickly than `pip`
+> does.
 
 If you just want to run a subset of tests you can pass a selection regex to the test
 runner. For example, if you want to run all tests that have "dag" in the test id you can
-run: `tox -- dag`. You can pass arguments directly to the test runner after the bare
+run: `tox run -epy -- dag`. You can pass arguments directly to the test runner after the bare
 `--`. To see all the options on test selection you can refer to the stestr manual:
 https://stestr.readthedocs.io/en/stable/MANUAL.html#test-selection
 
@@ -119,6 +133,20 @@ tox -epy310 -- -n test.framework.test_composite.TestCompositeExperimentData.test
 ```
 
 Note that tests will fail automatically if they do not finish execution within 60 seconds.
+
+#### Alternatives to `tox`
+
+If you prefer not to use `tox`, the required test environment dependencies can be installed by using the `extras` optional dependency specifier and the `dev` dependency group.
+With `pip` version 25.1, installing all of the dependencies could be done with:
+
+    pip install -e .[extras] --group dev
+
+Prior to `pip` 25.1, the `dev` group can be installed with
+
+    python -m dependency_groups dev
+
+after installing `dependency-groups` (`pip install dependency-groups`).
+The `tox` configuration should still be used as a reference for the preferred testing commands and environment variables.
 
 #### STDOUT/STDERR and logging capture
 
@@ -275,7 +303,7 @@ deprecations:
 Note that we are using subsections within the `features`, `upgrade`, and `fixes` sections to
 organize the notes by functional area. We strongly encourage you to file your note under the most
 appropriate category. You can see the current list of categories in
-[release_notes/config.yaml](https://github.com/Qiskit-Extensions/qiskit-experiments/blob/main/releasenotes/config.yaml).
+[release_notes/config.yaml](https://github.com/Qiskit-Community/qiskit-experiments/blob/main/releasenotes/config.yaml).
 
 You can use any restructured text feature in them (code sections, tables, enumerated
 lists, bulleted list, etc.) to express what is being changed as needed. In general, you
@@ -296,7 +324,7 @@ example you would write a release note with a link to issue 12345 as:
 fixes:
   - |
     Fixed a race condition in the function ``foo()``. Refer to
-    `#12345 <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/12345>` for more
+    `#12345 <https://github.com/Qiskit-Community/qiskit-experiments/issues/12345>`__ for more
     details.
 ```
 
@@ -317,11 +345,11 @@ tagged):
 At release time, ``reno report`` is used to generate the release notes for the release,
 and the output will be submitted as a pull request to the documentation repository's
 [release notes file](
-https://github.com/Qiskit-Extensions/qiskit-experiments/blob/main/docs/release_notes.rst).
+https://github.com/Qiskit-Community/qiskit-experiments/blob/main/docs/release_notes.rst).
 
 ### Documentation
 
-The [Qiskit Experiments documentation](https://qiskit-extensions.github.io/qiskit-experiments) is
+The [Qiskit Experiments documentation](https://qiskit-community.github.io/qiskit-experiments) is
 rendered from `.rst` files as well as experiment and analysis class docstrings into HTML
 files.
 
@@ -329,7 +357,7 @@ files.
 
 Any change that would affect existing documentation, or a new feature that requires a
 documentation, should be updated correspondingly. Before updating, review the [existing
-documentation](https://qiskit-extensions.github.io/qiskit-experiments) for their style and
+documentation](https://qiskit-community.github.io/qiskit-experiments) for their style and
 content, and read the [documentation guidelines](docs/GUIDELINES.md) for further
 details.
 
@@ -355,7 +383,7 @@ will remove Sphinx's cache. If you are still having issues, try adding `-r` your
 e.g. `tox -e docs -r`. `-r` tells Tox to reinstall the dependencies. If you encounter a build 
 error involving `config-inited`, you need to be in the root of
 the qiskit-experiments git repository then run `git remote add upstream
-https://github.com/Qiskit-Extensions/qiskit-experiments` and `git fetch upstream` before building.
+https://github.com/Qiskit-Community/qiskit-experiments` and `git fetch upstream` before building.
 
 There are a few other build options available:
 
@@ -409,12 +437,11 @@ release notes.
 
 #### Adding deprecation warnings
 
-We use the deprecation wrappers in [Qiskit
-Utilities](https://docs.quantum.ibm.com/api/qiskit/utils) to add warnings:
+We use deprecation wrappers in `qiskit_experiments.framework.deprecation` to add warnings:
 
 ```python
 
-  from qiskit.utils.deprecation import deprecate_func
+  from qiskit_experiments.framework.deprecation import deprecate_func
 
   @deprecate_func(
       since="0.5",
@@ -440,7 +467,7 @@ policy](https://github.com/Qiskit/qiskit/blob/1.0.0rc1/DEPRECATION.md#issuing-de
 
 The development cycle for Qiskit Experiments is all handled in the open using project
 boards in GitHub for project management. We use
-[milestones](https://github.com/Qiskit-Extensions/qiskit-experiments/milestones) in GitHub to track
+[milestones](https://github.com/Qiskit-Community/qiskit-experiments/milestones) in GitHub to track
 work for specific releases. Features or other changes that we want to include in a
 release will be tagged and discussed in GitHub.
 
@@ -460,8 +487,11 @@ merged to it are bug fixes.
 
 When it is time to release a new minor version of qiskit-experiments, we will:
 
-1.  Create a new tag with the version number and push it to github
-2.  Change the `main` version to the next release version.
+1.  Run `tox run -erelnotes` to move the notes from the previous release into
+    the main release notes file.
+2.  Add a release notes prelude and any final release notes edits.
+3.  Open a PR to `main` with the release notes updates.
+4.  After merging the PR, create a new `X.Y.0` tag from `main` and push it to github.
 
 The release automation processes will be triggered by the new tag and perform the
 following steps:
@@ -469,9 +499,35 @@ following steps:
 1.  Create a stable branch for the new minor version from the release tag on the `main`
     branch
 2.  Build and upload binary wheels to PyPI
-3.  Create a github release page with a generated changelog
-4.  Generate a PR on the meta-repository to bump the qiskit-experiments version and
-    meta-package version.
+3.  Create a github release page with a generated changelog if changelog tags
+    were used on pull requests. Usually, by hand we also edit in a top line to
+the GitHub Releases entry with a link to the documentation release notes page.
 
-The `stable/*` branches should only receive changes in the form of bug fixes. If you're making a bug fix PR that you believe should be backported to the current stable release, tag it with `backport stable potential`.
+After the release automation creates the stable branch, the following steps
+should be performed:
 
+1. Bump the version numbers in the `main` branch. This update can be done by
+   running `tox run -ebumpversion` and then committing the resulting changes.
+2. Open and merge a pull request with the version bump changes.
+
+#### Patch releases
+
+The `stable/*` branches should only receive changes in the form of bug fixes.
+
+If you're making a bug fix PR that you believe should be backported to the
+current stable release, tag it with the `backport stable potential` label.
+When a PR is merged with that label or when that label is added to a PR after
+merging, a Mergify automation is triggered to open a backport PR against the
+latest stable branch.
+
+To create a new patch release, follow these steps:
+
+1. Bump the version on the stable branch. This can be done by running `tox run
+   -ebumpversion -- -v <new_version>` (the version must be specified because
+the default is to increment to a new minor version).
+2. Tag the `stable/*` branch with the new version to trigger the release automation.
+
+For example, to release 0.14.1, create a new branch from the `stable/0.14`
+branch, run `tox run -ebumpversion -- -v 0.14.1` on it, and create and merge a
+pull request against the `stable/0.14` branch from the resulting changes.
+Afterwards, add a `0.14.1` tag to the `stable/0.14` branch.

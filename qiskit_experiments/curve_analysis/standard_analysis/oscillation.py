@@ -12,7 +12,6 @@
 
 """Analyze oscillating data such as a Rabi amplitude experiment."""
 
-from typing import List, Union, Optional
 
 import lmfit
 import numpy as np
@@ -57,7 +56,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
 
     def __init__(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
     ):
         super().__init__(
             models=[
@@ -73,7 +72,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
         self,
         user_opt: curve.FitOptions,
         curve_data: curve.ScatterTable,
-    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+    ) -> curve.FitOptions | list[curve.FitOptions]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
@@ -107,7 +106,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
 
         return options
 
-    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> str | None:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -174,7 +173,7 @@ class DampedOscillationAnalysis(curve.CurveAnalysis):
 
     def __init__(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
     ):
         super().__init__(
             models=[
@@ -190,7 +189,7 @@ class DampedOscillationAnalysis(curve.CurveAnalysis):
         self,
         user_opt: curve.FitOptions,
         curve_data: curve.ScatterTable,
-    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+    ) -> curve.FitOptions | list[curve.FitOptions]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
@@ -256,7 +255,7 @@ class DampedOscillationAnalysis(curve.CurveAnalysis):
 
         return options
 
-    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> str | None:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:

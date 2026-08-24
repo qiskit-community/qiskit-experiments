@@ -13,7 +13,7 @@
 Tphi Experiment class.
 """
 
-from typing import List, Optional, Union, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 from qiskit import QiskitError
@@ -50,6 +50,43 @@ class Tphi(BatchExperiment):
     # section: analysis_ref
         :class:`.TPhiAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_ibm_runtime.fake_provider import FakeManilaV2
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel
+
+            noise_model = NoiseModel.from_backend(FakeManilaV2(),
+                                                  thermal_relaxation=True,
+                                                  gate_error=False,
+                                                  readout_error=False,
+                                                 )
+
+            backend = AerSimulator.from_backend(FakeManilaV2(), noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            import qiskit
+            from qiskit_experiments.library.characterization import Tphi
+
+            delays_t1 = np.arange(1e-6, 300e-6, 10e-6)
+            delays_t2 = np.arange(1e-6, 50e-6, 2e-6)
+
+            exp = Tphi(physical_qubits=(0, ),
+                        delays_t1=delays_t1,
+                        delays_t2=delays_t2,
+                        backend=backend
+                        )
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            display(exp_data.figure(1))
+            exp_data.analysis_results(dataframe=True)
+
     # section: reference
         .. ref_arxiv:: 1 1904.06560
 
@@ -66,12 +103,12 @@ class Tphi(BatchExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        delays_t1: List[Union[List[float], np.array]],
-        delays_t2: List[Union[List[float], np.array]],
+        delays_t1: list[list[float] | np.ndarray],
+        delays_t2: list[list[float] | np.ndarray],
         t2type: str = "hahn",
         osc_freq: float = 0.0,
         num_echoes: int = 1,
-        backend: Optional[Backend] = None,
+        backend: Backend | None = None,
     ):
         """Initialize the experiment object.
 

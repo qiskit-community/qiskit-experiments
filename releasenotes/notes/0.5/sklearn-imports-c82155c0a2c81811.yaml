@@ -1,9 +1,0 @@
----
-fixes:
-  - |
-    The importing of ``scikit-learn`` was moved from module-level imports
-    inside of ``try`` blocks to dynamic imports at first usage of the
-    ``scikit-learn`` specific feature. This change should avoid errors in the
-    installation of ``scikit-learn`` from preventing a user using features of
-    ``qiskit-experiments`` that do not require ``scikit-learn``. See `#1050
-    <https://github.com/Qiskit-Extensions/qiskit-experiments/issues/1050>`_.

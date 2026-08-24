@@ -12,23 +12,28 @@
 """
 Base Experiment class.
 """
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
-from typing import Sequence, Optional, Tuple, List, Dict, Union
+from collections.abc import Sequence
+from typing import Any, TYPE_CHECKING
 
 from qiskit import transpile, QuantumCircuit
 from qiskit.providers import Job, Backend
 from qiskit.exceptions import QiskitError
-from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
-from qiskit_experiments.framework import BackendData
+from qiskit.primitives.base import BaseSamplerV2
+from qiskit_experiments.framework import BackendData, MeasLevel
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
 from qiskit_experiments.database_service import Qubit
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 class BaseExperiment(ABC, StoreInitArgs):
@@ -37,9 +42,10 @@ class BaseExperiment(ABC, StoreInitArgs):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        analysis: Optional[BaseAnalysis] = None,
-        backend: Optional[Backend] = None,
-        experiment_type: Optional[str] = None,
+        analysis: BaseAnalysis | None = None,
+        backend: Backend | None = None,
+        experiment_type: str | None = None,
+        backend_run: Options[bool] = False,
     ):
         """Initialize the experiment object.
 
@@ -48,7 +54,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             analysis: Optional, the analysis to use for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
-
+            backend_run: Optional, use backend run vs the sampler (temporary)
         Raises:
             QiskitError: If qubits contains duplicates.
         """
@@ -82,6 +88,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # attributes created during initialization
         self._backend = None
         self._backend_data = None
+        self._backend_run = backend_run
         if isinstance(backend, Backend):
             self._set_backend(backend)
 
@@ -99,7 +106,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             self._type = exp_type
 
     @property
-    def physical_qubits(self) -> Tuple[int, ...]:
+    def physical_qubits(self) -> tuple[int, ...]:
         """Return the device qubits for the experiment."""
         return self._physical_qubits
 
@@ -109,24 +116,24 @@ class BaseExperiment(ABC, StoreInitArgs):
         return self._num_qubits
 
     @property
-    def analysis(self) -> Union[BaseAnalysis, None]:
+    def analysis(self) -> BaseAnalysis | None:
         """Return the analysis instance for the experiment"""
         return self._analysis
 
     @analysis.setter
-    def analysis(self, analysis: Union[BaseAnalysis, None]) -> None:
+    def analysis(self, analysis: BaseAnalysis | None) -> None:
         """Set the analysis instance for the experiment"""
         if analysis is not None and not isinstance(analysis, BaseAnalysis):
             raise TypeError("Input is not a None or a BaseAnalysis subclass.")
         self._analysis = analysis
 
     @property
-    def backend(self) -> Union[Backend, None]:
+    def backend(self) -> Backend | None:
         """Return the backend for the experiment"""
         return self._backend
 
     @backend.setter
-    def backend(self, backend: Union[Backend, None]) -> None:
+    def backend(self, backend: Backend | None) -> None:
         """Set the backend for the experiment"""
         if not isinstance(backend, Backend):
             raise TypeError("Input is not a backend.")
@@ -145,7 +152,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         """Return a copy of the experiment"""
         # We want to avoid a deep copy be default for performance so we
         # need to also copy the Options structures so that if they are
-        # updated on the copy they don't effect the original.
+        # updated on the copy they don't affect the original.
         ret = copy.copy(self)
         if self.analysis:
             ret.analysis = self.analysis.copy()
@@ -181,10 +188,10 @@ class BaseExperiment(ABC, StoreInitArgs):
         )
 
     @classmethod
-    def from_config(cls, config: Union[ExperimentConfig, Dict]) -> "BaseExperiment":
+    def from_config(cls, config: ExperimentConfig | dict) -> "BaseExperiment":
         """Initialize an experiment from experiment config"""
         if isinstance(config, dict):
-            config = ExperimentConfig(**dict)
+            config = ExperimentConfig(**config)
         ret = cls(*config.args, **config.kwargs)
         if config.experiment_options:
             ret.set_experiment_options(**config.experiment_options)
@@ -196,23 +203,27 @@ class BaseExperiment(ABC, StoreInitArgs):
 
     def run(
         self,
-        backend: Optional[Backend] = None,
-        analysis: Optional[Union[BaseAnalysis, None]] = "default",
-        timeout: Optional[float] = None,
+        backend: Backend | None = None,
+        sampler: BaseSamplerV2 | None = None,
+        analysis: BaseAnalysis | None | None = "default",
+        timeout: float | None = None,
+        backend_run: bool | None = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
 
         Args:
-            backend: Optional, the backend to run the experiment on. This
-                     will override any currently set backends for the single
-                     execution.
+            backend: Optional, the backend to run on. Will override existing backend settings.
+            sampler: Optional, the sampler to run the experiment on.
+                      If None then a sampler will be invoked from previously
+                      set backend
             analysis: Optional, a custom analysis instance to use for performing
                       analysis. If None analysis will not be run. If ``"default"``
                       the experiments :meth:`analysis` instance will be used if
                       it contains one.
             timeout: Time to wait for experiment jobs to finish running before
                      cancelling.
+            backend_run: Use backend run (temp option for testing)
             run_options: backend runtime options used for circuit execution.
 
         Returns:
@@ -223,11 +234,31 @@ class BaseExperiment(ABC, StoreInitArgs):
                          ExperimentData container.
         """
 
-        if backend is not None or analysis != "default" or run_options:
+        if (
+            (backend is not None)
+            or (sampler is not None)
+            or analysis != "default"
+            or run_options
+            or (backend_run is not None)
+        ):
             # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
-            if backend:
-                experiment._set_backend(backend)
+            if backend_run is not None:
+                experiment._backend_run = backend_run
+            # we specified a backend OR a sampler
+            if (backend is not None) or (sampler is not None):
+                if sampler is None:
+                    # backend only specified
+                    experiment._set_backend(backend)
+                elif backend is None:
+                    # sampler only specifid
+                    experiment._set_backend(sampler._backend)
+                else:
+                    # we specified both a sampler and a backend
+                    if self._backend_run:
+                        experiment._set_backend(backend)
+                    else:
+                        experiment._set_backend(sampler._backend)
             if isinstance(analysis, BaseAnalysis):
                 experiment.analysis = analysis
             if run_options:
@@ -251,7 +282,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         run_opts = experiment.run_options.__dict__
 
         # Run jobs
-        jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
+        jobs = experiment._run_jobs(transpiled_circuits, sampler=sampler, **run_opts)
         experiment_data.add_jobs(jobs, timeout=timeout)
 
         # Optionally run analysis
@@ -333,7 +364,9 @@ class BaseExperiment(ABC, StoreInitArgs):
             "Total number of jobs": num_jobs,
         }
 
-    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
+    def _run_jobs(
+        self, circuits: list[QuantumCircuit], sampler: BaseSamplerV2 = None, **run_options
+    ) -> list[Job]:
         """Run circuits on backend as 1 or more jobs."""
         max_circuits = self._max_circuits(self.backend)
 
@@ -348,12 +381,57 @@ class BaseExperiment(ABC, StoreInitArgs):
             job_circuits = [circuits]
 
         # Run jobs
-        jobs = [self.backend.run(circs, **run_options) for circs in job_circuits]
+        if not self._backend_run:
+            if sampler is None:
+                # instantiate a sampler from the backend
+                from qiskit_ibm_runtime import SamplerV2
+
+                sampler = SamplerV2(self.backend)
+
+                # have to hand set some of these options
+                # see https://quantum.cloud.ibm.com/docs/api/qiskit-ibm-runtime
+                # /qiskit_ibm_runtime.options.SamplerExecutionOptionsV2
+                if "init_qubits" in run_options:
+                    sampler.options.execution.init_qubits = run_options["init_qubits"]
+                if "rep_delay" in run_options:
+                    sampler.options.execution.rep_delay = run_options["rep_delay"]
+                if "meas_level" in run_options:
+                    if run_options["meas_level"] == 2:
+                        sampler.options.execution.meas_type = "classified"
+                    elif run_options["meas_level"] == 1:
+                        if "meas_return" in run_options:
+                            if run_options["meas_return"] == "avg":
+                                sampler.options.execution.meas_type = "avg_kerneled"
+                            else:
+                                sampler.options.execution.meas_type = "kerneled"
+                        else:
+                            # assume this is what is wanted if no  meas return specified
+                            sampler.options.execution.meas_type = "kerneled"
+                    else:
+                        raise QiskitError("Only meas level 1 + 2 supported by sampler")
+                if "noise_model" in run_options:
+                    sampler.options.simulator.noise_model = run_options["noise_model"]
+                if "seed_simulator" in run_options:
+                    sampler.options.simulator.seed_simulator = run_options["seed_simulator"]
+
+                if run_options.get("shots") is not None:
+                    # Set shots in options for consistency with other options
+                    # even though it is passed to run() below
+                    sampler.options.default_shots = run_options.get("shots")
+
+            # Options actually passed to run() instead of set into sampler options
+            sampler_run_options = {}
+            if "shots" in run_options:
+                sampler_run_options["shots"] = run_options["shots"]
+
+            jobs = [sampler.run(circs, **sampler_run_options) for circs in job_circuits]
+        else:
+            jobs = [self.backend.run(circs, **run_options) for circs in job_circuits]
 
         return jobs
 
     @abstractmethod
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Return a list of experiment circuits.
 
         Returns:
@@ -368,7 +446,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # values for any explicit experiment options that affect circuit
         # generation
 
-    def _transpiled_circuits(self) -> List[QuantumCircuit]:
+    def _transpiled_circuits(self) -> list[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled.
 
         This function can be overridden to define custom transpilation.
@@ -469,7 +547,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         self._run_options.update_options(**fields)
         self._set_run_options = self._set_run_options.union(fields)
 
-    def _metadata(self) -> Dict[str, any]:
+    def _metadata(self) -> dict[str, any]:
         """Return experiment metadata for ExperimentData.
 
         By default, this assumes the experiment is running on qubits only. Subclasses can override
@@ -481,11 +559,11 @@ class BaseExperiment(ABC, StoreInitArgs):
         }
         return metadata
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> ExperimentConfig:
         """Convert to format that can be JSON serialized"""
         return self.config()
 
     @classmethod
-    def __json_decode__(cls, value):
+    def __json_decode__(cls, value: ExperimentConfig | dict[str, Any]) -> Self:
         """Load from JSON compatible format"""
         return cls.from_config(value)

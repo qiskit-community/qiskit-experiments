@@ -20,7 +20,7 @@ import numpy as np
 from qiskit.exceptions import MissingOptionalLibraryError
 
 from qiskit_experiments.data_processing import SkLDA, SkQDA
-from qiskit_experiments.warnings import HAS_SKLEARN
+from qiskit_experiments.framework.package_deps import HAS_SKLEARN
 
 
 def requires_sklearn(func):

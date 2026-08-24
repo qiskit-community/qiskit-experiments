@@ -13,10 +13,10 @@
 Quantum Tomography experiment
 """
 
-from typing import Union, Optional, Iterable, List, Tuple, Sequence
+from collections.abc import Iterable, Sequence
 from itertools import product
 from qiskit.circuit import QuantumCircuit, Instruction, ClassicalRegister, Clbit
-from qiskit.circuit.library import Permutation
+from qiskit.circuit.library import PermutationGate
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 
@@ -31,6 +31,7 @@ class TomographyExperiment(BaseExperiment):
 
     # section: analysis_ref
         :class:`TomographyAnalysis`
+
     """
 
     @classmethod
@@ -48,16 +49,16 @@ class TomographyExperiment(BaseExperiment):
 
     def __init__(
         self,
-        circuit: Union[QuantumCircuit, Instruction, BaseOperator],
-        backend: Optional[Backend] = None,
-        physical_qubits: Optional[Sequence[int]] = None,
-        measurement_basis: Optional[MeasurementBasis] = None,
-        measurement_indices: Optional[Sequence[int]] = None,
-        preparation_basis: Optional[PreparationBasis] = None,
-        preparation_indices: Optional[Sequence[int]] = None,
-        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
-        basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
-        analysis: Union[BaseAnalysis, None, str] = "default",
+        circuit: QuantumCircuit | Instruction | BaseOperator,
+        backend: Backend | None = None,
+        physical_qubits: Sequence[int] | None = None,
+        measurement_basis: MeasurementBasis | None = None,
+        measurement_indices: Sequence[int] | None = None,
+        preparation_basis: PreparationBasis | None = None,
+        preparation_indices: Sequence[int] | None = None,
+        conditional_circuit_clbits: bool | Sequence[int] | Sequence[Clbit] = False,
+        basis_indices: Iterable[tuple[list[int], list[int]]] | None = None,
+        analysis: BaseAnalysis | None | str = "default",
     ):
         """Initialize a tomography experiment.
 
@@ -278,7 +279,7 @@ class TomographyExperiment(BaseExperiment):
             prep_qargs = list(self._prep_indices)
             if len(self._prep_indices) != total_qubits:
                 prep_qargs += [i for i in range(total_qubits) if i not in self._prep_indices]
-            perm_circ.append(Permutation(total_qubits, prep_qargs).inverse(), range(total_qubits))
+            perm_circ.append(PermutationGate(prep_qargs).inverse(), range(total_qubits))
 
         # Apply original circuit
         if total_clbits:
@@ -291,6 +292,6 @@ class TomographyExperiment(BaseExperiment):
             meas_qargs = list(self._meas_indices)
             if len(self._meas_indices) != total_qubits:
                 meas_qargs += [i for i in range(total_qubits) if i not in self._meas_indices]
-            perm_circ.append(Permutation(total_qubits, meas_qargs), range(total_qubits))
+            perm_circ.append(PermutationGate(meas_qargs), range(total_qubits))
 
         return perm_circ

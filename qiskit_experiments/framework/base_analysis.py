@@ -12,11 +12,13 @@
 """
 Base analysis class.
 """
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
 from datetime import datetime
-from typing import List, Tuple, Union, Dict
+from typing import Any, TYPE_CHECKING
 import warnings
 
 from dateutil import tz
@@ -28,7 +30,10 @@ from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.containers import FigureData, FigureType
 from qiskit_experiments.framework.configs import AnalysisConfig
-from qiskit_experiments.framework.analysis_result_data import AnalysisResultData, as_table_element
+from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 class BaseAnalysis(ABC, StoreInitArgs):
@@ -44,7 +49,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
     This method should not have side-effects on the analysis class itself
     since it could potentially be called asynchronously in multiple threads.
     Any configurable option values should be specified in the `_default_options`
-    class method. These values can be overriden by a user by calling the
+    class method. These values can be overridden by a user by calling the
     `set_options` method or for a single-run can be specified by passing kwarg
     options to the :meth:`run` method.
     """
@@ -71,7 +76,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
         )
 
     @classmethod
-    def from_config(cls, config: Union[AnalysisConfig, Dict]) -> "BaseAnalysis":
+    def from_config(cls, config: AnalysisConfig | dict) -> "BaseAnalysis":
         """Initialize an analysis class from analysis config"""
         if isinstance(config, dict):
             config = AnalysisConfig(**config)
@@ -84,7 +89,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
         """Return a copy of the analysis"""
         # We want to avoid a deep copy be default for performance so we
         # need to also copy the Options structures so that if they are
-        # updated on the copy they don't effect the original.
+        # updated on the copy they don't affect the original.
         ret = copy.copy(self)
         ret._options = copy.copy(self._options)
         ret._set_options = copy.copy(self._set_options)
@@ -184,7 +189,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
                         if not result.experiment:
                             result.experiment = expdata.experiment_type
                         if not result.device_components:
-                            result.device_components = self._get_experiment_components(expdata)
+                            result.device_components = analysis._get_experiment_components(expdata)
                         if not result.backend:
                             result.backend = expdata.backend_name
                         if not result.created_time:
@@ -193,7 +198,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
                             result.run_time = expdata.running_time
 
                         # To canonical kwargs to add to the analysis table.
-                        table_format = as_table_element(result)
+                        table_format = result.as_table_element()
 
                         # Remove result_id to make sure the id is unique in the scope of the container.
                         # This will let the container generate a unique id.
@@ -204,7 +209,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
                         if not result.experiment_id:
                             result.experiment_id = expdata.experiment_id
                         if not result.device_components:
-                            result.device_components = self._get_experiment_components(expdata)
+                            result.device_components = analysis._get_experiment_components(expdata)
                         if not result.experiment:
                             result.experiment = expdata.experiment_type
                         expdata.add_artifacts(result)
@@ -227,7 +232,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
                             name=f"{expdata.experiment_type}_{qubits_repr}_{short_id}.svg",
                         )
                     figure_to_add.append(figure)
-                expdata.add_figures(figure_to_add, figure_names=self.options.figure_names)
+                expdata.add_figures(figure_to_add, figure_names=analysis.options.figure_names)
 
         experiment_data.add_analysis_callback(run_analysis)
 
@@ -248,7 +253,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
+    ) -> tuple[list[AnalysisResultData | ArtifactData], list[FigureType]]:
         """Run analysis on circuit data.
 
         Args:
@@ -265,11 +270,11 @@ class BaseAnalysis(ABC, StoreInitArgs):
         # NOTE: passing kwarg options to _run_analysis should be removed once
         pass
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> AnalysisConfig:
         return self.config()
 
     @classmethod
-    def __json_decode__(cls, value):
+    def __json_decode__(cls, value: AnalysisConfig | dict[str, Any]) -> Self:
         return cls.from_config(value)
 
 

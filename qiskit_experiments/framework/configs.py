@@ -12,12 +12,17 @@
 """
 Experiment and analysis config dataclasses.
 """
+from __future__ import annotations
 
 import dataclasses
-from typing import Tuple, Dict, Any
+from typing import Any
+from typing import TYPE_CHECKING
 
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.version import __version__
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 @dataclasses.dataclass(frozen=True)
@@ -31,12 +36,19 @@ class ExperimentConfig:
     """
 
     cls: type = None
-    args: Tuple[Any] = dataclasses.field(default_factory=tuple)
-    kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    experiment_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    transpile_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    run_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    args: tuple[Any] = dataclasses.field(default_factory=tuple)
+    kwargs: dict[str, Any] = dataclasses.field(default_factory=dict)
+    experiment_options: dict[str, Any] = dataclasses.field(default_factory=dict)
+    transpile_options: dict[str, Any] = dataclasses.field(default_factory=dict)
+    run_options: dict[str, Any] = dataclasses.field(default_factory=dict)
     version: str = __version__
+
+    def __json_encode__(self) -> dict[str, Any]:
+        return self.__dict__
+
+    @classmethod
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
+        return cls(**value)
 
     def experiment(self):
         """Return the experiment constructed from this config.
@@ -81,10 +93,17 @@ class AnalysisConfig:
     """
 
     cls: type = None
-    args: Tuple[Any] = dataclasses.field(default_factory=tuple)
-    kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    options: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    args: tuple[Any] = dataclasses.field(default_factory=tuple)
+    kwargs: dict[str, Any] = dataclasses.field(default_factory=dict)
+    options: dict[str, Any] = dataclasses.field(default_factory=dict)
     version: str = __version__
+
+    def __json_encode__(self) -> dict[str, Any]:
+        return self.__dict__
+
+    @classmethod
+    def __json_decode__(cls, value: dict[str, Any]) -> Self:
+        return cls(**value)
 
     def analysis(self):
         """Return the analysis class constructed from this config.

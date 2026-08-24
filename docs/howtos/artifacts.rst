@@ -36,7 +36,7 @@ artifacts as a list of :class:`.ArtifactData` objects accessed by :meth:`.Experi
     backend = AerSimulator.from_backend(FakePerth())
     exp1 = T1(physical_qubits=[0], delays=np.arange(1e-6, 6e-4, 5e-5))
     exp2 = T1(physical_qubits=[1], delays=np.arange(1e-6, 6e-4, 5e-5))
-    data = ParallelExperiment([exp1, exp2], flatten_results=True).run(backend).block_for_results()
+    data = ParallelExperiment([exp1, exp2]).run(backend).block_for_results()
     data.artifacts()
 
 Artifacts can be accessed using either the artifact ID, which has to be unique in each
@@ -106,13 +106,8 @@ Qiskit Experiments.
 Saving and loading artifacts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. note::
-    This feature is only for those who have access to the cloud service. You can 
-    check whether you do by logging into the IBM Quantum interface 
-    and seeing if you can see the `database <https://quantum.ibm.com/experiments>`__.
-
-Artifacts are saved and loaded to and from the cloud service along with the rest of the
-:class:`ExperimentData` object. Artifacts are stored as ``.zip`` files in the cloud service grouped by
+Artifacts are saved and loaded to and from an experiment service along with the rest of the
+:class:`ExperimentData` object. Artifacts are stored as ``.zip`` files in the service grouped by
 the artifact name. For example, the composite experiment above will generate two artifact files, ``fit_summary.zip`` and
 ``curve_data.zip``. Each of these zipfiles will contain serialized artifact data in JSON format named
 by their unique artifact ID:
@@ -130,14 +125,8 @@ by their unique artifact ID:
     print(f"|- {data.artifacts('experiment_notes').artifact_id}.json")
 
 Note that for performance reasons, the auto save feature does not apply to artifacts. You must still
-call :meth:`.ExperimentData.save` once the experiment analysis has completed to upload artifacts to the
-cloud service.
-
-Note also though individual artifacts can be deleted, currently artifact files cannot be removed from the
-cloud service. Instead, you can delete all artifacts of that name
-using :meth:`~.delete_artifact` and then call :meth:`.ExperimentData.save`.
-This will save an empty file to the service, and the loaded experiment data will not contain
-these artifacts.
+call :meth:`.ExperimentData.save` once the experiment analysis has completed to save artifacts in the
+service.
 
 See Also
 --------

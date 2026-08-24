@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    Cloud database experiment links no longer display when there was an error
-    saving to the API.
-

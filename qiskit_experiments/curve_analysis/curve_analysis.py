@@ -17,7 +17,6 @@ import warnings
 
 # pylint: disable=invalid-name
 
-from typing import Dict, List, Tuple, Union, Optional
 from functools import partial
 
 from copy import deepcopy
@@ -34,7 +33,7 @@ from qiskit_experiments.framework.containers import FigureType, ArtifactData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.visualization import PlotStyle
 
-from .base_curve_analysis import BaseCurveAnalysis, DATA_ENTRY_PREFIX, PARAMS_ENTRY_PREFIX
+from .base_curve_analysis import BaseCurveAnalysis
 from .curve_data import FitOptions, CurveFitResult
 from .scatter_table import ScatterTable
 from .utils import (
@@ -62,7 +61,7 @@ class CurveAnalysis(BaseCurveAnalysis):
     to create Y data with uncertainty.
     X data and other metadata are generated within this method by inspecting the
     circuit metadata. The series classification is also performed based upon the
-    matching of circuit metadata and :attr:`SeriesDef.filter_kwargs`.
+    matching of circuit metadata.
 
     .. rubric:: _format_data
 
@@ -107,8 +106,8 @@ class CurveAnalysis(BaseCurveAnalysis):
 
     def __init__(
         self,
-        models: Optional[List[lmfit.Model]] = None,
-        name: Optional[str] = None,
+        models: list[lmfit.Model] | None = None,
+        name: str | None = None,
     ):
         """Initialize data fields that are privately accessed by methods.
 
@@ -133,7 +132,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         return self._name
 
     @property
-    def parameters(self) -> List[str]:
+    def parameters(self) -> list[str]:
         """Return parameters of this curve analysis."""
         unite_params = []
         for model in self._models:
@@ -143,11 +142,11 @@ class CurveAnalysis(BaseCurveAnalysis):
         return unite_params
 
     @property
-    def models(self) -> List[lmfit.Model]:
+    def models(self) -> list[lmfit.Model]:
         """Return fit models."""
         return self._models
 
-    def model_names(self) -> List[str]:
+    def model_names(self) -> list[str]:
         """Return model names."""
         return [getattr(m, "_name", f"model-{i}") for i, m in enumerate(self._models)]
 
@@ -265,7 +264,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
     def _run_data_processing(
         self,
-        raw_data: List[Dict],
+        raw_data: list[dict],
         category: str = "raw",
     ) -> ScatterTable:
         """Perform data processing from the experiment result payload.
@@ -389,7 +388,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         self,
         user_opt: FitOptions,
         curve_data: ScatterTable,  # pylint: disable=unused-argument
-    ) -> Union[FitOptions, List[FitOptions]]:
+    ) -> FitOptions | list[FitOptions]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
@@ -461,7 +460,8 @@ class CurveAnalysis(BaseCurveAnalysis):
             if valid_uncertainty:
                 nonzero_yerr = np.where(
                     np.isclose(sub_data.y_err, 0.0),
-                    np.finfo(float).eps,
+                    # See https://github.com/pylint-dev/pylint/issues/10806
+                    np.finfo(float).eps,  # pylint: disable=no-member
                     sub_data.y_err,
                 )
                 raw_weights = 1 / nonzero_yerr
@@ -505,14 +505,28 @@ class CurveAnalysis(BaseCurveAnalysis):
 
             try:
                 with np.errstate(all="ignore"):
-                    new = lmfit.minimize(
-                        fcn=lambda x: np.concatenate([p(x) for p in partial_weighted_residuals]),
-                        params=guess_params,
-                        method=self.options.fit_method,
-                        scale_covar=not valid_uncertainty,
-                        nan_policy="omit",
-                        **fit_option.fitter_opts,
-                    )
+                    with warnings.catch_warnings():
+                        # Temporary workaround to avoid lmfit generate an
+                        # Uncertainties warning about std_dev==0 when there are
+                        # fixed parameters in the fit.
+                        #
+                        # This warning filter can be removed after
+                        # https://github.com/lmfit/lmfit-py/pull/1000 is
+                        # released.
+                        warnings.filterwarnings(
+                            "ignore",
+                            message="Using UFloat objects with std_dev==0.*",
+                        )
+                        new = lmfit.minimize(
+                            fcn=lambda x: np.concatenate(
+                                [p(x) for p in partial_weighted_residuals]
+                            ),
+                            params=guess_params,
+                            method=self.options.fit_method,
+                            scale_covar=not valid_uncertainty,
+                            nan_policy="omit",
+                            **fit_option.fitter_opts,
+                        )
             except Exception:  # pylint: disable=broad-except
                 continue
 
@@ -552,7 +566,7 @@ class CurveAnalysis(BaseCurveAnalysis):
     def _create_figures(
         self,
         curve_data: ScatterTable,
-    ) -> List["matplotlib.figure.Figure"]:
+    ) -> list["matplotlib.figure.Figure"]:
         """Create a list of figures from the curve data.
 
         Args:
@@ -608,9 +622,9 @@ class CurveAnalysis(BaseCurveAnalysis):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-    ) -> Tuple[List[Union[AnalysisResultData, ArtifactData]], List[FigureType]]:
-        figures: List[FigureType] = []
-        result_data: List[Union[AnalysisResultData, ArtifactData]] = []
+    ) -> tuple[list[AnalysisResultData | ArtifactData], list[FigureType]]:
+        figures: list[FigureType] = []
+        result_data: list[AnalysisResultData | ArtifactData] = []
         artifacts: list[ArtifactData] = []
 
         # Flag for plotting can be "always", "never", or "selective"
@@ -637,17 +651,6 @@ class CurveAnalysis(BaseCurveAnalysis):
         # After the quality is determined, plot can become a boolean flag for whether
         # to generate the figure
         plot_bool = plot == "always" or (plot == "selective" and quality == "bad")
-
-        if self.options.return_fit_parameters:
-            # Store fit status overview entry regardless of success.
-            # This is sometime useful when debugging the fitting code.
-            overview = AnalysisResultData(
-                name=PARAMS_ENTRY_PREFIX + self.name,
-                value=fit_data,
-                quality=quality,
-                extra=self.options.extra,
-            )
-            result_data.append(overview)
 
         if fit_data.success:
             # Add fit data to curve data table
@@ -703,16 +706,6 @@ class CurveAnalysis(BaseCurveAnalysis):
                     **self.options.extra.copy(),
                 )
             )
-
-        if self.options.return_data_points:
-            # Add raw data points
-            warnings.warn(
-                f"{DATA_ENTRY_PREFIX + self.name} has been moved to experiment data artifacts. "
-                "Saving this result with 'return_data_points'=True will be disabled in "
-                "Qiskit Experiments 0.7.",
-                DeprecationWarning,
-            )
-            result_data.extend(self._create_curve_data(curve_data=formatted_subset))
 
         artifacts.append(
             ArtifactData(

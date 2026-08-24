@@ -12,7 +12,6 @@
 """Plotter for IQ data."""
 import warnings
 from itertools import product
-from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -74,7 +73,7 @@ class IQPlotter(BasePlotter):
     """
 
     @classmethod
-    def expected_series_data_keys(cls) -> List[str]:
+    def expected_series_data_keys(cls) -> list[str]:
         """Returns the expected series data keys supported by this plotter.
 
         Data Keys:
@@ -87,7 +86,7 @@ class IQPlotter(BasePlotter):
         ]
 
     @classmethod
-    def expected_supplementary_data_keys(cls) -> List[str]:
+    def expected_supplementary_data_keys(cls) -> list[str]:
         """Returns the expected figures data keys supported by this plotter.
 
         Data Keys:
@@ -106,7 +105,7 @@ class IQPlotter(BasePlotter):
             "fidelity",
         ]
 
-    def _compute_extent(self) -> Optional[ExtentTuple]:
+    def _compute_extent(self) -> ExtentTuple | None:
         """Computes the extent tuple of the data being plotted.
 
         Returns:
@@ -141,7 +140,7 @@ class IQPlotter(BasePlotter):
 
     def _compute_discriminator_image(
         self,
-    ) -> Tuple[Optional[np.ndarray], Optional[ExtentTuple]]:
+    ) -> tuple[np.ndarray | None, ExtentTuple | None]:
         """Compute the array/image sampled from the discriminator predictions.
 
         Returns:
@@ -251,7 +250,7 @@ class IQPlotter(BasePlotter):
         fig_opts.yval_unit_scale = False
         return fig_opts
 
-    def _misclassified_points(self, series_name: str, points: np.ndarray) -> Optional[np.ndarray]:
+    def _misclassified_points(self, series_name: str, points: np.ndarray) -> np.ndarray | None:
         """Returns a list of IQ coordinates for points that are misclassified by the discriminator.
 
         Args:

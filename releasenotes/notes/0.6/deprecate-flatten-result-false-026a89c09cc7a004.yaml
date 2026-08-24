@@ -1,7 +1,0 @@
----
-deprecations:
-  - |
-    Executing composite experiment and composite analysis with ``flatten_results=False``
-    by default was deprecated. To create child experiment data, please explicitly 
-    set ``flatten_results=False``. The default value of ``flatten_results`` will be
-    changed to ``True`` in the next release.

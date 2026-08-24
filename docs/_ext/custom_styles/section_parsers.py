@@ -15,17 +15,16 @@ Documentation section parsers.
 """
 
 import re
-from typing import List
 
 from .utils import _trim_empty_lines
 
 
-def load_standard_section(docstring_lines: List[str]) -> List[str]:
+def load_standard_section(docstring_lines: list[str]) -> list[str]:
     """Load standard docstring section."""
     return _trim_empty_lines(docstring_lines)
 
 
-def load_fit_parameters(docstring_lines: List[str]) -> List[str]:
+def load_fit_parameters(docstring_lines: list[str]) -> list[str]:
     """Load fit parameter section."""
     regex_paramdef = re.compile(r"defpar (?P<param>.+):")
 

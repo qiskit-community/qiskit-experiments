@@ -16,7 +16,7 @@ A collection of utilities to generate documentation.
 import inspect
 import re
 import collections
-from typing import List, Callable, Type, Iterator
+from collections.abc import Callable, Iterator
 
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.docstring import GoogleDocstring
@@ -29,7 +29,7 @@ _parameter_regex = re.compile(r'(.+?)\(\s*(.*[^\s]+)\s*\):(.*[^\s]+)')
 _rest_role_regex = re.compile(r':(.+?) (.+?):\s*(.*[^\s]+)')
 
 
-def _trim_empty_lines(docstring_lines: List[str]) -> List[str]:
+def _trim_empty_lines(docstring_lines: list[str]) -> list[str]:
     """A helper function to remove redundant line feeds."""
     i_start = 0
     lines_iter = iter(docstring_lines)
@@ -48,12 +48,12 @@ def _generate_analysis_ref(
     current_class: object,
     config: SphinxConfig = None,
     indent: str = "",
-) -> List[str]:
+) -> list[str]:
     """Automatically generate analysis class reference with recursive ref to superclass."""
 
     if not issubclass(current_class, BaseExperiment):
         # check if no more base class
-        raise TypeError("This is not valid experiment class.")
+        raise TypeError(f"{current_class} is not valid experiment class.")
 
     experiment_option_parser = GoogleDocstring(
         docstring=prepare_docstring(current_class.__doc__, tabsize=len(indent)),
@@ -77,7 +77,7 @@ def _generate_analysis_ref(
                 pass
 
     if analysis_ref_start is None:
-        raise Exception(f"Option docstring for analysis_ref is missing.")
+        raise Exception(f"Option docstring for analysis_ref is missing for {current_class}.")
 
     analysis_ref_lines = []
     for line in lines[analysis_ref_start + 1:]:
@@ -92,7 +92,7 @@ def _generate_analysis_ref(
 def _check_no_indent(method: Callable) -> Callable:
     """Check indent of lines and return if this block is correctly indented."""
 
-    def wraps(self, lines: List[str], *args, **kwargs):
+    def wraps(self, lines: list[str], *args, **kwargs):
         if all(l.startswith(" ") for l in lines):
             text_block = "\n".join(lines)
             raise ValueError(
@@ -104,7 +104,7 @@ def _check_no_indent(method: Callable) -> Callable:
     return wraps
 
 
-def _get_superclass(current_class: Type, base_class: Type = None):
+def _get_superclass(current_class: type, base_class: type = None):
     """Get a list of restructured text of super classes of current class."""
 
     doc_classes = []

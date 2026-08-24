@@ -11,11 +11,6 @@ execution successfully.
 Solution
 --------
 
-.. note::
-    This guide requires :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` version 0.15 and up, which can be installed with ``python -m pip install qiskit-ibm-runtime``.
-    For how to migrate from the older :external+qiskit_ibm_provider:doc:`qiskit-ibm-provider <index>` to :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`,
-    consult the `migration guide <https://docs.quantum.ibm.com/api/migration-guides/qiskit-runtime-from-provider>`_.\
-
 Once you recreate the exact experiment you ran and all of its parameters and options,
 you can call the :meth:`.ExperimentData.add_jobs` method with a list of :class:`Job
 <qiskit.providers.JobV1>` objects to generate the new :class:`.ExperimentData` object.
@@ -25,18 +20,18 @@ job IDs:
 .. jupyter-input::
 
     from qiskit_experiments.framework import ExperimentData
-    from qiskit_ibm_provider import IBMProvider
+    from qiskit_ibm_runtime import QiskitRuntimeService
 
     # The experiment you ran
     experiment = Experiment(**opts)
 
     # List of job IDs for the experiment
-    job_ids= [job1, job2, ...]
+    job_ids= ["job1_id", "job2_id", ...]
 
-    provider = IBMProvider()
+    service = QiskitRuntimeService(channel="ibm_quantum")
 
     expdata = ExperimentData(experiment = experiment)
-    expdata.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
+    expdata.add_jobs([service.job(job_id) for job_id in job_ids])
     experiment.analysis.run(expdata, replace_results=True)
 
     # Block execution of subsequent code until analysis is complete
@@ -51,7 +46,7 @@ invoke the :meth:`.ExperimentData.add_data` method instead of :meth:`.Experiment
 
 .. jupyter-input::
 
-    data.add_data([provider.retrieve_job(job_id).result() for job_id in job_ids])
+    data.add_data([service.job(job_id).result() for job_id in job_ids])
 
 The remaining workflow remains the same.
 
@@ -90,7 +85,12 @@ restore it later with the following lines of code:
     from qiskit_experiments.framework import ExperimentDecoder, ExperimentEncoder
 
     serialized_exp = json.dumps(Experiment.config(), cls=ExperimentEncoder)
-    Experiment.from_config(json.loads(serialized_exp), cls=ExperimentDecoder)
+    Experiment.from_config(json.loads(serialized_exp, cls=ExperimentDecoder))
+
+.. warning::
+
+   It is recommended only to load data from trusted sources. See
+   :class:`.ExperimentEncoder` for more details.
 
 Rerunning with different analysis options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -116,10 +116,10 @@ first component experiment.
     )
 
     data = ExperimentData(experiment=pexp)
-    data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
+    data.add_jobs([service.job(job_id) for job_id in job_ids])
     pexp.analysis.run(data, replace_results=True)
 
 See Also
 --------
 
-* `Saving and loading experiment data with the cloud service <cloud_service.html>`_
+* `Saving and loading experiment data with an experiment service <experiment_service.html>`_

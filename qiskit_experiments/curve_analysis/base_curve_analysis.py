@@ -14,13 +14,9 @@
 Base class of curve analysis.
 """
 
-import warnings
 from abc import ABC, abstractmethod
-from typing import Dict, List, Union
 
 import lmfit
-
-from qiskit.utils.deprecation import deprecate_func
 
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.processor_library import get_processor
@@ -31,17 +27,14 @@ from qiskit_experiments.framework import (
     Options,
 )
 from qiskit_experiments.visualization import (
-    BaseDrawer,
     BasePlotter,
     CurvePlotter,
-    LegacyCurveCompatDrawer,
     MplDrawer,
 )
 
 from .curve_data import CurveFitResult, ParameterRepr
 from .scatter_table import ScatterTable
 
-PARAMS_ENTRY_PREFIX = "@Parameters_"
 DATA_ENTRY_PREFIX = "@Data_"
 
 
@@ -112,7 +105,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     @property
     @abstractmethod
-    def parameters(self) -> List[str]:
+    def parameters(self) -> list[str]:
         """Return parameters estimated by this analysis."""
 
     @property
@@ -122,27 +115,13 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     @property
     @abstractmethod
-    def models(self) -> List[lmfit.Model]:
+    def models(self) -> list[lmfit.Model]:
         """Return fit models."""
 
     @property
     def plotter(self) -> BasePlotter:
         """A short-cut to the curve plotter instance."""
         return self._options.plotter
-
-    @property
-    @deprecate_func(
-        since="0.5",
-        additional_msg="Use `plotter` from the new visualization module.",
-        removal_timeline="after 0.6",
-        package_name="qiskit-experiments",
-    )
-    def drawer(self) -> BaseDrawer:
-        """A short-cut for curve drawer instance, if set. ``None`` otherwise."""
-        if isinstance(self.plotter.drawer, LegacyCurveCompatDrawer):
-            return self.plotter.drawer._curve_drawer
-        else:
-            return None
 
     @classmethod
     def _default_options(cls) -> Options:
@@ -157,10 +136,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 fitting model. This is ``False`` by default.
             plot (bool): Set ``True`` to create figure for fit result or ``False`` to
                 not create a figure. This overrides the behavior of ``generate_figures``.
-            return_fit_parameters (bool): (Deprecated) Set ``True`` to return all fit model parameters
-                with details of the fit outcome. Default to ``False``.
-            return_data_points (bool): (Deprecated) Set ``True`` to include in the analysis result
-                the formatted data points given to the fitter. Default to ``False``.
             data_processor (Callable): A callback function to format experiment data.
                 This can be a :class:`.DataProcessor`
                 instance that defines the `self.__call__` method.
@@ -169,8 +144,10 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             average_method (Literal["sample", "iwv", "shots_weighted"]): Method
                 to average the y values when the same x values
                 appear multiple times. One of "sample", "iwv" (i.e. inverse
-                weighted variance), "shots_weighted". See :func:`.mean_xy_data`
-                for details. Default to "shots_weighted".
+                weighted variance), "shots_weighted". See
+                :func:`.sample_average`, :func:`.inverse_weighted_variance`,
+                and :func:`.shot_weighted_average` for details. Default to
+                "shots_weighted".
             p0 (Dict[str, float]): Initial guesses for the fit parameters.
                 The dictionary is keyed on the fit parameter names.
             bounds (Dict[str, Tuple[float, float]]): Boundary of fit parameters.
@@ -188,9 +165,11 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 database as a dedicated entry. This is a list of parameter representation
                 which is either string or ParameterRepr object. If you provide more
                 information other than name, you can specify
-                ``[ParameterRepr("alpha", "\u03B1", "a.u.")]`` for example.
+                ``[ParameterRepr("alpha", "\u03b1", "a.u.")]`` for example.
                 The parameter name should be defined in the series definition.
                 Representation should be printable in standard output, i.e. no latex syntax.
+                The name of each reported parameter is also the key used to retrieve the
+                corresponding result, e.g. ``exp_data.analysis_results("alpha")``.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
                 as extra information.
             fixed_parameters (Dict[str, Any]): Fitting model parameters that are fixed
@@ -210,8 +189,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.plotter = CurvePlotter(MplDrawer())
         options.plot_raw_data = False
         options.plot_residuals = False
-        options.return_fit_parameters = True
-        options.return_data_points = False
         options.data_processor = None
         options.normalization = False
         options.average_method = "shots_weighted"
@@ -236,7 +213,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     @abstractmethod
     def _run_data_processing(
         self,
-        raw_data: List[Dict],
+        raw_data: list[dict],
         category: str = "raw",
     ) -> ScatterTable:
         """Perform data processing from the experiment result payload.
@@ -282,7 +259,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _evaluate_quality(
         self,
         fit_data: CurveFitResult,
-    ) -> Union[str, None]:
+    ) -> str | None:
         """Evaluate quality of the fit result.
 
         Args:
@@ -300,7 +277,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         fit_data: CurveFitResult,
         quality: str,
         **metadata,
-    ) -> List[AnalysisResultData]:
+    ) -> list[AnalysisResultData]:
         """Create analysis results for important fit parameters.
 
         Args:
@@ -345,7 +322,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         self,
         curve_data: ScatterTable,
         **metadata,
-    ) -> List[AnalysisResultData]:
+    ) -> list[AnalysisResultData]:
         """Create analysis results for raw curve data.
 
         Args:
@@ -356,7 +333,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """
         samples = []
 
-        for model_name, sub_data in list(curve_data.groupby("model_name")):
+        for model_name, sub_data in list(curve_data.dataframe.groupby("model_name")):
             raw_datum = AnalysisResultData(
                 name=DATA_ENTRY_PREFIX + self.__class__.__name__,
                 value={
@@ -376,7 +353,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _create_figures(
         self,
         curve_data: ScatterTable,
-    ) -> List["matplotlib.figure.Figure"]:
+    ) -> list["matplotlib.figure.Figure"]:
         """Create a list of figures from the curve data.
 
         Args:
@@ -405,20 +382,3 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         if not data_processor.is_trained:
             data_processor.train(data=experiment_data.data())
         self.set_options(data_processor=data_processor)
-
-        # Check if a model contains legacy data mapping option.
-        data_subfit_map = {}
-        for model in self.models:
-            if "data_sort_key" in model.opts:
-                data_subfit_map[model._name] = model.opts["data_sort_key"]
-                del model.opts["data_sort_key"]
-        if data_subfit_map:
-            warnings.warn(
-                "Setting 'data_sort_key' to an LMFIT model constructor is no longer "
-                "valid configuration of the model. "
-                "Use 'data_subfit_map' option in the analysis options. "
-                "This warning will be dropped in v0.6 along with the support for the "
-                "'data_sort_key' in the LMFIT model options.",
-                DeprecationWarning,
-            )
-            self.set_options(data_subfit_map=data_subfit_map)

@@ -13,8 +13,8 @@
 Interleaved RB Experiment class.
 """
 import itertools
-import warnings
-from typing import Union, Iterable, Optional, List, Sequence, Dict, Any
+from typing import Any
+from collections.abc import Iterable, Sequence
 
 from numpy.random import Generator
 from numpy.random.bit_generator import BitGenerator, SeedSequence
@@ -53,16 +53,50 @@ class InterleavedRB(StandardRB):
     # section: reference
         .. ref_arxiv:: 1 1203.4550
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, depolarizing_error
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])
+            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["cx"])
+            backend = AerSimulator(noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.library import StandardRB, InterleavedRB
+            from qiskit_experiments.framework import ParallelExperiment, BatchExperiment
+            import qiskit.circuit.library as circuits
+
+            lengths = [1, 2, 4, 8] + np.arange(10, 80, 10).tolist()
+            num_samples = 3
+            seed = 1010
+            qubits = (1, 2)
+
+            int_exp2 = InterleavedRB(
+                circuits.CXGate(), qubits, lengths, num_samples=num_samples, seed=seed)
+
+            int_expdata2 = int_exp2.run(backend=backend).block_for_results()
+            int_results2 = int_expdata2.analysis_results(dataframe=True)
+            display(int_expdata2.figure(0))
+
+            print(f"Available results: {set(int_results2.name)}")
     """
 
     def __init__(
         self,
-        interleaved_element: Union[QuantumCircuit, Gate, Delay, Clifford],
+        interleaved_element: QuantumCircuit | Gate | Delay | Clifford,
         physical_qubits: Sequence[int],
         lengths: Iterable[int],
-        backend: Optional[Backend] = None,
+        backend: Backend | None = None,
         num_samples: int = 3,
-        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
+        seed: int | SeedSequence | BitGenerator | Generator | None = None,
         full_sampling: bool = False,
         circuit_order: str = "RIRIRI",
     ):
@@ -121,6 +155,8 @@ class InterleavedRB(StandardRB):
             delay_ops = [delay.operation for delay in interleaved_element.get_instructions("delay")]
         if delay_ops:
             timing = BackendTiming(backend)
+        else:
+            timing = None
         for delay_op in delay_ops:
             if delay_op.unit != timing.delay_unit:
                 raise QiskitError(
@@ -135,9 +171,6 @@ class InterleavedRB(StandardRB):
                         f" constraints of the backend {backend}. It could be {valid_duration}[dt]."
                         " Use BackendTiming to set valid duration for delays."
                     )
-        # Warnings
-        if isinstance(interleaved_element, QuantumCircuit) and interleaved_element.calibrations:
-            warnings.warn("Calibrations in interleaved circuit are ignored", UserWarning)
 
         super().__init__(
             physical_qubits,
@@ -176,7 +209,7 @@ class InterleavedRB(StandardRB):
         )
         return options
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Return a list of RB circuits.
 
         Returns:
@@ -221,7 +254,7 @@ class InterleavedRB(StandardRB):
     def _to_instruction(
         self,
         elem: SequenceElementType,
-        synthesis_options: Dict[str, Optional[Any]],
+        synthesis_options: dict[str, Any | None],
     ) -> Instruction:
         if elem is self._interleaved_cliff:
             return self._interleaved_op

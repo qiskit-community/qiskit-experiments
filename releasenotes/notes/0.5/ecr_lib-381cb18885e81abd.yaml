@@ -1,9 +1,0 @@
----
-features:
-  - |
-    A new basis gate library called :class:`.EchoedCrossResonance` has been added.
-other:
-  - |
-    The :class:`.Calibrations` class has been updated to use the reference
-    mechanism in Qiskit Pulse in which a schedule can refer to another
-    schedule only by name.

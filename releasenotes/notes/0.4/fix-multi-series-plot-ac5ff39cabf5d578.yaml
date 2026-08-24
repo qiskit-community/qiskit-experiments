@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    Fixed broken curve analysis output figure when multi canvas mode is enabled.
-    Currently this feature is only used by :class:`.CrossResonanceHamiltonianAnalysis`.
-    It has been plotting all series data in the same canvas due to the bug.

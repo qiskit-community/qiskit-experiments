@@ -12,7 +12,7 @@
 
 """Fine frequency characterization experiment."""
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -48,14 +48,34 @@ class FineFrequency(BaseExperiment):
                                                                   0
     # section: analysis_ref
         :class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test import T2HahnBackend
+
+            # AerSimulator can not mimic a freqeuncy offset
+            backend = T2HahnBackend(frequency=1e5)
+
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import FineFrequency
+
+            exp = FineFrequency([0], delay_duration=int(30e-9 / backend.dt), backend=backend)
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     def __init__(
         self,
         physical_qubits: Sequence[int],
         delay_duration: int,
-        backend: Optional[Backend] = None,
-        repetitions: Optional[List[int]] = None,
+        backend: Backend | None = None,
+        repetitions: list[int] | None = None,
     ):
         """Setup a fine frequency experiment on the given qubit.
 
@@ -99,19 +119,11 @@ class FineFrequency(BaseExperiment):
 
         return options
 
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        """Default transpiler options."""
-        options = super()._default_transpile_options()
-        options.inst_map = None
-        options.basis_gates = ["sx", "rz", "delay"]
-        return options
-
     def _pre_circuit(self) -> QuantumCircuit:
         """A method that subclasses can override to perform gates before the main sequence."""
         return QuantumCircuit(1)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Return the list of quantum circuits to run."""
 
         circuits = []

@@ -13,7 +13,8 @@
 Mock drawer for testing.
 """
 
-from typing import Any, Optional, Sequence, Tuple, Union
+from typing import Any
+from collections.abc import Sequence
 
 from qiskit_experiments.visualization import BaseDrawer, PlotStyle
 from qiskit_experiments.visualization.utils import ExtentTuple
@@ -53,10 +54,10 @@ class MockDrawer(BaseDrawer):
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        x_err: Optional[Sequence[float]] = None,
-        y_err: Optional[Sequence[float]] = None,
-        name: Optional[str] = None,
-        label: Optional[str] = None,
+        x_err: Sequence[float] | None = None,
+        y_err: Sequence[float] | None = None,
+        name: str | None = None,
+        label: str | None = None,
         legend: bool = False,
         **options,
     ):
@@ -67,8 +68,8 @@ class MockDrawer(BaseDrawer):
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        name: Optional[str] = None,
-        label: Optional[str] = None,
+        name: str | None = None,
+        label: str | None = None,
         legend: bool = False,
         **options,
     ):
@@ -78,8 +79,8 @@ class MockDrawer(BaseDrawer):
     def hline(
         self,
         y_value: float,
-        name: Optional[str] = None,
-        label: Optional[str] = None,
+        name: str | None = None,
+        label: str | None = None,
         legend: bool = False,
         **options,
     ):
@@ -91,8 +92,8 @@ class MockDrawer(BaseDrawer):
         x_data: Sequence[float],
         y_ub: Sequence[float],
         y_lb: Sequence[float],
-        name: Optional[str] = None,
-        label: Optional[str] = None,
+        name: str | None = None,
+        label: str | None = None,
         legend: bool = False,
         **options,
     ):
@@ -104,8 +105,8 @@ class MockDrawer(BaseDrawer):
         x_ub: Sequence[float],
         x_lb: Sequence[float],
         y_data: Sequence[float],
-        name: Optional[str] = None,
-        label: Optional[str] = None,
+        name: str | None = None,
+        label: str | None = None,
         legend: bool = False,
         **options,
     ):
@@ -115,7 +116,7 @@ class MockDrawer(BaseDrawer):
     def textbox(
         self,
         description: str,
-        rel_pos: Optional[Tuple[float, float]] = None,
+        rel_pos: tuple[float, float] | None = None,
         **options,
     ):
         """Does nothing."""
@@ -124,10 +125,10 @@ class MockDrawer(BaseDrawer):
     def image(
         self,
         data: "numpy.ndarray",
-        extent: Optional[ExtentTuple] = None,
-        name: Optional[str] = None,
-        label: Optional[str] = None,
-        cmap: Optional[Union[str, Any]] = None,
+        extent: ExtentTuple | None = None,
+        name: str | None = None,
+        label: str | None = None,
+        cmap: str | Any | None = None,
         cmap_use_series_colors: bool = False,
         colorbar: bool = False,
         **options,

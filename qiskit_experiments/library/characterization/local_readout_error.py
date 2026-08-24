@@ -12,7 +12,7 @@
 """
 Local readout error calibration experiment class.
 """
-from typing import Iterable, List, Optional
+from collections.abc import Iterable
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import BackendV2, Backend
 from qiskit.exceptions import QiskitError
@@ -62,6 +62,28 @@ class LocalReadoutError(BaseExperiment):
     # section: analysis_ref
         :class:`LocalReadoutErrorAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+            backend = AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library import LocalReadoutError
+
+            qubits = list(range(4))
+            exp = LocalReadoutError(physical_qubits=qubits, backend=backend)
+            exp.analysis.set_options(plot=True)
+            exp.set_run_options(shots=10000)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
+
     # section: manual
         :doc:`/manuals/measurement/readout_mitigation`
 
@@ -71,8 +93,8 @@ class LocalReadoutError(BaseExperiment):
 
     def __init__(
         self,
-        physical_qubits: Optional[Iterable[int]] = None,
-        backend: Optional[Backend] = None,
+        physical_qubits: Iterable[int] | None = None,
+        backend: Backend | None = None,
     ):
         """Initialize a local readout error characterization experiment.
 
@@ -100,7 +122,7 @@ class LocalReadoutError(BaseExperiment):
         super().__init__(physical_qubits, backend=backend)
         self.analysis = LocalReadoutErrorAnalysis()
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Returns the experiment's circuits"""
         labels = ["0" * self.num_qubits, "1" * self.num_qubits]
         return [calibration_circuit(self.num_qubits, label) for label in labels]

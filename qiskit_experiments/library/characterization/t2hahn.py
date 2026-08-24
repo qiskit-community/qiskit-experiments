@@ -13,7 +13,7 @@
 T2Hahn Echo Experiment class.
 """
 
-from typing import List, Optional, Union, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit, QiskitError
@@ -49,15 +49,47 @@ class T2Hahn(BaseExperiment):
 
         for each *t* from the specified delay times
         and the delays are specified by the user.
-        The delays that are specified are delay for each delay gate while
-        the delay in the metadata is the total delay which is delay * (num_echoes +1)
-        The circuits are run on the device or on a simulator backend.
+        The delays that are specified in the experiment options and
+        the delay in the metadata both represent the sum of all delay gates in
+        the circuit.
 
     # section: manual
         :doc:`/manuals/characterization/t2hahn`
 
     # section: analysis_ref
         :class:`T2HahnAnalysis`
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
+
+            conversion_factor = 1e-6
+            estimated_t2hahn = 20*conversion_factor
+            backend = T2HahnBackend(
+                t2hahn=[estimated_t2hahn],
+                frequency=[100100],
+                readout0to1 = [0.02],
+                readout1to0 = [0.02],
+                )
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.library.characterization.t2hahn import T2Hahn
+
+            delays = np.linspace(0, 50e-6, 11)
+
+            exp = T2Hahn(physical_qubits=(0, ),
+                         delays=delays,
+                         backend=backend)
+            exp.analysis.set_options(p0=None, plot=True)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: reference
         .. ref_arxiv:: 1 1904.06560
@@ -80,9 +112,9 @@ class T2Hahn(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        delays: Union[List[float], np.array],
+        delays: list[float] | np.ndarray,
         num_echoes: int = 1,
-        backend: Optional[Backend] = None,
+        backend: Backend | None = None,
     ):
         """
         Initialize the T2 - Hahn Echo class.
@@ -118,7 +150,7 @@ class T2Hahn(BaseExperiment):
                 "non-negative elements."
             )
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """
         Return a list of experiment circuits.
 

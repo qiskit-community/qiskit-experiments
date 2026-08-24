@@ -59,7 +59,7 @@ _TO_INT_1Q = {_hash_cliff(cliff): i for i, cliff in _CLIFF_1Q.items()}
 
 
 def gen_clifford_inverse_1q():
-    """Generate table data for integer 1Q Clifford inversion"""
+    """Generate data for integer 1Q Clifford inversion table"""
     invs = np.empty(NUM_CLIFFORD_1Q, dtype=int)
     for i, cliff_i in _CLIFF_1Q.items():
         invs[i] = _TO_INT_1Q[_hash_cliff(cliff_i.adjoint())]
@@ -68,7 +68,7 @@ def gen_clifford_inverse_1q():
 
 
 def gen_clifford_compose_1q():
-    """Generate table data for integer 1Q Clifford composition."""
+    """Generate data for integer 1Q Clifford composition table"""
     products = np.empty((NUM_CLIFFORD_1Q, NUM_CLIFFORD_1Q), dtype=int)
     for i, cliff_i in _CLIFF_1Q.items():
         for j, cliff_j in _CLIFF_1Q.items():
@@ -83,7 +83,7 @@ _TO_INT_2Q = {_hash_cliff(cliff): i for i, cliff in _CLIFF_2Q.items()}
 
 
 def gen_clifford_inverse_2q():
-    """Generate table data for integer 2Q Clifford inversion"""
+    """Generate data for integer 2Q Clifford inversion table"""
     invs = np.empty(NUM_CLIFFORD_2Q, dtype=int)
     for i, cliff_i in _CLIFF_2Q.items():
         invs[i] = _TO_INT_2Q[_hash_cliff(cliff_i.adjoint())]
@@ -191,6 +191,16 @@ def gen_cliff_single_2q_gate_map():
     return table
 
 
+def gen_clifford_tensor_1q():
+    """Generate data for 2Q integer Clifford table of the tensor product of 1Q integer Cliffords."""
+    products = np.empty((NUM_CLIFFORD_1Q, NUM_CLIFFORD_1Q), dtype=int)
+    for i, cliff_i in _CLIFF_1Q.items():
+        for j, cliff_j in _CLIFF_1Q.items():
+            cliff = cliff_i.tensor(cliff_j)
+            products[i, j] = _TO_INT_2Q[_hash_cliff(cliff)]
+    return products
+
+
 if __name__ == "__main__":
     if _CLIFF_SINGLE_GATE_MAP_1Q != gen_cliff_single_1q_gate_map():
         raise Exception(
@@ -212,3 +222,5 @@ if __name__ == "__main__":
         table=_CLIFFORD_COMPOSE_2Q_DENSE,
         valid_sparse_indices=valid_sparse_indices,
     )
+
+    np.savez_compressed("clifford_tensor_1q.npz", table=gen_clifford_tensor_1q())

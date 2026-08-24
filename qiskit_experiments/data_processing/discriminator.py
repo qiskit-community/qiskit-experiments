@@ -13,7 +13,7 @@
 """Discriminator wrappers to make discriminators serializable.."""
 
 from abc import abstractmethod
-from typing import Any, Dict, List
+from typing import Any
 
 
 class BaseDiscriminator:
@@ -32,7 +32,7 @@ class BaseDiscriminator:
     """
 
     @abstractmethod
-    def predict(self, data: List):
+    def predict(self, data: list):
         """The function used to predict the labels of the data."""
 
     @property
@@ -45,7 +45,7 @@ class BaseDiscriminator:
         return None
 
     @abstractmethod
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Return the configuration of the discriminator."""
 
     @abstractmethod
@@ -53,7 +53,7 @@ class BaseDiscriminator:
         """Return True if this discriminator has been trained on data."""
 
     @classmethod
-    def from_config(cls, config: Dict[str, Any]) -> "BaseDiscriminator":
+    def from_config(cls, config: dict[str, Any]) -> "BaseDiscriminator":
         """Create a discriminator from the configuration."""
 
     def __json_encode__(self):
@@ -61,6 +61,6 @@ class BaseDiscriminator:
         return self.config()
 
     @classmethod
-    def __json_decode__(cls, value: Dict[str, Any]) -> "BaseDiscriminator":
+    def __json_decode__(cls, value: dict[str, Any]) -> "BaseDiscriminator":
         """Load from JSON compatible format."""
         return cls.from_config(value)

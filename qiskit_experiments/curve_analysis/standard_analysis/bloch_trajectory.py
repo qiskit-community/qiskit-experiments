@@ -12,7 +12,6 @@
 
 """Bloch trajectory analysis of a single qubit."""
 
-from typing import List, Union, Optional
 
 import lmfit
 import numpy as np
@@ -103,7 +102,7 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
 
     def __init__(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
     ):
 
         eqr_temps = {
@@ -155,7 +154,7 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
         self,
         user_opt: curve.FitOptions,
         curve_data: curve.ScatterTable,
-    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+    ) -> curve.FitOptions | list[curve.FitOptions]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:

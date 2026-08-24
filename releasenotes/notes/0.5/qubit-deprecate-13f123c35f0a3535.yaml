@@ -1,7 +1,0 @@
----
-deprecations:
-  - |
-    Experiment constructor arguments ``qubit`` and ``qubits`` have been renamed
-    ``physical_qubits``. For the ``qubit`` case, the argument type has changed
-    from an integer to a sequence with a single integer. For example,
-    ``FineXAmplitude(0)`` becomes ``FineXAmplitude([0])``.

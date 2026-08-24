@@ -12,20 +12,19 @@
 
 """Fine amplitude characterization experiment."""
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
-from qiskit_experiments.data_processing import DataProcessor, nodes
+
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
 
 
-class FineAmplitude(BaseExperiment, RestlessMixin):
+class FineAmplitude(BaseExperiment):
     r"""An experiment to determine the optimal pulse amplitude by amplifying gate errors.
 
     # section: overview
@@ -62,30 +61,43 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         in this case.
 
     # section: example
+        .. jupyter-execute::
+            :hide-code:
 
-        The steps to run a fine amplitude experiment are
+            # backend
+            from qiskit.circuit.library import RXGate
 
-        .. code-block:: python
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
 
-            qubit = 3
-            amp_cal = FineAmplitude([qubit], SXGate())
-            amp_cal.set_experiment_options(
-                angle_per_gate=np.pi/2,
-                phase_offset=np.pi
-            )
-            amp_cal.run(backend)
 
-        Note that there are subclasses of :class:`FineAmplitude` such as :class:`FineSXAmplitude`
-        that set the appropriate options for specific gates by default.
+            error = 0.05
+
+            x_error = coherent_unitary_error(RXGate(error).to_matrix())
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(x_error, ["x"])
+
+            backend = AerSimulator(noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit.circuit.library import XGate
+            from qiskit_experiments.library import FineAmplitude
+
+            exp = FineAmplitude(physical_qubits=(0,), gate=XGate(), backend=backend)
+            exp.analysis.set_options(fixed_parameters={"angle_per_gate" : np.pi, "phase_offset" : np.pi})
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: analysis_ref
         :class:`FineAmplitudeAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597
-
-    # section: manual
-        :ref:`fine-amplitude-cal`
 
     """
 
@@ -116,7 +128,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         self,
         physical_qubits: Sequence[int],
         gate: Gate,
-        backend: Optional[Backend] = None,
+        backend: Backend | None = None,
         measurement_qubits: Sequence[int] = None,
     ):
         """Setup a fine amplitude experiment on the given qubit.
@@ -137,7 +149,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         else:
             self._measurement_qubits = range(self.num_qubits)
 
-    def _spam_cal_circuits(self, meas_circuit: QuantumCircuit) -> List[QuantumCircuit]:
+    def _spam_cal_circuits(self, meas_circuit: QuantumCircuit) -> list[QuantumCircuit]:
         """This method returns the calibration circuits.
 
         Calibration circuits allow the experiment to overcome state preparation and
@@ -156,7 +168,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
             circ = QuantumCircuit(self.num_qubits, meas_circuit.num_clbits)
 
             if add_x:
-                qubits = meas_circuit.get_instructions("measure")[0][1]
+                qubits = meas_circuit.get_instructions("measure")[0].qubits
                 circ.x(qubits)
 
             circ.compose(meas_circuit, inplace=True)
@@ -193,14 +205,11 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
         return circuit
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Create the circuits for the fine amplitude calibration experiment.
 
         Returns:
             A list of circuits with a variable number of gates.
-
-        Raises:
-            CalibrationError: If the analysis options do not contain the angle_per_gate.
         """
         repetitions = self.experiment_options.get("repetitions")
 
@@ -251,9 +260,39 @@ class FineXAmplitude(FineAmplitude):
 
         :class:`FineXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
         the appropriate values for the default options.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit.circuit.library import RXGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            error = 0.05
+
+            x_error = coherent_unitary_error(RXGate(error).to_matrix())
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(x_error, ["x"])
+
+            backend = AerSimulator(noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library import FineXAmplitude
+
+            exp = FineXAmplitude(physical_qubits=(0,), backend=backend)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
-    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
+    def __init__(self, physical_qubits: Sequence[int], backend: Backend | None = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, XGate(), backend=backend)
         # Set default analysis options
@@ -289,9 +328,39 @@ class FineSXAmplitude(FineAmplitude):
 
         :class:`FineSXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
         the appropriate values for the default options.
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit.circuit.library import RXGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            error = 0.05
+
+            sx_error = coherent_unitary_error(RXGate(error).to_matrix())
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(sx_error, ["sx"])
+
+            backend = AerSimulator(noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library import FineSXAmplitude
+
+            exp = FineSXAmplitude(physical_qubits=(0,), backend=backend)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
-    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
+    def __init__(self, physical_qubits: Sequence[int], backend: Backend | None = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, SXGate(), backend=backend)
         # Set default analysis options
@@ -323,120 +392,3 @@ class FineSXAmplitude(FineAmplitude):
         options.repetitions = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
 
         return options
-
-
-class FineZXAmplitude(FineAmplitude):
-    r"""A fine amplitude experiment for the :code:`RZXGate(np.pi / 2)`.
-
-    # section: overview
-
-        :class:`FineZXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
-        the appropriate values for the default options to calibrate a :code:`RZXGate(np.pi / 2)`.
-
-    # section: example
-
-        To run this experiment, the user will have to provide the instruction schedule
-        map in the transpile options that contains the schedule for the experiment.
-
-        .. code-block:: python
-
-            qubits = (1, 2)
-            inst_map = InstructionScheduleMap()
-            inst_map.add("szx", qubits, my_schedule)
-
-            fine_amp = FineZXAmplitude(qubits, backend)
-            fine_amp.set_transpile_options(inst_map=inst_map)
-
-        Here, :code:`my_schedule` is the pulse schedule that will implement the
-        :code:`RZXGate(np.pi / 2)` rotation.
-    """
-
-    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
-        """Initialize the experiment."""
-
-        # We cannot use RZXGate since it has a parameter so we redefine the gate.
-        # Failing to do so causes issues with QuantumCircuit.calibrations.
-        gate = Gate("szx", 2, [])
-
-        super().__init__(
-            physical_qubits, gate, backend=backend, measurement_qubits=[physical_qubits[1]]
-        )
-        # Set default analysis options
-        self.analysis.set_options(
-            fixed_parameters={
-                "angle_per_gate": np.pi / 2,
-                "phase_offset": np.pi,
-            },
-            outcome="1",
-        )
-
-    @classmethod
-    def _default_experiment_options(cls) -> Options:
-        r"""Default values for the fine amplitude experiment.
-
-        Experiment Options:
-            add_cal_circuits (bool): If set to True then two circuits to calibrate 0 and 1 points
-                will be added. This option is set to False by default for ``FineZXAmplitude``
-                since the amplitude calibration can be achieved with two RZX gates and this is
-                included in the repetitions.
-            repetitions (List[int]): A list of the number of times that the gate is repeated.
-        """
-        options = super()._default_experiment_options()
-        options.add_cal_circuits = False
-        options.repetitions = [0, 1, 2, 3, 4, 5, 7, 9, 11, 13]
-        return options
-
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        """Default transpile options for the fine amplitude experiment.
-
-        Experiment Options:
-            basis_gates: Set to :code:`["szx"]`.
-            inst_map: The instruction schedule map that will contain the schedule for the
-                Rzx(pi/2) gate. This schedule should be stored under the instruction name
-                ``szx``.
-        """
-        options = super()._default_transpile_options()
-        options.basis_gates = ["szx"]
-        options.inst_map = None
-        return options
-
-    def enable_restless(
-        self,
-        rep_delay: Optional[float] = None,
-        override_processor_by_restless: bool = True,
-        suppress_t1_error: bool = False,
-    ):
-        """Enable restless measurements.
-
-        We wrap the method of the :class:`.RestlessMixin` to readout both qubits. This forces
-        the control qubit to be in either the 0 or 1 state before the next circuit starts
-        since restless measurements do not reset qubits.
-
-        Args:
-            rep_delay: The repetition delay. This is the delay between a measurement
-                and the subsequent quantum circuit. Since the backends have
-                dynamic repetition rates, the repetition delay can be set to a small
-                value which is required for restless experiments. Typical values are
-                1 us or less.
-            override_processor_by_restless: If False, a data processor that is specified in the
-                analysis options of the experiment is not overridden by the restless data
-                processor. The default is True.
-            suppress_t1_error: If True, the default is False, then no error will be raised when
-                ``rep_delay`` is larger than the T1 times of the qubits. Instead, a warning will
-                be logged as restless measurements may have a large amount of noise.
-        """
-        self.analysis.set_options(outcome="11")
-        super().enable_restless(rep_delay, override_processor_by_restless, suppress_t1_error)
-        self._measurement_qubits = range(self.num_qubits)
-
-    def _get_restless_processor(self, meas_level: int = 2) -> DataProcessor:
-        """Marginalize the counts after the restless shot reordering."""
-        return DataProcessor(
-            "memory",
-            [
-                nodes.RestlessToCounts(self._num_qubits),
-                nodes.MarginalizeCounts({1}),  # keep only the target.
-                nodes.Probability("1"),
-            ],
-        )

@@ -13,9 +13,9 @@ relaxation time of the qubit on the Bloch sphere as a result of both energy rela
 and pure dephasing in the transverse plane. Unlike :math:`T_2`, which is measured by
 :class:`.T2Hahn`, :math:`T_2^*` is sensitive to inhomogenous broadening.
 
-Since the detuning frequency is relatively small, we add a phase gate to the circuit to
-enable better measurement. The actual frequency measured is the sum of the detuning
-frequency and the user induced *oscillation frequency* (``osc_freq`` parameter).
+Since the detuning frequency is relatively small, we add a Z rotation gate to the circuit to
+emulate a larger frequency to enable better measurement. The actual frequency measured
+is the sum of the detuning frequency and the user induced *oscillation frequency* (``osc_freq`` parameter).
 
 .. jupyter-execute::
 
@@ -25,17 +25,17 @@ frequency and the user induced *oscillation frequency* (``osc_freq`` parameter).
 
 The circuits used for the experiment comprise the following steps:
 
-#. Hadamard gate
+#. SX gate
 #. Delay
 #. RZ gate that rotates the qubit in the x-y plane 
-#. Hadamard gate
+#. SX gate
 #. Measurement
 
 The user provides as input a series of delays (in seconds) and the
 oscillation frequency (in Hz). During the delay, we expect the qubit to
-precess about the z-axis. If the p gate and the precession offset each
+precess about the z-axis. If the rz gate and the precession offset each
 other perfectly, then the qubit will arrive at the
-:math:`\left|0\right\rangle` state (after the second Hadamard gate). By
+:math:`\left|0\right\rangle` state (after the second SX gate). By
 varying the extension of the delays, we get a series of oscillations of
 the qubit state between the :math:`\left|0\right\rangle` and
 :math:`\left|1\right\rangle` states. We can draw the graph of the
@@ -78,7 +78,7 @@ pure T1/T2 relaxation noise model.
     backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
 
 The resulting graph will have the form:
-:math:`f(t) = a^{-t/T_2*} \cdot \cos(2 \pi f t + \phi) + b` where *t* is
+:math:`f(t) = a e^{-t/T_2*} \cdot \cos(2 \pi f t + \phi) + b` where *t* is
 the delay, :math:`T_2^\ast` is the decay factor, and *f* is the detuning
 frequency.
 
@@ -98,8 +98,7 @@ frequency.
 .. jupyter-execute::
 
     # Print results
-    for result in expdata1.analysis_results():
-        print(result)
+    display(expdata1.analysis_results(dataframe=True))
 
 
 Providing initial user estimates
@@ -118,16 +117,13 @@ computed for other qubits.
 .. jupyter-execute::
 
     user_p0={
-        "A": 0.5,
-        "T2star": 20e-6,
-        "f": 110000,
+        "amp": 0.5,
+        "tau": 20e-6,
+        "freq": 110000,
         "phi": 0,
-        "B": 0.5
-            }
-    exp_with_p0 = T2Ramsey((qubit,), delays, osc_freq=1e5)
-    exp_with_p0.analysis.set_options(p0=user_p0)
-    exp_with_p0.set_transpile_options(scheduling_method='asap')
-    expdata_with_p0 = exp_with_p0.run(backend=backend, shots=2000, seed_simulator=101)
+        "base": 0.5
+    }
+    expdata_with_p0 = exp1.analysis.run(expdata1, p0=user_p0)
     expdata_with_p0.block_for_results()
     
     # Display fit figure
@@ -137,8 +133,7 @@ computed for other qubits.
 .. jupyter-execute::
 
     # Print results
-    for result in expdata_with_p0.analysis_results():
-        print(result)
+    display(expdata_with_p0.analysis_results(dataframe=True))
 
 
 See also

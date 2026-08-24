@@ -69,9 +69,6 @@ Data Processing Nodes
     BasisExpectationValue
     MinMaxNormalize
     ShotOrder
-    RestlessNode
-    RestlessToCounts
-    RestlessToIQ
 
 
 Discriminators
@@ -82,6 +79,15 @@ Discriminators
     BaseDiscriminator
     SkLDA
     SkQDA
+
+Mitigators
+==========
+.. autosummary::
+    :toctree: ../stubs/
+
+    BaseReadoutMitigator
+    LocalReadoutMitigator
+    CorrelatedReadoutMitigator
 """
 
 from .data_action import DataAction, TrainableDataAction
@@ -97,11 +103,11 @@ from .nodes import (
     BasisExpectationValue,
     MinMaxNormalize,
     ShotOrder,
-    RestlessNode,
-    RestlessToCounts,
-    RestlessToIQ,
 )
 
 from .data_processor import DataProcessor
 from .discriminator import BaseDiscriminator
+from .mitigation.base_readout_mitigator import BaseReadoutMitigator
+from .mitigation.correlated_readout_mitigator import CorrelatedReadoutMitigator
+from .mitigation.local_readout_mitigator import LocalReadoutMitigator
 from .sklearn_discriminators import SkLDA, SkQDA

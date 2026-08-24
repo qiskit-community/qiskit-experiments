@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 """A table-like dataset for analysis results."""
-from __future__ import annotations
 
 import re
 import threading

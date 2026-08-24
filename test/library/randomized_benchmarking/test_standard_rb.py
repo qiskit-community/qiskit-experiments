@@ -17,9 +17,7 @@ from test.base import QiskitExperimentsTestCase
 from test.library.randomized_benchmarking.mixin import RBTestMixin
 from ddt import ddt, data, unpack
 
-from qiskit.circuit.library import SXGate
 from qiskit.exceptions import QiskitError
-from qiskit.pulse import Schedule, InstructionScheduleMap
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
 from qiskit_ibm_runtime.fake_provider import FakeManilaV2
@@ -156,44 +154,14 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertNotEqual(circs1[1].decompose(), circs2[1].decompose())
         self.assertNotEqual(circs1[2].decompose(), circs2[2].decompose())
 
-    # ### Tests for transpiled circuit generation ###
-    def test_calibrations_via_transpile_options(self):
-        """Test if calibrations given as transpile_options show up in transpiled circuits."""
-        qubits = (2,)
-        my_sched = Schedule(name="custom_sx_gate")
-        my_inst_map = InstructionScheduleMap()
-        my_inst_map.add(SXGate(), qubits, my_sched)
-
-        exp = rb.StandardRB(
-            physical_qubits=qubits, lengths=[3], num_samples=4, backend=self.backend, seed=123
-        )
-        exp.set_transpile_options(inst_map=my_inst_map)
-        transpiled = exp._transpiled_circuits()
-        for qc in transpiled:
-            self.assertTrue(qc.calibrations)
-            self.assertTrue(qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in qubits], [])))
-            self.assertEqual(qc.calibrations["sx"][(qubits, tuple())], my_sched)
-
-    def test_calibrations_via_custom_backend(self):
-        """Test if calibrations given as custom backend show up in transpiled circuits."""
-        qubits = (2,)
-        my_sched = Schedule(name="custom_sx_gate")
-        my_backend = copy.deepcopy(self.backend)
-        my_backend.target["sx"][qubits].calibration = my_sched
-
-        exp = rb.StandardRB(physical_qubits=qubits, lengths=[3], num_samples=4, backend=my_backend)
-        transpiled = exp._transpiled_circuits()
-        for qc in transpiled:
-            self.assertTrue(qc.calibrations)
-            self.assertTrue(qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in qubits], [])))
-            self.assertEqual(qc.calibrations["sx"][(qubits, tuple())], my_sched)
-
     def test_backend_with_directed_basis_gates(self):
         """Test if correct circuits are generated from backend with directed basis gates."""
         my_backend = copy.deepcopy(self.backend)
         del my_backend.target["cx"][(1, 2)]  # make cx on {1, 2} one-sided
 
-        exp = rb.StandardRB(physical_qubits=(1, 2), lengths=[3], num_samples=4, backend=my_backend)
+        exp = rb.StandardRB(
+            physical_qubits=(1, 2), lengths=[3], num_samples=4, backend=my_backend, seed=123
+        )
         transpiled = exp._transpiled_circuits()
         for qc in transpiled:
             self.assertTrue(qc.count_ops().get("cx", 0) > 0)
@@ -263,7 +231,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         # The number of physical gate per Clifford will distribute
         # from 0 to 2, i.e. arbitrary U gate can be decomposed into up to 2 SX with RZs.
         # We may want to expect the average number of SX is (0 + 1 + 2) / 3 = 1.0.
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
 
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
@@ -288,7 +256,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CX gates, the expected
         # average number of CX gate per Clifford is 1.5.
         # Since this is two qubit RB, the dep-parameter is factored by 3/4.
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
         # Allow for 30 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.3 * epc_expected)
@@ -312,7 +280,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         # Arbitrary SU(8) can be decomposed with [0,...,7] CX gates, the expected
         # average number of CX gate per Clifford is 3.5.
         # Since this is three qubit RB, the dep-parameter is factored by 7/8.
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
         # Allow for 50 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 7 / 8 * self.p2q) ** 3.5
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
@@ -362,8 +330,8 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(expdata2)
 
         self.assertLess(
-            expdata2.analysis_results("EPC").value.s,
-            expdata1.analysis_results("EPC").value.s,
+            expdata2.analysis_results("EPC", dataframe=True).iloc[0].value.s,
+            expdata1.analysis_results("EPC", dataframe=True).iloc[0].value.s,
         )
 
     def test_poor_experiment_result(self):
@@ -429,7 +397,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(par_expdata)
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
         for i in range(2):
-            epc = par_expdata.child_data(i).analysis_results("EPC")
+            epc = par_expdata.child_data(i).analysis_results("EPC", dataframe=True).iloc[0]
             self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_two_qubit_parallel(self):
@@ -451,7 +419,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertExperimentDone(par_expdata)
         epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
         for i in range(2):
-            epc = par_expdata.child_data(i).analysis_results("EPC")
+            epc = par_expdata.child_data(i).analysis_results("EPC", dataframe=True).iloc[0]
             # Allow for 30 percent tolerance since we ignore 1q gate contribution
             self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.3 * epc_expected)
 
@@ -479,7 +447,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CZ gates, the expected
         # average number of CZ gate per Clifford is 1.5.
         # Since this is two qubit RB, the dep-parameter is factored by 3/4.
-        epc = expdata.analysis_results("EPC")
+        epc = expdata.analysis_results("EPC", dataframe=True).iloc[0]
 
         # Allow for 30 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 3 / 4 * self.pcz) ** 1.5

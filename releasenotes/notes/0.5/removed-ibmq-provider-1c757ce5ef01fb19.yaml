@@ -1,8 +1,0 @@
----
-upgrade:
-  - |
-    ``qiskit-ibmq-provider`` is deprecated and has been dropped as a requirement. Interactions
-    with IBM backends should use the :external+qiskit_ibm_provider:doc:`qiskit-ibm-provider <index>` package instead (must be installed
-    separately; see the 
-    `migration guide <https://github.com/Qiskit/qiskit-ibm-provider/blob/stable/0.6/docs/tutorials/Migration_Guide_from_qiskit-ibmq-provider.ipynb>`_
-    for more details).

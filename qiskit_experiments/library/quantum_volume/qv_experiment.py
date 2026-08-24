@@ -13,14 +13,15 @@
 Quantum Volume Experiment class.
 """
 
-from typing import Union, Sequence, Optional, List
+from collections.abc import Sequence
+import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit.utils.optionals import HAS_AER
 
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
+from qiskit.circuit.library import quantum_volume
 from qiskit import transpile
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
@@ -66,15 +67,38 @@ class QuantumVolume(BaseExperiment):
         .. ref_arxiv:: 1 1811.12926
         .. ref_arxiv:: 2 2008.08571
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakeSydneyV2
+            backend = AerSimulator.from_backend(FakeSydneyV2())
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.framework import BatchExperiment
+            from qiskit_experiments.library import QuantumVolume
+
+            qubits = tuple(range(4)) # Can use specific qubits. for example [2, 4, 7, 10]
+            qv_exp = QuantumVolume(qubits, seed=42)
+            qv_exp.set_transpile_options(optimization_level=3)
+            qv_exp.set_run_options(shots=1000)
+
+            expdata = qv_exp.run(backend=backend).block_for_results()
+            display(expdata.figure(0))
+
+            display(expdata.analysis_results(dataframe=True))
     """
 
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        backend: Optional[Backend] = None,
-        trials: Optional[int] = 100,
-        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-        simulation_backend: Optional[Backend] = None,
+        backend: Backend | None = None,
+        trials: int | None = 100,
+        seed: int | SeedSequence | BitGenerator | Generator | None = None,
+        simulation_backend: Backend | None = None,
     ):
         """Initialize a quantum volume experiment.
 
@@ -97,9 +121,9 @@ class QuantumVolume(BaseExperiment):
         self.set_experiment_options(trials=trials, seed=seed)
 
         if not simulation_backend and HAS_AER:
-            from qiskit_aer import Aer
+            from qiskit_aer import AerSimulator
 
-            self._simulation_backend = Aer.get_backend("aer_simulator")
+            self._simulation_backend = AerSimulator()
         else:
             self._simulation_backend = simulation_backend
 
@@ -122,37 +146,43 @@ class QuantumVolume(BaseExperiment):
 
         return options
 
-    def _get_ideal_data(self, circuit: QuantumCircuit, **run_options) -> List[float]:
+    def _get_ideal_data(self, circuits: list[QuantumCircuit], **run_options) -> list[list[float]]:
         """Return ideal measurement probabilities.
 
         In case the user does not have Aer installed, use Qiskit's quantum info module
         to calculate the ideal state.
 
         Args:
-            circuit: the circuit to extract the ideal data from
+            circuits: the circuits to extract the ideal data from
             run_options: backend run options.
 
         Returns:
-            list: list of the probabilities for each state in the circuit.
+            list: list of lists of the probabilities for each state in each circuit.
         """
-        ideal_circuit = circuit.remove_final_measurements(inplace=False)
+        # NOTE: this code used to process a single circuit at a time but
+        # AerSimulator() generates a backend object that regenerates its Target
+        # on the fly each time and the overhead of regenerating the target for
+        # each transpile call was significant.
         if self._simulation_backend:
-            ideal_circuit.save_probabilities()
+            circuits = [c.copy() for c in circuits]
+            for circuit in circuits:
+                circuit.save_probabilities()
             # always transpile with optimization_level 0, even if the non ideal circuits will run
             # with different optimization level, because we need to compare the results to the
             # exact generated probabilities
-            ideal_circuit = transpile(ideal_circuit, self._simulation_backend, optimization_level=0)
+            t_circuits = transpile(circuits, self._simulation_backend, optimization_level=0)
 
-            ideal_result = self._simulation_backend.run(ideal_circuit, **run_options).result()
-            probabilities = ideal_result.data().get("probabilities")
+            result = self._simulation_backend.run(t_circuits, **run_options).result()
+            probabilities = [
+                result.data(i).get("probabilities").tolist() for i, _ in enumerate(t_circuits)
+            ]
         else:
             from qiskit.quantum_info import Statevector
 
-            state_vector = Statevector(ideal_circuit)
-            probabilities = state_vector.probabilities()
-        return list(probabilities)
+            probabilities = [Statevector(c).probabilities().tolist() for c in circuits]
+        return probabilities
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Return a list of Quantum Volume circuits.
 
         Returns:
@@ -164,12 +194,20 @@ class QuantumVolume(BaseExperiment):
 
         # Note: the trials numbering in the metadata is starting from 1 for each new experiment run
         for trial in range(1, self.experiment_options.trials + 1):
-            qv_circ = QuantumVolumeCircuit(depth, depth, seed=rng)
-            qv_circ.measure_active()
+            # Maximum possible seed to send to quantum_volume()
+            # This is a workound that can be replaced with seed=rng once we
+            # drop support for qiskit<2.2
+            # See https://github.com/Qiskit/qiskit/pull/14586
+            max_value = np.iinfo(np.int64).max
+            qv_circ = quantum_volume(depth, depth, seed=rng.integers(max_value, dtype=np.int64))
             qv_circ.metadata = {
                 "depth": depth,
                 "trial": trial,
-                "ideal_probabilities": self._get_ideal_data(qv_circ),
             }
             circuits.append(qv_circ)
+        all_probs = self._get_ideal_data(circuits)
+        for qv_circ, probs in zip(circuits, all_probs):
+            qv_circ.measure_active()
+            qv_circ.metadata["ideal_probabilities"] = probs
+
         return circuits

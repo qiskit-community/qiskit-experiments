@@ -1,7 +1,0 @@
----
-fixes:
-  - |
-    :class:`.MockIQBackend` was refactored so that it does not import
-    ``qiskit_ibm_runtime`` since
-    :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>` is not a
-    required dependency of Qiskit Experiments.

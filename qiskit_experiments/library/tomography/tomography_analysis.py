@@ -14,7 +14,7 @@ Quantum process tomography analysis
 """
 
 
-from typing import List, Union, Callable
+from collections.abc import Callable
 from collections import defaultdict
 import numpy as np
 import scipy.linalg as la
@@ -25,7 +25,8 @@ from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, numpy_version
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
+from qiskit_experiments.framework.package_deps import version_is_at_least
 from .fitters import (
     tomography_fitter_data,
     postprocess_fitter,
@@ -137,7 +138,7 @@ class TomographyAnalysis(BaseAnalysis):
         return options
 
     @classmethod
-    def _get_fitter(cls, fitter: Union[str, Callable]) -> Callable:
+    def _get_fitter(cls, fitter: str | Callable) -> Callable:
         """Return fitter function for named builtin fitters"""
         if fitter is None:
             raise AnalysisError("No tomography fitter given")
@@ -246,7 +247,7 @@ class TomographyAnalysis(BaseAnalysis):
         shot_data: np.ndarray,
         measurement_data: np.ndarray,
         preparation_data: np.ndarray,
-        qpt: Union[bool, str, None] = "auto",
+        qpt: bool | str | None = "auto",
         **fitter_kwargs,
     ):
         """Fit state results from tomography data,"""
@@ -287,7 +288,7 @@ class TomographyAnalysis(BaseAnalysis):
         preparation_data: np.ndarray,
         qpt: bool = False,
         **fitter_kwargs,
-    ) -> List[AnalysisResultData]:
+    ) -> list[AnalysisResultData]:
         """Calculate fidelity result if a target has been set"""
         target = self.options.target
         if target is None:
@@ -311,7 +312,7 @@ class TomographyAnalysis(BaseAnalysis):
         bs_fidelities = []
         for _ in range(self.options.target_bootstrap_samples):
             # TODO: remove conditional once numpy is pinned at 1.22 and above
-            if numpy_version() >= (1, 22):
+            if version_is_at_least("numpy", "1.22"):
                 sampled_data = rng.multinomial(shot_data, prob_data)
             else:
                 sampled_data = np.zeros_like(outcome_data)
@@ -344,8 +345,8 @@ class TomographyAnalysis(BaseAnalysis):
 
     @staticmethod
     def _positivity_result(
-        state_results: List[AnalysisResultData], qpt: bool = False
-    ) -> List[AnalysisResultData]:
+        state_results: list[AnalysisResultData], qpt: bool = False
+    ) -> list[AnalysisResultData]:
         """Check if eigenvalues are positive"""
         total_cond = defaultdict(float)
         comps_cond = defaultdict(list)
@@ -383,9 +384,9 @@ class TomographyAnalysis(BaseAnalysis):
 
     @staticmethod
     def _tp_result(
-        state_results: List[AnalysisResultData],
+        state_results: list[AnalysisResultData],
         output_dim: int = 1,
-    ) -> List[AnalysisResultData]:
+    ) -> list[AnalysisResultData]:
         """Check if QPT channel is trace preserving"""
         # Construct the Kraus TP condition matrix sum_i K_i^dag K_i
         # summed over all components k
@@ -421,7 +422,7 @@ class TomographyAnalysis(BaseAnalysis):
     @staticmethod
     def _compute_fidelity(
         state_result: AnalysisResultData,
-        target: Union[Choi, DensityMatrix],
+        target: Choi | DensityMatrix,
         qpt: bool = False,
     ) -> AnalysisResultData:
         """Faster computation of fidelity from eigen decomposition"""

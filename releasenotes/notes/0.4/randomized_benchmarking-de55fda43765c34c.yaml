@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    Initial guess function for the randomized benchmarking analysis
-    :func:`~.guess.rb_decay` has been upgraded to give accurate estimate of the decay
-    function base.

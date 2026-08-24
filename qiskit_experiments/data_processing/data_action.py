@@ -14,7 +14,7 @@
 
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from typing import Dict, Any
+from typing import Any
 
 import numpy as np
 
@@ -65,7 +65,7 @@ class DataAction(ABC, StoreInitArgs):
         """
         return data
 
-    def __json_encode__(self) -> Dict[str, Any]:
+    def __json_encode__(self) -> dict[str, Any]:
         """Return the config dict for this node."""
         return {
             "cls": type(self),
@@ -74,7 +74,7 @@ class DataAction(ABC, StoreInitArgs):
         }
 
     @classmethod
-    def __json_decode__(cls, config: Dict[str, Any]) -> "DataAction":
+    def __json_decode__(cls, config: dict[str, Any]) -> "DataAction":
         """Initialize a node from config dict."""
         init_args = config.get("args", ())
         init_kwargs = config.get("kwargs", {})
@@ -171,7 +171,7 @@ class TrainableDataAction(DataAction):
                 data_processing.data_processor.DataProcessor#train` method.
         """
 
-    def __json_encode__(self) -> Dict[str, Any]:
+    def __json_encode__(self) -> dict[str, Any]:
         """Return the config dict for this node."""
         config = super().__json_encode__()
         config["params"] = self.parameters.__dict__
@@ -179,7 +179,7 @@ class TrainableDataAction(DataAction):
         return config
 
     @classmethod
-    def __json_decode__(cls, config: Dict[str, Any]) -> "TrainableDataAction":
+    def __json_decode__(cls, config: dict[str, Any]) -> "TrainableDataAction":
         """Initialize a node from config dict."""
         init_args = config.get("args", ())
         init_kwargs = config.get("kwargs", {})

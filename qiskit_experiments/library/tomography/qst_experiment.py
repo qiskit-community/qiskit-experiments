@@ -13,7 +13,7 @@
 Quantum State Tomography experiment
 """
 
-from typing import Union, Optional, List, Sequence
+from collections.abc import Sequence
 from qiskit.providers.backend import Backend
 from qiskit.circuit import QuantumCircuit, Instruction, Clbit
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -47,19 +47,49 @@ class StateTomography(TomographyExperiment):
     # section: manual
         :doc:`/manuals/verification/state_tomography`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+
+            backend = AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            from qiskit import QuantumCircuit
+            from qiskit_experiments.library import StateTomography
+            from qiskit.visualization import plot_state_city
+
+            nq = 2
+            qc_ghz = QuantumCircuit(nq)
+            qc_ghz.h(0)
+            qc_ghz.s(0)
+
+            for i in range(1, nq):
+                qc_ghz.cx(0, i)
+
+            qstexp = StateTomography(qc_ghz)
+            qstdata = qstexp.run(backend=backend,
+                                 shots=1000,
+                                 seed_simulator=100,).block_for_results()
+            state_result = qstdata.analysis_results("state", dataframe=True).iloc[0]
+            plot_state_city(state_result.value, title="Density Matrix")
     """
 
     def __init__(
         self,
-        circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
-        backend: Optional[Backend] = None,
-        physical_qubits: Optional[Sequence[int]] = None,
+        circuit: QuantumCircuit | Instruction | BaseOperator | Statevector,
+        backend: Backend | None = None,
+        physical_qubits: Sequence[int] | None = None,
         measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
-        measurement_indices: Optional[Sequence[int]] = None,
-        basis_indices: Optional[Sequence[List[int]]] = None,
-        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
-        analysis: Union[BaseAnalysis, None, str] = "default",
-        target: Union[Statevector, DensityMatrix, None, str] = "default",
+        measurement_indices: Sequence[int] | None = None,
+        basis_indices: Sequence[list[int]] | None = None,
+        conditional_circuit_clbits: bool | Sequence[int] | Sequence[Clbit] = False,
+        analysis: BaseAnalysis | None | str = "default",
+        target: Statevector | DensityMatrix | None | str = "default",
     ):
         """Initialize a quantum process tomography experiment.
 
@@ -121,7 +151,7 @@ class StateTomography(TomographyExperiment):
                 target = self._target_quantum_state()
             self.analysis.set_options(target=target)
 
-    def _target_quantum_state(self) -> Union[Statevector, DensityMatrix]:
+    def _target_quantum_state(self) -> Statevector | DensityMatrix:
         """Return the state tomography target"""
         # Check if circuit contains measure instructions
         # If so we cannot return target state

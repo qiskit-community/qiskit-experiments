@@ -1,4 +1,0 @@
----
-fixes_expdata:
-  - |
-    Fixed a bug in :class:`.ExperimentData` which caused experiment saves to the cloud service to fail when the metadata is large.

@@ -13,7 +13,6 @@
 Constrained convex least-squares tomography fitter.
 """
 
-from typing import Optional, Dict, Tuple, Union
 import time
 import numpy as np
 
@@ -22,7 +21,6 @@ from qiskit_experiments.library.tomography.basis import (
     PreparationBasis,
 )
 from . import cvxpy_utils
-from .cvxpy_utils import cvxpy
 from . import lstsq_utils
 from .fitter_data import _basis_dimensions
 
@@ -33,19 +31,19 @@ def cvxpy_linear_lstsq(
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: Optional[MeasurementBasis] = None,
-    preparation_basis: Optional[PreparationBasis] = None,
-    measurement_qubits: Optional[Tuple[int, ...]] = None,
-    preparation_qubits: Optional[Tuple[int, ...]] = None,
-    conditional_measurement_indices: Optional[Tuple[int, ...]] = None,
-    conditional_preparation_indices: Optional[Tuple[int, ...]] = None,
-    trace: Union[None, float, str] = "auto",
+    measurement_basis: MeasurementBasis | None = None,
+    preparation_basis: PreparationBasis | None = None,
+    measurement_qubits: tuple[int, ...] | None = None,
+    preparation_qubits: tuple[int, ...] | None = None,
+    conditional_measurement_indices: tuple[int, ...] | None = None,
+    conditional_preparation_indices: tuple[int, ...] | None = None,
+    trace: None | float | str = "auto",
     psd: bool = True,
-    trace_preserving: Union[None, bool, str] = "auto",
-    partial_trace: Optional[np.ndarray] = None,
-    weights: Optional[np.ndarray] = None,
+    trace_preserving: None | bool | str = "auto",
+    partial_trace: np.ndarray | None = None,
+    weights: np.ndarray | None = None,
     **kwargs,
-) -> Tuple[np.ndarray, Dict]:
+) -> tuple[np.ndarray, dict]:
     r"""Constrained weighted linear least-squares tomography fitter.
 
     Overview
@@ -136,6 +134,8 @@ def cvxpy_linear_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
+    import cvxpy
+
     t_start = time.time()
 
     if measurement_basis and measurement_qubits is None:
@@ -300,8 +300,8 @@ def cvxpy_linear_lstsq(
             idx = 0
             for i in range(num_circ_components):
                 for j in range(num_tomo_components):
-                    model = bms_r[idx] @ cvxpy.vec(rhos_r[idx]) - bms_i[idx] @ cvxpy.vec(
-                        rhos_i[idx]
+                    model = bms_r[idx] @ cvxpy.vec(rhos_r[idx], order="F") - bms_i[idx] @ cvxpy.vec(
+                        rhos_i[idx], order="F"
                     )
                     data = probability_data[i, j]
                     args.append(model - data)
@@ -355,19 +355,19 @@ def cvxpy_gaussian_lstsq(
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: Optional[MeasurementBasis] = None,
-    preparation_basis: Optional[PreparationBasis] = None,
-    measurement_qubits: Optional[Tuple[int, ...]] = None,
-    preparation_qubits: Optional[Tuple[int, ...]] = None,
-    conditional_measurement_indices: Optional[Tuple[int, ...]] = None,
-    trace: Union[None, float, str] = "auto",
+    measurement_basis: MeasurementBasis | None = None,
+    preparation_basis: PreparationBasis | None = None,
+    measurement_qubits: tuple[int, ...] | None = None,
+    preparation_qubits: tuple[int, ...] | None = None,
+    conditional_measurement_indices: tuple[int, ...] | None = None,
+    trace: None | float | str = "auto",
     psd: bool = True,
-    trace_preserving: Union[None, bool, str] = "auto",
-    partial_trace: Optional[np.ndarray] = None,
-    outcome_prior: Union[np.ndarray, int] = 0.5,
+    trace_preserving: None | bool | str = "auto",
+    partial_trace: np.ndarray | None = None,
+    outcome_prior: np.ndarray | int = 0.5,
     max_weight: float = 1e10,
     **kwargs,
-) -> Dict:
+) -> dict:
     r"""Constrained Gaussian linear least-squares tomography fitter.
 
     .. note::

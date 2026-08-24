@@ -1,9 +1,0 @@
----
-deprecations:
-  - |
-    :attr:`.BackendData.is_simulator` has been deprecated.
-    :class:`~qiskit.providers.BackendV2` does not provide a standard interface
-    for determining if a backend uses a simulator. Calling code must determine
-    if a backend uses a simulator through some other means. Qiskit Experiments
-    does not treat simulator-backed backends differently from hardware backed
-    ones.

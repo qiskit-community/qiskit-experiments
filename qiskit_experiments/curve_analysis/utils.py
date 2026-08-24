@@ -12,20 +12,19 @@
 
 """Utils in curve analysis."""
 
-from typing import Union, Optional, List, Dict, Tuple, Callable
+from collections.abc import Callable
 import time
 
 import asteval
 import lmfit
 import numpy as np
 import pandas as pd
-from qiskit.utils.deprecation import deprecate_func
 from qiskit.utils import detach_prefix
 from uncertainties import UFloat, wrap as wrap_function
 from uncertainties import unumpy
 
 from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
-from qiskit_experiments.exceptions import AnalysisError, QiskitError
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import AnalysisResultData
 
 
@@ -33,9 +32,9 @@ UNUMPY_FUNCS = {fn: getattr(unumpy, fn) for fn in unumpy.__all__}
 
 
 def is_error_not_significant(
-    val: Union[float, UFloat],
+    val: float | UFloat,
     fraction: float = 1.0,
-    absolute: Optional[float] = None,
+    absolute: float | None = None,
 ) -> bool:
     """Check if the standard error of given value is not significant.
 
@@ -101,9 +100,9 @@ def analysis_result_to_repr(result: AnalysisResultData) -> str:
         if result.value.std_dev is not None and np.isfinite(result.value.std_dev):
             s_repr, s_unit = _format_val(result.value.std_dev)
             if n_unit == s_unit:
-                value_repr = f" {n_repr} \u00B1 {s_repr}{n_unit}"
+                value_repr = f" {n_repr} \u00b1 {s_repr}{n_unit}"
             else:
-                value_repr = f" {n_repr + n_unit} \u00B1 {s_repr + s_unit}"
+                value_repr = f" {n_repr + n_unit} \u00b1 {s_repr + s_unit}"
         else:
             value_repr = n_repr + n_unit
 
@@ -112,7 +111,7 @@ def analysis_result_to_repr(result: AnalysisResultData) -> str:
 
 def convert_lmfit_result(
     result: lmfit.minimizer.MinimizerResult,
-    models: List[lmfit.Model],
+    models: list[lmfit.Model],
     xdata: np.ndarray,
     ydata: np.ndarray,
     residuals: np.ndarray,
@@ -180,7 +179,7 @@ def convert_lmfit_result(
 def eval_with_uncertainties(
     x: np.ndarray,
     model: lmfit.Model,
-    params: Dict[str, UFloat],
+    params: dict[str, UFloat],
 ) -> np.ndarray:
     """Compute Y values with error propagation.
 
@@ -232,7 +231,7 @@ def shot_weighted_average(
     yvals: np.ndarray,
     yerrs: np.ndarray,
     shots: np.ndarray,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """Compute shot based variance and weighted average of the categorized data frame.
 
     Sample is weighted by the shot number.
@@ -265,7 +264,7 @@ def inverse_weighted_variance(
     yvals: np.ndarray,
     yerrs: np.ndarray,
     shots: np.ndarray,
-) -> Tuple[float, float, int]:
+) -> tuple[float, float, int]:
     """Compute inverse weighted variance and weighted average of the categorized data frame.
 
     Sample is weighted by the inverse of the data variance.
@@ -296,7 +295,7 @@ def sample_average(
     yvals: np.ndarray,
     yerrs: np.ndarray,
     shots: np.ndarray,
-) -> Tuple[float, float, int]:
+) -> tuple[float, float, int]:
     """Compute sample based variance and average of the categorized data frame.
 
     Original variance of the data is ignored and variance is computed with the y values.
@@ -320,273 +319,7 @@ def sample_average(
     return avg_yval, avg_yerr, total_shots
 
 
-@deprecate_func(
-    since="0.6",
-    additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
-    package_name="qiskit-experiments",
-    pending=True,
-)
-def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
-    """Return the list of filtered data
-
-    Args:
-        data: list of data dicts.
-        filters: kwargs for filtering based on metadata
-                 values.
-
-    Returns:
-        The list of filtered data. If no filters are provided this will be the
-        input list.
-    """
-    if not filters:
-        return data
-    filtered_data = []
-    for datum in data:
-        include = True
-        metadata = datum["metadata"]
-        for key, val in filters.items():
-            if key not in metadata or metadata[key] != val:
-                include = False
-                break
-        if include:
-            filtered_data.append(datum)
-    return filtered_data
-
-
-@deprecate_func(
-    since="0.6",
-    additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
-    package_name="qiskit-experiments",
-    pending=True,
-)
-def mean_xy_data(
-    xdata: np.ndarray,
-    ydata: np.ndarray,
-    sigma: Optional[np.ndarray] = None,
-    shots: Optional[np.ndarray] = None,
-    method: str = "sample",
-) -> Tuple[np.ndarray, ...]:
-    r"""Return (x, y_mean, sigma) data.
-
-    The mean is taken over all :math:`y` data values with the same :math:`x` data value using
-    the specified method. For each :math:`x` the mean :math:`\overline{y}` and variance
-    :math:`\sigma^2` are computed as
-
-    * ``"sample"`` (default): *Sample mean and variance*
-
-      * :math:`\overline{y} = \sum_{i=1}^N y_i / N`,
-
-      * :math:`\sigma^2 = \sum_{i=1}^N ((\overline{y} - y_i)^2) / N`
-
-    * ``"iwv"``: *Inverse-weighted variance*
-
-      * :math:`\overline{y} = (\sum_{i=1}^N y_i / \sigma_i^2 ) \sigma^2`
-      * :math:`\sigma^2 = 1 / (\sum_{i=1}^N 1 / \sigma_i^2)`
-
-    * ``"shots_weighted_variance"``: *Sample mean and variance with weights from shots*
-
-      * :math:`\overline{y} = \sum_{i=1}^N n_i y_i / M`,
-
-      * :math:`\sigma^2 = \sum_{i=1}^N (n_i \sigma_i / M)^2`,
-        where :math:`n_i` is the number of shots per data point and :math:`M = \sum_{i=1}^N n_i`
-        is a total number of shots from different circuit execution at the same :math:`x` value.
-        If ``shots`` is not provided, this applies uniform weights to all values.
-
-    Args:
-        xdata: 1D or 2D array of xdata from curve_fit_data or
-            multi_curve_fit_data
-        ydata: array of ydata returned from curve_fit_data or
-            multi_curve_fit_data
-        sigma: Optional, array of standard deviations in ydata.
-        shots: Optional, array of shots used to get a data point.
-        method: The method to use for computing y means and
-            standard deviations sigma (default: "sample").
-
-    Returns:
-        tuple: ``(x, y_mean, sigma, shots)``, where ``x`` is an arrays of unique
-        x-values, ``y`` is an array of sample mean y-values, ``sigma`` is an array of
-        sample standard deviation of y values, and ``shots`` are the total number of
-        experiment shots used to evaluate the data point. If ``shots`` in the function
-        call is ``None``, the numbers appear in the returned value will represent just a
-        number of duplicated x value entries.
-
-    Raises:
-        QiskitError: If the "ivw" method is used without providing a sigma.
-    """
-    x_means = np.unique(xdata, axis=0)
-    y_means = np.zeros(x_means.size)
-    y_sigmas = np.zeros(x_means.size)
-    y_shots = np.zeros(x_means.size)
-
-    if shots is None or any(np.isnan(shots)):
-        # this will become standard average
-        shots = np.ones_like(xdata)
-
-    # Sample mean and variance method
-    if method == "sample":
-        for i in range(x_means.size):
-            # Get positions of y to average
-            idxs = xdata == x_means[i]
-            ys = ydata[idxs]
-            ns = shots[idxs]
-
-            # Compute sample mean and sample standard error of the mean
-            y_means[i] = np.mean(ys)
-            y_sigmas[i] = np.sqrt(np.mean((y_means[i] - ys) ** 2) / ys.size)
-            y_shots[i] = np.sum(ns)
-
-        return x_means, y_means, y_sigmas, y_shots
-
-    # Inverse-weighted variance method
-    if method == "iwv":
-        if sigma is None:
-            raise QiskitError(
-                "The inverse-weighted variance method cannot be used with `sigma=None`"
-            )
-        for i in range(x_means.size):
-            # Get positions of y to average
-            idxs = xdata == x_means[i]
-            ys = ydata[idxs]
-            ns = shots[idxs]
-
-            # Compute the inverse-variance weighted y mean and variance
-            weights = 1 / sigma[idxs] ** 2
-            y_var = 1 / np.sum(weights)
-            y_means[i] = y_var * np.sum(weights * ys)
-            y_sigmas[i] = np.sqrt(y_var)
-            y_shots[i] = np.sum(ns)
-
-        return x_means, y_means, y_sigmas, y_shots
-
-    # Quadrature sum of variance
-    if method == "shots_weighted":
-        for i in range(x_means.size):
-            # Get positions of y to average
-            idxs = xdata == x_means[i]
-            ys = ydata[idxs]
-            ss = sigma[idxs]
-            ns = shots[idxs]
-            weights = ns / np.sum(ns)
-
-            # Compute sample mean and sum of variance with weights based on shots
-            y_means[i] = np.sum(weights * ys)
-            y_sigmas[i] = np.sqrt(np.sum(weights**2 * ss**2))
-            y_shots[i] = np.sum(ns)
-
-        return x_means, y_means, y_sigmas, y_shots
-
-    # Invalid method
-    raise QiskitError(f"Unsupported method {method}")
-
-
-@deprecate_func(
-    since="0.6",
-    additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
-    package_name="qiskit-experiments",
-    pending=True,
-)
-def multi_mean_xy_data(
-    series: np.ndarray,
-    xdata: np.ndarray,
-    ydata: np.ndarray,
-    sigma: Optional[np.ndarray] = None,
-    shots: Optional[np.ndarray] = None,
-    method: str = "sample",
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Take mean of multi series data set. See :func:`.mean_xy_data`.
-
-    Args:
-        series: Series index.
-        xdata: 1D or 2D array of xdata from curve_fit_data or
-               multi_curve_fit_data
-        ydata: array of ydata returned from curve_fit_data or
-               multi_curve_fit_data
-        sigma: Optional, array of standard deviations in ydata.
-        shots: Optional, array of shots used to get a data point.
-        method: The method to use for computing y means and
-                standard deviations sigma (default: "sample").
-
-    Returns:
-        Tuple of ``(series, xdata, ydata, sigma, shots)``.
-
-    """
-    series_vals = np.unique(series)
-
-    series_means = []
-    xdata_means = []
-    ydata_means = []
-    sigma_means = []
-    shots_sums = []
-
-    # Get x, y, sigma data for series and process mean data
-    for series_val in series_vals:
-        idxs = series == series_val
-        sigma_i = sigma[idxs] if sigma is not None else None
-        shots_i = shots[idxs] if shots is not None else None
-
-        x_mean, y_mean, sigma_mean, shots_sum = mean_xy_data(
-            xdata[idxs], ydata[idxs], sigma=sigma_i, shots=shots_i, method=method
-        )
-        series_means.append(np.full(x_mean.size, series_val, dtype=int))
-        xdata_means.append(x_mean)
-        ydata_means.append(y_mean)
-        sigma_means.append(sigma_mean)
-        shots_sums.append(shots_sum)
-
-    # Concatenate lists
-    return (
-        np.concatenate(series_means),
-        np.concatenate(xdata_means),
-        np.concatenate(ydata_means),
-        np.concatenate(sigma_means),
-        np.concatenate(shots_sums),
-    )
-
-
-@deprecate_func(
-    since="0.6",
-    additional_msg="The curve data representation has been replaced by the `DataFrame` format.",
-    package_name="qiskit-experiments",
-    pending=True,
-)
-def data_sort(
-    series: np.ndarray,
-    xdata: np.ndarray,
-    ydata: np.ndarray,
-    sigma: Optional[np.ndarray] = None,
-    shots: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Sort data.
-
-    Input x values may not be lined up in order, since experiment may accept user input array,
-    or data may be concatenated with previous scan. This sometimes confuses the algorithmic
-    generation of initial guesses especially when guess depends on derivative.
-
-    This returns data set that is sorted by xdata and series in ascending order.
-
-    Args:
-        series: Series index.
-        xdata: 1D or 2D array of xdata.
-        ydata: Array of ydata.
-        sigma: Optional, array of standard deviations in ydata.
-        shots: Optional, array of shots used to get a data point.
-
-    Returns:
-        Tuple of (series, xdata, ydata, sigma, shots) sorted in ascending order of xdata
-        and series.
-    """
-    if sigma is None:
-        sigma = np.full(series.size, np.nan, dtype=float)
-
-    if shots is None:
-        shots = np.full(series.size, np.nan, dtype=float)
-
-    sorted_data = sorted(zip(series, xdata, ydata, sigma, shots), key=lambda d: (d[0], d[1]))
-
-    return np.asarray(sorted_data).T
-
-
-def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float, float]:
+def level2_probability(data: dict[str, any], outcome: str) -> tuple[float, float]:
     """Return the outcome probability mean and variance.
 
     Args:

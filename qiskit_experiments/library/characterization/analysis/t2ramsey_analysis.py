@@ -12,7 +12,6 @@
 """
 T2Ramsey Experiment class.
 """
-from typing import Union
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import Options
 
@@ -37,7 +36,7 @@ class T2RamseyAnalysis(curve.DampedOscillationAnalysis):
 
         return options
 
-    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> str | None:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:

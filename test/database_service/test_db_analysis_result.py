@@ -14,7 +14,6 @@
 
 """Test AnalysisResult."""
 from test.base import QiskitExperimentsTestCase
-from unittest import mock
 import json
 
 import math
@@ -22,10 +21,16 @@ from ddt import ddt, data
 import numpy as np
 import uncertainties
 
-from qiskit_ibm_experiment import IBMExperimentService, ExperimentData
 from qiskit_experiments.framework import AnalysisResult
-from qiskit_experiments.database_service.device_component import Qubit, Resonator, to_component
-from qiskit_experiments.database_service.exceptions import ExperimentDataError
+from qiskit_experiments.database_service import (
+    DbExperimentData,
+    ExperimentDataError,
+    LocalExperimentService,
+    Qubit,
+    Resonator,
+    ResultQuality,
+    to_component,
+)
 
 
 @ddt
@@ -39,28 +44,31 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
             "device_components": [Qubit(1), Qubit(2)],
             "experiment_id": "1234",
             "result_id": "5678",
-            "quality": "Good",
+            "quality": "good",
             "verified": False,
         }
         result = AnalysisResult(value={"foo": "bar"}, tags=["tag1", "tag2"], **attrs)
         self.assertEqual({"foo": "bar"}, result.value)
         self.assertEqual(["tag1", "tag2"], result.tags)
         for key, val in attrs.items():
+            if key == "quality":
+                val = ResultQuality.from_str(val)
             self.assertEqual(val, getattr(result, key))
 
     def test_save(self):
         """Test saving analysis result."""
-        mock_service = mock.create_autospec(IBMExperimentService)
+        service = LocalExperimentService()
         result = self._new_analysis_result()
-        result.service = mock_service
+        result.service = service
+        service.create_or_update_experiment(DbExperimentData(experiment_id=result.experiment_id))
         result.save()
-        mock_service.create_or_update_analysis_result.assert_called_once()
+        service.analysis_result(result.result_id)
 
     def test_load(self):
         """Test loading analysis result."""
-        service = IBMExperimentService(local=True, local_save=False)
+        service = LocalExperimentService()
         result = self._new_analysis_result()
-        service.create_experiment(ExperimentData(experiment_id=result.experiment_id))
+        service.create_or_update_experiment(DbExperimentData(experiment_id=result.experiment_id))
         result.service = service
         result.save()
         loaded_result = AnalysisResult.load(result_id=result.result_id, service=service)
@@ -69,40 +77,37 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
 
     def test_auto_save(self):
         """Test auto saving."""
-        mock_service = mock.create_autospec(IBMExperimentService)
-        result = self._new_analysis_result(service=mock_service)
+        service = LocalExperimentService()
+        result = self._new_analysis_result(service=service)
+        service.create_or_update_experiment(DbExperimentData(experiment_id=result.experiment_id))
         result.auto_save = True
-        mock_service.reset_mock()  # since setting auto_save = True initiated save
 
-        subtests = [
-            # update function, update parameters, service called
-            (setattr, (result, "tags", ["foo"])),
-            (setattr, (result, "value", {"foo": "bar"})),
-            (setattr, (result, "quality", "GOOD")),
-            (setattr, (result, "verified", True)),
-        ]
+        result.tags = ["foo"]
+        result.value = {"foo": "bar"}
+        result.quality = ResultQuality.GOOD
+        result.verified = True
 
-        for func, params in subtests:
-            with self.subTest(func=func):
-                func(*params)
-                mock_service.create_or_update_analysis_result.assert_called_once()
-                mock_service.reset_mock()
+        loaded_result = AnalysisResult.load(result.result_id, service)
+        self.assertEqual(result.tags, loaded_result.tags)
+        self.assertEqual(result.value, loaded_result.value)
+        self.assertEqual(result.quality, loaded_result.quality)
+        self.assertEqual(result.verified, loaded_result.verified)
 
     def test_set_service_init(self):
         """Test setting service in init."""
-        mock_service = mock.create_autospec(IBMExperimentService)
-        result = self._new_analysis_result(service=mock_service)
-        self.assertEqual(mock_service, result.service)
+        service = LocalExperimentService()
+        result = self._new_analysis_result(service=service)
+        self.assertEqual(service, result.service)
 
     def test_set_service_direct(self):
         """Test setting service directly."""
-        mock_service = mock.create_autospec(IBMExperimentService)
+        service = LocalExperimentService()
         result = self._new_analysis_result()
-        result.service = mock_service
-        self.assertEqual(mock_service, result.service)
+        result.service = service
+        self.assertEqual(service, result.service)
 
         with self.assertRaises(ExperimentDataError):
-            result.service = mock_service
+            result.service = service
 
     def test_set_data(self):
         """Test setting data."""

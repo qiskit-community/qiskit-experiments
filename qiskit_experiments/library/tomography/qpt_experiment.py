@@ -13,7 +13,7 @@
 Quantum Process Tomography experiment
 """
 
-from typing import Union, Optional, List, Tuple, Sequence
+from collections.abc import Sequence
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Instruction, Clbit
 from qiskit.providers.backend import Backend
@@ -46,21 +46,66 @@ class ProcessTomography(TomographyExperiment):
     # section: analysis_ref
         :class:`ProcessTomographyAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_aer import AerSimulator
+            from qiskit_ibm_runtime.fake_provider import FakePerth
+
+            backend = AerSimulator.from_backend(FakePerth())
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit import QuantumCircuit
+            from qiskit_experiments.library import ProcessTomography
+
+            num_qubits = 2
+            qc_ghz = QuantumCircuit(num_qubits)
+            qc_ghz.h(0)
+            qc_ghz.s(0)
+
+            for i in range(1, num_qubits):
+                qc_ghz.cx(0, i)
+
+            qptexp = ProcessTomography(qc_ghz)
+            qptdata = qptexp.run(backend=backend,
+                                 shots=1000,
+                                 seed_simulator=100,).block_for_results()
+            choi_out = qptdata.analysis_results("state", dataframe=True).iloc[0].value
+
+            # extracting a densitymatrix from choi_out
+            from qiskit.visualization import plot_state_city
+            import qiskit.quantum_info as qinfo
+
+            _rho_exp_00 = np.array([[None, None, None, None],
+                                    [None, None, None, None],
+                                    [None, None, None, None],
+                                    [None, None, None, None]])
+
+            for i in range(4):
+                for j in range(4):
+                    _rho_exp_00[i][j] = choi_out.data[i][j]
+
+            rho_exp_00 = qinfo.DensityMatrix(_rho_exp_00)
+            display(plot_state_city(rho_exp_00, title="Density Matrix"))
     """
 
     def __init__(
         self,
-        circuit: Union[QuantumCircuit, Instruction, BaseOperator],
-        backend: Optional[Backend] = None,
-        physical_qubits: Optional[Sequence[int]] = None,
+        circuit: QuantumCircuit | Instruction | BaseOperator,
+        backend: Backend | None = None,
+        physical_qubits: Sequence[int] | None = None,
         measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
-        measurement_indices: Optional[Sequence[int]] = None,
+        measurement_indices: Sequence[int] | None = None,
         preparation_basis: basis.PreparationBasis = basis.PauliPreparationBasis(),
-        preparation_indices: Optional[Sequence[int]] = None,
-        basis_indices: Optional[Sequence[Tuple[List[int], List[int]]]] = None,
-        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
-        analysis: Union[BaseAnalysis, None, str] = "default",
-        target: Union[Statevector, DensityMatrix, None, str] = "default",
+        preparation_indices: Sequence[int] | None = None,
+        basis_indices: Sequence[tuple[list[int], list[int]]] | None = None,
+        conditional_circuit_clbits: bool | Sequence[int] | Sequence[Clbit] = False,
+        analysis: BaseAnalysis | None | str = "default",
+        target: Statevector | DensityMatrix | None | str = "default",
     ):
         """Initialize a quantum process tomography experiment.
 
@@ -120,7 +165,7 @@ class ProcessTomography(TomographyExperiment):
                 target = self._target_quantum_channel()
             self.analysis.set_options(target=target)
 
-    def _target_quantum_channel(self) -> Union[Choi, Operator]:
+    def _target_quantum_channel(self) -> Choi | Operator:
         """Return the process tomography target"""
         # Check if circuit contains measure instructions
         # If so we cannot return target state

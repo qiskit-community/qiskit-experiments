@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    The initial guess function :func:`exp_decay`, which estimates an exponent of the 
-    decay curve by taking the natural logarithm of the y values, has been updated to 
-    handle exceptions when some y values are negative.

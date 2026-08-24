@@ -51,8 +51,7 @@ following pseudo-code illustrates the typical workflow in Qiskit Experiments for
     exp_data.save()
 
     # View analysis results
-    for result in exp_data.analysis_results():
-        print(result)
+    print(exp_data.analysis_results(dataframe=True))
 
 The experiment class contains information for generating circuits and analysis
 of results. These can typically be configured with a variety of options.
@@ -93,6 +92,14 @@ Experiment Data Classes
     ExperimentDecoder
     ArtifactData
     FigureData
+    Provider
+    BaseProvider
+    ExperimentService
+    Job
+    BaseJob
+    ExtendedJob
+    MeasLevel
+    MeasReturnType
 
 .. _composite-experiment:
 
@@ -104,7 +111,9 @@ Composite Experiment Classes
 
     CompositeExperiment
     ParallelExperiment
+    BasicExperiment
     BatchExperiment
+    TiledExperiment
     CompositeAnalysis
 
 Base Classes
@@ -124,7 +133,20 @@ Experiment Configuration Helper Classes
 
     BackendData
     BackendTiming
-    RestlessMixin
+
+Backend Partition Utilities
+****************************
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    build_coupling_graph
+    build_distance_graph
+    build_line_graph
+    partition_nodes
+    partition_edges
+    partition_qubits
+    partition_qubit_pairs
 
 """
 from qiskit.providers.options import Options
@@ -140,6 +162,18 @@ from qiskit_experiments.framework.containers import (
     FigureData,
     FigureType,
 )
+from .provider_interfaces import (
+    BaseJob,
+    BaseProvider,
+    ExperimentService,
+    ExtendedJob,
+    Job,
+    MeasLevel,
+    MeasReturnType,
+    Provider,
+    __local_type_aliases__ as _provider_type_aliases,
+)
+
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
 from .backend_timing import BackendTiming
@@ -152,7 +186,24 @@ from .composite import (
     BatchExperiment,
     CompositeExperiment,
     CompositeAnalysis,
+    BasicExperiment,
+    TiledExperiment,
+)
+from .backend_partition import (
+    build_coupling_graph,
+    build_distance_graph,
+    build_line_graph,
+    partition_nodes,
+    partition_edges,
+    partition_qubits,
+    partition_qubit_pairs,
 )
 from .json import ExperimentEncoder, ExperimentDecoder
-from .restless_mixin import RestlessMixin
-from .package_deps import numpy_version
+
+
+def _promote_type_aliases(module_name: str, alias_dict: dict[str, str]):
+    """Helper to promote type aliases to fully qualified names for convert_type_alias_docstrings"""
+    return {f"{module_name}.{name}": value for name, value in alias_dict.items()}
+
+
+__type_aliases__ = _promote_type_aliases(__name__, _provider_type_aliases)

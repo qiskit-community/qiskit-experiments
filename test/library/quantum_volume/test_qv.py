@@ -25,6 +25,7 @@ from qiskit_aer import AerSimulator
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import QuantumVolume
 from qiskit_experiments.framework import ExperimentDecoder
+from qiskit_experiments.framework.package_deps import version_is_at_least
 
 SEED = 42
 
@@ -88,10 +89,15 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         )
         # compare to pre-calculated probabilities
         dir_name = os.path.dirname(os.path.abspath(__file__))
-        probabilities_json_file = "qv_ideal_probabilities.json"
-        with open(
-            os.path.join(dir_name, probabilities_json_file), "r", encoding="utf-8"
-        ) as json_file:
+        if version_is_at_least("qiskit", "2.0"):
+            probabilities_json_file = "qv_ideal_probabilities_qiskit_2_0.json"
+        elif version_is_at_least("qiskit", "1.3"):
+            probabilities_json_file = "qv_ideal_probabilities_qiskit_1_3.json"
+        elif version_is_at_least("qiskit", "1.1"):
+            probabilities_json_file = "qv_ideal_probabilities_qiskit_1_1.json"
+        else:
+            probabilities_json_file = "qv_ideal_probabilities.json"
+        with open(os.path.join(dir_name, probabilities_json_file), encoding="utf-8") as json_file:
             probabilities = json.load(json_file, cls=ExperimentDecoder)
         self.assertTrue(
             matrix_equal(simulation_probabilities, probabilities),
@@ -114,16 +120,16 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             expdata1 = qv_exp.run(backend)
             self.assertExperimentDone(expdata1)
 
-            result_data1 = expdata1.analysis_results("mean_HOP")
+            result_data1 = expdata1.analysis_results("mean_HOP", dataframe=True).iloc[0]
             expdata2 = qv_exp.run(backend, analysis=None)
             self.assertExperimentDone(expdata2)
             expdata2.add_data(expdata1.data())
             qv_exp.analysis.run(expdata2)
-            result_data2 = expdata2.analysis_results("mean_HOP")
+            result_data2 = expdata2.analysis_results("mean_HOP", dataframe=True).iloc[0]
 
-        self.assertTrue(result_data1.extra["trials"] == 2, "number of trials is incorrect")
+        self.assertTrue(result_data1["trials"] == 2, "number of trials is incorrect")
         self.assertTrue(
-            result_data2.extra["trials"] == 4,
+            result_data2["trials"] == 4,
             "number of trials is incorrect after adding more trials",
         )
         self.assertTrue(
@@ -139,7 +145,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_trials_json_file = "qv_data_70_trials.json"
         with open(
-            os.path.join(dir_name, insufficient_trials_json_file), "r", encoding="utf-8"
+            os.path.join(dir_name, insufficient_trials_json_file), encoding="utf-8"
         ) as json_file:
             insufficient_trials_data = json.load(json_file, cls=ExperimentDecoder)
 
@@ -152,9 +158,9 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
 
         with self.assertWarns(UserWarning):
             qv_exp.analysis.run(exp_data)
-            qv_result = exp_data.analysis_results("quantum_volume")
+            qv_result = exp_data.analysis_results("quantum_volume", dataframe=True).iloc[0]
         self.assertTrue(
-            qv_result.extra["success"] is False and qv_result.value == 1,
+            qv_result["success"] is False and qv_result.value == 1,
             "quantum volume is successful with less than 100 trials",
         )
 
@@ -166,7 +172,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_hop_json_file = "qv_data_high_noise.json"
         with open(
-            os.path.join(dir_name, insufficient_hop_json_file), "r", encoding="utf-8"
+            os.path.join(dir_name, insufficient_hop_json_file), encoding="utf-8"
         ) as json_file:
             insufficient_hop_data = json.load(json_file, cls=ExperimentDecoder)
 
@@ -178,9 +184,9 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         exp_data.add_data(insufficient_hop_data)
 
         qv_exp.analysis.run(exp_data)
-        qv_result = exp_data.analysis_results("quantum_volume")
+        qv_result = exp_data.analysis_results("quantum_volume", dataframe=True).iloc[0]
         self.assertTrue(
-            qv_result.extra["success"] is False and qv_result.value == 1,
+            qv_result["success"] is False and qv_result.value == 1,
             "quantum volume is successful with heavy output probability less than 2/3",
         )
 
@@ -193,7 +199,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_confidence_json = "qv_data_moderate_noise_100_trials.json"
         with open(
-            os.path.join(dir_name, insufficient_confidence_json), "r", encoding="utf-8"
+            os.path.join(dir_name, insufficient_confidence_json), encoding="utf-8"
         ) as json_file:
             insufficient_confidence_data = json.load(json_file, cls=ExperimentDecoder)
 
@@ -205,9 +211,9 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         exp_data.add_data(insufficient_confidence_data)
 
         qv_exp.analysis.run(exp_data)
-        qv_result = exp_data.analysis_results("quantum_volume")
+        qv_result = exp_data.analysis_results("quantum_volume", dataframe=True).iloc[0]
         self.assertTrue(
-            qv_result.extra["success"] is False and qv_result.value == 1,
+            qv_result["success"] is False and qv_result.value == 1,
             "quantum volume is successful with insufficient confidence",
         )
 
@@ -218,7 +224,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         """
         dir_name = os.path.dirname(os.path.abspath(__file__))
         successful_json_file = "qv_data_moderate_noise_300_trials.json"
-        with open(os.path.join(dir_name, successful_json_file), "r", encoding="utf-8") as json_file:
+        with open(os.path.join(dir_name, successful_json_file), encoding="utf-8") as json_file:
             successful_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
@@ -229,42 +235,37 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         exp_data.add_data(successful_data)
 
         qv_exp.analysis.run(exp_data)
+        results = exp_data.analysis_results(dataframe=True)
+
         results_json_file = "qv_result_moderate_noise_300_trials.json"
-        with open(os.path.join(dir_name, results_json_file), "r", encoding="utf-8") as json_file:
+        with open(os.path.join(dir_name, results_json_file), encoding="utf-8") as json_file:
             successful_results = json.load(json_file, cls=ExperimentDecoder)
 
-        results = exp_data.analysis_results()
-        for result, reference in zip(results, successful_results):
-            if isinstance(result.value, UFloat):
-                # ufloat is distinguished by object id. so usually not identical to cache.
-                self.assertTupleEqual(
-                    (result.value.n, result.value.s),
-                    (reference["value"].n, reference["value"].s),
-                    "result value is not the same as precalculated analysis",
-                )
-            else:
-                self.assertEqual(
-                    result.value,
-                    reference["value"],
-                    "result value is not the same as precalculated analysis",
-                )
-            self.assertEqual(
-                result.name,
-                reference["name"],
-                "result name is not the same as precalculated analysis",
-            )
-            for key, value in reference["extra"].items():
-                if isinstance(value, float):
+        for result in results.itertuples():
+            reference = next(r for r in successful_results if r["name"] == result.name)
+            for field in result._fields:
+                # Ignore index since it is randomly generated for each analysis result
+                if field == "Index":
+                    continue
+                value = getattr(result, field)
+                if isinstance(value, UFloat):
+                    # ufloat is distinguished by object id. so usually not identical to cache.
+                    self.assertTupleEqual(
+                        (value.n, value.s),
+                        (reference[field].n, reference[field].s),
+                        "result value is not the same as precalculated analysis",
+                    )
+                elif isinstance(value, float):
                     self.assertAlmostEqual(
-                        result.extra[key],
                         value,
-                        msg="result " + str(key) + " is not the same as the "
-                        "pre-calculated analysis",
+                        reference[field],
+                        msg=f"result {field} is not the same as the pre-calculated analysis",
                     )
                 else:
-                    self.assertTrue(
-                        result.extra[key] == value,
-                        "result " + str(key) + " is not the same as the " "pre-calculated analysis",
+                    self.assertEqual(
+                        value,
+                        reference[field],
+                        "result value is not the same as precalculated analysis",
                     )
 
     def test_experiment_config(self):

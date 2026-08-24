@@ -14,7 +14,7 @@ T2HahnBackend class.
 Temporary backend to be used for t2hahn experiment
 """
 import copy
-from typing import List, Optional, Sequence, Union
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -70,6 +70,7 @@ class QubitDrift(TransformationPass):
 
             if node.name == "delay":
                 q0 = qubit_indices[node.qargs[0]]
+                duration = 0
                 if self.qubit_frequencies[q0] is None:
                     continue
                 if node.op.unit == "dt":
@@ -90,19 +91,18 @@ class T2HahnBackend(BackendV2):
 
     def __init__(
         self,
-        t2hahn: Union[float, Sequence[float]] = float("inf"),
-        frequency: Union[float, Sequence[float]] = 0.0,
-        initialization_error: Union[float, Sequence[float]] = 0.0,
-        readout0to1: Union[float, Sequence[float]] = 0.0,
-        readout1to0: Union[float, Sequence[float]] = 0.0,
+        t2hahn: float | Sequence[float] = float("inf"),
+        frequency: float | Sequence[float] = 0.0,
+        initialization_error: float | Sequence[float] = 0.0,
+        readout0to1: float | Sequence[float] = 0.0,
+        readout1to0: float | Sequence[float] = 0.0,
         seed: int = 9000,
         dt: float = 1 / 4.5e9,
-        num_qubits: Optional[int] = None,
+        num_qubits: int | None = None,
     ):
         """
         Initialize the T2Hahn backend
         """
-
         super().__init__(
             name="T2Hahn_simulator",
             backend_version="0",
@@ -156,7 +156,7 @@ class T2HahnBackend(BackendV2):
         return Options()
 
     def run(
-        self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], shots: int = 1024, **options
+        self, run_input: QuantumCircuit | list[QuantumCircuit], shots: int = 1024, **options
     ) -> Job:
         passes = []
 
@@ -197,6 +197,6 @@ class T2HahnBackend(BackendV2):
 
         sim = AerSimulator(noise_model=noise_model, seed_simulator=self._seed)
 
-        job = sim.run(new_circuits, shots=shots)
+        job = sim.run(new_circuits, shots=shots, **options)
 
         return FakeJob(self, job.result())

@@ -12,7 +12,6 @@
 """
 Interleaved RB analysis class.
 """
-from typing import List, Union
 
 import lmfit
 import numpy as np
@@ -121,7 +120,7 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         self,
         user_opt: curve.FitOptions,
         curve_data: curve.ScatterTable,
-    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+    ) -> curve.FitOptions | list[curve.FitOptions]:
         """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
@@ -143,12 +142,26 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         # for standard RB curve
         std_curve = curve_data.filter(series="standard")
         alpha_std = curve.guess.rb_decay(std_curve.x, std_curve.y, b=b_guess)
-        a_std = (std_curve.y[0] - b_guess) / (alpha_std ** std_curve.x[0])
+        if alpha_std < 0.6:
+            # Don't account for decay in estimating a if decay appears to be
+            # very strong
+            a_std = std_curve.y[0] - b_guess
+        else:
+            a_std = (std_curve.y[0] - b_guess) / (alpha_std ** std_curve.x[0])
+        # Make sure a is in the default (0, 1) bounds
+        a_std = max(0, a_std)
 
         # for interleaved RB curve
         int_curve = curve_data.filter(series="interleaved")
         alpha_int = curve.guess.rb_decay(int_curve.x, int_curve.y, b=b_guess)
-        a_int = (int_curve.y[0] - b_guess) / (alpha_int ** int_curve.x[0])
+        if alpha_int < 0.6:
+            # Don't account for decay in estimating a if decay appears to be
+            # very strong
+            a_int = int_curve.y[0] - b_guess
+        else:
+            a_int = (int_curve.y[0] - b_guess) / (alpha_int ** int_curve.x[0])
+        # Make sure a is in the default (0, 1) bounds
+        a_int = max(0, a_int)
 
         alpha_c = min(alpha_int / alpha_std, 1.0)
 
@@ -166,7 +179,7 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         fit_data: curve.CurveFitResult,
         quality: str,
         **metadata,
-    ) -> List[AnalysisResultData]:
+    ) -> list[AnalysisResultData]:
         """Create analysis results for important fit parameters.
 
         Args:

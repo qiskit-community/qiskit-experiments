@@ -12,8 +12,6 @@
 """
 Parallel Experiment class.
 """
-from typing import List, Optional
-import warnings
 import numpy as np
 
 from qiskit import QuantumCircuit, ClassicalRegister
@@ -45,11 +43,11 @@ class ParallelExperiment(CompositeExperiment):
 
     def __init__(
         self,
-        experiments: List[BaseExperiment],
-        backend: Optional[Backend] = None,
-        flatten_results: bool = None,
-        analysis: Optional[CompositeAnalysis] = None,
-        experiment_type: Optional[str] = None,
+        experiments: list[BaseExperiment],
+        backend: Backend | None = None,
+        flatten_results: bool = True,
+        analysis: CompositeAnalysis | None = None,
+        experiment_type: str | None = None,
     ):
         """Initialize the analysis object.
 
@@ -66,16 +64,6 @@ class ParallelExperiment(CompositeExperiment):
                       provided this will be initialized automatically from the
                       supplied experiments.
         """
-        if flatten_results is None:
-            # Backward compatibility for 0.6
-            # This if-clause will be removed in 0.7 and flatten_result=True is set in arguments.
-            warnings.warn(
-                "Default value of flatten_results will be turned to True in Qiskit Experiments 0.7. "
-                "If you want child experiment data for each subset experiment, "
-                "set 'flatten_results=False' explicitly.",
-                DeprecationWarning,
-            )
-            flatten_results = False
         qubits = []
         for exp in experiments:
             qubits += exp.physical_qubits
@@ -94,20 +82,29 @@ class ParallelExperiment(CompositeExperiment):
     def _transpiled_circuits(self):
         return self._combined_circuits(device_layout=True)
 
-    def _combined_circuits(self, device_layout: bool) -> List[QuantumCircuit]:
+    def _combined_circuits(self, device_layout: bool) -> list[QuantumCircuit]:
         """Generate combined parallel circuits from transpiled subcircuits."""
         if not device_layout:
             # Num qubits will be computed from sub experiments
             num_qubits = len(self.physical_qubits)
         else:
-            # Work around for backend coupling map circuit inflation
+            # Expand the number of qubits similar to how qiskit.transpile does
+            # Here we progress from most to least specific way of specifying
+            # the number of qubits: coupling_map->target->backend
+            #
+            # TODO: Behave more like a layout transpiler pass and set the
+            # _layout property on the circuits. Doing this requires accessing
+            # private attributes of Qiskit or possibly running a layout pass of
+            # the transpiler if that can be done without too much overhead.
+            num_qubits = 1 + max(self.physical_qubits)
             coupling_map = getattr(self.transpile_options, "coupling_map", None)
-            if coupling_map is None and self.backend:
-                coupling_map = self._backend_data.coupling_map
+            target = getattr(self.transpile_options, "target", None)
             if coupling_map is not None:
-                num_qubits = 1 + max(*self.physical_qubits, np.max(coupling_map))
-            else:
-                num_qubits = 1 + max(self.physical_qubits)
+                num_qubits = max(num_qubits, 1 + np.max(coupling_map))
+            elif target is not None:
+                num_qubits = max(num_qubits, target.num_qubits)
+            elif self.backend:
+                num_qubits = max(num_qubits, self._backend_data.num_qubits)
 
         joint_circuits = []
         sub_qubits = 0
@@ -153,7 +150,10 @@ class ParallelExperiment(CompositeExperiment):
                 # Apply transpiled subcircuit
                 # Note that this assumes the circuit was not expanded to use
                 # any qubits outside the specified physical qubits
-                for inst, qargs, cargs in sub_circ.data:
+                for data in sub_circ.data:
+                    inst = data.operation
+                    qargs = data.qubits
+                    cargs = data.clbits
                     mapped_cargs = [sub_cargs[sub_circ.find_bit(i).index] for i in cargs]
                     try:
                         mapped_qargs = [
@@ -180,10 +180,5 @@ class ParallelExperiment(CompositeExperiment):
                 circuit.metadata["composite_metadata"].append(sub_circ.metadata)
                 circuit.metadata["composite_qubits"].append(qubits)
                 circuit.metadata["composite_clbits"].append(clbits)
-
-                # Add the calibrations
-                for gate, cals in sub_circ.calibrations.items():
-                    for key, sched in cals.items():
-                        circuit.add_calibration(gate, qubits=key[0], schedule=sched, params=key[1])
 
         return joint_circuits

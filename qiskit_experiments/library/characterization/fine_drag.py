@@ -12,7 +12,7 @@
 
 """Fine DRAG characterization experiment."""
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -20,11 +20,10 @@ from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.curve_analysis.standard_analysis import ErrorAmplificationAnalysis
 
 
-class FineDrag(BaseExperiment, RestlessMixin):
+class FineDrag(BaseExperiment):
     r"""An experiment that performs fine characterizations of DRAG pulse coefficients.
 
     # section: overview
@@ -127,6 +126,45 @@ class FineDrag(BaseExperiment, RestlessMixin):
     # section: analysis_ref
         :class:`.ErrorAmplificationAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from math import pi
+
+            from scipy.linalg import expm
+
+            from qiskit.circuit.library import RXGate, XGate, ZGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            err = 0.01 * pi / 4
+            x_with_err = expm(-1j * 1 / 2 * (pi / 2 * XGate().to_matrix() + err * ZGate().to_matrix()))
+
+            err_mat = x_with_err @ RXGate(-pi/2).to_matrix()
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(
+                coherent_unitary_error(err_mat),
+                ["x"],
+            )
+
+            backend = AerSimulator(noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            from qiskit.circuit.library import XGate
+            from qiskit_experiments.library.characterization import FineDrag
+
+            exp = FineDrag(physical_qubits=(0,), gate=XGate(), backend=backend)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
+
     # section: reference
         .. ref_arxiv:: 1 1612.00858
         .. ref_arxiv:: 2 1011.1949
@@ -139,19 +177,15 @@ class FineDrag(BaseExperiment, RestlessMixin):
         Experiment Options:
             repetitions (List[int]): A list of the number of times that Rp - Rm gate sequence
                 is repeated.
-            schedule (ScheduleBlock): The schedule for the plus rotation.
             gate (Gate): This is the gate such as XGate() that will be in the circuits.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(20))
-        options.schedule = None
         options.gate = None
 
         return options
 
-    def __init__(
-        self, physical_qubits: Sequence[int], gate: Gate, backend: Optional[Backend] = None
-    ):
+    def __init__(self, physical_qubits: Sequence[int], gate: Gate, backend: Backend | None = None):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
@@ -188,14 +222,13 @@ class FineDrag(BaseExperiment, RestlessMixin):
         circ.sx(0)
         return circ
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Create the circuits for the fine DRAG calibration experiment.
 
         Returns:
-            A list of circuits with a variable number of gates. Each gate has the same
-            pulse schedule.
+            A list of circuits with a variable number of gates.
         """
-        schedule, circuits = self.experiment_options.schedule, []
+        circuits = []
 
         for repetition in self.experiment_options.repetitions:
             circuit = self._pre_circuit()
@@ -209,14 +242,6 @@ class FineDrag(BaseExperiment, RestlessMixin):
             circuit.compose(self._post_circuit(), inplace=True)
 
             circuit.measure_all()
-
-            if schedule is not None:
-                circuit.add_calibration(
-                    self.experiment_options.gate.name,
-                    self.physical_qubits,
-                    schedule,
-                    params=[],
-                )
 
             circuit.metadata = {"xval": repetition}
 
@@ -235,9 +260,60 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
 
 class FineXDrag(FineDrag):
-    """Class to fine characterize the DRAG parameter of an X gate."""
+    """Class to fine characterize the DRAG parameter of an X gate.
 
-    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from math import pi
+
+            from scipy.linalg import expm
+
+            from qiskit.circuit.library import RXGate, XGate, ZGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+            from qiskit_experiments.library import FineXDrag
+
+
+            err = 0.01 * pi / 4
+
+            # To first order in err this can be just
+            # x_with_err = expm(1j * 1/2 * (pi * XGate().to_matrix() - err * ZGate().to_matrix()))
+            # The (pi**2 - err**2)**0.5 is to keep the total rotation exactly pi, but
+            # keeping the full `X` gate might be more correct.
+            # The question is what matches best with the way the qubit is
+            # measured when `X` is calibrated first by Rabi drives
+            # that are being applied with some `Z` component. What `X` component
+            # matches the observed periodicity?
+            rot_matrix = ((pi**2 - err**2)**0.5 * XGate().to_matrix() + err * ZGate().to_matrix())
+            x_with_err = expm(-1j * 1/2 * rot_matrix)
+
+            err_mat = x_with_err @ RXGate(-pi).to_matrix()
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(
+                coherent_unitary_error(err_mat),
+                ["x"],
+            )
+
+            backend = AerSimulator(noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import FineXDrag
+
+            exp = FineXDrag(physical_qubits=(0,), backend=backend)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
+    """
+
+    def __init__(self, physical_qubits: Sequence[int], backend: Backend | None = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, XGate(), backend=backend)
 
@@ -260,9 +336,48 @@ class FineXDrag(FineDrag):
 
 
 class FineSXDrag(FineDrag):
-    """Class to fine characterize the DRAG parameter of an :math:`SX` gate."""
+    """Class to fine characterize the DRAG parameter of an :math:`SX` gate.
 
-    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from math import pi
+
+            from scipy.linalg import expm
+
+            from qiskit.circuit.library import RXGate, XGate, ZGate
+
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel, coherent_unitary_error
+
+
+            err = 0.01 * pi / 4
+            x_with_err = expm(-1j * 1 / 2 * (pi / 2 * XGate().to_matrix() + err * ZGate().to_matrix()))
+
+            err_mat = x_with_err @ RXGate(-pi/2).to_matrix()
+
+            noise_model = NoiseModel()
+            noise_model.add_all_qubit_quantum_error(
+                coherent_unitary_error(err_mat),
+                ["sx"],
+            )
+
+            backend = AerSimulator(noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.library.characterization import FineSXDrag
+
+            exp = FineSXDrag(physical_qubits=(0,), backend=backend)
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
+    """
+
+    def __init__(self, physical_qubits: Sequence[int], backend: Backend | None = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, SXGate(), backend=backend)
 

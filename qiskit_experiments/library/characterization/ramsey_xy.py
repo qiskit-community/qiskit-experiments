@@ -11,19 +11,17 @@
 # that they have been altered from the originals.
 
 """Ramsey XY frequency characterization experiment."""
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Parameter
 from qiskit.providers.backend import Backend
-from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.framework import BaseExperiment, Options, BackendTiming
-from qiskit_experiments.framework.restless_mixin import RestlessMixin
+from qiskit_experiments.framework import BaseExperiment, MeasLevel, Options, BackendTiming
 from qiskit_experiments.library.characterization.analysis import RamseyXYAnalysis
 
 
-class RamseyXY(BaseExperiment, RestlessMixin):
+class RamseyXY(BaseExperiment):
     r"""A sign-sensitive experiment to measure the frequency of a qubit.
 
     # section: overview
@@ -80,6 +78,28 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
     # section: analysis_ref
         :class:`RamseyXYAnalysis`
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test import T2HahnBackend
+
+            # AerSimulator can not mimic a freqeuncy offset
+            backend = T2HahnBackend(frequency=1e5)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            from qiskit_experiments.library.characterization import RamseyXY
+
+            delays = np.linspace(0, 10.e-7, 21)
+            exp = RamseyXY((0,), backend=backend, delays=delays, osc_freq=2.0e6)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
     """
 
     @classmethod
@@ -100,8 +120,8 @@ class RamseyXY(BaseExperiment, RestlessMixin):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        backend: Optional[Backend] = None,
-        delays: Optional[List] = None,
+        backend: Backend | None = None,
+        delays: list | None = None,
         osc_freq: float = 2e6,
     ):
         """Create new experiment.
@@ -128,7 +148,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         """
         return QuantumCircuit(1)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Create the circuits for the Ramsey XY characterization experiment.
 
         Returns:

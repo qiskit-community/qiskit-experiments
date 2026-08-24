@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    :meth:`.ExperimentData.save` should now fail gracefully when experiment metadata failed to save instead of crashing.
-  - |
-    The link to the experiment entry in the database service shown after saving is now by default obtained from the service, not hard-coded.

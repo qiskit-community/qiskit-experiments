@@ -15,10 +15,13 @@ Test T1 experiment
 
 from test.base import QiskitExperimentsTestCase
 import numpy as np
-from qiskit.qobj.utils import MeasLevel
+from qiskit.circuit import Delay, Parameter
+from qiskit.circuit.library import CXGate, Measure, RXGate
+from qiskit.providers.fake_provider import GenericBackendV2
+from qiskit.transpiler import InstructionProperties, Target
 from qiskit_ibm_runtime.fake_provider import FakeAthensV2
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
-from qiskit_experiments.framework import ExperimentData, ParallelExperiment
+from qiskit_experiments.framework import ExperimentData, MeasLevel, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis, T1KerneledAnalysis
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend, MockIQParallelBackend
@@ -45,10 +48,10 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
         self.assertRoundTripSerializable(exp_data)
         self.assertRoundTripPickle(exp_data)
-        res = exp_data.analysis_results("T1")
+        res = exp_data.analysis_results("T1", dataframe=True).iloc[0]
         self.assertEqual(res.quality, "good")
         self.assertAlmostEqual(res.value.n, t1, delta=3)
-        self.assertEqual(res.extra["unit"], "s")
+        self.assertEqual(res["unit"], "s")
 
     def test_t1_measurement_level_1(self):
         """
@@ -90,10 +93,10 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertRoundTripSerializable(expdata0)
         self.assertRoundTripPickle(expdata0)
 
-        res = expdata0.analysis_results("T1")
+        res = expdata0.analysis_results("T1", dataframe=True).iloc[0]
         self.assertEqual(res.quality, "good")
         self.assertAlmostEqual(res.value.n, t1, delta=3)
-        self.assertEqual(res.extra["unit"], "s")
+        self.assertEqual(res["unit"], "s")
 
     def test_t1_parallel(self):
         """
@@ -118,7 +121,7 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertExperimentDone(res)
 
         for i, qb in enumerate(quantum_bit):
-            sub_res = res.child_data(i).analysis_results("T1")
+            sub_res = res.child_data(i).analysis_results("T1", dataframe=True).iloc[0]
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
 
@@ -183,7 +186,7 @@ class TestT1(QiskitExperimentsTestCase):
 
         # Checking analysis
         for i, t1 in enumerate(t1s):
-            sub_res = res.child_data(i).analysis_results("T1")
+            sub_res = res.child_data(i).analysis_results("T1", dataframe=True).iloc[0]
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1, delta=3)
 
@@ -206,7 +209,7 @@ class TestT1(QiskitExperimentsTestCase):
             )
 
         experiment_data = T1Analysis().run(data, plot=False)
-        result = experiment_data.analysis_results("T1")
+        result = experiment_data.analysis_results("T1", dataframe=True).iloc[0]
 
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(result.value.nominal_value, 25e-9, delta=3)
@@ -243,28 +246,39 @@ class TestT1(QiskitExperimentsTestCase):
             )
 
         experiment_data = T1Analysis().run(data, plot=False)
-        result = experiment_data.analysis_results("T1")
+        result = experiment_data.analysis_results("T1", dataframe=True).iloc[0]
         self.assertEqual(result.quality, "bad")
 
     def test_t1_parallel_exp_transpile(self):
         """Test parallel transpile options for T1 experiment"""
         num_qubits = 5
-        instruction_durations = []
-        for i in range(num_qubits):
-            instruction_durations += [
-                ("rx", [i], (i + 1) * 10, "ns"),
-                ("measure", [i], (i + 1) * 1000, "ns"),
-            ]
-        coupling_map = [[i - 1, i] for i in range(1, num_qubits)]
-        basis_gates = ["rx", "delay"]
+        target = Target(num_qubits=num_qubits)
+        target.add_instruction(
+            RXGate(Parameter("t")),
+            properties={
+                (i,): InstructionProperties(duration=(i + 1) * 10e-9) for i in range(num_qubits)
+            },
+        )
+        target.add_instruction(
+            Measure(),
+            properties={
+                (i,): InstructionProperties(duration=(i + 1) * 1e-6) for i in range(num_qubits)
+            },
+        )
+        target.add_instruction(
+            Delay(Parameter("t")),
+            properties={(i,): None for i in range(num_qubits)},
+        )
+        target.add_instruction(
+            CXGate(),
+            properties={(i - 1, i): None for i in range(1, num_qubits)},
+        )
 
         exp1 = T1([1], delays=[50e-9, 100e-9, 160e-9])
         exp2 = T1([3], delays=[40e-9, 80e-9, 190e-9])
         parexp = ParallelExperiment([exp1, exp2], flatten_results=False)
         parexp.set_transpile_options(
-            basis_gates=basis_gates,
-            instruction_durations=instruction_durations,
-            coupling_map=coupling_map,
+            target=target,
             scheduling_method="alap",
         )
 
@@ -296,7 +310,8 @@ class TestT1(QiskitExperimentsTestCase):
 
     def test_circuit_roundtrip_serializable(self):
         """Test circuit round trip JSON serialization"""
-        exp = T1([0], [1, 2, 3, 4, 5])
+        backend = GenericBackendV2(num_qubits=2)
+        exp = T1([0], [1, 2, 3, 4, 5], backend=backend)
         self.assertRoundTripSerializable(exp._transpiled_circuits())
 
     def test_analysis_config(self):

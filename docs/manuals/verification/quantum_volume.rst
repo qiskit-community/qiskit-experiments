@@ -25,9 +25,9 @@ probability` > 2/3 with confidence level > 0.977 (corresponding to
 z_value = 2), and at least 100 trials have been ran.
 
 .. note::
-    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>` and :external+qiskit_ibm_runtime:doc:`qiskit-ibm-runtime <index>`
-    packages to run simulations.  You can install them with ``python -m pip
-    install qiskit-aer qiskit-ibm-runtime``.
+    This tutorial requires the :external+qiskit_aer:doc:`qiskit-aer <index>`
+    package to run simulations.  You can install it with ``python -m pip
+    install qiskit-aer``.
 
 .. jupyter-execute::
 
@@ -36,9 +36,13 @@ z_value = 2), and at least 100 trials have been ran.
     
     # For simulation
     from qiskit_aer import AerSimulator
-    from qiskit_ibm_runtime.fake_provider import FakeSydneyV2
-    
-    backend = AerSimulator.from_backend(FakeSydneyV2())
+    from qiskit_aer.noise import NoiseModel, depolarizing_error
+
+    noise_model = NoiseModel()
+    noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-4, 1), ["sx", "x"])
+    noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])
+    noise_model.add_all_qubit_quantum_error(depolarizing_error(1e-2, 2), ["cx"])
+    backend = AerSimulator(noise_model=noise_model, seed_simulator=42)
 
 QV experiment
 -------------
@@ -70,7 +74,7 @@ The analysis results of the QV Experiment are:
 
 -  The mean heavy-output probabilities (HOP) and standard deviation
 
--  The calculated quantum volume, which will be None if the experiment
+-  The calculated quantum volume, which will be 1 if the experiment
    does not pass the threshold
 
 Extra data included in the analysis results includes
@@ -100,17 +104,7 @@ Extra data included in the analysis results includes
     # View result data
     display(expdata.figure(0))
     
-    for result in expdata.analysis_results():
-        print(result)
-
-
-.. jupyter-execute::
-
-    # Print extra data
-    for result in expdata.analysis_results():
-        print(f"\n{result.name} extra:")
-        for key, val in result.extra.items():
-            print(f"- {key}: {val}")
+    display(expdata.analysis_results(dataframe=True))
 
 
 Adding trials
@@ -124,15 +118,14 @@ re-running the experiment.
 
 .. jupyter-execute::
 
-    qv_exp.set_experiment_options(trials=60)
+    qv_exp.set_experiment_options(trials=10)
     expdata2 = qv_exp.run(backend, analysis=None).block_for_results()
     expdata2.add_data(expdata.data())
     qv_exp.analysis.run(expdata2).block_for_results()
     
     # View result data
     display(expdata2.figure(0))
-    for result in expdata2.analysis_results():
-        print(result)
+    display(expdata2.analysis_results(dataframe=True))
 
 
 Calculating Quantum Volume using a batch experiment
@@ -145,7 +138,7 @@ enhancements might be required (See Ref. [2]_ for details).
 
 .. jupyter-execute::
 
-    exps = [QuantumVolume(tuple(range(i)), trials=200) for i in range(3, 6)]
+    exps = [QuantumVolume(tuple(range(i))) for i in range(3, 5)]
 
     batch_exp = BatchExperiment(exps)
     batch_exp.set_transpile_options(optimization_level=3)
@@ -157,10 +150,7 @@ Extracting the maximum Quantum Volume.
 
 .. jupyter-execute::
 
-    qv_values = [
-        batch_expdata.child_data(i).analysis_results("quantum_volume").value
-        for i in range(batch_exp.num_experiments)
-    ]
+    qv_values = batch_expdata.analysis_results("quantum_volume", dataframe=True).value.tolist()
     
     print(f"Max quantum volume is: {max(qv_values)}")
 
@@ -169,10 +159,8 @@ Extracting the maximum Quantum Volume.
 
     for i in range(batch_exp.num_experiments):
         print(f"\nComponent experiment {i}")
-        sub_data = batch_expdata.child_data(i)
-        display(sub_data.figure(0))
-        for result in sub_data.analysis_results():
-            print(result)
+        display(batch_expdata.figure(i))
+    display(batch_expdata.analysis_results(dataframe=True))
 
 References
 ----------

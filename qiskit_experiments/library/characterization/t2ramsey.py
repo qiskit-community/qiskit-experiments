@@ -14,7 +14,7 @@ T2Ramsey Experiment class.
 
 """
 
-from typing import List, Union, Optional, Sequence
+from collections.abc import Sequence
 import numpy as np
 
 import qiskit
@@ -42,11 +42,11 @@ class T2Ramsey(BaseExperiment):
 
         .. parsed-literal::
 
-                 ┌───┐┌──────────────┐┌──────┐ ░ ┌───┐ ░ ┌─┐
-            q_0: ┤ H ├┤   DELAY(t)   ├┤ P(λ) ├─░─┤ H ├─░─┤M├
-                 └───┘└──────────────┘└──────┘ ░ └───┘ ░ └╥┘
-            c: 1/═════════════════════════════════════════╩═
-                                                        0
+                 ┌────┐┌──────────┐┌───────┐┌────┐┌─┐
+              q: ┤ √X ├┤ Delay(t) ├┤ Rz(λ) ├┤ √X ├┤M├
+                 └────┘└──────────┘└───────┘└────┘└╥┘
+            c: 1/══════════════════════════════════╩═
+                                                   0
 
         for each *t* from the specified delay times, where
         :math:`\lambda =2 \pi \times {osc\_freq}`,
@@ -58,6 +58,36 @@ class T2Ramsey(BaseExperiment):
 
     # section: analysis_ref
         :class:`T2RamseyAnalysis`
+
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_ibm_runtime.fake_provider import FakeManilaV2
+            from qiskit_aer import AerSimulator
+            from qiskit_aer.noise import NoiseModel
+
+            noise_model = NoiseModel.from_backend(FakeManilaV2(),
+                                                  thermal_relaxation=True,
+                                                  gate_error=False,
+                                                  readout_error=False,
+                                                  )
+
+            backend = AerSimulator.from_backend(FakeManilaV2(), noise_model=noise_model)
+
+        .. jupyter-execute::
+
+            import numpy as np
+            import qiskit
+            from qiskit_experiments.library import T2Ramsey
+
+            delays = list(np.arange(1.00e-6, 50.0e-6, 2.00e-6))
+            exp = T2Ramsey(physical_qubits=(0, ), delays=delays, backend=backend, osc_freq=1.0e5)
+
+            exp_data = exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
 
     # section: reference
         .. ref_arxiv:: 1 1904.06560
@@ -81,8 +111,8 @@ class T2Ramsey(BaseExperiment):
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        delays: Union[List[float], np.array],
-        backend: Optional[Backend] = None,
+        delays: list[float] | np.ndarray,
+        backend: Backend | None = None,
         osc_freq: float = 0.0,
     ):
         """
@@ -99,7 +129,7 @@ class T2Ramsey(BaseExperiment):
         super().__init__(physical_qubits, analysis=T2RamseyAnalysis(), backend=backend)
         self.set_experiment_options(delays=delays, osc_freq=osc_freq)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """Return a list of experiment circuits.
 
         Each circuit consists of a Hadamard gate, followed by a fixed delay,

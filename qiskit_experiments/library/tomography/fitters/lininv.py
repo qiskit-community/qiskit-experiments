@@ -13,7 +13,7 @@
 Linear inversion MLEtomography fitter.
 """
 
-from typing import Dict, Tuple, Optional, Sequence, List
+from collections.abc import Sequence
 from functools import lru_cache
 import time
 import numpy as np
@@ -32,14 +32,14 @@ def linear_inversion(
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: Optional[MeasurementBasis] = None,
-    preparation_basis: Optional[PreparationBasis] = None,
-    measurement_qubits: Optional[Tuple[int, ...]] = None,
-    preparation_qubits: Optional[Tuple[int, ...]] = None,
-    conditional_measurement_indices: Optional[np.ndarray] = None,
-    conditional_preparation_indices: Optional[np.ndarray] = None,
+    measurement_basis: MeasurementBasis | None = None,
+    preparation_basis: PreparationBasis | None = None,
+    measurement_qubits: tuple[int, ...] | None = None,
+    preparation_qubits: tuple[int, ...] | None = None,
+    conditional_measurement_indices: np.ndarray | None = None,
+    conditional_preparation_indices: np.ndarray | None = None,
     atol: float = 1e-8,
-) -> Tuple[np.ndarray, Dict]:
+) -> tuple[np.ndarray, dict]:
     r"""Linear inversion tomography fitter.
 
     Overview
@@ -294,7 +294,7 @@ def _dual_states(basis: PreparationBasis, qubit: int) -> np.ndarray:
 
 
 @lru_cache(None)
-def _dual_povms(basis: MeasurementBasis, qubit: int) -> List[List[np.ndarray]]:
+def _dual_povms(basis: MeasurementBasis, qubit: int) -> list[list[np.ndarray]]:
     """Construct dual POVM states for linear inversion"""
     size = basis.index_shape((qubit,))[0]
     num_outcomes = basis.outcome_shape((qubit,))[0]

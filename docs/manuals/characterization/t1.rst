@@ -37,8 +37,7 @@ for qubit 0.
 .. jupyter-execute::
 
     import numpy as np
-    from qiskit.qobj.utils import MeasLevel
-    from qiskit_experiments.framework import ParallelExperiment
+    from qiskit_experiments.framework import MeasLevel, ParallelExperiment
     from qiskit_experiments.library import T1
     from qiskit_experiments.library.characterization.analysis.t1_analysis import T1KerneledAnalysis
 
@@ -76,8 +75,7 @@ for qubit 0.
     
     # Print the result
     display(exp_data.figure(0))
-    for result in exp_data.analysis_results():
-        print(result)
+    print(exp_data.analysis_results(dataframe=True))
 
 
 :math:`T_1` experiments with kerneled measurement
@@ -136,8 +134,7 @@ that is close to a logical value '0'.
 
     # Displaying results
     display(expdataT1_kerneled.figure(0))
-    for result in expdataT1_kerneled.analysis_results():
-        print(result)
+    display(expdataT1_kerneled.analysis_results(dataframe=True))
 
 See also
 --------

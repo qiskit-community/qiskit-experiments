@@ -16,7 +16,7 @@ A library of parameter guess functions.
 # pylint: disable=invalid-name
 
 import functools
-from typing import Optional, Tuple, Callable
+from collections.abc import Callable
 
 import numpy as np
 from scipy import signal
@@ -97,9 +97,9 @@ def frequency(
 
 def max_height(
     y: np.ndarray,
-    percentile: Optional[float] = None,
+    percentile: float | None = None,
     absolute: bool = False,
-) -> Tuple[float, int]:
+) -> tuple[float, int]:
     """Get maximum value of y curve and its index.
 
     Args:
@@ -117,9 +117,9 @@ def max_height(
 
 def min_height(
     y: np.ndarray,
-    percentile: Optional[float] = None,
+    percentile: float | None = None,
     absolute: bool = False,
-) -> Tuple[float, int]:
+) -> tuple[float, int]:
     """Get minimum value of y curve and its index.
 
     Args:
@@ -139,7 +139,7 @@ def get_height(
     y: np.ndarray,
     find_height: Callable,
     absolute: bool = False,
-) -> Tuple[float, int]:
+) -> tuple[float, int]:
     """Get specific value of y curve defined by a callback and its index.
 
     Args:
@@ -199,7 +199,7 @@ def oscillation_exp_decay(
     y: np.ndarray,
     filter_window: int = 5,
     filter_dim: int = 2,
-    freq_guess: Optional[float] = None,
+    freq_guess: float | None = None,
 ) -> float:
     r"""Get exponential decay parameter from oscillating signal.
 
@@ -370,13 +370,13 @@ def rb_decay(
 
     .. math::
 
-        y'(x+dx) = a \alpha^x \alpha^dx.
+        y'(x+dx) = a \alpha^x \alpha^{dx}.
 
     By considering the ratio of y values at :math:`x+dx` to :math:`x`,
 
     .. math::
 
-        ry = \frac{a \alpha^x \alpha^dx}{a \alpha^x} = \alpha^dx.
+        ry = \frac{y'(x+dx)}{y(x)} = \frac{a \alpha^x \alpha^{dx}}{a \alpha^x} = \alpha^{dx}.
 
     From this relationship, we can estimate :math:`\alpha` as
 

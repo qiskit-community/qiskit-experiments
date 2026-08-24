@@ -1,5 +1,0 @@
----
-deprecations:
-  - |
-    The library argument to :class:`.Calibrations` has been deprecated in favour
-    of a new argument called libraries.

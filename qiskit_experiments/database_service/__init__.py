@@ -32,6 +32,31 @@ Device Components
    UnknownComponent
    to_component
 
+Dataclasses
+===========
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   DbExperimentData
+   DbAnalysisResultData
+
+Constants
+=========
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   ResultQuality
+
+Services
+========
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   LocalExperimentService
+
 Exceptions
 ==========
 
@@ -39,9 +64,19 @@ Exceptions
    :toctree: ../stubs/
 
    ExperimentDataError
+   ExperimentDataSaveFailed
    ExperimentEntryExists
    ExperimentEntryNotFound
 """
 
-from .exceptions import ExperimentDataError, ExperimentEntryExists, ExperimentEntryNotFound
+from .exceptions import (
+    ExperimentDataError,
+    ExperimentDataSaveFailed,
+    ExperimentEntryExists,
+    ExperimentEntryNotFound,
+)
 from .device_component import DeviceComponent, Qubit, Resonator, UnknownComponent, to_component
+from .constants import ResultQuality
+from .db_experiment_data import DbExperimentData
+from .db_analysis_result_data import DbAnalysisResultData
+from .local_experiment_service import LocalExperimentService

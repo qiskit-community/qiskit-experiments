@@ -70,7 +70,7 @@ class StoreInitArgs:
         if spec.varargs:
             num_varargs = len(args) - num_args
             ord_args.update(
-                ((f"{spec.varargs}[{i}]", args[num_args + i]) for i in range(num_varargs))
+                (f"{spec.varargs}[{i}]", args[num_args + i]) for i in range(num_varargs)
             )
 
         # Add defaults for kwonly args

@@ -17,12 +17,10 @@ import logging
 import math
 import uuid
 import traceback
-from typing import Optional, List, Union, Dict, Any
+from typing import Any
 
 import uncertainties
 
-from qiskit_ibm_experiment import IBMExperimentService, AnalysisResultData
-from qiskit_ibm_experiment import ResultQuality
 from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.framework.json import (
@@ -30,10 +28,15 @@ from qiskit_experiments.framework.json import (
     ExperimentDecoder,
     _serialize_safe_float,
 )
-
-from qiskit_experiments.database_service.device_component import DeviceComponent, to_component
-from qiskit_experiments.database_service.exceptions import ExperimentDataError
-from qiskit_experiments.database_service.utils import qiskit_version
+from qiskit_experiments.database_service import (
+    DbAnalysisResultData,
+    DeviceComponent,
+    ExperimentDataError,
+    ResultQuality,
+    to_component,
+)
+from qiskit_experiments.framework.package_deps import qiskit_version
+from qiskit_experiments.framework.provider_interfaces import ExperimentService
 
 LOG = logging.getLogger(__name__)
 
@@ -78,26 +81,20 @@ class AnalysisResult:
 
     _extra_data = {}
 
-    RESULT_QUALITY_TO_TEXT = {
-        ResultQuality.GOOD: "good",
-        ResultQuality.BAD: "bad",
-        ResultQuality.UNKNOWN: "unknown",
-    }
-
     def __init__(
         self,
         name: str = None,
         value: Any = None,
-        device_components: List[Union[DeviceComponent, str]] = None,
+        device_components: list[DeviceComponent | str] = None,
         experiment_id: str = None,
-        result_id: Optional[str] = None,
-        chisq: Optional[float] = None,
-        quality: Optional[str] = RESULT_QUALITY_TO_TEXT[ResultQuality.UNKNOWN],
-        extra: Optional[Dict[str, Any]] = None,
+        result_id: str | None = None,
+        chisq: float | None = None,
+        quality: str | None = ResultQuality.UNKNOWN.value,
+        extra: dict[str, Any] | None = None,
         verified: bool = False,
-        tags: Optional[List[str]] = None,
-        service: Optional[IBMExperimentService] = None,
-        source: Optional[Dict[str, str]] = None,
+        tags: list[str] | None = None,
+        service: ExperimentService | None = None,
+        source: dict[str, str] | None = None,
     ) -> "AnalysisResult":
         """AnalysisResult constructor.
 
@@ -120,12 +117,12 @@ class AnalysisResult:
             The AnalysisResult object.
         """
         # Data to be stored in DB.
-        self._db_data = AnalysisResultData(
+        self._db_data = DbAnalysisResultData(
             experiment_id=experiment_id,
             result_id=result_id or str(uuid.uuid4()),
             result_type=name,
             chisq=chisq,
-            quality=quality,
+            quality=ResultQuality.from_str(quality),
             verified=verified,
             tags=tags or [],
         )
@@ -145,15 +142,14 @@ class AnalysisResult:
             except AttributeError:
                 pass
 
-    def set_data(self, data: AnalysisResultData):
+    def set_data(self, data: DbAnalysisResultData):
         """Sets the analysis data stored in the class"""
         self._db_data = data
         new_device_components = [to_component(comp) for comp in self._db_data.device_components]
         self._db_data.device_components = new_device_components
-        self._db_data.quality = self.RESULT_QUALITY_TO_TEXT.get(self._db_data.quality, "unknown")
 
     @classmethod
-    def default_source(cls) -> Dict[str, str]:
+    def default_source(cls) -> dict[str, str]:
         """The default source dictionary to generate"""
         return {
             "class": f"{cls.__module__}.{cls.__name__}",
@@ -189,8 +185,13 @@ class AnalysisResult:
         return result_data
 
     @classmethod
-    def load(cls, result_id: str, service: IBMExperimentService) -> "AnalysisResult":
+    def load(cls, result_id: str, service: ExperimentService) -> "AnalysisResult":
         """Load a saved analysis result from a database service.
+
+        .. warning::
+
+           It is recommended only to load data from trusted sources. See
+           :class:`.ExperimentEncoder` for more details.
 
         Args:
             result_id: Analysis result ID.
@@ -271,7 +272,7 @@ class AnalysisResult:
             self.save()
 
     @property
-    def extra(self) -> Dict[str, Any]:
+    def extra(self) -> dict[str, Any]:
         """Return extra analysis result data.
 
         Returns:
@@ -280,7 +281,7 @@ class AnalysisResult:
         return self._db_data.result_data["_extra"]
 
     @extra.setter
-    def extra(self, new_value: Dict[str, Any]) -> None:
+    def extra(self, new_value: dict[str, Any]) -> None:
         """Set the analysis result value."""
         if not isinstance(new_value, dict):
             raise ExperimentDataError(f"The `extra` field of {type(self).__name__} must be a dict.")
@@ -289,7 +290,7 @@ class AnalysisResult:
             self.save()
 
     @property
-    def device_components(self) -> List[DeviceComponent]:
+    def device_components(self) -> list[DeviceComponent]:
         """Return target device components for this analysis result.
 
         Returns:
@@ -298,7 +299,7 @@ class AnalysisResult:
         return self._db_data.device_components
 
     @device_components.setter
-    def device_components(self, components: List[Union[DeviceComponent, str]]):
+    def device_components(self, components: list[DeviceComponent | str]):
         """Set the device components"""
         self._db_data.device_components = []
         for comp in components:
@@ -330,7 +331,7 @@ class AnalysisResult:
         self._db_data.experiment_id = new_id
 
     @property
-    def chisq(self) -> Optional[float]:
+    def chisq(self) -> float | None:
         """Return the reduced χ² of this analysis."""
         return self._db_data.chisq
 
@@ -390,7 +391,7 @@ class AnalysisResult:
         return self._db_data.tags
 
     @tags.setter
-    def tags(self, new_tags: List[str]) -> None:
+    def tags(self, new_tags: list[str]) -> None:
         """Set tags for this result."""
         if not isinstance(new_tags, list):
             raise ExperimentDataError(f"The `tags` field of {type(self).__name__} must be a list.")
@@ -399,7 +400,7 @@ class AnalysisResult:
             self.save()
 
     @property
-    def service(self) -> Optional[IBMExperimentService]:
+    def service(self) -> ExperimentService | None:
         """Return the database service.
 
         Returns:
@@ -409,7 +410,7 @@ class AnalysisResult:
         return self._service
 
     @service.setter
-    def service(self, service: IBMExperimentService) -> None:
+    def service(self, service: ExperimentService) -> None:
         """Set the service to be used for storing result data in a database.
 
         Args:
@@ -423,7 +424,7 @@ class AnalysisResult:
         self._service = service
 
     @property
-    def source(self) -> Dict:
+    def source(self) -> dict:
         """Return the class name and version."""
         if "_source" in self._db_data.result_data:
             return self._db_data.result_data["_source"]
@@ -500,7 +501,7 @@ class AnalysisResult:
         out += ")"
         return out
 
-    def __json_encode__(self):
+    def __json_encode__(self) -> dict[str, Any]:
         return {
             "name": self._db_data.result_type,
             "value": self._db_data.result_data.get("_value", None),

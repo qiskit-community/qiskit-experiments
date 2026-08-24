@@ -1,8 +1,0 @@
----
-upgrade_expclass:
-  - |
-    Removed unnecessary circuit metadata from the builtin experiment classes.
-    Circuit metadata such as the associated qubit indices and experiment type 
-    are separately stored in the experiment metadata, and never used in the analysis.
-    Removal of unnecessary circuit metadata compresses the job payload and 
-    thus is expected to benefit scalability.

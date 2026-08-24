@@ -17,7 +17,6 @@ import copy
 import re
 import sys
 from abc import ABC
-from typing import Union, List, Dict
 
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.base_experiment import BaseExperiment
@@ -53,10 +52,10 @@ class QiskitExperimentDocstring(ABC):
     def __init__(
         self,
         target_cls: object,
-        docstring_lines: Union[str, List[str]],
+        docstring_lines: str | list[str],
         config: SphinxConfig,
         indent: str = "",
-        **extra_sections: List[str],
+        **extra_sections: list[str],
     ):
         """Create new parser and parse formatted docstring."""
 
@@ -73,9 +72,9 @@ class QiskitExperimentDocstring(ABC):
 
     def _classify(
         self,
-        docstring_lines: List[str],
-        **extra_sections: List[str],
-    ) -> Dict[str, List[str]]:
+        docstring_lines: list[str],
+        **extra_sections: list[str],
+    ) -> dict[str, list[str]]:
         """Classify formatted docstring into sections."""
         sectioned_docstrings = dict()
 
@@ -127,11 +126,11 @@ class QiskitExperimentDocstring(ABC):
 
         return sectioned_docstrings
 
-    def _extra_sections(self, sectioned_docstring: Dict[str, List[str]]):
+    def _extra_sections(self, sectioned_docstring: dict[str, list[str]]):
         """Generate extra sections."""
         pass
 
-    def _format(self) -> Dict[str, List[str]]:
+    def _format(self) -> dict[str, list[str]]:
         """Format each section with predefined formatter."""
         formatter = self.__formatter__(self._indent)
 
@@ -147,7 +146,7 @@ class QiskitExperimentDocstring(ABC):
 
         return formatted_sections
 
-    def generate_class_docs(self) -> List[List[str]]:
+    def generate_class_docs(self) -> list[list[str]]:
         """Output formatted experiment class documentation."""
         formatted_sections = self._format()
 
@@ -178,7 +177,7 @@ class ExperimentDocstring(QiskitExperimentDocstring):
 
     __formatter__ = ExperimentSectionFormatter
 
-    def _extra_sections(self, sectioned_docstring: Dict[str, List[str]]):
+    def _extra_sections(self, sectioned_docstring: dict[str, list[str]]):
         """Generate extra sections."""
         current_class = self._target_cls
 
@@ -222,7 +221,7 @@ class AnalysisDocstring(QiskitExperimentDocstring):
 
     __formatter__ = AnalysisSectionFormatter
 
-    def _extra_sections(self, sectioned_docstring: Dict[str, List[str]]):
+    def _extra_sections(self, sectioned_docstring: dict[str, list[str]]):
         """Generate extra sections."""
         current_class = self._target_cls
 

@@ -12,15 +12,15 @@
 
 """Multi state discrimination experiment."""
 
-from typing import Dict, List, Optional, Sequence
+import warnings
+from typing import Any
+from collections.abc import Sequence
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.providers import Backend
 from qiskit.providers.options import Options
-from qiskit.pulse import ScheduleBlock
-from qiskit.qobj.utils import MeasLevel, MeasReturnType
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, MeasLevel, MeasReturnType
 from qiskit_experiments.library.characterization import MultiStateDiscriminationAnalysis
 
 
@@ -53,6 +53,26 @@ class MultiStateDiscrimination(BaseExperiment):
     # section: analysis_ref
         :class:`MultiStateDiscriminationAnalysis`
 
+    # section: example
+        .. jupyter-execute::
+            :hide-code:
+
+            # backend
+            from qiskit_experiments.test.mock_iq_backend import MockMultiStateBackend
+
+
+            backend = MockMultiStateBackend([1, 1j, -1 + 1j], iq_noise=0.2, state_noise=0.2)
+
+        .. jupyter-execute::
+
+            from qiskit_experiments.library.characterization import MultiStateDiscrimination
+
+            exp=MultiStateDiscrimination((0,), backend=backend)
+
+            exp_data=exp.run().block_for_results()
+            display(exp_data.figure(0))
+            exp_data.analysis_results(dataframe=True)
+
     # section: reference
         `Qiskit Textbook\
         <https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware-pulses/accessing_higher_energy_states.ipynb>`_
@@ -75,23 +95,19 @@ class MultiStateDiscrimination(BaseExperiment):
 
         Experiment Options:
             n_states (int): The number of states to discriminate.
-            schedules (dict): A dictionary of the schedules for the gates in the experiment. Each key is
-                a gate name of the form ``xii+1`` which should implement an x-rotation between level
-                ``i`` and ``i+1``.
 
         """
         options = super()._default_experiment_options()
         options.n_states = 2
-        options.schedules = None
 
         return options
 
     def __init__(
         self,
         physical_qubits: Sequence[int],
-        backend: Optional[Backend] = None,
-        n_states: Optional[int] = None,
-        schedules: Optional[Dict[str, ScheduleBlock]] = None,
+        backend: Backend | None = None,
+        n_states: int | None = None,
+        schedules: dict[str, Any] | None = None,
     ):
         """Setup an experiment to prepare different energy states on a given qubit.
 
@@ -100,19 +116,20 @@ class MultiStateDiscrimination(BaseExperiment):
                 experiment.
             backend: Optional, the backend to run the experiment on.
             n_states: The number of energy levels to prepare.
-            schedules: The schedules of the x gates between neighboring energy levels.
+            schedules: Deprecated and unused
         """
 
         super().__init__(
             physical_qubits, analysis=MultiStateDiscriminationAnalysis(), backend=backend
         )
 
-        self.experiment_options.schedules = schedules
+        if schedules:
+            warnings.warn("MultiStateDiscrimination no longer supports custom pulse schedules.")
 
         if n_states is not None:
             self.set_experiment_options(n_states=n_states)
 
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> list[QuantumCircuit]:
         """
         Create the circuits for the multi state discrimination experiment.
 
@@ -133,12 +150,6 @@ class MultiStateDiscrimination(BaseExperiment):
                     gate_name = f"x{idx}{idx + 1}"
                     gate = Gate(name=gate_name, num_qubits=1, params=[])
                     circuit.append(gate, (0,))
-                    if self.experiment_options.schedules is not None:
-                        circuit.add_calibration(
-                            gate_name,
-                            self._physical_qubits,
-                            self.experiment_options.schedules[gate_name],
-                        )
 
             # label the circuit
             circuit.metadata = {"label": level}
