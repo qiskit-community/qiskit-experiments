@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.tomography.qst_analysis - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.tomography.qst_analysis - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Quantum state tomography analysis</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">Options</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.basis</span><span class="w"> </span><span class="kn">import</span> <span class="n">PauliMeasurementBasis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.tomography_analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">TomographyAnalysis</span>
@@ -566,7 +566,7 @@
 <div class="viewcode-block" id="StateTomographyAnalysis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.tomography.StateTomographyAnalysis.html#qiskit_experiments.library.tomography.StateTomographyAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">StateTomographyAnalysis</span><span class="p">(</span><span class="n">TomographyAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;State tomography experiment analysis.</span>
+<span class="w">    </span><span class="sd">"""State tomography experiment analysis.</span>
 
 <span class="sd">    # section: overview</span>
 <span class="sd">        Fitter Functions</span>
@@ -575,11 +575,11 @@
 <span class="sd">        labels, refer to the corresponding functions documentation for additional</span>
 <span class="sd">        details on the fitters.</span>
 
-<span class="sd">        * ``&quot;linear_inversion&quot;``:</span>
+<span class="sd">        * ``"linear_inversion"``:</span>
 <span class="sd">          :func:`~qiskit_experiments.library.tomography.fitters.linear_inversion` (Default)</span>
-<span class="sd">        * ``&quot;cvxpy_linear_lstsq&quot;``:</span>
+<span class="sd">        * ``"cvxpy_linear_lstsq"``:</span>
 <span class="sd">          :func:`~qiskit_experiments.library.tomography.fitters.cvxpy_linear_lstsq`</span>
-<span class="sd">        * ``&quot;cvxpy_gaussian_lstsq&quot;``:</span>
+<span class="sd">        * ``"cvxpy_gaussian_lstsq"``:</span>
 <span class="sd">          :func:`~qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq`</span>
 
 <span class="sd">        PSD Rescaling</span>
@@ -596,17 +596,17 @@
 <span class="sd">        in future releases.</span>
 
 <span class="sd">    # section: note</span>
-<span class="sd">        Fitters starting with ``&quot;cvxpy_*&quot;`` require the optional CVXPY Python</span>
+<span class="sd">        Fitters starting with ``"cvxpy_*"`` require the optional CVXPY Python</span>
 <span class="sd">        package to be installed.</span>
 
 <span class="sd">    # section: reference</span>
 <span class="sd">        .. ref_arxiv:: 1 1106.5458</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default analysis options</span>
+<span class="w">        </span><span class="sd">"""Default analysis options</span>
 
 <span class="sd">        Analysis Options:</span>
 <span class="sd">            measurement_basis (:class:`~qiskit_experiments.library.tomography.basis.MeasurementBasis`):</span>
@@ -639,16 +639,16 @@
 <span class="sd">                Enabling this will return a list of reconstructed state components</span>
 <span class="sd">                conditional on the values of these clbit values. The integer value of the</span>
 <span class="sd">                conditioning clbits is stored in state analysis result extra field</span>
-<span class="sd">                `&quot;conditional_circuit_outcome&quot;`.</span>
+<span class="sd">                `"conditional_circuit_outcome"`.</span>
 <span class="sd">            conditional_measurement_indices (list[int]): Optional, indices of tomography</span>
 <span class="sd">                measurement qubits to used for conditional state reconstruction. Enabling</span>
 <span class="sd">                this will return a list of reconstructed state components conditioned on</span>
 <span class="sd">                the remaining tomographic bases conditional on the basis index, and outcome</span>
 <span class="sd">                value for these measurements. The conditional measurement basis index and</span>
 <span class="sd">                integer value of the measurement outcome is stored in state analysis result</span>
-<span class="sd">                extra fields `&quot;conditional_measurement_index&quot;` and</span>
-<span class="sd">                `&quot;conditional_measurement_outcome&quot;` respectively.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">                extra fields `"conditional_measurement_index"` and</span>
+<span class="sd">                `"conditional_measurement_outcome"` respectively.</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">measurement_basis</span> <span class="o">=</span> <span class="n">PauliMeasurementBasis</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">options</span></div>
@@ -671,7 +671,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -686,7 +686,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

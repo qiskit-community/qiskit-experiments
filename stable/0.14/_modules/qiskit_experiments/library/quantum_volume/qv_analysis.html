@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.quantum_volume.qv_analysis - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.quantum_volume.qv_analysis - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Quantum Volume analysis class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -576,7 +576,7 @@
 <div class="viewcode-block" id="QuantumVolumePlotter">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html#qiskit_experiments.library.quantum_volume.QuantumVolumePlotter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">QuantumVolumePlotter</span><span class="p">(</span><span class="n">BasePlotter</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plotter for QuantumVolumeAnalysis</span>
+<span class="w">    </span><span class="sd">"""Plotter for QuantumVolumeAnalysis</span>
 
 <span class="sd">    .. note::</span>
 
@@ -584,47 +584,47 @@
 <span class="sd">        to have an ``individual`` data key containing the individual heavy</span>
 <span class="sd">        output probabilities for each circuit in the experiment. Additional</span>
 <span class="sd">        series will be ignored.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="QuantumVolumePlotter.expected_series_data_keys">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html#qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.expected_series_data_keys">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">expected_series_data_keys</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the expected series data keys supported by this plotter.</span>
+<span class="w">        </span><span class="sd">"""Returns the expected series data keys supported by this plotter.</span>
 
 <span class="sd">        Data Keys:</span>
 <span class="sd">            individual: Heavy-output probability fraction for each individual circuit</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span></div>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="QuantumVolumePlotter.expected_supplementary_data_keys">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html#qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.expected_supplementary_data_keys">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">expected_supplementary_data_keys</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the expected figures data keys supported by this plotter.</span>
+<span class="w">        </span><span class="sd">"""Returns the expected figures data keys supported by this plotter.</span>
 
 <span class="sd">        Data Keys:</span>
 <span class="sd">            depth: The depth of the quantun volume circuits used in the experiment</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span></div>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">"depth"</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="QuantumVolumePlotter.set_supplementary_data">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.html#qiskit_experiments.library.quantum_volume.QuantumVolumePlotter.set_supplementary_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_supplementary_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data_kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets supplementary data for the plotter.</span>
+<span class="w">        </span><span class="sd">"""Sets supplementary data for the plotter.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data_kwargs: See :meth:`expected_supplementary_data_keys` for the</span>
 <span class="sd">                expected supplementary data keys.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Hook method to capture the depth for inclusion in the plot title</span>
-        <span class="k">if</span> <span class="s2">&quot;depth&quot;</span> <span class="ow">in</span> <span class="n">data_kwargs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"depth"</span> <span class="ow">in</span> <span class="n">data_kwargs</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
                 <span class="n">figure_title</span><span class="o">=</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Quantum Volume experiment for depth </span><span class="si">{</span><span class="n">data_kwargs</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="s2">&quot; - accumulative hop&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Quantum Volume experiment for depth </span><span class="si">{</span><span class="n">data_kwargs</span><span class="p">[</span><span class="s1">'depth'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+                    <span class="s2">" - accumulative hop"</span>
                 <span class="p">),</span>
             <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_supplementary_data</span><span class="p">(</span><span class="o">**</span><span class="n">data_kwargs</span><span class="p">)</span></div>
@@ -633,27 +633,27 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_figure_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_figure_options</span><span class="p">()</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s2">&quot;Number of Trials&quot;</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s2">&quot;Heavy Output Probability&quot;</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">figure_title</span> <span class="o">=</span> <span class="s2">&quot;Quantum Volume experiment - accumulative hop&quot;</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s2">"Number of Trials"</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s2">"Heavy Output Probability"</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">figure_title</span> <span class="o">=</span> <span class="s2">"Quantum Volume experiment - accumulative hop"</span>
         <span class="n">options</span><span class="o">.</span><span class="n">series_params</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;hop&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="s2">&quot;.&quot;</span><span class="p">},</span>
-            <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;linestyle&quot;</span><span class="p">:</span> <span class="s2">&quot;dashed&quot;</span><span class="p">,</span> <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
-            <span class="s2">&quot;hop_cumulative&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;r&quot;</span><span class="p">},</span>
-            <span class="s2">&quot;hop_twosigma&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;lightgray&quot;</span><span class="p">},</span>
+            <span class="s2">"hop"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="s2">"gray"</span><span class="p">,</span> <span class="s2">"symbol"</span><span class="p">:</span> <span class="s2">"."</span><span class="p">},</span>
+            <span class="s2">"threshold"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="s2">"black"</span><span class="p">,</span> <span class="s2">"linestyle"</span><span class="p">:</span> <span class="s2">"dashed"</span><span class="p">,</span> <span class="s2">"linewidth"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+            <span class="s2">"hop_cumulative"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="s2">"r"</span><span class="p">},</span>
+            <span class="s2">"hop_twosigma"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="s2">"lightgray"</span><span class="p">},</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">6.4</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">)</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;axis_label_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">14</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;symbol_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"figsize"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">6.4</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">)</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"axis_label_size"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">14</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"symbol_size"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_plot_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="p">(</span><span class="n">hops</span><span class="p">,)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="s2">&quot;hops&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">])</span>
+        <span class="p">(</span><span class="n">hops</span><span class="p">,)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_for</span><span class="p">(</span><span class="s2">"hops"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"individual"</span><span class="p">])</span>
         <span class="n">trials</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">hops</span><span class="p">))</span>
         <span class="n">hop_accumulative</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">hops</span><span class="p">)</span> <span class="o">/</span> <span class="n">trials</span>
         <span class="n">hop_twosigma</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">hop_accumulative</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">hop_accumulative</span><span class="p">)</span> <span class="o">/</span> <span class="n">trials</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
@@ -661,21 +661,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
             <span class="n">trials</span><span class="p">,</span>
             <span class="n">hop_accumulative</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;hop_cumulative&quot;</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Cumulative HOP&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"hop_cumulative"</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">"Cumulative HOP"</span><span class="p">,</span>
             <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">hline</span><span class="p">(</span>
             <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;threshold&quot;</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Threshold&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"threshold"</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">"Threshold"</span><span class="p">,</span>
             <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
             <span class="n">trials</span><span class="p">,</span>
             <span class="n">hops</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;hop&quot;</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Individual HOP&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"hop"</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">"Individual HOP"</span><span class="p">,</span>
             <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
         <span class="p">)</span>
@@ -685,8 +685,8 @@
             <span class="n">hop_accumulative</span> <span class="o">+</span> <span class="n">hop_twosigma</span><span class="p">,</span>
             <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
             <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;hop_twosigma&quot;</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;2σ&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"hop_twosigma"</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">"2σ"</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
@@ -701,7 +701,7 @@
 <div class="viewcode-block" id="QuantumVolumeAnalysis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolumeAnalysis.html#qiskit_experiments.library.quantum_volume.QuantumVolumeAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">QuantumVolumeAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A class to analyze quantum volume experiments.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A class to analyze quantum volume experiments.</span>
 
 <span class="sd">    # section: overview</span>
 <span class="sd">        Calculate the quantum volume of the analysed system.</span>
@@ -712,17 +712,17 @@
 <span class="sd">        binomial distribution. The standard deviation for binomial distribution is</span>
 <span class="sd">        :math:`\sqrt{(np(1-p))}`, where :math:`n` is the number of trials and :math:`p`</span>
 <span class="sd">        is the success probability.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default analysis options.</span>
+<span class="w">        </span><span class="sd">"""Return default analysis options.</span>
 
 <span class="sd">        Analysis Options:</span>
 <span class="sd">            plot (bool): Set ``True`` to create figure for fit result.</span>
 <span class="sd">            ax (AxesSubplot): Optional. A matplotlib axis object to draw.</span>
 <span class="sd">            plotter (BasePlotter): Plotter object to use for figure generation.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">plot</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">options</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span>
@@ -736,13 +736,13 @@
         <span class="n">heavy_output_prob_exp</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">data_trial</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">trial_depth</span> <span class="o">=</span> <span class="n">data_trial</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span>
+            <span class="n">trial_depth</span> <span class="o">=</span> <span class="n">data_trial</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">][</span><span class="s2">"depth"</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">depth</span> <span class="o">=</span> <span class="n">trial_depth</span>
             <span class="k">elif</span> <span class="n">trial_depth</span> <span class="o">!=</span> <span class="n">depth</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">&quot;QuantumVolume circuits do not all have the same depth.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">"QuantumVolume circuits do not all have the same depth."</span><span class="p">)</span>
             <span class="n">heavy_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_ideal_heavy_output</span><span class="p">(</span>
-                <span class="n">data_trial</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;ideal_probabilities&quot;</span><span class="p">],</span> <span class="n">trial_depth</span>
+                <span class="n">data_trial</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">][</span><span class="s2">"ideal_probabilities"</span><span class="p">],</span> <span class="n">trial_depth</span>
             <span class="p">)</span>
             <span class="n">heavy_output_prob_exp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_calc_exp_heavy_output_probability</span><span class="p">(</span><span class="n">data_trial</span><span class="p">,</span> <span class="n">heavy_output</span><span class="p">)</span>
@@ -751,8 +751,8 @@
         <span class="n">hop_result</span><span class="p">,</span> <span class="n">qv_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_quantum_volume</span><span class="p">(</span><span class="n">heavy_output_prob_exp</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">num_trials</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span><span class="s2">&quot;hops&quot;</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">hop_result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;HOPs&quot;</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_supplementary_data</span><span class="p">(</span><span class="n">depth</span><span class="o">=</span><span class="n">hop_result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span><span class="s2">"hops"</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">hop_result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"HOPs"</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_supplementary_data</span><span class="p">(</span><span class="n">depth</span><span class="o">=</span><span class="n">hop_result</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"depth"</span><span class="p">])</span>
             <span class="n">figures</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure</span><span class="p">()]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">figures</span> <span class="o">=</span> <span class="kc">None</span>
@@ -760,7 +760,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_calc_ideal_heavy_output</span><span class="p">(</span><span class="n">probabilities_vector</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Calculate the bit strings of the heavy output for the ideal simulation</span>
 
 <span class="sd">        Args:</span>
@@ -768,9 +768,9 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">             list: the bit strings of the heavy output</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">format_spec</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">0:0</span><span class="si">{</span><span class="n">depth</span><span class="si">}</span><span class="s2">b</span><span class="se">}}</span><span class="s2">&quot;</span>
+        <span class="n">format_spec</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">{{</span><span class="s2">0:0</span><span class="si">{</span><span class="n">depth</span><span class="si">}</span><span class="s2">b</span><span class="se">}}</span><span class="s2">"</span>
         <span class="c1"># Keys are bit strings and values are probabilities of observing those strings</span>
         <span class="n">all_output_prob_ideal</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">format_spec</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">b</span><span class="p">):</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">probabilities_vector</span><span class="p">[</span><span class="n">b</span><span class="p">]))</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">depth</span><span class="p">)</span>
@@ -787,7 +787,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_calc_exp_heavy_output_probability</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">heavy_outputs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Calculate the probability of measuring heavy output string in the data</span>
 
 <span class="sd">        Args:</span>
@@ -796,18 +796,18 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            int: heavy output probability</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">circ_shots</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+<span class="sd">        """</span>
+        <span class="n">circ_shots</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"counts"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
         <span class="c1"># Calculate the number of heavy output counts in the experiment</span>
-        <span class="n">heavy_output_counts</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">heavy_outputs</span><span class="p">)</span>
+        <span class="n">heavy_output_counts</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"counts"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">heavy_outputs</span><span class="p">)</span>
 
         <span class="c1"># Calculate the experimental heavy output probability</span>
         <span class="k">return</span> <span class="n">heavy_output_counts</span> <span class="o">/</span> <span class="n">circ_shots</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_calc_z_value</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate z value using mean and sigma.</span>
+<span class="w">        </span><span class="sd">"""Calculate z value using mean and sigma.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            mean (float): mean</span>
@@ -815,12 +815,12 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            float: z_value in standard normal distribution.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">sigma</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># Assign a small value for sigma if sigma = 0</span>
             <span class="n">sigma</span> <span class="o">=</span> <span class="mf">1e-10</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Standard deviation sigma should not be zero.&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"Standard deviation sigma should not be zero."</span><span class="p">)</span>
 
         <span class="n">z_value</span> <span class="o">=</span> <span class="p">(</span><span class="n">mean</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="n">sigma</span>
 
@@ -828,7 +828,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_calc_confidence_level</span><span class="p">(</span><span class="n">z_value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate confidence level using z value.</span>
+<span class="w">        </span><span class="sd">"""Calculate confidence level using z value.</span>
 
 <span class="sd">        Accumulative probability for standard normal distribution</span>
 <span class="sd">        in [-z, +infinity] is 1/2 (1 + erf(z/sqrt(2))),</span>
@@ -839,14 +839,14 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            float: confidence level in decimal (not percentage).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">confidence_level</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="n">z_value</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">confidence_level</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_calc_quantum_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">heavy_output_prob_exp</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">trials</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Calc the quantum volume of the analysed system.</span>
 <span class="sd">        quantum volume is determined by the largest successful depth.</span>
 <span class="sd">        A depth is successful if it has `mean heavy-output probability` &gt; 2/3 with confidence</span>
@@ -865,7 +865,7 @@
 <span class="sd">            the error of the heavy output probability,</span>
 <span class="sd">            the depth of the circuit,</span>
 <span class="sd">            the number of trials ran</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">quantum_volume</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -876,39 +876,39 @@
         <span class="n">z_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_z_value</span><span class="p">(</span><span class="n">mean_hop</span><span class="p">,</span> <span class="n">sigma_hop</span><span class="p">)</span>
         <span class="n">confidence_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_confidence_level</span><span class="p">(</span><span class="n">z_value</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">confidence_level</span> <span class="o">&gt;</span> <span class="mf">0.977</span><span class="p">:</span>
-            <span class="n">quality</span> <span class="o">=</span> <span class="s2">&quot;good&quot;</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="s2">"good"</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">quality</span> <span class="o">=</span> <span class="s2">&quot;bad&quot;</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="s2">"bad"</span>
 
         <span class="c1"># Must have at least 100 trials</span>
         <span class="k">if</span> <span class="n">trials</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Must use at least 100 trials to consider Quantum Volume as successful.&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"Must use at least 100 trials to consider Quantum Volume as successful."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">mean_hop</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="ow">and</span> <span class="n">trials</span> <span class="o">&gt;=</span> <span class="mi">100</span><span class="p">:</span>
             <span class="n">quantum_volume</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">depth</span>
             <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="n">hop_result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
-            <span class="s2">&quot;mean_HOP&quot;</span><span class="p">,</span>
+            <span class="s2">"mean_HOP"</span><span class="p">,</span>
             <span class="n">value</span><span class="o">=</span><span class="n">uncertainties</span><span class="o">.</span><span class="n">ufloat</span><span class="p">(</span><span class="n">nominal_value</span><span class="o">=</span><span class="n">mean_hop</span><span class="p">,</span> <span class="n">std_dev</span><span class="o">=</span><span class="n">sigma_hop</span><span class="p">),</span>
             <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
             <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;HOPs&quot;</span><span class="p">:</span> <span class="n">heavy_output_prob_exp</span><span class="p">,</span>
-                <span class="s2">&quot;two_sigma&quot;</span><span class="p">:</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sigma_hop</span><span class="p">,</span>
-                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="n">depth</span><span class="p">,</span>
-                <span class="s2">&quot;trials&quot;</span><span class="p">:</span> <span class="n">trials</span><span class="p">,</span>
+                <span class="s2">"HOPs"</span><span class="p">:</span> <span class="n">heavy_output_prob_exp</span><span class="p">,</span>
+                <span class="s2">"two_sigma"</span><span class="p">:</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sigma_hop</span><span class="p">,</span>
+                <span class="s2">"depth"</span><span class="p">:</span> <span class="n">depth</span><span class="p">,</span>
+                <span class="s2">"trials"</span><span class="p">:</span> <span class="n">trials</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
         <span class="n">qv_result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
-            <span class="s2">&quot;quantum_volume&quot;</span><span class="p">,</span>
+            <span class="s2">"quantum_volume"</span><span class="p">,</span>
             <span class="n">value</span><span class="o">=</span><span class="n">quantum_volume</span><span class="p">,</span>
             <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
             <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="n">success</span><span class="p">,</span>
-                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">confidence_level</span><span class="p">,</span>
-                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="n">depth</span><span class="p">,</span>
-                <span class="s2">&quot;trials&quot;</span><span class="p">:</span> <span class="n">trials</span><span class="p">,</span>
+                <span class="s2">"success"</span><span class="p">:</span> <span class="n">success</span><span class="p">,</span>
+                <span class="s2">"confidence"</span><span class="p">:</span> <span class="n">confidence_level</span><span class="p">,</span>
+                <span class="s2">"depth"</span><span class="p">:</span> <span class="n">depth</span><span class="p">,</span>
+                <span class="s2">"trials"</span><span class="p">:</span> <span class="n">trials</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">hop_result</span><span class="p">,</span> <span class="n">qv_result</span></div>
@@ -931,7 +931,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -946,7 +946,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.test.t2hahn_backend - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.test.t2hahn_backend - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,10 +555,10 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">T2HahnBackend class.</span>
 <span class="sd">Temporary backend to be used for t2hahn experiment</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
@@ -579,10 +579,10 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ResetQubits</span><span class="p">(</span><span class="n">TransformationPass</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pass to inject reset instructions for each qubit</span>
+<span class="w">    </span><span class="sd">"""Pass to inject reset instructions for each qubit</span>
 
 <span class="sd">    The resets are used to add qubit initialization error.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dag</span><span class="p">:</span> <span class="n">DAGCircuit</span><span class="p">):</span>
         <span class="n">new_dag</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">dag</span><span class="p">)</span>
@@ -594,12 +594,12 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">QubitDrift</span><span class="p">(</span><span class="n">TransformationPass</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pass to rotate qubits during delays</span>
+<span class="w">    </span><span class="sd">"""Pass to rotate qubits during delays</span>
 
 <span class="sd">    This pass adds rotations that mimic the qubit being detuned from the drive</span>
 <span class="sd">    frequency (while assuming that the gate times are negligible; rotations are</span>
 <span class="sd">    only added for delays).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit_frequencies</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -614,14 +614,14 @@
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">dag</span><span class="o">.</span><span class="n">topological_op_nodes</span><span class="p">():</span>
             <span class="n">new_dag</span><span class="o">.</span><span class="n">apply_operation_back</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">qargs</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">cargs</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;delay&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"delay"</span><span class="p">:</span>
                 <span class="n">q0</span> <span class="o">=</span> <span class="n">qubit_indices</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">qargs</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
                 <span class="n">duration</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qubit_frequencies</span><span class="p">[</span><span class="n">q0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">continue</span>
-                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;dt&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">unit</span> <span class="o">==</span> <span class="s2">"dt"</span><span class="p">:</span>
                     <span class="n">duration</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">duration</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
-                <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">unit</span> <span class="o">!=</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">unit</span> <span class="o">!=</span> <span class="s2">"s"</span><span class="p">:</span>
                     <span class="n">duration</span> <span class="o">=</span> <span class="n">apply_prefix</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
                 <span class="n">angle</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qubit_frequencies</span><span class="p">[</span><span class="n">q0</span><span class="p">]</span> <span class="o">*</span> <span class="n">duration</span>
                 <span class="n">angle</span> <span class="o">=</span> <span class="n">angle</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
@@ -633,13 +633,13 @@
 <div class="viewcode-block" id="T2HahnBackend">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.test.T2HahnBackend.html#qiskit_experiments.test.T2HahnBackend">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">T2HahnBackend</span><span class="p">(</span><span class="n">BackendV2</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A simple and primitive backend, to be run by the T2Hahn tests</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">t2hahn</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span>
+        <span class="n">t2hahn</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
         <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">initialization_error</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">readout0to1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -648,12 +648,12 @@
         <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">4.5e9</span><span class="p">,</span>
         <span class="n">num_qubits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the T2Hahn backend</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;T2Hahn_simulator&quot;</span><span class="p">,</span>
-            <span class="n">backend_version</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"T2Hahn_simulator"</span><span class="p">,</span>
+            <span class="n">backend_version</span><span class="o">=</span><span class="s2">"0"</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="p">(</span><span class="n">t2hahn</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">initialization_error</span><span class="p">,</span> <span class="n">readout0to1</span><span class="p">,</span> <span class="n">readout1to0</span><span class="p">):</span>
@@ -662,7 +662,7 @@
                     <span class="n">num_qubits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_qubits</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Input lengths are not consistent: </span><span class="si">{</span><span class="n">num_qubits</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Input lengths are not consistent: </span><span class="si">{</span><span class="n">num_qubits</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">num_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -684,12 +684,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span> <span class="o">=</span> <span class="n">seed</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span> <span class="n">num_qubits</span><span class="o">=</span><span class="n">num_qubits</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Measure</span><span class="p">(),</span> <span class="n">Reset</span><span class="p">(),</span> <span class="n">RZGate</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;angle&quot;</span><span class="p">)),</span> <span class="n">SXGate</span><span class="p">(),</span> <span class="n">XGate</span><span class="p">()):</span>
+        <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Measure</span><span class="p">(),</span> <span class="n">Reset</span><span class="p">(),</span> <span class="n">RZGate</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">"angle"</span><span class="p">)),</span> <span class="n">SXGate</span><span class="p">(),</span> <span class="n">XGate</span><span class="p">()):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span>
                 <span class="n">instruction</span><span class="p">,</span>
                 <span class="n">properties</span><span class="o">=</span><span class="p">{(</span><span class="n">q</span><span class="p">,):</span> <span class="n">InstructionProperties</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_qubits</span><span class="p">)},</span>
             <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">Delay</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">Delay</span><span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">"duration"</span><span class="p">)))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Target</span><span class="p">:</span>
@@ -718,7 +718,7 @@
         <span class="k">for</span> <span class="n">circuit</span> <span class="ow">in</span> <span class="n">circuits</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="si">}</span><span class="s2"> can only run circuits that match its num_qubits&quot;</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="si">}</span><span class="s2"> can only run circuits that match its num_qubits"</span>
                 <span class="p">)</span>
 
         <span class="n">noise_model</span> <span class="o">=</span> <span class="n">NoiseModel</span><span class="p">()</span>
@@ -728,13 +728,13 @@
             <span class="k">for</span> <span class="n">qubit</span><span class="p">,</span> <span class="n">error</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_initialization_error</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">continue</span>
-                <span class="n">noise_model</span><span class="o">.</span><span class="n">add_quantum_error</span><span class="p">(</span><span class="n">reset_error</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">error</span><span class="p">,</span> <span class="n">error</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;reset&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">qubit</span><span class="p">])</span>
+                <span class="n">noise_model</span><span class="o">.</span><span class="n">add_quantum_error</span><span class="p">(</span><span class="n">reset_error</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">error</span><span class="p">,</span> <span class="n">error</span><span class="p">),</span> <span class="p">[</span><span class="s2">"reset"</span><span class="p">],</span> <span class="p">[</span><span class="n">qubit</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_readout0to1</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_readout1to0</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">qubit</span><span class="p">,</span> <span class="p">(</span><span class="n">err0to1</span><span class="p">,</span> <span class="n">err1to0</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_readout0to1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_readout1to0</span><span class="p">)):</span>
                 <span class="n">error</span> <span class="o">=</span> <span class="n">ReadoutError</span><span class="p">([[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">err0to1</span><span class="p">,</span> <span class="n">err0to1</span><span class="p">],</span> <span class="p">[</span><span class="n">err1to0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">err1to0</span><span class="p">]])</span>
                 <span class="n">noise_model</span><span class="o">.</span><span class="n">add_readout_error</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="p">[</span><span class="n">qubit</span><span class="p">])</span>
-        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">t2</span> <span class="o">!=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">t2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t2hahn</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">t2</span> <span class="o">!=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">)</span> <span class="k">for</span> <span class="n">t2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t2hahn</span><span class="p">):</span>
             <span class="c1"># Make T1 huge so only T2 matters</span>
             <span class="n">passes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">RelaxationNoisePass</span><span class="p">([</span><span class="n">t</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t2hahn</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t2hahn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">Delay</span><span class="p">)</span>
@@ -770,7 +770,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -785,7 +785,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

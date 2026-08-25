@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html"><link rel="search" title="Search" href="../../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.tomography.basis.pauli_basis - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.tomography.basis.pauli_basis - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Pauli preparation and measurement tomography bases.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -575,7 +575,7 @@
 <div class="viewcode-block" id="PauliMeasurementBasis">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.tomography.basis.PauliMeasurementBasis.html#qiskit_experiments.library.tomography.basis.PauliMeasurementBasis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PauliMeasurementBasis</span><span class="p">(</span><span class="n">LocalMeasurementBasis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Standard Pauli measurement basis.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Standard Pauli measurement basis.</span>
 
 <span class="sd">    This basis has 3 indices each with with 2 measurement outcomes. The</span>
 <span class="sd">    corresponding single-qubit measurement circuits and outcome POVM</span>
@@ -599,29 +599,29 @@
 <span class="sd">        |       |       |               | 1       |``[[0.5, 0.5j], [-0.5j, 0.5]]``|</span>
 <span class="sd">        +-------+-------+---------------+---------+-------------------------------+</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mitigator</span><span class="p">:</span> <span class="n">LocalReadoutMitigator</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize Pauli measurement basis&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize Pauli measurement basis"""</span>
         <span class="c1"># Z-meas rotation</span>
-        <span class="n">meas_z</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliMeasZ&quot;</span><span class="p">)</span>
+        <span class="n">meas_z</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliMeasZ"</span><span class="p">)</span>
         <span class="c1"># X-meas rotation</span>
-        <span class="n">meas_x</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliMeasX&quot;</span><span class="p">)</span>
+        <span class="n">meas_x</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliMeasX"</span><span class="p">)</span>
         <span class="n">meas_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="c1"># Y-meas rotation</span>
-        <span class="n">meas_y</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliMeasY&quot;</span><span class="p">)</span>
+        <span class="n">meas_y</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliMeasY"</span><span class="p">)</span>
         <span class="n">meas_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SdgGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">meas_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">instructions</span> <span class="o">=</span> <span class="p">[</span><span class="n">meas_z</span><span class="p">,</span> <span class="n">meas_x</span><span class="p">,</span> <span class="n">meas_y</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mitigator</span> <span class="o">=</span> <span class="n">mitigator</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="s2">&quot;PauliMeasurementBasis&quot;</span><span class="p">,</span> <span class="n">instructions</span><span class="p">,</span> <span class="n">qubit_povms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mitigator_povm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mitigator</span><span class="p">)</span>
+            <span class="s2">"PauliMeasurementBasis"</span><span class="p">,</span> <span class="n">instructions</span><span class="p">,</span> <span class="n">qubit_povms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mitigator_povm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mitigator</span><span class="p">)</span>
         <span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_mitigator_povm</span><span class="p">(</span><span class="n">mitigator</span><span class="p">:</span> <span class="n">LocalReadoutMitigator</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct LocalMeasurementBasis qubit_povm from mitigator.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Construct LocalMeasurementBasis qubit_povm from mitigator."""</span>
         <span class="k">if</span> <span class="n">mitigator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">povm</span> <span class="o">=</span> <span class="p">{}</span>
@@ -631,13 +631,13 @@
                 <span class="n">amat</span> <span class="o">=</span> <span class="n">mitigator</span><span class="o">.</span><span class="n">assignment_matrix</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span>
                 <span class="n">povm</span><span class="p">[(</span><span class="n">qubit</span><span class="p">,)]</span> <span class="o">=</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,):</span> <span class="p">[</span><span class="n">DensityMatrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">row</span><span class="p">))</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">amat</span><span class="p">]}</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Invalid mitigator: must be LocalReadoutMitigator&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"Invalid mitigator: must be LocalReadoutMitigator"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">povm</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="c1"># Override LocalMeasurementBasis&#39;s encoder</span>
+        <span class="c1"># Override LocalMeasurementBasis's encoder</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mitigator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;mitigator&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mitigator</span><span class="p">}</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">"mitigator"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mitigator</span><span class="p">}</span>
         <span class="k">return</span> <span class="p">{}</span>
 
     <span class="nd">@classmethod</span>
@@ -649,7 +649,7 @@
 <div class="viewcode-block" id="PauliPreparationBasis">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.tomography.basis.PauliPreparationBasis.html#qiskit_experiments.library.tomography.basis.PauliPreparationBasis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PauliPreparationBasis</span><span class="p">(</span><span class="n">LocalPreparationBasis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimal 4-element Pauli measurement basis.</span>
+<span class="w">    </span><span class="sd">"""Minimal 4-element Pauli measurement basis.</span>
 
 <span class="sd">    This is a minimal size 4 preparation basis where each qubit</span>
 <span class="sd">    index corresponds to the following initial state preparation</span>
@@ -669,26 +669,26 @@
 <span class="sd">        | 3     | Yp    | ``-[H]-[S]-``       | ``[[0.5, -0.5j], [0.5j, 0.5]]`` |</span>
 <span class="sd">        +-------+-------+---------------------+---------------------------------+</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize Pauli preparation basis&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize Pauli preparation basis"""</span>
         <span class="c1"># |0&gt; Zp rotation</span>
-        <span class="n">prep_zp</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliPrepZp&quot;</span><span class="p">)</span>
+        <span class="n">prep_zp</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliPrepZp"</span><span class="p">)</span>
         <span class="c1"># |1&gt; Zm rotation</span>
-        <span class="n">prep_zm</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliPrepZm&quot;</span><span class="p">)</span>
+        <span class="n">prep_zm</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliPrepZm"</span><span class="p">)</span>
         <span class="n">prep_zm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="c1"># |+&gt; Xp rotation</span>
-        <span class="n">prep_xp</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliPrepXp&quot;</span><span class="p">)</span>
+        <span class="n">prep_xp</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliPrepXp"</span><span class="p">)</span>
         <span class="n">prep_xp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="c1"># |+i&gt; Yp rotation</span>
-        <span class="n">prep_yp</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliPrepYp&quot;</span><span class="p">)</span>
+        <span class="n">prep_yp</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliPrepYp"</span><span class="p">)</span>
         <span class="n">prep_yp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">prep_yp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;PauliPreparationBasis&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">prep_zp</span><span class="p">,</span> <span class="n">prep_zm</span><span class="p">,</span> <span class="n">prep_xp</span><span class="p">,</span> <span class="n">prep_yp</span><span class="p">])</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"PauliPreparationBasis"</span><span class="p">,</span> <span class="p">[</span><span class="n">prep_zp</span><span class="p">,</span> <span class="n">prep_zm</span><span class="p">,</span> <span class="n">prep_xp</span><span class="p">,</span> <span class="n">prep_yp</span><span class="p">])</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="c1"># Override LocalPreparationBasis&#39;s encoder</span>
+        <span class="c1"># Override LocalPreparationBasis's encoder</span>
         <span class="k">return</span> <span class="p">{}</span>
 
     <span class="nd">@classmethod</span>
@@ -700,7 +700,7 @@
 <div class="viewcode-block" id="Pauli6PreparationBasis">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.tomography.basis.Pauli6PreparationBasis.html#qiskit_experiments.library.tomography.basis.Pauli6PreparationBasis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Pauli6PreparationBasis</span><span class="p">(</span><span class="n">LocalPreparationBasis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Over-complete 6-element Pauli preparation basis.</span>
+<span class="w">    </span><span class="sd">"""Over-complete 6-element Pauli preparation basis.</span>
 
 <span class="sd">    This is an over-complete size 6 preparation basis where each qubit</span>
 <span class="sd">    index corresponds to the following initial state density matrices:</span>
@@ -723,31 +723,31 @@
 <span class="sd">        | 3     | Ym    | ``-[H]-[Sdg]-``     | ``[[0.5, 0.5j], [-0.5j, 0.5]]`` |</span>
 <span class="sd">        +-------+-------+---------------------+---------------------------------+</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># |0&gt; Zp rotation</span>
-        <span class="n">prep_zp</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliPrepZp&quot;</span><span class="p">)</span>
+        <span class="n">prep_zp</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliPrepZp"</span><span class="p">)</span>
         <span class="c1"># |1&gt; Zm rotation</span>
-        <span class="n">prep_zm</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliPrepZm&quot;</span><span class="p">)</span>
+        <span class="n">prep_zm</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliPrepZm"</span><span class="p">)</span>
         <span class="n">prep_zm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">XGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="c1"># |+&gt; Xp rotation</span>
-        <span class="n">prep_xp</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliPrepXp&quot;</span><span class="p">)</span>
+        <span class="n">prep_xp</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliPrepXp"</span><span class="p">)</span>
         <span class="n">prep_xp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="c1"># |-&gt; Xm rotation</span>
-        <span class="n">prep_xm</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliPrepXm&quot;</span><span class="p">)</span>
+        <span class="n">prep_xm</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliPrepXm"</span><span class="p">)</span>
         <span class="n">prep_xm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">prep_xm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ZGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="c1"># |+i&gt; Yp rotation</span>
-        <span class="n">prep_yp</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliPrepYp&quot;</span><span class="p">)</span>
+        <span class="n">prep_yp</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliPrepYp"</span><span class="p">)</span>
         <span class="n">prep_yp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">prep_yp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="c1"># |-i&gt; Ym rotation</span>
-        <span class="n">prep_ym</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PauliPrepYm&quot;</span><span class="p">)</span>
+        <span class="n">prep_ym</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"PauliPrepYm"</span><span class="p">)</span>
         <span class="n">prep_ym</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">prep_ym</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SdgGate</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="s2">&quot;Pauli6PreparationBasis&quot;</span><span class="p">,</span>
+            <span class="s2">"Pauli6PreparationBasis"</span><span class="p">,</span>
             <span class="p">[</span>
                 <span class="n">prep_zp</span><span class="p">,</span>
                 <span class="n">prep_zm</span><span class="p">,</span>
@@ -759,7 +759,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="c1"># Override LocalPreparationBasis&#39;s encoder</span>
+        <span class="c1"># Override LocalPreparationBasis's encoder</span>
         <span class="k">return</span> <span class="p">{}</span>
 
     <span class="nd">@classmethod</span>
@@ -784,7 +784,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -799,7 +799,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.curve_analysis.base_curve_analysis - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.curve_analysis.base_curve_analysis - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -556,9 +556,9 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Base class of curve analysis.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 
@@ -581,15 +581,15 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.curve_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">CurveFitResult</span><span class="p">,</span> <span class="n">ParameterRepr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.scatter_table</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScatterTable</span>
 
-<span class="n">DATA_ENTRY_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;@Data_&quot;</span>
+<span class="n">DATA_ENTRY_PREFIX</span> <span class="o">=</span> <span class="s2">"@Data_"</span>
 
 
 <div class="viewcode-block" id="BaseCurveAnalysis">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.BaseCurveAnalysis.html#qiskit_experiments.curve_analysis.BaseCurveAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseCurveAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract superclass of curve analysis base classes.</span>
+<span class="w">    </span><span class="sd">"""Abstract superclass of curve analysis base classes.</span>
 
-<span class="sd">    Note that this class doesn&#39;t define the :meth:`_run_analysis` method,</span>
+<span class="sd">    Note that this class doesn't define the :meth:`_run_analysis` method,</span>
 <span class="sd">    and no actual fitting protocol is implemented in this base class.</span>
 <span class="sd">    However, this class defines several common methods that can be reused.</span>
 <span class="sd">    A curve analysis subclass can construct proper fitting protocol</span>
@@ -623,8 +623,8 @@
 <span class="sd">    .. rubric:: _evaluate_quality</span>
 
 <span class="sd">    This method evaluates the quality of the fit based on the fit result.</span>
-<span class="sd">    This returns &quot;good&quot; when reduced chi-squared is less than 3.0.</span>
-<span class="sd">    Usually it returns string &quot;good&quot; or &quot;bad&quot; according to the evaluation.</span>
+<span class="sd">    This returns "good" when reduced chi-squared is less than 3.0.</span>
+<span class="sd">    Usually it returns string "good" or "bad" according to the evaluation.</span>
 <span class="sd">    This criterion can be updated by subclass.</span>
 
 <span class="sd">    .. rubric:: _run_curve_fit</span>
@@ -649,31 +649,31 @@
 <span class="sd">    This method initializes analysis options against input experiment data.</span>
 <span class="sd">    Usually this method is called before other methods are called.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return parameters estimated by this analysis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return parameters estimated by this analysis."""</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return name of this analysis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return name of this analysis."""</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return fit models.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return fit models."""</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">plotter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePlotter</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A short-cut to the curve plotter instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A short-cut to the curve plotter instance."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">plotter</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default analysis options.</span>
+<span class="w">        </span><span class="sd">"""Return default analysis options.</span>
 
 <span class="sd">        Analysis Options:</span>
 <span class="sd">            plotter (BasePlotter): A curve plotter instance to visualize</span>
@@ -689,13 +689,13 @@
 <span class="sd">                instance that defines the `self.__call__` method.</span>
 <span class="sd">            normalization (bool): Set ``True`` to normalize y values within range [-1, 1].</span>
 <span class="sd">                Default to ``False``.</span>
-<span class="sd">            average_method (Literal[&quot;sample&quot;, &quot;iwv&quot;, &quot;shots_weighted&quot;]): Method</span>
+<span class="sd">            average_method (Literal["sample", "iwv", "shots_weighted"]): Method</span>
 <span class="sd">                to average the y values when the same x values</span>
-<span class="sd">                appear multiple times. One of &quot;sample&quot;, &quot;iwv&quot; (i.e. inverse</span>
-<span class="sd">                weighted variance), &quot;shots_weighted&quot;. See</span>
+<span class="sd">                appear multiple times. One of "sample", "iwv" (i.e. inverse</span>
+<span class="sd">                weighted variance), "shots_weighted". See</span>
 <span class="sd">                :func:`.sample_average`, :func:`.inverse_weighted_variance`,</span>
 <span class="sd">                and :func:`.shot_weighted_average` for details. Default to</span>
-<span class="sd">                &quot;shots_weighted&quot;.</span>
+<span class="sd">                "shots_weighted".</span>
 <span class="sd">            p0 (Dict[str, float]): Initial guesses for the fit parameters.</span>
 <span class="sd">                The dictionary is keyed on the fit parameter names.</span>
 <span class="sd">            bounds (Dict[str, Tuple[float, float]]): Boundary of fit parameters.</span>
@@ -713,9 +713,11 @@
 <span class="sd">                database as a dedicated entry. This is a list of parameter representation</span>
 <span class="sd">                which is either string or ParameterRepr object. If you provide more</span>
 <span class="sd">                information other than name, you can specify</span>
-<span class="sd">                ``[ParameterRepr(&quot;alpha&quot;, &quot;\u03b1&quot;, &quot;a.u.&quot;)]`` for example.</span>
+<span class="sd">                ``[ParameterRepr("alpha", "\u03b1", "a.u.")]`` for example.</span>
 <span class="sd">                The parameter name should be defined in the series definition.</span>
 <span class="sd">                Representation should be printable in standard output, i.e. no latex syntax.</span>
+<span class="sd">                The name of each reported parameter is also the key used to retrieve the</span>
+<span class="sd">                corresponding result, e.g. ``exp_data.analysis_results("alpha")``.</span>
 <span class="sd">            extra (Dict[str, Any]): A dictionary that is appended to all database entries</span>
 <span class="sd">                as extra information.</span>
 <span class="sd">            fixed_parameters (Dict[str, Any]): Fitting model parameters that are fixed</span>
@@ -729,7 +731,7 @@
 <span class="sd">                to sub-fit models. This dictionary is keyed on the LMFIT model name,</span>
 <span class="sd">                and the value is a sorting key-value pair that filters the experiment results,</span>
 <span class="sd">                and the filtering is done based on the circuit metadata.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
 
         <span class="n">options</span><span class="o">.</span><span class="n">plotter</span> <span class="o">=</span> <span class="n">CurvePlotter</span><span class="p">(</span><span class="n">MplDrawer</span><span class="p">())</span>
@@ -737,12 +739,12 @@
         <span class="n">options</span><span class="o">.</span><span class="n">plot_residuals</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">options</span><span class="o">.</span><span class="n">data_processor</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">options</span><span class="o">.</span><span class="n">normalization</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">average_method</span> <span class="o">=</span> <span class="s2">&quot;shots_weighted&quot;</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">x_key</span> <span class="o">=</span> <span class="s2">&quot;xval&quot;</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">fit_category</span> <span class="o">=</span> <span class="s2">&quot;formatted&quot;</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">average_method</span> <span class="o">=</span> <span class="s2">"shots_weighted"</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">x_key</span> <span class="o">=</span> <span class="s2">"xval"</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">fit_category</span> <span class="o">=</span> <span class="s2">"formatted"</span>
         <span class="n">options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">options</span><span class="o">.</span><span class="n">extra</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">fit_method</span> <span class="o">=</span> <span class="s2">&quot;least_squares&quot;</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">fit_method</span> <span class="o">=</span> <span class="s2">"least_squares"</span>
         <span class="n">options</span><span class="o">.</span><span class="n">lmfit_options</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">options</span><span class="o">.</span><span class="n">p0</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">options</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="p">{}</span>
@@ -751,8 +753,8 @@
         <span class="n">options</span><span class="o">.</span><span class="n">data_subfit_map</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Set automatic validator for particular option values</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s2">&quot;data_processor&quot;</span><span class="p">,</span> <span class="n">validator_value</span><span class="o">=</span><span class="n">DataProcessor</span><span class="p">)</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s2">&quot;plotter&quot;</span><span class="p">,</span> <span class="n">validator_value</span><span class="o">=</span><span class="n">BasePlotter</span><span class="p">)</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s2">"data_processor"</span><span class="p">,</span> <span class="n">validator_value</span><span class="o">=</span><span class="n">DataProcessor</span><span class="p">)</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s2">"plotter"</span><span class="p">,</span> <span class="n">validator_value</span><span class="o">=</span><span class="n">BasePlotter</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">options</span>
 
@@ -760,9 +762,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_data_processing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
-        <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;raw&quot;</span><span class="p">,</span>
+        <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"raw"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScatterTable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform data processing from the experiment result payload.</span>
+<span class="w">        </span><span class="sd">"""Perform data processing from the experiment result payload.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            raw_data: Payload in the experiment data.</span>
@@ -770,15 +772,15 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Processed data that will be sent to the formatter method.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
-        <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;formatted&quot;</span><span class="p">,</span>
+        <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"formatted"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScatterTable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Postprocessing for preparing the fitting data.</span>
+<span class="w">        </span><span class="sd">"""Postprocessing for preparing the fitting data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            curve_data: Processed dataset created from experiment results.</span>
@@ -786,37 +788,37 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            New scatter table instance including fit data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_curve_fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CurveFitResult</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform curve fitting on given data collection and fit models.</span>
+<span class="w">        </span><span class="sd">"""Perform curve fitting on given data collection and fit models.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            curve_data: Formatted data to fit.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The best fitting outcome with minimum reduced chi-squared value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_quality</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">fit_data</span><span class="p">:</span> <span class="n">CurveFitResult</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate quality of the fit result.</span>
+<span class="w">        </span><span class="sd">"""Evaluate quality of the fit result.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fit_data: Fit outcome.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            String that represents fit result quality. Usually &quot;good&quot; or &quot;bad&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            String that represents fit result quality. Usually "good" or "bad".</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span> <span class="o">&lt;</span> <span class="mf">3.0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;good&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;bad&quot;</span>
+            <span class="k">return</span> <span class="s2">"good"</span>
+        <span class="k">return</span> <span class="s2">"bad"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_analysis_results</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -824,7 +826,7 @@
         <span class="n">quality</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">**</span><span class="n">metadata</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create analysis results for important fit parameters.</span>
+<span class="w">        </span><span class="sd">"""Create analysis results for important fit parameters.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fit_data: Fit outcome.</span>
@@ -832,7 +834,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of analysis result data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">outcomes</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Create entries for important parameters</span>
@@ -848,7 +850,7 @@
 
             <span class="k">if</span> <span class="n">unit</span><span class="p">:</span>
                 <span class="n">par_metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                <span class="n">par_metadata</span><span class="p">[</span><span class="s2">&quot;unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit</span>
+                <span class="n">par_metadata</span><span class="p">[</span><span class="s2">"unit"</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">par_metadata</span> <span class="o">=</span> <span class="n">metadata</span>
 
@@ -869,26 +871,26 @@
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
         <span class="o">**</span><span class="n">metadata</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create analysis results for raw curve data.</span>
+<span class="w">        </span><span class="sd">"""Create analysis results for raw curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            curve_data: Formatted data that is used for the fitting.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of analysis result data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;model_name&quot;</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"model_name"</span><span class="p">)):</span>
             <span class="n">raw_datum</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">DATA_ENTRY_PREFIX</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;xdata&quot;</span><span class="p">:</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">xval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
-                    <span class="s2">&quot;ydata&quot;</span><span class="p">:</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">yval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
-                    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">yerr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+                    <span class="s2">"xdata"</span><span class="p">:</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">xval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+                    <span class="s2">"ydata"</span><span class="p">:</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">yval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+                    <span class="s2">"sigma"</span><span class="p">:</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">yerr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
                 <span class="p">},</span>
                 <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">model_name</span><span class="p">,</span>
+                    <span class="s2">"name"</span><span class="p">:</span> <span class="n">model_name</span><span class="p">,</span>
                     <span class="o">**</span><span class="n">metadata</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">)</span>
@@ -899,28 +901,28 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_figures</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a list of figures from the curve data.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"matplotlib.figure.Figure"</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Create a list of figures from the curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            curve_data: Scatter data table containing all data points.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of figures.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_initialize</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize curve analysis with experiment data.</span>
+<span class="w">        </span><span class="sd">"""Initialize curve analysis with experiment data.</span>
 
 <span class="sd">        This method is called ahead of other processing.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_data: Experiment data to analyze.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Initialize data processor</span>
         <span class="c1"># TODO move this to base analysis in follow-up</span>
         <span class="n">data_processor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">data_processor</span> <span class="ow">or</span> <span class="n">get_processor</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
@@ -947,7 +949,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -962,7 +964,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

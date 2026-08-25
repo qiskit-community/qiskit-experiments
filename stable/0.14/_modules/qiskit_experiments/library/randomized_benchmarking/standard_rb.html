@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.standard_rb - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.standard_rb - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Standard RB Experiment class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
@@ -609,7 +609,7 @@
 <div class="viewcode-block" id="StandardRB">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html#qiskit_experiments.library.randomized_benchmarking.StandardRB">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">StandardRB</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An experiment to characterize the error rate of a gate set on a device.</span>
+<span class="w">    </span><span class="sd">"""An experiment to characterize the error rate of a gate set on a device.</span>
 
 <span class="sd">    # section: overview</span>
 
@@ -649,9 +649,9 @@
 <span class="sd">            from qiskit_aer.noise import NoiseModel, depolarizing_error</span>
 
 <span class="sd">            noise_model = NoiseModel()</span>
-<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), [&quot;sx&quot;, &quot;x&quot;])</span>
-<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), [&quot;rz&quot;])</span>
-<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), [&quot;cx&quot;])</span>
+<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-3, 1), ["sx", "x"])</span>
+<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(0, 1), ["rz"])</span>
+<span class="sd">            noise_model.add_all_qubit_quantum_error(depolarizing_error(5e-2, 2), ["cx"])</span>
 <span class="sd">            backend = AerSimulator(noise_model=noise_model)</span>
 
 <span class="sd">        .. jupyter-execute::</span>
@@ -684,11 +684,11 @@
 <span class="sd">            expdata_2q = exp_2q.run(backend=backend).block_for_results()</span>
 <span class="sd">            results_2q = expdata_2q.analysis_results(dataframe=True)</span>
 
-<span class="sd">            print(&quot;Gate error ratio: %s&quot; % expdata_2q.experiment.analysis.options.gate_error_ratio)</span>
+<span class="sd">            print("Gate error ratio: %s" % expdata_2q.experiment.analysis.options.gate_error_ratio)</span>
 <span class="sd">            display(expdata_2q.figure(0))</span>
 
-<span class="sd">            print(f&quot;Available results: {set(results_2q.name)}&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">            print(f"Available results: {set(results_2q.name)}")</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -699,7 +699,7 @@
         <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">SeedSequence</span> <span class="o">|</span> <span class="n">BitGenerator</span> <span class="o">|</span> <span class="n">Generator</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">full_sampling</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a standard randomized benchmarking experiment.</span>
+<span class="w">        </span><span class="sd">"""Initialize a standard randomized benchmarking experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            physical_qubits: List of physical qubits for the experiment.</span>
@@ -716,31 +716,31 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: If any invalid argument is supplied.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Initialize base experiment</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">RBAnalysis</span><span class="p">(),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
         <span class="c1"># Verify parameters</span>
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">length</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span> <span class="n">lengths</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;The lengths list </span><span class="si">{</span><span class="n">lengths</span><span class="si">}</span><span class="s2"> should only contain &quot;</span> <span class="s2">&quot;positive elements.&quot;</span>
+                <span class="sa">f</span><span class="s2">"The lengths list </span><span class="si">{</span><span class="n">lengths</span><span class="si">}</span><span class="s2"> should only contain "</span> <span class="s2">"positive elements."</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">lengths</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lengths</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;The lengths list </span><span class="si">{</span><span class="n">lengths</span><span class="si">}</span><span class="s2"> should not contain &quot;</span> <span class="s2">&quot;duplicate elements.&quot;</span>
+                <span class="sa">f</span><span class="s2">"The lengths list </span><span class="si">{</span><span class="n">lengths</span><span class="si">}</span><span class="s2"> should not contain "</span> <span class="s2">"duplicate elements."</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">num_samples</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The number of samples </span><span class="si">{</span><span class="n">num_samples</span><span class="si">}</span><span class="s2"> should &quot;</span> <span class="s2">&quot;be positive.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The number of samples </span><span class="si">{</span><span class="n">num_samples</span><span class="si">}</span><span class="s2"> should "</span> <span class="s2">"be positive."</span><span class="p">)</span>
 
         <span class="c1"># Set configurable options</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span>
             <span class="n">lengths</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">lengths</span><span class="p">),</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">full_sampling</span><span class="o">=</span><span class="n">full_sampling</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;0&quot;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">"0"</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default experiment options.</span>
+<span class="w">        </span><span class="sd">"""Default experiment options.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            lengths (List[int]): A list of RB sequences lengths.</span>
@@ -754,7 +754,7 @@
 <span class="sd">                by appending additional Clifford samples to shorter sequences.</span>
 <span class="sd">            clifford_synthesis_method (str): The name of the Clifford synthesis plugin to use</span>
 <span class="sd">                for building circuits of RB sequences. See :ref:`synth-methods-lbl`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span>
             <span class="n">lengths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -768,17 +768,17 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_transpile_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default transpiler options for transpiling RB circuits.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default transpiler options for transpiling RB circuits."""</span>
         <span class="k">return</span> <span class="n">Options</span><span class="p">(</span><span class="n">optimization_level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the backend V2 for RB experiments since RB experiments only support BackendV2</span>
+<span class="w">        </span><span class="sd">"""Set the backend V2 for RB experiments since RB experiments only support BackendV2</span>
 <span class="sd">        except for simulators. If BackendV1 is provided, it is converted to V2 and stored.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">BackendV1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">BackendV1</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="s2">&quot;simulator&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">backend</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="s2">"simulator"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">backend</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
         <span class="p">):</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_backend</span><span class="p">(</span><span class="n">BackendV2Converter</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">add_delay</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -787,11 +787,11 @@
 <div class="viewcode-block" id="StandardRB.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.StandardRB.html#qiskit_experiments.library.randomized_benchmarking.StandardRB.circuits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of RB circuits.</span>
+<span class="w">        </span><span class="sd">"""Return a list of RB circuits.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`QuantumCircuit`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Sample random Clifford sequences</span>
         <span class="n">sequences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_sequences</span><span class="p">()</span>
         <span class="c1"># Convert each sequence into circuit and append the inverse to the end.</span>
@@ -799,18 +799,18 @@
         <span class="c1"># Add metadata for each circuit</span>
         <span class="k">for</span> <span class="n">circ</span><span class="p">,</span> <span class="n">seq</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">circuits</span><span class="p">,</span> <span class="n">sequences</span><span class="p">):</span>
             <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">),</span>
-                <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="s2">&quot;Clifford&quot;</span><span class="p">,</span>
+                <span class="s2">"xval"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">),</span>
+                <span class="s2">"group"</span><span class="p">:</span> <span class="s2">"Clifford"</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="k">return</span> <span class="n">circuits</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_sample_sequences</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">SequenceElementType</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample RB sequences</span>
+<span class="w">        </span><span class="sd">"""Sample RB sequences</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of RB sequences.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">rng</span> <span class="o">=</span> <span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
         <span class="n">sequences</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">full_sampling</span><span class="p">:</span>
@@ -826,35 +826,35 @@
         <span class="k">return</span> <span class="n">sequences</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_synthesis_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get options for Clifford synthesis from the backend information as a dictionary.</span>
+<span class="w">        </span><span class="sd">"""Get options for Clifford synthesis from the backend information as a dictionary.</span>
 
 <span class="sd">        The options include:</span>
-<span class="sd">        - &quot;basis_gates&quot;: Sorted basis gate names.</span>
+<span class="sd">        - "basis_gates": Sorted basis gate names.</span>
 <span class="sd">            Return None if no basis gates are supplied via ``backend`` or ``transpile_options``.</span>
-<span class="sd">        - &quot;coupling_tuple&quot;: Reduced coupling map in the form of tuple of edges in the coupling graph.</span>
+<span class="sd">        - "coupling_tuple": Reduced coupling map in the form of tuple of edges in the coupling graph.</span>
 <span class="sd">            Return None if no coupling map are supplied via ``backend`` or ``transpile_options``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Synthesis options as a dictionary.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">basis_gates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpile_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basis_gates&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">coupling_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpile_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coupling_map&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">basis_gates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpile_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"basis_gates"</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">coupling_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpile_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"coupling_map"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">coupling_map</span><span class="p">:</span>
             <span class="n">coupling_map</span> <span class="o">=</span> <span class="n">coupling_map</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">basis_gates</span> <span class="ow">and</span> <span class="n">coupling_map</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">BackendV2</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;simulator&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">BackendV2</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"simulator"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">basis_gates</span><span class="p">:</span>
                     <span class="n">basis_gates</span> <span class="o">=</span> <span class="p">[</span>
                         <span class="n">op</span><span class="o">.</span><span class="n">name</span>
                         <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">operations</span>
-                        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">in</span> <span class="n">STANDARD_GATE_NAMES</span>
+                        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">in</span> <span class="n">STANDARD_GATE_NAMES</span>
                     <span class="p">]</span>
                 <span class="n">coupling_map</span> <span class="o">=</span> <span class="n">coupling_map</span> <span class="k">if</span> <span class="n">coupling_map</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">BackendV2</span><span class="p">):</span>
                 <span class="n">gate_ops</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">op</span>
                     <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">operations</span>
-                    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">in</span> <span class="n">STANDARD_GATE_NAMES</span>
+                    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">in</span> <span class="n">STANDARD_GATE_NAMES</span>
                 <span class="p">]</span>
                 <span class="n">backend_basis_gates</span> <span class="o">=</span> <span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">gate_ops</span> <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span>
                 <span class="n">backend_cmap</span> <span class="o">=</span> <span class="kc">None</span>
@@ -882,19 +882,19 @@
                 <span class="n">coupling_map</span> <span class="o">=</span> <span class="n">coupling_map</span> <span class="k">if</span> <span class="n">coupling_map</span> <span class="k">else</span> <span class="n">backend_cmap</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;basis_gates&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">basis_gates</span><span class="p">))</span> <span class="k">if</span> <span class="n">basis_gates</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;coupling_tuple&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">coupling_map</span><span class="o">.</span><span class="n">get_edges</span><span class="p">()))</span> <span class="k">if</span> <span class="n">coupling_map</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;synthesis_method&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="p">[</span><span class="s2">&quot;clifford_synthesis_method&quot;</span><span class="p">],</span>
+            <span class="s2">"basis_gates"</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">basis_gates</span><span class="p">))</span> <span class="k">if</span> <span class="n">basis_gates</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"coupling_tuple"</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">coupling_map</span><span class="o">.</span><span class="n">get_edges</span><span class="p">()))</span> <span class="k">if</span> <span class="n">coupling_map</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"synthesis_method"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="p">[</span><span class="s2">"clifford_synthesis_method"</span><span class="p">],</span>
         <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_sequences_to_circuits</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">sequences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">SequenceElementType</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert an RB sequence into circuit and append the inverse to the end.</span>
+<span class="w">        </span><span class="sd">"""Convert an RB sequence into circuit and append the inverse to the end.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of RB circuits.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">synthesis_opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_synthesis_options</span><span class="p">()</span>
         <span class="c1"># Circuit generation</span>
         <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
@@ -935,7 +935,7 @@
         <span class="n">elem</span><span class="p">:</span> <span class="n">SequenceElementType</span><span class="p">,</span>
         <span class="n">synthesis_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the instruction of a Clifford element.</span>
+<span class="w">        </span><span class="sd">"""Return the instruction of a Clifford element.</span>
 
 <span class="sd">        The resulting instruction contains a circuit definition with ``basis_gates`` and</span>
 <span class="sd">        it complies with ``coupling_tuple``, which is specified in ``synthesis_options``.</span>
@@ -946,14 +946,14 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Converted instruction</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Switching for speed up</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">Integral</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">_clifford_1q_int_to_instruction</span><span class="p">(</span>
                     <span class="n">elem</span><span class="p">,</span>
-                    <span class="n">basis_gates</span><span class="o">=</span><span class="n">synthesis_options</span><span class="p">[</span><span class="s2">&quot;basis_gates&quot;</span><span class="p">],</span>
-                    <span class="n">synthesis_method</span><span class="o">=</span><span class="n">synthesis_options</span><span class="p">[</span><span class="s2">&quot;synthesis_method&quot;</span><span class="p">],</span>
+                    <span class="n">basis_gates</span><span class="o">=</span><span class="n">synthesis_options</span><span class="p">[</span><span class="s2">"basis_gates"</span><span class="p">],</span>
+                    <span class="n">synthesis_method</span><span class="o">=</span><span class="n">synthesis_options</span><span class="p">[</span><span class="s2">"synthesis_method"</span><span class="p">],</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">_clifford_2q_int_to_instruction</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="o">**</span><span class="n">synthesis_options</span><span class="p">)</span>
@@ -988,12 +988,12 @@
         <span class="k">return</span> <span class="n">op</span><span class="o">.</span><span class="n">adjoint</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_transpiled_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of experiment circuits, transpiled.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a list of experiment circuits, transpiled."""</span>
         <span class="n">has_custom_transpile_option</span> <span class="o">=</span> <span class="p">(</span>
             <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transpile_options</span><span class="p">))</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;basis_gates&quot;</span><span class="p">,</span> <span class="s2">&quot;coupling_map&quot;</span><span class="p">,</span> <span class="s2">&quot;optimization_level&quot;</span><span class="p">}</span>
+                <span class="p">{</span><span class="s2">"basis_gates"</span><span class="p">,</span> <span class="s2">"coupling_map"</span><span class="p">,</span> <span class="s2">"optimization_level"</span><span class="p">}</span>
             <span class="p">)</span>
-            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpile_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;optimization_level&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpile_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"optimization_level"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">has_custom_transpile_option</span><span class="p">:</span>
             <span class="n">transpiled</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_transpiled_circuits</span><span class="p">()</span>
@@ -1003,7 +1003,7 @@
                 <span class="k">for</span> <span class="n">circ</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">()</span>
             <span class="p">]</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gate_error_ratio&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gate_error_ratio"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Gate errors are not computed, then counting ops is not necessary.</span>
             <span class="k">return</span> <span class="n">transpiled</span>
 
@@ -1017,7 +1017,7 @@
             <span class="k">for</span> <span class="n">cdata</span> <span class="ow">in</span> <span class="n">circ</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
                 <span class="n">inst</span> <span class="o">=</span> <span class="n">cdata</span><span class="o">.</span><span class="n">operation</span>
                 <span class="n">qargs</span> <span class="o">=</span> <span class="n">cdata</span><span class="o">.</span><span class="n">qubits</span>
-                <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;measure&quot;</span><span class="p">,</span> <span class="s2">&quot;reset&quot;</span><span class="p">,</span> <span class="s2">&quot;delay&quot;</span><span class="p">,</span> <span class="s2">&quot;barrier&quot;</span><span class="p">,</span> <span class="s2">&quot;snapshot&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"measure"</span><span class="p">,</span> <span class="s2">"reset"</span><span class="p">,</span> <span class="s2">"delay"</span><span class="p">,</span> <span class="s2">"barrier"</span><span class="p">,</span> <span class="s2">"snapshot"</span><span class="p">):</span>
                     <span class="k">continue</span>
                 <span class="n">qinds</span> <span class="o">=</span> <span class="p">[</span><span class="n">qubit_indices</span><span class="p">[</span><span class="n">q</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qargs</span><span class="p">]</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">)</span><span class="o">.</span><span class="n">issuperset</span><span class="p">(</span><span class="n">qinds</span><span class="p">):</span>
@@ -1025,7 +1025,7 @@
                 <span class="c1"># Not aware of multi-qubit gate direction</span>
                 <span class="n">formatted_key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">qinds</span><span class="p">)),</span> <span class="n">inst</span><span class="o">.</span><span class="n">name</span>
                 <span class="n">count_ops_result</span><span class="p">[</span><span class="n">formatted_key</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;count_ops&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">count_ops_result</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+            <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">"count_ops"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">count_ops_result</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
 
         <span class="k">return</span> <span class="n">transpiled</span>
 
@@ -1033,7 +1033,7 @@
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
         <span class="c1"># Store measurement level and meas return if they have been</span>
         <span class="c1"># set for the experiment</span>
-        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="s2">&quot;meas_return&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"meas_level"</span><span class="p">,</span> <span class="s2">"meas_return"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">):</span>
                 <span class="n">metadata</span><span class="p">[</span><span class="n">run_opt</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">)</span>
 
@@ -1057,7 +1057,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -1072,7 +1072,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

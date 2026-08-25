@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.visualization.style - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.visualization.style - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,15 +555,15 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Configurable stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 
 <div class="viewcode-block" id="PlotStyle">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.visualization.PlotStyle.html#qiskit_experiments.visualization.PlotStyle">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PlotStyle</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.</span>
+<span class="w">    </span><span class="sd">"""A stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.</span>
 
 <span class="sd">    This style class is used by :class:`BasePlotter` and :class:`BaseDrawer`. The</span>
 <span class="sd">    default style for Qiskit Experiments is defined in :meth:`default_style`. Style</span>
@@ -578,9 +578,9 @@
 <span class="sd">        # Create custom style</span>
 <span class="sd">        custom_style = PlotStyle(</span>
 <span class="sd">            {</span>
-<span class="sd">                &quot;legend_loc&quot;: &quot;upper right&quot;,</span>
-<span class="sd">                &quot;textbox_rel_pos&quot;: (1, 1),</span>
-<span class="sd">                &quot;textbox_text_size&quot;: 14,</span>
+<span class="sd">                "legend_loc": "upper right",</span>
+<span class="sd">                "textbox_rel_pos": (1, 1),</span>
+<span class="sd">                "textbox_text_size": 14,</span>
 <span class="sd">            }</span>
 <span class="sd">        )</span>
 
@@ -588,19 +588,19 @@
 <span class="sd">        full_style = PlotStyle.merge(PlotStyle.default_style(), custom_style)</span>
 
 <span class="sd">        ## Query style parameters</span>
-<span class="sd">        # Returns &quot;upper right&quot;</span>
-<span class="sd">        full_style[&quot;legend_loc&quot;]</span>
+<span class="sd">        # Returns "upper right"</span>
+<span class="sd">        full_style["legend_loc"]</span>
 <span class="sd">        # Returns the value provided in ``PlotStyle.default_style()``</span>
-<span class="sd">        full_style[&quot;axis_label_size&quot;]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        full_style["axis_label_size"]</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="PlotStyle.default_style">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.visualization.PlotStyle.html#qiskit_experiments.visualization.PlotStyle.default_style">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">default_style</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PlotStyle&quot;</span><span class="p">:</span>
-        <span class="c1"># Ignore pylint warnings as `Style Parameters` doesn&#39;t contain method parameters.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_style</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"PlotStyle"</span><span class="p">:</span>
+        <span class="c1"># Ignore pylint warnings as `Style Parameters` doesn't contain method parameters.</span>
         <span class="c1"># pylint: disable=differing-param-doc,differing-type-doc</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default style across Qiskit Experiments.</span>
+<span class="w">        </span><span class="sd">"""The default style across Qiskit Experiments.</span>
 
 <span class="sd">        The following is a description of the default style parameters are what they are</span>
 <span class="sd">        used for.</span>
@@ -621,24 +621,24 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The default plot style used by Qiskit Experiments.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">style</span> <span class="o">=</span> <span class="p">{</span>
             <span class="c1"># size of figure (width, height)</span>
-            <span class="s2">&quot;figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>  <span class="c1"># Tuple[int, int]</span>
+            <span class="s2">"figsize"</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>  <span class="c1"># Tuple[int, int]</span>
             <span class="c1"># legend location (vertical, horizontal) or None.</span>
-            <span class="s2">&quot;legend_loc&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># str</span>
+            <span class="s2">"legend_loc"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># str</span>
             <span class="c1"># size of tick label</span>
-            <span class="s2">&quot;tick_label_size&quot;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>  <span class="c1">#  int</span>
+            <span class="s2">"tick_label_size"</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>  <span class="c1">#  int</span>
             <span class="c1"># size of axis label</span>
-            <span class="s2">&quot;axis_label_size&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>  <span class="c1"># int</span>
+            <span class="s2">"axis_label_size"</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>  <span class="c1"># int</span>
             <span class="c1"># relative position of a textbox</span>
-            <span class="s2">&quot;textbox_rel_pos&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.25</span><span class="p">),</span>  <span class="c1"># Tuple[float, float]</span>
+            <span class="s2">"textbox_rel_pos"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.25</span><span class="p">),</span>  <span class="c1"># Tuple[float, float]</span>
             <span class="c1"># size of textbox text</span>
-            <span class="s2">&quot;textbox_text_size&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>  <span class="c1"># int</span>
+            <span class="s2">"textbox_text_size"</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>  <span class="c1"># int</span>
             <span class="c1"># size of caps for error-bars</span>
-            <span class="s2">&quot;errorbar_capsize&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>  <span class="c1"># float</span>
+            <span class="s2">"errorbar_capsize"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>  <span class="c1"># float</span>
             <span class="c1"># Default size of symbols, used for graphics where symbols are drawn for points.</span>
-            <span class="s2">&quot;symbol_size&quot;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>  <span class="c1"># float</span>
+            <span class="s2">"symbol_size"</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>  <span class="c1"># float</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">style</span><span class="p">)</span></div>
 
@@ -646,8 +646,8 @@
 <div class="viewcode-block" id="PlotStyle.merge">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.visualization.PlotStyle.html#qiskit_experiments.visualization.PlotStyle.merge">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">merge</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">style1</span><span class="p">:</span> <span class="s2">&quot;PlotStyle&quot;</span><span class="p">,</span> <span class="n">style2</span><span class="p">:</span> <span class="s2">&quot;PlotStyle&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PlotStyle&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge ``style2`` into ``style1`` as a new PlotStyle instance.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">style1</span><span class="p">:</span> <span class="s2">"PlotStyle"</span><span class="p">,</span> <span class="n">style2</span><span class="p">:</span> <span class="s2">"PlotStyle"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"PlotStyle"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Merge ``style2`` into ``style1`` as a new PlotStyle instance.</span>
 
 <span class="sd">        This method merges an additional style ``style2`` into a base instance</span>
 <span class="sd">        ``style1``, returning the merged style instance instead of modifying the inputs.</span>
@@ -658,7 +658,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Merged style instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">PlotStyle</span><span class="p">({</span><span class="o">**</span><span class="n">style1</span><span class="p">,</span> <span class="o">**</span><span class="n">style2</span><span class="p">})</span></div>
 </div>
 
@@ -680,7 +680,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -695,7 +695,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

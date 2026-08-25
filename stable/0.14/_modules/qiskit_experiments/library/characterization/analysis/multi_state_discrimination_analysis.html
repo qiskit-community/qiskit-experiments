@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html"><link rel="search" title="Search" href="../../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.analysis.multi_state_discrimination_analysis - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.characterization.analysis.multi_state_discrimination_analysis - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Multi state discrimination analysis.&quot;&quot;&quot;</span>
+<span class="sd">"""Multi state discrimination analysis."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -571,7 +571,7 @@
 <div class="viewcode-block" id="MultiStateDiscriminationAnalysis">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.characterization.MultiStateDiscriminationAnalysis.html#qiskit_experiments.library.characterization.MultiStateDiscriminationAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MultiStateDiscriminationAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;This class fits a multi-state discriminator to the data.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""This class fits a multi-state discriminator to the data.</span>
 
 <span class="sd">    The class will report the configuration of the discriminator in the analysis result as well as</span>
 <span class="sd">    the fidelity of the discrimination reported as</span>
@@ -585,12 +585,12 @@
 
 <span class="sd">    .. note::</span>
 <span class="sd">        This class requires that scikit-learn is installed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="nd">@HAS_SKLEARN</span><span class="o">.</span><span class="n">require_in_call</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default analysis options.</span>
+<span class="w">        </span><span class="sd">"""Return default analysis options.</span>
 
 <span class="sd">        Analysis Options:</span>
 <span class="sd">            plot (bool): Set ``True`` to create figure for fit result.</span>
@@ -598,7 +598,7 @@
 <span class="sd">            ax (AxesSubplot): Optional. A matplotlib axis object in which to draw.</span>
 <span class="sd">            discriminator (BaseDiscriminator): The sklearn discriminator to classify the data.</span>
 <span class="sd">                The default is a quadratic discriminant analysis.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">plotter</span> <span class="o">=</span> <span class="n">IQPlotter</span><span class="p">(</span><span class="n">MplDrawer</span><span class="p">())</span>
         <span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span>
@@ -614,14 +614,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">plotter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePlotter</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A short-cut to the IQ plotter instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A short-cut to the IQ plotter instance."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">plotter</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_analysis</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Train a discriminator based on the experiment data.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"matplotlib.figure.Figure"</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">"""Train a discriminator based on the experiment data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_data: the data obtained from the experiment</span>
@@ -629,20 +629,20 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The configuration of the trained discriminator and the IQ plot and the fidelity of the</span>
 <span class="sd">            discrimination.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># number of states and shots</span>
         <span class="n">n_states</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">())</span>
-        <span class="n">num_shots</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;memory&quot;</span><span class="p">])</span>
+        <span class="n">num_shots</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"memory"</span><span class="p">])</span>
 
         <span class="c1"># Process the data and get labels</span>
         <span class="n">data</span><span class="p">,</span> <span class="n">fit_state</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_states</span><span class="p">):</span>
             <span class="n">state_data</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_shots</span><span class="p">):</span>
-                <span class="n">state_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">()[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;memory&quot;</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">state_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">()[</span><span class="n">i</span><span class="p">][</span><span class="s2">"memory"</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">state_data</span><span class="p">))</span>
-            <span class="n">fit_state</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">()[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">])</span>
+            <span class="n">fit_state</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">()[</span><span class="n">i</span><span class="p">][</span><span class="s2">"metadata"</span><span class="p">][</span><span class="s2">"label"</span><span class="p">])</span>
 
         <span class="c1"># Train a discriminator on the processed data</span>
         <span class="n">discriminator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">discriminator</span>
@@ -670,8 +670,8 @@
 
         <span class="c1"># Crate analysis results from the discriminator configuration</span>
         <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">AnalysisResultData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;discriminator_config&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">discriminator</span><span class="o">.</span><span class="n">config</span><span class="p">()),</span>
-            <span class="n">AnalysisResultData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;fidelity&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">fidelity</span><span class="p">),</span>
+            <span class="n">AnalysisResultData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"discriminator_config"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">discriminator</span><span class="o">.</span><span class="n">config</span><span class="p">()),</span>
+            <span class="n">AnalysisResultData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"fidelity"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">fidelity</span><span class="p">),</span>
         <span class="p">]</span>
 
         <span class="n">figures</span> <span class="o">=</span> <span class="p">[]</span>
@@ -681,7 +681,7 @@
         <span class="k">return</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="n">figures</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_levels_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">discriminator</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_state</span><span class="p">,</span> <span class="n">fidelity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function for plotting IQ plane for different energy levels.</span>
+<span class="w">        </span><span class="sd">"""Helper function for plotting IQ plane for different energy levels.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            discriminator: the trained discriminator</span>
@@ -691,11 +691,11 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The plotted IQ data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># create figure labels</span>
         <span class="n">params_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">fit_state</span><span class="p">:</span>
-            <span class="n">params_dict</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;$|</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="se">\\</span><span class="s2">rangle$&quot;</span><span class="p">}</span>
+            <span class="n">params_dict</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"label"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"$|</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="se">\\</span><span class="s2">rangle$"</span><span class="p">}</span>
         <span class="c1"># Update params_dict to contain any existing series_params values,</span>
         <span class="c1"># where they have priority over params_dict.</span>
         <span class="n">params_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="p">)</span>
@@ -728,7 +728,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -743,7 +743,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/scripts/furo.js?v=46bd48cc"></script>

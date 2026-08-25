@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.curve_analysis.standard_analysis.gaussian - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.curve_analysis.standard_analysis.gaussian - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Resonance analysis class based on a Gaussian fit.&quot;&quot;&quot;</span>
+<span class="sd">"""Resonance analysis class based on a Gaussian fit."""</span>
 
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
@@ -569,7 +569,7 @@
 <div class="viewcode-block" id="GaussianAnalysis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.GaussianAnalysis.html#qiskit_experiments.curve_analysis.GaussianAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GaussianAnalysis</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">CurveAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A class to analyze a resonance, typically seen as a peak.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A class to analyze a resonance, typically seen as a peak.</span>
 
 <span class="sd">    Overview</span>
 <span class="sd">        This analysis takes only single series. This series is fit by the Gaussian function.</span>
@@ -604,7 +604,7 @@
 <span class="sd">        - :math:`\sigma`: [0, :math:`\Delta x`] where :math:`\Delta x`</span>
 <span class="sd">          represents frequency scan range.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -613,8 +613,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">models</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
-                    <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;a * exp(-(x-freq)**2 / (2*sigma**2)) + b&quot;</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;gaussian&quot;</span><span class="p">,</span>
+                    <span class="n">expr</span><span class="o">=</span><span class="s2">"a * exp(-(x-freq)**2 / (2*sigma**2)) + b"</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"gaussian"</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">],</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -624,11 +624,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
-            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Frequency&quot;</span><span class="p">,</span>
-            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Signal (arb. units)&quot;</span><span class="p">,</span>
-            <span class="n">xval_unit</span><span class="o">=</span><span class="s2">&quot;Hz&quot;</span><span class="p">,</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">"Frequency"</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">"Signal (arb. units)"</span><span class="p">,</span>
+            <span class="n">xval_unit</span><span class="o">=</span><span class="s2">"Hz"</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">ParameterRepr</span><span class="p">(</span><span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="s2">&quot;f01&quot;</span><span class="p">,</span> <span class="s2">&quot;Hz&quot;</span><span class="p">)]</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">ParameterRepr</span><span class="p">(</span><span class="s2">"freq"</span><span class="p">,</span> <span class="s2">"f01"</span><span class="p">,</span> <span class="s2">"Hz"</span><span class="p">)]</span>
         <span class="n">options</span><span class="o">.</span><span class="n">normalization</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">options</span>
 
@@ -637,7 +637,7 @@
         <span class="n">user_opt</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">ScatterTable</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create algorithmic initial fit guess from analysis options and curve data.</span>
+<span class="w">        </span><span class="sd">"""Create algorithmic initial fit guess from analysis options and curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            user_opt: Fit options filled with user provided guess and bounds.</span>
@@ -645,7 +645,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of fit options that are passed to the fitter function.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">max_abs_y</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">max_height</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">user_opt</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span>
@@ -656,13 +656,13 @@
         <span class="p">)</span>
         <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">constant_spectral_offset</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
 
-        <span class="n">y_</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">]</span>
+        <span class="n">y_</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">"b"</span><span class="p">]</span>
 
         <span class="n">_</span><span class="p">,</span> <span class="n">peak_idx</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">max_height</span><span class="p">(</span><span class="n">y_</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">fwhm</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">full_width_half_max</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_</span><span class="p">,</span> <span class="n">peak_idx</span><span class="p">)</span>
 
         <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span>
-            <span class="n">a</span><span class="o">=</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">peak_idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">],</span>
+            <span class="n">a</span><span class="o">=</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">peak_idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">"b"</span><span class="p">],</span>
             <span class="n">freq</span><span class="o">=</span><span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">peak_idx</span><span class="p">],</span>
             <span class="n">sigma</span><span class="o">=</span><span class="n">fwhm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span>
         <span class="p">)</span>
@@ -670,7 +670,7 @@
         <span class="k">return</span> <span class="n">user_opt</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">CurveFitResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithmic criteria for whether the fit is good or bad.</span>
+<span class="w">        </span><span class="sd">"""Algorithmic criteria for whether the fit is good or bad.</span>
 
 <span class="sd">        A good fit has:</span>
 <span class="sd">            - a reduced chi-squared less than 3 and greater than zero,</span>
@@ -681,13 +681,13 @@
 <span class="sd">              square root of the median y-value less the fit offset, greater than a</span>
 <span class="sd">              threshold of two, and</span>
 <span class="sd">            - a standard error on the sigma of the Gaussian that is smaller than the sigma.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">freq_increment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">fit_data</span><span class="o">.</span><span class="n">x_data</span><span class="p">))</span>
 
-        <span class="n">fit_a</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span>
-        <span class="n">fit_b</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">]</span>
-        <span class="n">fit_freq</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;freq&quot;</span><span class="p">]</span>
-        <span class="n">fit_sigma</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span>
+        <span class="n">fit_a</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"a"</span><span class="p">]</span>
+        <span class="n">fit_b</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"b"</span><span class="p">]</span>
+        <span class="n">fit_freq</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"freq"</span><span class="p">]</span>
+        <span class="n">fit_sigma</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"sigma"</span><span class="p">]</span>
 
         <span class="n">snr</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">fit_a</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">fit_data</span><span class="o">.</span><span class="n">y_data</span><span class="p">)</span> <span class="o">-</span> <span class="n">fit_b</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
         <span class="n">fit_width_ratio</span> <span class="o">=</span> <span class="n">fit_sigma</span><span class="o">.</span><span class="n">n</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">ptp</span><span class="p">(</span><span class="n">fit_data</span><span class="o">.</span><span class="n">x_data</span><span class="p">)</span>
@@ -702,9 +702,9 @@
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">criteria</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;good&quot;</span>
+            <span class="k">return</span> <span class="s2">"good"</span>
 
-        <span class="k">return</span> <span class="s2">&quot;bad&quot;</span></div>
+        <span class="k">return</span> <span class="s2">"bad"</span></div>
 
 </pre></div>
         </article>
@@ -724,7 +724,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -739,7 +739,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.quantum_volume.qv_experiment - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.quantum_volume.qv_experiment - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Quantum Volume Experiment class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -577,7 +577,7 @@
 <div class="viewcode-block" id="QuantumVolume">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolume.html#qiskit_experiments.library.quantum_volume.QuantumVolume">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">QuantumVolume</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An experiment to measure the largest random square circuit that can be run on a processor.</span>
+<span class="w">    </span><span class="sd">"""An experiment to measure the largest random square circuit that can be run on a processor.</span>
 
 <span class="sd">    # section: overview</span>
 <span class="sd">        Quantum Volume (QV) is a single-number metric that can be measured using a concrete protocol</span>
@@ -638,7 +638,7 @@
 <span class="sd">            display(expdata.figure(0))</span>
 
 <span class="sd">            display(expdata.analysis_results(dataframe=True))</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -648,7 +648,7 @@
         <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">SeedSequence</span> <span class="o">|</span> <span class="n">BitGenerator</span> <span class="o">|</span> <span class="n">Generator</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">simulation_backend</span><span class="p">:</span> <span class="n">Backend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a quantum volume experiment.</span>
+<span class="w">        </span><span class="sd">"""Initialize a quantum volume experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            physical_qubits: list of physical qubits for the experiment.</span>
@@ -658,11 +658,11 @@
 <span class="sd">                  when generating circuits. The ``default_rng`` will be initialized</span>
 <span class="sd">                  with this seed value every time :meth:`circuits` is called.</span>
 <span class="sd">            simulation_backend: The simulator backend to use to generate</span>
-<span class="sd">                the expected results. the simulator must have a &#39;save_probabilities&#39;</span>
+<span class="sd">                the expected results. the simulator must have a 'save_probabilities'</span>
 <span class="sd">                method. If None, the :class:`qiskit_aer.AerSimulator` simulator will be used</span>
 <span class="sd">                (in case :external+qiskit_aer:doc:`qiskit-aer &lt;index&gt;` is not</span>
 <span class="sd">                installed, :class:`qiskit.quantum_info.Statevector` will be used).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">QuantumVolumeAnalysis</span><span class="p">(),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
         <span class="c1"># Set configurable options</span>
@@ -677,7 +677,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default experiment options.</span>
+<span class="w">        </span><span class="sd">"""Default experiment options.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            trials (int): Optional, number of times to generate new Quantum Volume</span>
@@ -686,7 +686,7 @@
 <span class="sd">                used to initialize ``numpy.random.default_rng`` when generating circuits.</span>
 <span class="sd">                The ``default_rng`` will be initialized with this seed value every time</span>
 <span class="sd">                :meth:`circuits` is called.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
 
         <span class="n">options</span><span class="o">.</span><span class="n">trials</span> <span class="o">=</span> <span class="mi">100</span>
@@ -695,9 +695,9 @@
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_ideal_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span> <span class="o">**</span><span class="n">run_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ideal measurement probabilities.</span>
+<span class="w">        </span><span class="sd">"""Return ideal measurement probabilities.</span>
 
-<span class="sd">        In case the user does not have Aer installed, use Qiskit&#39;s quantum info module</span>
+<span class="sd">        In case the user does not have Aer installed, use Qiskit's quantum info module</span>
 <span class="sd">        to calculate the ideal state.</span>
 
 <span class="sd">        Args:</span>
@@ -706,7 +706,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            list: list of lists of the probabilities for each state in each circuit.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># NOTE: this code used to process a single circuit at a time but</span>
         <span class="c1"># AerSimulator() generates a backend object that regenerates its Target</span>
         <span class="c1"># on the fly each time and the overhead of regenerating the target for</span>
@@ -722,7 +722,7 @@
 
             <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simulation_backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">t_circuits</span><span class="p">,</span> <span class="o">**</span><span class="n">run_options</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
             <span class="n">probabilities</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;probabilities&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">t_circuits</span><span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"probabilities"</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">t_circuits</span><span class="p">)</span>
             <span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.quantum_info</span><span class="w"> </span><span class="kn">import</span> <span class="n">Statevector</span>
@@ -733,11 +733,11 @@
 <div class="viewcode-block" id="QuantumVolume.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.quantum_volume.QuantumVolume.html#qiskit_experiments.library.quantum_volume.QuantumVolume.circuits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of Quantum Volume circuits.</span>
+<span class="w">        </span><span class="sd">"""Return a list of Quantum Volume circuits.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`QuantumCircuit`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">rng</span> <span class="o">=</span> <span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
         <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_qubits</span>
@@ -751,14 +751,14 @@
             <span class="n">max_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
             <span class="n">qv_circ</span> <span class="o">=</span> <span class="n">quantum_volume</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">max_value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
             <span class="n">qv_circ</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="n">depth</span><span class="p">,</span>
-                <span class="s2">&quot;trial&quot;</span><span class="p">:</span> <span class="n">trial</span><span class="p">,</span>
+                <span class="s2">"depth"</span><span class="p">:</span> <span class="n">depth</span><span class="p">,</span>
+                <span class="s2">"trial"</span><span class="p">:</span> <span class="n">trial</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qv_circ</span><span class="p">)</span>
         <span class="n">all_probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ideal_data</span><span class="p">(</span><span class="n">circuits</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">qv_circ</span><span class="p">,</span> <span class="n">probs</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">circuits</span><span class="p">,</span> <span class="n">all_probs</span><span class="p">):</span>
             <span class="n">qv_circ</span><span class="o">.</span><span class="n">measure_active</span><span class="p">()</span>
-            <span class="n">qv_circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;ideal_probabilities&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">probs</span>
+            <span class="n">qv_circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">"ideal_probabilities"</span><span class="p">]</span> <span class="o">=</span> <span class="n">probs</span>
 
         <span class="k">return</span> <span class="n">circuits</span></div>
 </div>
@@ -781,7 +781,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -796,7 +796,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

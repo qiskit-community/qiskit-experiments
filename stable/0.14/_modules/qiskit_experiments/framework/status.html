@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.framework.status - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.framework.status - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,7 +555,7 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;Status of experiment execution.&quot;&quot;&quot;</span>
+<span class="sd">"""Status of experiment execution."""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
@@ -570,17 +570,17 @@
 <div class="viewcode-block" id="ExperimentStatus">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.ExperimentStatus.html#qiskit_experiments.framework.ExperimentStatus">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExperimentStatus</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for experiment status enumerated type.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Class for experiment status enumerated type."""</span>
 
-    <span class="n">EMPTY</span> <span class="o">=</span> <span class="s2">&quot;experiment data is empty&quot;</span>
-    <span class="n">INITIALIZING</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs are being initialized&quot;</span>
-    <span class="n">VALIDATING</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs are validating&quot;</span>
-    <span class="n">QUEUED</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs are queued&quot;</span>
-    <span class="n">RUNNING</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs is actively running&quot;</span>
-    <span class="n">CANCELLED</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs or analysis has been cancelled&quot;</span>
-    <span class="n">POST_PROCESSING</span> <span class="o">=</span> <span class="s2">&quot;experiment analysis is actively running&quot;</span>
-    <span class="n">DONE</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs and analysis have successfully run&quot;</span>
-    <span class="n">ERROR</span> <span class="o">=</span> <span class="s2">&quot;experiment jobs or analysis incurred an error&quot;</span>
+    <span class="n">EMPTY</span> <span class="o">=</span> <span class="s2">"experiment data is empty"</span>
+    <span class="n">INITIALIZING</span> <span class="o">=</span> <span class="s2">"experiment jobs are being initialized"</span>
+    <span class="n">VALIDATING</span> <span class="o">=</span> <span class="s2">"experiment jobs are validating"</span>
+    <span class="n">QUEUED</span> <span class="o">=</span> <span class="s2">"experiment jobs are queued"</span>
+    <span class="n">RUNNING</span> <span class="o">=</span> <span class="s2">"experiment jobs is actively running"</span>
+    <span class="n">CANCELLED</span> <span class="o">=</span> <span class="s2">"experiment jobs or analysis has been cancelled"</span>
+    <span class="n">POST_PROCESSING</span> <span class="o">=</span> <span class="s2">"experiment analysis is actively running"</span>
+    <span class="n">DONE</span> <span class="o">=</span> <span class="s2">"experiment jobs and analysis have successfully run"</span>
+    <span class="n">ERROR</span> <span class="o">=</span> <span class="s2">"experiment jobs or analysis incurred an error"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
@@ -594,13 +594,13 @@
 <div class="viewcode-block" id="AnalysisStatus">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisStatus.html#qiskit_experiments.framework.AnalysisStatus">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AnalysisStatus</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for analysis callback status enumerated type.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Class for analysis callback status enumerated type."""</span>
 
-    <span class="n">QUEUED</span> <span class="o">=</span> <span class="s2">&quot;analysis callback is queued&quot;</span>
-    <span class="n">RUNNING</span> <span class="o">=</span> <span class="s2">&quot;analysis callback is actively running&quot;</span>
-    <span class="n">CANCELLED</span> <span class="o">=</span> <span class="s2">&quot;analysis callback has been cancelled&quot;</span>
-    <span class="n">DONE</span> <span class="o">=</span> <span class="s2">&quot;analysis callback has successfully run&quot;</span>
-    <span class="n">ERROR</span> <span class="o">=</span> <span class="s2">&quot;analysis callback incurred an error&quot;</span>
+    <span class="n">QUEUED</span> <span class="o">=</span> <span class="s2">"analysis callback is queued"</span>
+    <span class="n">RUNNING</span> <span class="o">=</span> <span class="s2">"analysis callback is actively running"</span>
+    <span class="n">CANCELLED</span> <span class="o">=</span> <span class="s2">"analysis callback has been cancelled"</span>
+    <span class="n">DONE</span> <span class="o">=</span> <span class="s2">"analysis callback has successfully run"</span>
+    <span class="n">ERROR</span> <span class="o">=</span> <span class="s2">"analysis callback incurred an error"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
@@ -613,10 +613,10 @@
 
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">AnalysisCallback</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataclass for analysis callback status&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Dataclass for analysis callback status"""</span>
 
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">callback_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">callback_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
     <span class="n">status</span><span class="p">:</span> <span class="n">AnalysisStatus</span> <span class="o">=</span> <span class="n">AnalysisStatus</span><span class="o">.</span><span class="n">QUEUED</span>
     <span class="n">error_msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">event</span><span class="p">:</span> <span class="n">Event</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Event</span><span class="p">)</span>
@@ -625,7 +625,7 @@
         <span class="c1"># We need to remove the Event object from state when pickling</span>
         <span class="c1"># since events are not pickleable</span>
         <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
-        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;event&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">"event"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">state</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -652,7 +652,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -667,7 +667,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

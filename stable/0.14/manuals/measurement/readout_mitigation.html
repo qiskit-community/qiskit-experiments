@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="API Reference" href="../../apidocs/index.html"><link rel="prev" title="Tφ Characterization" href="../characterization/tphi.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Readout Mitigation - Qiskit Experiments 0.14.1</title>
+        <title>Readout Mitigation - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -618,7 +618,7 @@ circuits, one for all “0” and one for all “1” results.</p>
 
 <span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
-<span class="n">mitigator</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;Local Readout Mitigator&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+<span class="n">mitigator</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">"Local Readout Mitigator"</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 </pre></div>
 </div>
 </div>
@@ -668,24 +668,24 @@ the identity.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">qubit</span> <span class="ow">in</span> <span class="n">mitigator</span><span class="o">.</span><span class="n">qubits</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Qubit: </span><span class="si">{</span><span class="n">qubit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Qubit: </span><span class="si">{</span><span class="n">qubit</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">mitigator</span><span class="o">.</span><span class="n">mitigation_matrix</span><span class="p">(</span><span class="n">qubits</span><span class="o">=</span><span class="n">qubit</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Qubit: 0
-[[ 1.02582645 -0.03202479]
- [-0.02582645  1.03202479]]
+[[ 1.03222453 -0.03222453]
+ [-0.03222453  1.03222453]]
 Qubit: 1
-[[ 1.02572016 -0.02777778]
- [-0.02572016  1.02777778]]
-Qubit: 2
 [[ 1.03549061 -0.03340292]
  [-0.03549061  1.03340292]]
-Qubit: 3
+Qubit: 2
 [[ 1.0292581  -0.04075235]
  [-0.0292581   1.04075235]]
+Qubit: 3
+[[ 1.03333333 -0.03333333]
+ [-0.03333333  1.03333333]]
 </pre></div>
 </div>
 </div>
@@ -701,7 +701,7 @@ Qubit: 3
     <span class="n">qc</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
 <span class="n">qc</span><span class="o">.</span><span class="n">measure_all</span><span class="p">()</span>
 
-<span class="n">counts</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;density_matrix&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">get_counts</span><span class="p">()</span>
+<span class="n">counts</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"density_matrix"</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">get_counts</span><span class="p">()</span>
 <span class="n">unmitigated_probs</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="n">count</span> <span class="o">/</span> <span class="n">shots</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
 <span class="n">mitigated_quasi_probs</span> <span class="o">=</span> <span class="n">mitigator</span><span class="o">.</span><span class="n">quasi_probabilities</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
@@ -717,8 +717,8 @@ Qubit: 3
 <h3>Probabilities<a class="headerlink" href="#probabilities" title="Link to this heading">¶</a></h3>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">legend</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Mitigated Probabilities&#39;</span><span class="p">,</span> <span class="s1">&#39;Unmitigated Probabilities&#39;</span><span class="p">]</span>
-<span class="n">plot_distribution</span><span class="p">([</span><span class="n">mitigated_probs</span><span class="p">,</span> <span class="n">unmitigated_probs</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s2">&quot;value_desc&quot;</span><span class="p">,</span> <span class="n">bar_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">legend</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Mitigated Probabilities'</span><span class="p">,</span> <span class="s1">'Unmitigated Probabilities'</span><span class="p">]</span>
+<span class="n">plot_distribution</span><span class="p">([</span><span class="n">mitigated_probs</span><span class="p">,</span> <span class="n">unmitigated_probs</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s2">"value_desc"</span><span class="p">,</span> <span class="n">bar_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -732,7 +732,7 @@ Qubit: 3
 <h2>Expectation value<a class="headerlink" href="#expectation-value" title="Link to this heading">¶</a></h2>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">diagonal_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ZZZZ&quot;</span><span class="p">,</span> <span class="s2">&quot;ZIZI&quot;</span><span class="p">,</span> <span class="s2">&quot;IZII&quot;</span><span class="p">,</span> <span class="s2">&quot;1ZZ0&quot;</span><span class="p">]</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">diagonal_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"ZZZZ"</span><span class="p">,</span> <span class="s2">"ZIZI"</span><span class="p">,</span> <span class="s2">"IZII"</span><span class="p">,</span> <span class="s2">"1ZZ0"</span><span class="p">]</span>
 <span class="n">diagonals</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">Operator</span><span class="o">.</span><span class="n">from_label</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">to_matrix</span><span class="p">()))</span>
     <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">diagonal_labels</span>
@@ -749,11 +749,11 @@ Qubit: 3
 
 <span class="n">mitigated_expectation_values</span><span class="p">,</span> <span class="n">mitigated_stddev</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">mitigated_expectation</span><span class="p">)</span>
 <span class="n">unmitigated_expectation_values</span><span class="p">,</span> <span class="n">unmitigated_stddev</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">unmitigated_expectation</span><span class="p">)</span>
-<span class="n">legend</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Mitigated Expectation&#39;</span><span class="p">,</span> <span class="s1">&#39;Unmitigated Expectation&#39;</span><span class="p">]</span>
+<span class="n">legend</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Mitigated Expectation'</span><span class="p">,</span> <span class="s1">'Unmitigated Expectation'</span><span class="p">]</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">X</span> <span class="o">+</span> <span class="mf">0.00</span><span class="p">,</span> <span class="n">mitigated_expectation_values</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">mitigated_stddev</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mitigated Expectation&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">X</span> <span class="o">+</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">unmitigated_expectation_values</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">unmitigated_stddev</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Unmitigated Expectation&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">X</span> <span class="o">+</span> <span class="mf">0.00</span><span class="p">,</span> <span class="n">mitigated_expectation_values</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">mitigated_stddev</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'b'</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Mitigated Expectation"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">X</span> <span class="o">+</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">unmitigated_expectation_values</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">unmitigated_stddev</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'g'</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Unmitigated Expectation"</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="mf">0.125</span> <span class="o">+</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">diagonals</span><span class="p">))])</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">diagonal_labels</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
@@ -761,7 +761,7 @@ Qubit: 3
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7f340c1034d0&gt;
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7f77c47ac830&gt;
 </pre></div>
 </div>
 <img alt="../../_images/readout_mitigation_6_1.png" src="../../_images/readout_mitigation_6_1.png" />
@@ -865,7 +865,7 @@ meas: 2/═════════╩══╩═
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -907,7 +907,7 @@ meas: 2/═════════╩══╩═
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

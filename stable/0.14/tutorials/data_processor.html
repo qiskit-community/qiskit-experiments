@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Curve Analysis: Fitting your data" href="curve_analysis.html"><link rel="prev" title="Introduction" href="intro.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Data Processor: Wrangling data - Qiskit Experiments 0.14.1</title>
+        <title>Data Processor: Wrangling data - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -559,7 +559,7 @@ These data transformations may consist of multiple steps, such as kerneling and 
 Each step is implemented by a member of the <a class="reference internal" href="../stubs/qiskit_experiments.data_processing.DataAction.html#qiskit_experiments.data_processing.DataAction" title="qiskit_experiments.data_processing.DataAction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataAction</span></code></a> class, also called a <cite>node</cite>.</p>
 <p>The data processor implements the <code class="xref py py-meth docutils literal notranslate"><span class="pre">__call__()</span></code> method. Once initialized, it
 can thus be used as a standard python function:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">processor</span> <span class="o">=</span> <span class="n">DataProcessor</span><span class="p">(</span><span class="n">input_key</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">Node1</span><span class="p">(),</span> <span class="n">Node2</span><span class="p">(),</span> <span class="o">...</span><span class="p">])</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">processor</span> <span class="o">=</span> <span class="n">DataProcessor</span><span class="p">(</span><span class="n">input_key</span><span class="o">=</span><span class="s2">"memory"</span><span class="p">,</span> <span class="p">[</span><span class="n">Node1</span><span class="p">(),</span> <span class="n">Node2</span><span class="p">(),</span> <span class="o">...</span><span class="p">])</span>
 <span class="n">out_data</span> <span class="o">=</span> <span class="n">processor</span><span class="p">(</span><span class="n">in_data</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -634,10 +634,10 @@ yourself. We begin with single-shot IQ data.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">nodes</span><span class="o">.</span><span class="n">SVD</span><span class="p">(),</span> <span class="n">nodes</span><span class="o">.</span><span class="n">AverageData</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">nodes</span><span class="o">.</span><span class="n">MinMaxNormalize</span><span class="p">()]</span>
-<span class="n">iq_processor</span> <span class="o">=</span> <span class="n">DataProcessor</span><span class="p">(</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="n">data_nodes</span><span class="p">)</span>
+<span class="n">iq_processor</span> <span class="o">=</span> <span class="n">DataProcessor</span><span class="p">(</span><span class="s2">"memory"</span><span class="p">,</span> <span class="n">data_nodes</span><span class="p">)</span>
 <span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">data_processor</span><span class="o">=</span><span class="n">iq_processor</span><span class="p">)</span>
 
-<span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">meas_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">meas_return</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
+<span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">meas_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">meas_return</span><span class="o">=</span><span class="s2">"single"</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 
 <span class="n">display</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 </pre></div>
@@ -670,8 +670,8 @@ in the code block below.</p>
 
 <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">]:</span>
     <span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Circuit </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="n">points</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">idx</span><span class="p">)[</span><span class="s2">&quot;memory&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span>
+        <span class="sa">f</span><span class="s2">"Circuit </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">points</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">idx</span><span class="p">)[</span><span class="s2">"memory"</span><span class="p">])</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span>
     <span class="p">)</span>
 <span class="n">plotter</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
 </pre></div>
@@ -685,8 +685,8 @@ in the code block below.</p>
 data processor needs to be changed.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">nodes</span><span class="o">.</span><span class="n">Probability</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)]</span>
-<span class="n">count_processor</span> <span class="o">=</span> <span class="n">DataProcessor</span><span class="p">(</span><span class="s2">&quot;counts&quot;</span><span class="p">,</span> <span class="n">data_nodes</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">nodes</span><span class="o">.</span><span class="n">Probability</span><span class="p">(</span><span class="n">outcome</span><span class="o">=</span><span class="s2">"1"</span><span class="p">)]</span>
+<span class="n">count_processor</span> <span class="o">=</span> <span class="n">DataProcessor</span><span class="p">(</span><span class="s2">"counts"</span><span class="p">,</span> <span class="n">data_nodes</span><span class="p">)</span>
 <span class="n">exp</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">data_processor</span><span class="o">=</span><span class="n">count_processor</span><span class="p">)</span>
 
 <span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">meas_level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
@@ -782,7 +782,7 @@ Science and Technology <strong>5</strong>, 044006 (2020). <a class="reference ex
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -820,7 +820,7 @@ Science and Technology <strong>5</strong>, 044006 (2020). <a class="reference ex
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

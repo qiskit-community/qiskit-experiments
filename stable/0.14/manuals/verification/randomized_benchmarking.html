@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="Quantum State Tomography" href="state_tomography.html"><link rel="prev" title="Quantum Volume" href="quantum_volume.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Randomized Benchmarking - Qiskit Experiments 0.14.1</title>
+        <title>Randomized Benchmarking - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -577,9 +577,9 @@ package to run simulations.  You can install it with <code class="docutils liter
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aer.noise</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span><span class="p">,</span> <span class="n">depolarizing_error</span>
 
 <span class="n">noise_model</span> <span class="o">=</span> <span class="n">NoiseModel</span><span class="p">()</span>
-<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">5e-3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;sx&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">])</span>
-<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;rz&quot;</span><span class="p">])</span>
-<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">5e-2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;cx&quot;</span><span class="p">])</span>
+<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">5e-3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">"sx"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">])</span>
+<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">"rz"</span><span class="p">])</span>
+<span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">5e-2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">[</span><span class="s2">"cx"</span><span class="p">])</span>
 <span class="n">backend</span> <span class="o">=</span> <span class="n">AerSimulator</span><span class="p">(</span><span class="n">noise_model</span><span class="o">=</span><span class="n">noise_model</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -663,14 +663,14 @@ interleaved RB experiment will always give you accurate error value <span class=
 <span class="n">expdata1</span> <span class="o">=</span> <span class="n">exp1</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 
 <span class="c1"># View result data</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gate error ratio: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">expdata1</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gate_error_ratio</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Gate error ratio: </span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="n">expdata1</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gate_error_ratio</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">expdata1</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 <span class="n">display</span><span class="p">(</span><span class="n">expdata1</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Gate error ratio: {&#39;x&#39;: 1.0, &#39;rz&#39;: 0.0, &#39;sx&#39;: 1.0}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Gate error ratio: {'x': 1.0, 'rz': 0.0, 'sx': 1.0}
 </pre></div>
 </div>
 <img alt="../../_images/randomized_benchmarking_1_1.png" src="../../_images/randomized_benchmarking_1_1.png" />
@@ -704,40 +704,40 @@ interleaved RB experiment will always give you accurate error value <span class=
   </thead>
   <tbody>
     <tr>
-      <th>d43f8e04</th>
+      <th>4f83a562</th>
       <td>alpha</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
-      <td>0.99583+/-0.00008</td>
+      <td>0.99577+/-0.00013</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.000243</td>
+      <td>1.151738</td>
     </tr>
     <tr>
-      <th>75328fa4</th>
+      <th>3ae7a4b7</th>
       <td>EPC</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
-      <td>0.00208+/-0.00004</td>
+      <td>0.00212+/-0.00007</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.000243</td>
+      <td>1.151738</td>
     </tr>
     <tr>
-      <th>2a358570</th>
+      <th>a1606755</th>
       <td>EPG_x</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
-      <td>0.00244+/-0.00004</td>
+      <td>0.00248+/-0.00008</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.000243</td>
+      <td>1.151738</td>
     </tr>
     <tr>
-      <th>214ba9b6</th>
+      <th>30bcd289</th>
       <td>EPG_rz</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
@@ -745,18 +745,18 @@ interleaved RB experiment will always give you accurate error value <span class=
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.000243</td>
+      <td>1.151738</td>
     </tr>
     <tr>
-      <th>9b69b253</th>
+      <th>0d1160d5</th>
       <td>EPG_sx</td>
       <td>StandardRB</td>
       <td>[Q0]</td>
-      <td>0.00244+/-0.00004</td>
+      <td>0.00248+/-0.00008</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.000243</td>
+      <td>1.151738</td>
     </tr>
   </tbody>
 </table>
@@ -840,14 +840,14 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
 <span class="n">expdata_2q</span> <span class="o">=</span> <span class="n">exp_2q</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 
 <span class="c1"># View result data</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gate error ratio: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">expdata_2q</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gate_error_ratio</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Gate error ratio: </span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="n">expdata_2q</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gate_error_ratio</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">expdata_2q</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 <span class="n">display</span><span class="p">(</span><span class="n">expdata_2q</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Gate error ratio: {&#39;cx&#39;: 1.0}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Gate error ratio: {'cx': 1.0}
 </pre></div>
 </div>
 <img alt="../../_images/randomized_benchmarking_3_1.png" src="../../_images/randomized_benchmarking_3_1.png" />
@@ -881,48 +881,48 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.</p>
   </thead>
   <tbody>
     <tr>
-      <th>277ca28c</th>
+      <th>d8ed758c</th>
       <td>alpha</td>
       <td>StandardRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.9211+/-0.0024</td>
+      <td>0.9253+/-0.0028</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.880688</td>
+      <td>0.844739</td>
     </tr>
     <tr>
-      <th>1deef81d</th>
+      <th>f0ea7ba6</th>
       <td>EPC</td>
       <td>StandardRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.0592+/-0.0018</td>
+      <td>0.0560+/-0.0021</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.880688</td>
+      <td>0.844739</td>
     </tr>
     <tr>
-      <th>9d3d8921</th>
+      <th>4418de95</th>
       <td>EPC_corrected</td>
       <td>StandardRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.0507+/-0.0018</td>
+      <td>0.0479+/-0.0021</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.880688</td>
+      <td>0.844739</td>
     </tr>
     <tr>
-      <th>ec033f49</th>
+      <th>ae8c9038</th>
       <td>EPG_cx</td>
       <td>StandardRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.0337+/-0.0012</td>
+      <td>0.0319+/-0.0014</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.880688</td>
+      <td>0.844739</td>
     </tr>
   </tbody>
 </table>
@@ -941,7 +941,7 @@ If you don’t need <code class="docutils literal notranslate"><span class="pre"
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run an RB experiment on qubit 0</span>
 <span class="n">exp</span> <span class="o">=</span> <span class="n">StandardRB</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">lengths</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">c</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;iqp&quot;</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">"mpl"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"iqp"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -952,7 +952,7 @@ If you don’t need <code class="docutils literal notranslate"><span class="pre"
 <p>You can decompose the circuit into underlying gates:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;iqp&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">"mpl"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"iqp"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -964,7 +964,7 @@ If you don’t need <code class="docutils literal notranslate"><span class="pre"
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">transpile</span>
-<span class="n">transpile</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="n">exp</span><span class="o">.</span><span class="n">transpile_options</span><span class="p">))</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;iqp&quot;</span><span class="p">,</span> <span class="n">idle_wires</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">transpile</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="n">exp</span><span class="o">.</span><span class="n">transpile_options</span><span class="p">))</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">"mpl"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"iqp"</span><span class="p">,</span> <span class="n">idle_wires</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1055,43 +1055,43 @@ interleaved gate error <a class="footnote-reference brackets" href="#id11" id="i
   </thead>
   <tbody>
     <tr>
-      <th>e499dfc2</th>
+      <th>affd47d3</th>
       <td>alpha</td>
       <td>InterleavedRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.9216+/-0.0017</td>
+      <td>0.9246+/-0.0017</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.043701</td>
+      <td>1.07573</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
-      <th>f584f7dc</th>
+      <th>5a26c6e4</th>
       <td>alpha_c</td>
       <td>InterleavedRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.9553+/-0.0026</td>
+      <td>0.9455+/-0.0032</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.043701</td>
+      <td>1.07573</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
-      <th>8e85f36b</th>
+      <th>c4934ea9</th>
       <td>EPC</td>
       <td>InterleavedRB</td>
       <td>[Q1, Q2]</td>
-      <td>0.0335+/-0.0019</td>
+      <td>0.0409+/-0.0024</td>
       <td>good</td>
       <td>aer_simulator</td>
       <td>None</td>
-      <td>2.043701</td>
-      <td>0.084078</td>
-      <td>[0, 0.11757593483928802]</td>
+      <td>1.07573</td>
+      <td>0.072187</td>
+      <td>[0, 0.11304638882733598]</td>
     </tr>
   </tbody>
 </table>
@@ -1175,7 +1175,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -1215,7 +1215,7 @@ benchmarking</em>, <a class="reference external" href="https://arxiv.org/abs/120
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

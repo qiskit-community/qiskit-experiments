@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html"><link rel="search" title="Search" href="../../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.analysis.t1_analysis - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.characterization.analysis.t1_analysis - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">T1 Analysis class.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -568,23 +568,23 @@
 <div class="viewcode-block" id="T1Analysis">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.characterization.T1Analysis.html#qiskit_experiments.library.characterization.T1Analysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">T1Analysis</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">DecayAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to analyze T1 experiments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A class to analyze T1 experiments."""</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default analysis options.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default analysis options."""</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
-            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Delay&quot;</span><span class="p">,</span>
-            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;P(1)&quot;</span><span class="p">,</span>
-            <span class="n">xval_unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">,</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">"Delay"</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">"P(1)"</span><span class="p">,</span>
+            <span class="n">xval_unit</span><span class="o">=</span><span class="s2">"s"</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">ParameterRepr</span><span class="p">(</span><span class="s2">&quot;tau&quot;</span><span class="p">,</span> <span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">)]</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">ParameterRepr</span><span class="p">(</span><span class="s2">"tau"</span><span class="p">,</span> <span class="s2">"T1"</span><span class="p">,</span> <span class="s2">"s"</span><span class="p">)]</span>
 
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">CurveFitResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithmic criteria for whether the fit is good or bad.</span>
+<span class="w">        </span><span class="sd">"""Algorithmic criteria for whether the fit is good or bad.</span>
 
 <span class="sd">        A good fit has:</span>
 <span class="sd">            - a reduced chi-squared lower than three and greater than zero</span>
@@ -593,10 +593,10 @@
 <span class="sd">            - amp error is less than 0.1</span>
 <span class="sd">            - tau error is less than its value</span>
 <span class="sd">            - base error is less than 0.1</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">amp</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;amp&quot;</span><span class="p">]</span>
-        <span class="n">tau</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;tau&quot;</span><span class="p">]</span>
-        <span class="n">base</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="n">amp</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"amp"</span><span class="p">]</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"tau"</span><span class="p">]</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"base"</span><span class="p">]</span>
 
         <span class="n">criteria</span> <span class="o">=</span> <span class="p">[</span>
             <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">,</span>
@@ -608,33 +608,33 @@
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">criteria</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;good&quot;</span>
+            <span class="k">return</span> <span class="s2">"good"</span>
 
-        <span class="k">return</span> <span class="s2">&quot;bad&quot;</span></div>
+        <span class="k">return</span> <span class="s2">"bad"</span></div>
 
 
 
 <div class="viewcode-block" id="T1KerneledAnalysis">
 <a class="viewcode-back" href="../../../../../stubs/qiskit_experiments.library.characterization.T1KerneledAnalysis.html#qiskit_experiments.library.characterization.T1KerneledAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">T1KerneledAnalysis</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">DecayAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to analyze T1 experiments with kerneled data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A class to analyze T1 experiments with kerneled data."""</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default analysis options.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default analysis options."""</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
-            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Delay&quot;</span><span class="p">,</span>
-            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Normalized Projection on the Main Axis&quot;</span><span class="p">,</span>
-            <span class="n">xval_unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">,</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">"Delay"</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">"Normalized Projection on the Main Axis"</span><span class="p">,</span>
+            <span class="n">xval_unit</span><span class="o">=</span><span class="s2">"s"</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">ParameterRepr</span><span class="p">(</span><span class="s2">&quot;tau&quot;</span><span class="p">,</span> <span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">)]</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">ParameterRepr</span><span class="p">(</span><span class="s2">"tau"</span><span class="p">,</span> <span class="s2">"T1"</span><span class="p">,</span> <span class="s2">"s"</span><span class="p">)]</span>
         <span class="n">options</span><span class="o">.</span><span class="n">normalization</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">CurveFitResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithmic criteria for whether the fit is good or bad.</span>
+<span class="w">        </span><span class="sd">"""Algorithmic criteria for whether the fit is good or bad.</span>
 
 <span class="sd">        A good fit has:</span>
 <span class="sd">            - a reduced chi-squared lower than three and greater than zero</span>
@@ -643,10 +643,10 @@
 <span class="sd">            - amp error is less than 0.1</span>
 <span class="sd">            - tau error is less than its value</span>
 <span class="sd">            - base error is less than 0.1</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">amp</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;amp&quot;</span><span class="p">]</span>
-        <span class="n">tau</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;tau&quot;</span><span class="p">]</span>
-        <span class="n">base</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="n">amp</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"amp"</span><span class="p">]</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"tau"</span><span class="p">]</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"base"</span><span class="p">]</span>
 
         <span class="n">criteria</span> <span class="o">=</span> <span class="p">[</span>
             <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">,</span>
@@ -658,16 +658,16 @@
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">criteria</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;good&quot;</span>
+            <span class="k">return</span> <span class="s2">"good"</span>
 
-        <span class="k">return</span> <span class="s2">&quot;bad&quot;</span>
+        <span class="k">return</span> <span class="s2">"bad"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">ScatterTable</span><span class="p">,</span>
-        <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;formatted&quot;</span><span class="p">,</span>
+        <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"formatted"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">curve</span><span class="o">.</span><span class="n">ScatterTable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Postprocessing for preparing the fitting data.</span>
+<span class="w">        </span><span class="sd">"""Postprocessing for preparing the fitting data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            curve_data: Processed dataset created from experiment results.</span>
@@ -675,7 +675,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            New scatter table instance including fit data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># check if the SVD decomposition categorized 0 as 1 by calculating the average slope</span>
         <span class="n">diff_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
         <span class="n">avg_slope</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">diff_y</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff_y</span><span class="p">)</span>
@@ -701,7 +701,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -716,7 +716,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/scripts/furo.js?v=46bd48cc"></script>
