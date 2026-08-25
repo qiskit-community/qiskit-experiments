@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.half_angle - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.characterization.half_angle - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Half angle characterization.&quot;&quot;&quot;</span>
+<span class="sd">"""Half angle characterization."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -572,7 +572,7 @@
 <div class="viewcode-block" id="HalfAngle">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.HalfAngle.html#qiskit_experiments.library.characterization.HalfAngle">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HalfAngle</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;An experiment class to measure the amount by which sx and x are not parallel.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""An experiment class to measure the amount by which sx and x are not parallel.</span>
 
 <span class="sd">    # section: overview</span>
 
@@ -596,7 +596,7 @@
 <span class="sd">        One cause of such errors is non-linearity in the microwave mixer used</span>
 <span class="sd">        to produce the pulses for the ``x`` and ``sx`` gates. Typically, these</span>
 <span class="sd">        gates are calibrated to have the same duration and so have different</span>
-<span class="sd">        pulse amplitudes. Non-linearities in the mixer&#39;s skew can cause the</span>
+<span class="sd">        pulse amplitudes. Non-linearities in the mixer's skew can cause the</span>
 <span class="sd">        angle to differ for these different pulse amplitudes.</span>
 
 <span class="sd">        The way the experiment works is that the initial ``Ry(π/2)`` puts the</span>
@@ -628,7 +628,7 @@
 <span class="sd">        sx - Rz(-π/2)`` to implement the ``Ry(π/2)`` and ``Rz(π/2) - x -</span>
 <span class="sd">        Rz(-π/2)`` to implement the ``y``. So the experiment makes use of only</span>
 <span class="sd">        ``sx``, ``x``, ``Rz(π/2)``, and ``Rz(-π/2)`` gates. For the</span>
-<span class="sd">        experiment&#39;s analysis to be valid, it is important that the ``sx`` and</span>
+<span class="sd">        experiment's analysis to be valid, it is important that the ``sx`` and</span>
 <span class="sd">        ``x`` gates are not replaced (such as by a transpiler pass that</span>
 <span class="sd">        replaces ``x`` with ``sx - sx``), as it is the angle between them which</span>
 <span class="sd">        is being inferred. It is assumed that the angle between ``x`` and</span>
@@ -665,13 +665,13 @@
 <span class="sd">            noise_model = NoiseModel()</span>
 <span class="sd">            noise_model.add_all_qubit_quantum_error(</span>
 <span class="sd">                coherent_unitary_error(err_mat),</span>
-<span class="sd">                [&quot;sx&quot;],</span>
+<span class="sd">                ["sx"],</span>
 <span class="sd">            )</span>
 <span class="sd">            # Add neglibile x error becuase otherwise x gets dropped from the target and</span>
-<span class="sd">            # the x&#39;s get transpiled as two sx&#39;s, spoiling the calibration.</span>
+<span class="sd">            # the x's get transpiled as two sx's, spoiling the calibration.</span>
 <span class="sd">            noise_model.add_all_qubit_quantum_error(</span>
 <span class="sd">                coherent_unitary_error([[np.exp(1j * 1e-4), 0], [0, np.exp(-1j * 1e-4)]]),</span>
-<span class="sd">                [&quot;x&quot;],</span>
+<span class="sd">                ["x"],</span>
 <span class="sd">            )</span>
 
 <span class="sd">            backend = AerSimulator(noise_model=noise_model)</span>
@@ -688,40 +688,40 @@
 
 <span class="sd">    # section: reference</span>
 <span class="sd">        .. ref_arxiv:: 1 1504.06597</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Default values for the half angle experiment.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Default values for the half angle experiment.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            repetitions (List[int]): A list of the number of times that the gate</span>
 <span class="sd">                sequence :code:`[sx sx y]` is repeated.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">repetitions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup a half angle experiment on the given qubit.</span>
+<span class="w">        </span><span class="sd">"""Setup a half angle experiment on the given qubit.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            physical_qubits: List containing the qubits on which to run the</span>
 <span class="sd">                fine amplitude calibration experiment.</span>
 <span class="sd">            backend: Optional, the backend to run the experiment on.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">analysis</span> <span class="o">=</span> <span class="n">ErrorAmplificationAnalysis</span><span class="p">()</span>
 
         <span class="n">default_bounds</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">bounds</span>
-        <span class="n">default_bounds</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;d_theta&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)})</span>
+        <span class="n">default_bounds</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"d_theta"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)})</span>
 
         <span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span>
             <span class="n">fixed_parameters</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;angle_per_gate&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
-                <span class="s2">&quot;phase_offset&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
-                <span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+                <span class="s2">"angle_per_gate"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
+                <span class="s2">"phase_offset"</span><span class="p">:</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="s2">"amp"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
             <span class="p">},</span>
-            <span class="n">result_parameters</span><span class="o">=</span><span class="p">[</span><span class="n">ParameterRepr</span><span class="p">(</span><span class="s2">&quot;d_theta&quot;</span><span class="p">,</span> <span class="s2">&quot;d_hac&quot;</span><span class="p">,</span> <span class="s2">&quot;rad&quot;</span><span class="p">)],</span>
+            <span class="n">result_parameters</span><span class="o">=</span><span class="p">[</span><span class="n">ParameterRepr</span><span class="p">(</span><span class="s2">"d_theta"</span><span class="p">,</span> <span class="s2">"d_hac"</span><span class="p">,</span> <span class="s2">"rad"</span><span class="p">)],</span>
             <span class="n">normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">bounds</span><span class="o">=</span><span class="n">default_bounds</span><span class="p">,</span>
         <span class="p">)</span>
@@ -730,13 +730,13 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_pre_circuit</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the preparation circuit for the experiment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the preparation circuit for the experiment."""</span>
         <span class="k">return</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="HalfAngle.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.HalfAngle.html#qiskit_experiments.library.characterization.HalfAngle.circuits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the circuits for the half angle calibration experiment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create the circuits for the half angle calibration experiment."""</span>
 
         <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -759,7 +759,7 @@
             <span class="n">circuit</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">circuit</span><span class="o">.</span><span class="n">measure_all</span><span class="p">()</span>
 
-            <span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="n">repetition</span><span class="p">}</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"xval"</span><span class="p">:</span> <span class="n">repetition</span><span class="p">}</span>
 
             <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
 
@@ -770,7 +770,7 @@
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
         <span class="c1"># Store measurement level and meas return if they have been</span>
         <span class="c1"># set for the experiment</span>
-        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="s2">&quot;meas_return&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"meas_level"</span><span class="p">,</span> <span class="s2">"meas_return"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">):</span>
                 <span class="n">metadata</span><span class="p">[</span><span class="n">run_opt</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metadata</span></div>
@@ -793,7 +793,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -808,7 +808,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

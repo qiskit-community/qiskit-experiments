@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.curve_analysis.standard_analysis.error_amplification_analysis - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.curve_analysis.standard_analysis.error_amplification_analysis - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Error amplification analysis.&quot;&quot;&quot;</span>
+<span class="sd">"""Error amplification analysis."""</span>
 
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">lmfit</span>
@@ -568,7 +568,7 @@
 <div class="viewcode-block" id="ErrorAmplificationAnalysis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis.html#qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ErrorAmplificationAnalysis</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">CurveAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Error amplification analysis class based on a fit to a cosine function.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Error amplification analysis class based on a fit to a cosine function.</span>
 
 <span class="sd">    # section: fit_model</span>
 
@@ -624,7 +624,7 @@
 <span class="sd">                often correspond to symmetry points of the fit function. Furthermore,</span>
 <span class="sd">                this type of analysis is intended for values of :math:`d\theta` close to zero.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -633,8 +633,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">models</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
-                    <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;amp / 2 * cos((d_theta + angle_per_gate) * x - phase_offset) + base&quot;</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ping_pong&quot;</span><span class="p">,</span>
+                    <span class="n">expr</span><span class="o">=</span><span class="s2">"amp / 2 * cos((d_theta + angle_per_gate) * x - phase_offset) + base"</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"ping_pong"</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">],</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -642,7 +642,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the default analysis options.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Return the default analysis options.</span>
 
 <span class="sd">        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for</span>
 <span class="sd">        descriptions of analysis options.</span>
@@ -650,14 +650,14 @@
 <span class="sd">        Analysis Options:</span>
 <span class="sd">            max_good_angle_error (float): The maximum angle error for which the fit is</span>
 <span class="sd">                considered as good. Defaults to :math:`\pi/2`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">default_options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">default_options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
-            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Number of gates (n)&quot;</span><span class="p">,</span>
-            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Population&quot;</span><span class="p">,</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">"Number of gates (n)"</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">"Population"</span><span class="p">,</span>
             <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">default_options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;d_theta&quot;</span><span class="p">]</span>
+        <span class="n">default_options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"d_theta"</span><span class="p">]</span>
         <span class="n">default_options</span><span class="o">.</span><span class="n">max_good_angle_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
 
         <span class="k">return</span> <span class="n">default_options</span>
@@ -667,7 +667,7 @@
         <span class="n">user_opt</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">ScatterTable</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create algorithmic initial fit guess from analysis options and curve data.</span>
+<span class="w">        </span><span class="sd">"""Create algorithmic initial fit guess from analysis options and curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            user_opt: Fit options filled with user provided guess and bounds.</span>
@@ -675,7 +675,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of fit options that are passed to the fitter function.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">fixed_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fixed_parameters</span>
 
         <span class="n">max_abs_y</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">max_height</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -686,17 +686,17 @@
         <span class="p">)</span>
         <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="p">(</span><span class="n">max_y</span> <span class="o">+</span> <span class="n">min_y</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;amp&quot;</span> <span class="ow">in</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"amp"</span> <span class="ow">in</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">:</span>
             <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span><span class="n">amp</span><span class="o">=</span><span class="n">max_y</span> <span class="o">-</span> <span class="n">min_y</span><span class="p">)</span>
             <span class="n">user_opt</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span><span class="n">amp</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">max_abs_y</span><span class="p">))</span>
-            <span class="n">amp</span> <span class="o">=</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">&quot;amp&quot;</span><span class="p">]</span>
+            <span class="n">amp</span> <span class="o">=</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">"amp"</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Fixed parameter</span>
-            <span class="n">amp</span> <span class="o">=</span> <span class="n">fixed_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;amp&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">amp</span> <span class="o">=</span> <span class="n">fixed_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"amp"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 
         <span class="c1"># Base the initial guess on the intended angle_per_gate and phase offset.</span>
-        <span class="n">apg</span> <span class="o">=</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;angle_per_gate&quot;</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;angle_per_gate&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
-        <span class="n">phi</span> <span class="o">=</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;phase_offset&quot;</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;phase_offset&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="n">apg</span> <span class="o">=</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"angle_per_gate"</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"angle_per_gate"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"phase_offset"</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"phase_offset"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
 
         <span class="c1"># Prepare logical guess for specific condition (often satisfied)</span>
         <span class="n">d_theta_guesses</span> <span class="o">=</span> <span class="p">[]</span>
@@ -707,7 +707,7 @@
             <span class="n">yi</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">offsets</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">xi</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c1"># Condition satisfied: i.e. cos(apg x - phi) = 0</span>
-                <span class="n">err</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">offsets</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="o">*</span> <span class="p">(</span><span class="n">yi</span> <span class="o">-</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">amp</span><span class="p">)</span>
+                <span class="n">err</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">offsets</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="o">*</span> <span class="p">(</span><span class="n">yi</span> <span class="o">-</span> <span class="n">user_opt</span><span class="o">.</span><span class="n">p0</span><span class="p">[</span><span class="s2">"base"</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">amp</span><span class="p">)</span>
                 <span class="c1"># Validate estimate. This is just the first order term of Maclaurin expansion.</span>
                 <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
                     <span class="n">d_theta_guesses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">err</span> <span class="o">/</span> <span class="n">xi</span><span class="p">)</span>
@@ -729,14 +729,14 @@
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">CurveFitResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithmic criteria for whether the fit is good or bad.</span>
+<span class="w">        </span><span class="sd">"""Algorithmic criteria for whether the fit is good or bad.</span>
 
 <span class="sd">        A good fit has:</span>
 <span class="sd">            - a reduced chi-squared lower than three and greater than zero,</span>
 <span class="sd">            - a measured angle error that is smaller than the allowed maximum good angle error.</span>
 <span class="sd">              This quantity is set in the analysis options.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">fit_d_theta</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;d_theta&quot;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="n">fit_d_theta</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"d_theta"</span><span class="p">]</span>
 
         <span class="n">criteria</span> <span class="o">=</span> <span class="p">[</span>
             <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">,</span>
@@ -744,9 +744,9 @@
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">criteria</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;good&quot;</span>
+            <span class="k">return</span> <span class="s2">"good"</span>
 
-        <span class="k">return</span> <span class="s2">&quot;bad&quot;</span></div>
+        <span class="k">return</span> <span class="s2">"bad"</span></div>
 
 </pre></div>
         </article>
@@ -766,7 +766,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -781,7 +781,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html"><link rel="search" title="Search" href="../../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.tomography.fitters.cvxpy_lstsq - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.tomography.fitters.cvxpy_lstsq - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Constrained convex least-squares tomography fitter.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -585,14 +585,14 @@
     <span class="n">preparation_qubits</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">conditional_measurement_indices</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">conditional_preparation_indices</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">trace</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">trace</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
     <span class="n">psd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">trace_preserving</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">trace_preserving</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
     <span class="n">partial_trace</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Constrained weighted linear least-squares tomography fitter.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Constrained weighted linear least-squares tomography fitter.</span>
 
 <span class="sd">    Overview</span>
 <span class="sd">        This fitter reconstructs the maximum-likelihood estimate by using</span>
@@ -661,14 +661,14 @@
 <span class="sd">        conditional_preparation_indices: Optional, conditional preparation data</span>
 <span class="sd">            indices. If set this will return a list of fitted states conditioned</span>
 <span class="sd">            on a fixed basis preparation of these qubits.</span>
-<span class="sd">        trace: trace constraint for the fitted matrix. If &quot;auto&quot; this will be set</span>
-<span class="sd">               to 1 for QST or the input dimension for QST (default: &quot;auto&quot;).</span>
+<span class="sd">        trace: trace constraint for the fitted matrix. If "auto" this will be set</span>
+<span class="sd">               to 1 for QST or the input dimension for QST (default: "auto").</span>
 <span class="sd">        psd: If True rescale the eigenvalues of fitted matrix to be positive</span>
 <span class="sd">             semidefinite (default: True)</span>
 <span class="sd">        trace_preserving: Enforce the fitted matrix to be trace preserving when</span>
 <span class="sd">                          fitting a Choi-matrix in quantum process</span>
-<span class="sd">                          tomography. If &quot;auto&quot; this will be set to True for</span>
-<span class="sd">                          QPT and False for QST (default: &quot;auto&quot;).</span>
+<span class="sd">                          tomography. If "auto" this will be set to True for</span>
+<span class="sd">                          QPT and False for QST (default: "auto").</span>
 <span class="sd">        partial_trace: Enforce conditional fitted Choi matrices to partial</span>
 <span class="sd">                       trace to POVM matrices.</span>
 <span class="sd">        weights: Optional array of weights for least squares objective. Weights</span>
@@ -681,7 +681,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The fitted matrix rho that maximizes the least-squares likelihood function.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">cvxpy</span>
 
     <span class="n">t_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -702,16 +702,16 @@
         <span class="n">conditional_indices</span><span class="o">=</span><span class="n">conditional_measurement_indices</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">trace_preserving</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span> <span class="ow">and</span> <span class="n">preparation_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">trace_preserving</span> <span class="o">==</span> <span class="s2">"auto"</span> <span class="ow">and</span> <span class="n">preparation_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">trace_preserving</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="k">if</span> <span class="n">trace</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span> <span class="ow">and</span> <span class="n">output_dims</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">trace</span> <span class="o">==</span> <span class="s2">"auto"</span> <span class="ow">and</span> <span class="n">output_dims</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">trace</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">output_dims</span><span class="p">)</span>
 
     <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;fitter&quot;</span><span class="p">:</span> <span class="s2">&quot;cvxpy_linear_lstsq&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;input_dims&quot;</span><span class="p">:</span> <span class="n">input_dims</span><span class="p">,</span>
-        <span class="s2">&quot;output_dims&quot;</span><span class="p">:</span> <span class="n">output_dims</span><span class="p">,</span>
+        <span class="s2">"fitter"</span><span class="p">:</span> <span class="s2">"cvxpy_linear_lstsq"</span><span class="p">,</span>
+        <span class="s2">"input_dims"</span><span class="p">:</span> <span class="n">input_dims</span><span class="p">,</span>
+        <span class="s2">"output_dims"</span><span class="p">:</span> <span class="n">output_dims</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="c1"># Conditional measurement indices</span>
@@ -719,8 +719,8 @@
         <span class="n">cond_meas_data</span> <span class="o">=</span> <span class="n">measurement_data</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">conditional_measurement_indices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)]</span>
         <span class="n">cond_meas_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cond_meas_data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">num_meas_cond</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_meas_indices</span><span class="p">)</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;conditional_measurement_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;conditional_measurement_outcome&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"conditional_measurement_index"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"conditional_measurement_outcome"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">num_meas_cond</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">cond_meas_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">measurement_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
@@ -730,14 +730,14 @@
         <span class="n">cond_prep_data</span> <span class="o">=</span> <span class="n">preparation_data</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">conditional_preparation_indices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)]</span>
         <span class="n">cond_prep_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cond_prep_data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">num_prep_cond</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_meas_indices</span><span class="p">)</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;conditional_preparation_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"conditional_preparation_index"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">num_prep_cond</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">cond_prep_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">preparation_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">cond_prep_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">outcome_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;conditional_circuit_outcome&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"conditional_circuit_outcome"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">fits</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">cond_prep_idx</span> <span class="ow">in</span> <span class="n">cond_prep_indices</span><span class="p">:</span>
@@ -785,12 +785,12 @@
                     <span class="n">rhos_i</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rho_i</span><span class="p">)</span>
                     <span class="n">cons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cons_i</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">num_circ_components</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;conditional_circuit_outcome&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                        <span class="n">metadata</span><span class="p">[</span><span class="s2">"conditional_circuit_outcome"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">num_meas_cond</span><span class="p">:</span>
-                        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;conditional_measurement_index&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">cond_meas_idx</span><span class="p">))</span>
-                        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;conditional_measurement_outcome&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+                        <span class="n">metadata</span><span class="p">[</span><span class="s2">"conditional_measurement_index"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">cond_meas_idx</span><span class="p">))</span>
+                        <span class="n">metadata</span><span class="p">[</span><span class="s2">"conditional_measurement_outcome"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">num_prep_cond</span><span class="p">:</span>
-                        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;conditional_preparation_index&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">cond_prep_idx</span><span class="p">))</span>
+                        <span class="n">metadata</span><span class="p">[</span><span class="s2">"conditional_preparation_index"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">cond_prep_idx</span><span class="p">))</span>
 
             <span class="c1"># Partial trace when fitting Choi-matrices for quantum process tomography.</span>
             <span class="c1"># This applied to the sum of conditional components</span>
@@ -848,8 +848,8 @@
             <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_circ_components</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_tomo_components</span><span class="p">):</span>
-                    <span class="n">model</span> <span class="o">=</span> <span class="n">bms_r</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">@</span> <span class="n">cvxpy</span><span class="o">.</span><span class="n">vec</span><span class="p">(</span><span class="n">rhos_r</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">bms_i</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">@</span> <span class="n">cvxpy</span><span class="o">.</span><span class="n">vec</span><span class="p">(</span>
-                        <span class="n">rhos_i</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span>
+                    <span class="n">model</span> <span class="o">=</span> <span class="n">bms_r</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">@</span> <span class="n">cvxpy</span><span class="o">.</span><span class="n">vec</span><span class="p">(</span><span class="n">rhos_r</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span><span class="p">)</span> <span class="o">-</span> <span class="n">bms_i</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">@</span> <span class="n">cvxpy</span><span class="o">.</span><span class="n">vec</span><span class="p">(</span>
+                        <span class="n">rhos_i</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span>
                     <span class="p">)</span>
                     <span class="n">data</span> <span class="o">=</span> <span class="n">probability_data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
                     <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span> <span class="o">-</span> <span class="n">data</span><span class="p">)</span>
@@ -864,8 +864,8 @@
                 <span class="n">cons</span> <span class="o">=</span> <span class="p">[</span><span class="n">joint_cons</span><span class="p">]</span>
 
             <span class="c1"># Solve each component separately</span>
-            <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;cvxpy_solver&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;cvxpy_status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">"cvxpy_solver"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">"cvxpy_status"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">arg</span><span class="p">,</span> <span class="n">con</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">cons</span><span class="p">):</span>
                 <span class="c1"># Optimization problem</span>
                 <span class="n">obj</span> <span class="o">=</span> <span class="n">cvxpy</span><span class="o">.</span><span class="n">Minimize</span><span class="p">(</span><span class="n">cvxpy</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
@@ -875,22 +875,22 @@
                 <span class="n">cvxpy_utils</span><span class="o">.</span><span class="n">solve_iteratively</span><span class="p">(</span><span class="n">prob</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
                 <span class="c1"># Return optimal values and problem metadata</span>
-                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;cvxpy_solver&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">solver_stats</span><span class="o">.</span><span class="n">solver_name</span>
-                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;cvxpy_status&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prob</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">"cvxpy_solver"</span><span class="p">]</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">solver_stats</span><span class="o">.</span><span class="n">solver_name</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">"cvxpy_status"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prob</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
 
             <span class="n">fits</span> <span class="o">+=</span> <span class="p">[</span><span class="n">rho_r</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">rho_i</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">rho_r</span><span class="p">,</span> <span class="n">rho_i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">rhos_r</span><span class="p">,</span> <span class="n">rhos_i</span><span class="p">)]</span>
 
     <span class="c1"># Add additional metadata</span>
     <span class="k">if</span> <span class="n">psd</span><span class="p">:</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;psd_constraint&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"psd_constraint"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">partial_trace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;partial_trace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">partial_trace</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"partial_trace"</span><span class="p">]</span> <span class="o">=</span> <span class="n">partial_trace</span>
     <span class="k">elif</span> <span class="n">trace_preserving</span><span class="p">:</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;trace_preserving&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"trace_preserving"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">elif</span> <span class="n">trace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;trace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trace</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"trace"</span><span class="p">]</span> <span class="o">=</span> <span class="n">trace</span>
     <span class="n">t_stop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;fitter_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_stop</span> <span class="o">-</span> <span class="n">t_start</span>
+    <span class="n">metadata</span><span class="p">[</span><span class="s2">"fitter_time"</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_stop</span> <span class="o">-</span> <span class="n">t_start</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fits</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">fits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">metadata</span>
@@ -911,15 +911,15 @@
     <span class="n">measurement_qubits</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">preparation_qubits</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">conditional_measurement_indices</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">trace</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">trace</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
     <span class="n">psd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">trace_preserving</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">trace_preserving</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
     <span class="n">partial_trace</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">outcome_prior</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="n">max_weight</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e10</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Constrained Gaussian linear least-squares tomography fitter.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Constrained Gaussian linear least-squares tomography fitter.</span>
 
 <span class="sd">    .. note::</span>
 
@@ -969,14 +969,14 @@
 <span class="sd">        conditional_measurement_indices: Optional, conditional measurement data</span>
 <span class="sd">            indices. If set this will return a list of conditional fitted states</span>
 <span class="sd">            conditioned on a fixed basis measurement of these qubits.</span>
-<span class="sd">        trace: trace constraint for the fitted matrix. If &quot;auto&quot; this will be set</span>
-<span class="sd">               to 1 for QST or the input dimension for QST (default: &quot;auto&quot;).</span>
+<span class="sd">        trace: trace constraint for the fitted matrix. If "auto" this will be set</span>
+<span class="sd">               to 1 for QST or the input dimension for QST (default: "auto").</span>
 <span class="sd">        psd: If True rescale the eigenvalues of fitted matrix to be positive</span>
 <span class="sd">             semidefinite (default: True)</span>
 <span class="sd">        trace_preserving: Enforce the fitted matrix to be trace preserving when</span>
 <span class="sd">                          fitting a Choi-matrix in quantum process</span>
-<span class="sd">                          tomography. If &quot;auto&quot; this will be set to True for</span>
-<span class="sd">                          QPT and False for QST (default: &quot;auto&quot;).</span>
+<span class="sd">                          tomography. If "auto" this will be set to True for</span>
+<span class="sd">                          QPT and False for QST (default: "auto").</span>
 <span class="sd">        partial_trace: Enforce conditional fitted Choi matrices to partial</span>
 <span class="sd">                       trace to POVM matrices.</span>
 <span class="sd">        outcome_prior: The Bayesian prior :math:`\alpha` to use computing Gaussian</span>
@@ -991,7 +991,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The fitted matrix rho that maximizes the least-squares likelihood function.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">t_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
     <span class="n">weights</span> <span class="o">=</span> <span class="n">lstsq_utils</span><span class="o">.</span><span class="n">binomial_weights</span><span class="p">(</span>
@@ -1022,8 +1022,8 @@
     <span class="n">t_stop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
     <span class="c1"># Update metadata</span>
-    <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;fitter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cvxpy_gaussian_lstsq&quot;</span>
-    <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;fitter_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_stop</span> <span class="o">-</span> <span class="n">t_start</span>
+    <span class="n">metadata</span><span class="p">[</span><span class="s2">"fitter"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"cvxpy_gaussian_lstsq"</span>
+    <span class="n">metadata</span><span class="p">[</span><span class="s2">"fitter_time"</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_stop</span> <span class="o">-</span> <span class="n">t_start</span>
 
     <span class="k">return</span> <span class="n">fits</span><span class="p">,</span> <span class="n">metadata</span></div>
 
@@ -1045,7 +1045,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -1060,7 +1060,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.curve_analysis.curve_analysis - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.curve_analysis.curve_analysis - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -556,9 +556,9 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Analysis class for curve fitting.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
 <span class="c1"># pylint: disable=invalid-name</span>
@@ -594,7 +594,7 @@
 <div class="viewcode-block" id="CurveAnalysis">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CurveAnalysis</span><span class="p">(</span><span class="n">BaseCurveAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for curve analysis with single curve group.</span>
+<span class="w">    </span><span class="sd">"""Base class for curve analysis with single curve group.</span>
 
 <span class="sd">    The fit parameters from the series defined under the analysis class are all shared</span>
 <span class="sd">    and the analysis performs a single multi-objective function optimization.</span>
@@ -632,8 +632,8 @@
 <span class="sd">    .. rubric:: _evaluate_quality</span>
 
 <span class="sd">    This method evaluates the quality of the fit based on the fit result.</span>
-<span class="sd">    This returns &quot;good&quot; when reduced chi-squared is less than 3.0.</span>
-<span class="sd">    Usually it returns string &quot;good&quot; or &quot;bad&quot; according to the evaluation.</span>
+<span class="sd">    This returns "good" when reduced chi-squared is less than 3.0.</span>
+<span class="sd">    Usually it returns string "good" or "bad" according to the evaluation.</span>
 
 <span class="sd">    .. rubric:: _create_analysis_results</span>
 
@@ -650,14 +650,14 @@
 <span class="sd">    This method initializes analysis options against input experiment data.</span>
 <span class="sd">    Usually this method is called before other methods are called.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">models</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize data fields that are privately accessed by methods.</span>
+<span class="w">        </span><span class="sd">"""Initialize data fields that are privately accessed by methods.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            models: List of LMFIT ``Model`` class to define fitting functions and</span>
@@ -667,7 +667,7 @@
 <span class="sd">                user must specify the ``data_subfit_map`` value in the analysis options</span>
 <span class="sd">                to allocate experimental results to a particular fit model.</span>
 <span class="sd">            name: Optional. Name of this analysis.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_models</span> <span class="o">=</span> <span class="n">models</span> <span class="ow">or</span> <span class="p">[]</span>
@@ -676,12 +676,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return name of this analysis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return name of this analysis."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return parameters of this curve analysis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return parameters of this curve analysis."""</span>
         <span class="n">unite_params</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">param_names</span><span class="p">:</span>
@@ -691,92 +691,92 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return fit models.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return fit models."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span>
 
 <div class="viewcode-block" id="CurveAnalysis.model_names">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis.model_names">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">model_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return model names.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="s2">&quot;_name&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;model-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">)]</span></div>
+<span class="w">        </span><span class="sd">"""Return model names."""</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="s2">"_name"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"model-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">)]</span></div>
 
 
 <div class="viewcode-block" id="CurveAnalysis.set_options">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.curve_analysis.CurveAnalysis.html#qiskit_experiments.curve_analysis.CurveAnalysis.set_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the analysis options for :meth:`run` method.</span>
+<span class="w">        </span><span class="sd">"""Set the analysis options for :meth:`run` method.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fields: The fields to update the options</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            KeyError: When removed option ``curve_fitter`` is set.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_residuals"</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_residuals"</span><span class="p">):</span>
             <span class="c1"># checking there are no subplots for the figure to prevent collision in subplot indices.</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subplots&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"subplots"</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;Residuals plotting is currently supported for analysis with 1 subplot.&quot;</span><span class="p">,</span>
+                    <span class="s2">"Residuals plotting is currently supported for analysis with 1 subplot."</span><span class="p">,</span>
                     <span class="ne">UserWarning</span><span class="p">,</span>
                     <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">fields</span><span class="p">[</span><span class="s2">"plot_residuals"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_add_residuals_plot_config</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_residuals"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_residuals"</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_remove_residuals_plot_config</span><span class="p">()</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_add_residuals_plot_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configure plotter options for residuals plot.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Configure plotter options for residuals plot."""</span>
         <span class="c1"># check we have model to fit into</span>
         <span class="n">residual_plot_y_axis_size</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
             <span class="c1"># Cache figure options.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">][</span><span class="s2">&quot;ylabel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s2">&quot;ylabel&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"figure_options"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"figure_options"</span><span class="p">][</span><span class="s2">"ylabel"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">"ylabel"</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">][</span><span class="s2">&quot;series_params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;series_params&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"figure_options"</span><span class="p">][</span><span class="s2">"series_params"</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"series_params"</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">][</span><span class="s2">&quot;sharey&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s2">&quot;sharey&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"figure_options"</span><span class="p">][</span><span class="s2">"sharey"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">"sharey"</span>
             <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
                 <span class="n">ylabel</span><span class="o">=</span><span class="p">[</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ylabel&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-                    <span class="s2">&quot;Residuals&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ylabel"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+                    <span class="s2">"Residuals"</span><span class="p">,</span>
                 <span class="p">],</span>
             <span class="p">)</span>
 
             <span class="n">model_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_names</span><span class="p">()</span>
-            <span class="n">series_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="p">[</span><span class="s2">&quot;series_params&quot;</span><span class="p">]</span>
+            <span class="n">series_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">figure_options</span><span class="p">[</span><span class="s2">"series_params"</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">model_names</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_name</span><span class="p">):</span>
-                    <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s2">&quot;canvas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s2">"canvas"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;canvas&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
-                <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;_residuals&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;_residuals&quot;</span><span class="p">][</span><span class="s2">&quot;canvas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"canvas"</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+                <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span> <span class="o">+</span> <span class="s2">"_residuals"</span><span class="p">]</span> <span class="o">=</span> <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">series_params</span><span class="p">[</span><span class="n">model_name</span> <span class="o">+</span> <span class="s2">"_residuals"</span><span class="p">][</span><span class="s2">"canvas"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span><span class="n">sharey</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">series_params</span><span class="o">=</span><span class="n">series_params</span><span class="p">)</span>
 
             <span class="c1"># Cache plotter options.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">][</span><span class="s2">&quot;subplots&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subplots&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">][</span><span class="s2">&quot;style&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;style&quot;</span><span class="p">,</span> <span class="n">PlotStyle</span><span class="p">({}))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"plotter"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"plotter"</span><span class="p">][</span><span class="s2">"subplots"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"subplots"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"plotter"</span><span class="p">][</span><span class="s2">"style"</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"style"</span><span class="p">,</span> <span class="n">PlotStyle</span><span class="p">({}))</span>
             <span class="p">)</span>
 
             <span class="c1"># removing the name from the plotter style, so it will not clash with the new name</span>
-            <span class="n">previous_plotter_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">][</span><span class="s2">&quot;style&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">previous_plotter_style</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;style_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">previous_plotter_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"plotter"</span><span class="p">][</span><span class="s2">"style"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">previous_plotter_style</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"style_name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
 
             <span class="c1"># creating new fig size based on previous size</span>
-            <span class="n">new_figsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;figsize&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+            <span class="n">new_figsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"figsize"</span><span class="p">,</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
             <span class="n">new_figsize</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_figsize</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">new_figsize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">residual_plot_y_axis_size</span><span class="p">)</span>
 
             <span class="c1"># Here add the configuration for the residuals plot:</span>
@@ -785,11 +785,11 @@
                 <span class="n">style</span><span class="o">=</span><span class="n">PlotStyle</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
                     <span class="n">PlotStyle</span><span class="p">(</span>
                         <span class="p">{</span>
-                            <span class="s2">&quot;figsize&quot;</span><span class="p">:</span> <span class="n">new_figsize</span><span class="p">,</span>
-                            <span class="s2">&quot;textbox_rel_pos&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.28</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.10</span><span class="p">),</span>
-                            <span class="s2">&quot;sub_plot_heights_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">10</span><span class="p">],</span>
-                            <span class="s2">&quot;sub_plot_widths_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                            <span class="s2">&quot;style_name&quot;</span><span class="p">:</span> <span class="s2">&quot;residuals&quot;</span><span class="p">,</span>
+                            <span class="s2">"figsize"</span><span class="p">:</span> <span class="n">new_figsize</span><span class="p">,</span>
+                            <span class="s2">"textbox_rel_pos"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.28</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.10</span><span class="p">),</span>
+                            <span class="s2">"sub_plot_heights_list"</span><span class="p">:</span> <span class="p">[</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">10</span><span class="p">],</span>
+                            <span class="s2">"sub_plot_widths_list"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="s2">"style_name"</span><span class="p">:</span> <span class="s2">"residuals"</span><span class="p">,</span>
                         <span class="p">}</span>
                     <span class="p">),</span>
                     <span class="n">previous_plotter_style</span><span class="p">,</span>
@@ -797,20 +797,20 @@
             <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_remove_residuals_plot_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;set options for a single plot to its cached values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""set options for a single plot to its cached values."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
-                <span class="n">ylabel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">][</span><span class="s2">&quot;ylabel&quot;</span><span class="p">],</span>
-                <span class="n">sharey</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">][</span><span class="s2">&quot;sharey&quot;</span><span class="p">],</span>
-                <span class="n">series_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">][</span><span class="s2">&quot;series_params&quot;</span><span class="p">],</span>
+                <span class="n">ylabel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"figure_options"</span><span class="p">][</span><span class="s2">"ylabel"</span><span class="p">],</span>
+                <span class="n">sharey</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"figure_options"</span><span class="p">][</span><span class="s2">"sharey"</span><span class="p">],</span>
+                <span class="n">series_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"figure_options"</span><span class="p">][</span><span class="s2">"series_params"</span><span class="p">],</span>
             <span class="p">)</span>
 
             <span class="c1"># Here add the style_name so the plotter will know not to print the residual data.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span>
-                <span class="n">subplots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">][</span><span class="s2">&quot;subplots&quot;</span><span class="p">],</span>
+                <span class="n">subplots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"plotter"</span><span class="p">][</span><span class="s2">"subplots"</span><span class="p">],</span>
                 <span class="n">style</span><span class="o">=</span><span class="n">PlotStyle</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">&quot;plotter&quot;</span><span class="p">][</span><span class="s2">&quot;style&quot;</span><span class="p">],</span>
-                    <span class="n">PlotStyle</span><span class="p">({</span><span class="s2">&quot;style_name&quot;</span><span class="p">:</span> <span class="s2">&quot;canceled_residuals&quot;</span><span class="p">}),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config_cache</span><span class="p">[</span><span class="s2">"plotter"</span><span class="p">][</span><span class="s2">"style"</span><span class="p">],</span>
+                    <span class="n">PlotStyle</span><span class="p">({</span><span class="s2">"style_name"</span><span class="p">:</span> <span class="s2">"canceled_residuals"</span><span class="p">}),</span>
                 <span class="p">),</span>
             <span class="p">)</span>
 
@@ -819,9 +819,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_data_processing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
-        <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;raw&quot;</span><span class="p">,</span>
+        <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"raw"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScatterTable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform data processing from the experiment result payload.</span>
+<span class="w">        </span><span class="sd">"""Perform data processing from the experiment result payload.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            raw_data: Payload in the experiment data.</span>
@@ -833,25 +833,25 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            DataProcessorError: When key for x values is not found in the metadata.</span>
 <span class="sd">            ValueError: When data processor is not provided.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span>
 
         <span class="c1"># Create table</span>
         <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">filter_data</span><span class="p">:</span>
-            <span class="n">to_process</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">raw_data</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">filter_data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+            <span class="n">to_process</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">raw_data</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">filter_data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">d</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">to_process</span> <span class="o">=</span> <span class="n">raw_data</span>
 
         <span class="c1"># Compute y value</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">data_processor</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Data processor is not set for the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> instance. &quot;</span>
-                <span class="s2">&quot;Initialize the instance with the experiment data, or set the &quot;</span>
-                <span class="s2">&quot;data_processor analysis options.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Data processor is not set for the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> instance. "</span>
+                <span class="s2">"Initialize the instance with the experiment data, or set the "</span>
+                <span class="s2">"data_processor analysis options."</span>
             <span class="p">)</span>
         <span class="n">processed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">data_processor</span><span class="p">(</span><span class="n">to_process</span><span class="p">)</span>
         <span class="n">yvals</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">nominal_values</span><span class="p">(</span><span class="n">processed</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
             <span class="c1"># For averaged data, the processed std dev will be NaN.</span>
             <span class="c1"># Setting std_devs to NaN will trigger floating point exceptions</span>
             <span class="c1"># which we can ignore. See https://stackoverflow.com/q/75656026</span>
@@ -865,12 +865,12 @@
 
         <span class="n">table</span> <span class="o">=</span> <span class="n">ScatterTable</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">datum</span><span class="p">,</span> <span class="n">yval</span><span class="p">,</span> <span class="n">yerr</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">to_process</span><span class="p">,</span> <span class="n">yvals</span><span class="p">,</span> <span class="n">yerrs</span><span class="p">):</span>
-            <span class="n">metadata</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">]</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">xval</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">opt</span><span class="o">.</span><span class="n">x_key</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">DataProcessorError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;X value key </span><span class="si">{</span><span class="n">opt</span><span class="o">.</span><span class="n">x_key</span><span class="si">}</span><span class="s2"> is not defined in the circuit metadata.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"X value key </span><span class="si">{</span><span class="n">opt</span><span class="o">.</span><span class="n">x_key</span><span class="si">}</span><span class="s2"> is not defined in the circuit metadata."</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
 
             <span class="c1"># Assign series name and series id</span>
@@ -888,7 +888,7 @@
                 <span class="n">series_name</span><span class="o">=</span><span class="n">series_name</span><span class="p">,</span>
                 <span class="n">series_id</span><span class="o">=</span><span class="n">series_id</span><span class="p">,</span>
                 <span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">,</span>
-                <span class="n">shots</span><span class="o">=</span><span class="n">datum</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">),</span>
+                <span class="n">shots</span><span class="o">=</span><span class="n">datum</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shots"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">),</span>
                 <span class="n">analysis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">table</span>
@@ -896,9 +896,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
-        <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;formatted&quot;</span><span class="p">,</span>
+        <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"formatted"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScatterTable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Postprocessing for preparing the fitting data.</span>
+<span class="w">        </span><span class="sd">"""Postprocessing for preparing the fitting data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            curve_data: Processed dataset created from experiment results.</span>
@@ -906,16 +906,16 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            New scatter table instance including data to fit.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">averaging_methods</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;shots_weighted&quot;</span><span class="p">:</span> <span class="n">shot_weighted_average</span><span class="p">,</span>
-            <span class="s2">&quot;iwv&quot;</span><span class="p">:</span> <span class="n">inverse_weighted_variance</span><span class="p">,</span>
-            <span class="s2">&quot;sample&quot;</span><span class="p">:</span> <span class="n">sample_average</span><span class="p">,</span>
+            <span class="s2">"shots_weighted"</span><span class="p">:</span> <span class="n">shot_weighted_average</span><span class="p">,</span>
+            <span class="s2">"iwv"</span><span class="p">:</span> <span class="n">inverse_weighted_variance</span><span class="p">,</span>
+            <span class="s2">"sample"</span><span class="p">:</span> <span class="n">sample_average</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">average</span> <span class="o">=</span> <span class="n">averaging_methods</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">average_method</span><span class="p">]</span>
         <span class="n">model_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_names</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="p">(</span><span class="n">series_name</span><span class="p">,</span> <span class="n">xval</span><span class="p">),</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">iter_groups</span><span class="p">(</span><span class="s2">&quot;series_name&quot;</span><span class="p">,</span> <span class="s2">&quot;xval&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">series_name</span><span class="p">,</span> <span class="n">xval</span><span class="p">),</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">iter_groups</span><span class="p">(</span><span class="s2">"series_name"</span><span class="p">,</span> <span class="s2">"xval"</span><span class="p">):</span>
             <span class="n">avg_yval</span><span class="p">,</span> <span class="n">avg_yerr</span><span class="p">,</span> <span class="n">shots</span> <span class="o">=</span> <span class="n">average</span><span class="p">(</span>
                 <span class="n">sub_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
                 <span class="n">sub_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">,</span>
@@ -943,7 +943,7 @@
         <span class="n">user_opt</span><span class="p">:</span> <span class="n">FitOptions</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>  <span class="c1"># pylint: disable=unused-argument</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FitOptions</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">FitOptions</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create algorithmic initial fit guess from analysis options and curve data.</span>
+<span class="w">        </span><span class="sd">"""Create algorithmic initial fit guess from analysis options and curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            user_opt: Fit options filled with user provided guess and bounds.</span>
@@ -951,21 +951,21 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of fit options that are passed to the fitter function.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">user_opt</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_curve_fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CurveFitResult</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform curve fitting on given data collection and fit models.</span>
+<span class="w">        </span><span class="sd">"""Perform curve fitting on given data collection and fit models.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            curve_data: Formatted data to fit.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The best fitting outcome with minimum reduced chi-squared value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">unite_parameter_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">:</span>
             <span class="c1"># Seems like this is not efficient looping, but using set operation sometimes</span>
@@ -1007,7 +1007,7 @@
         <span class="n">valid_uncertainty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">))</span>
 
         <span class="c1"># creating storage for residual plotting</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_residuals"</span><span class="p">):</span>
             <span class="n">residual_weights_list</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">iter_by_series_id</span><span class="p">():</span>
@@ -1022,7 +1022,7 @@
                 <span class="c1"># Remove outlier. When all sample values are the same with sample average,</span>
                 <span class="c1"># or sampling error is zero with shot-weighted average,</span>
                 <span class="c1"># some yerr values might be very close to zero, yielding significant weights.</span>
-                <span class="c1"># With such outlier, the fit doesn&#39;t sense residual of other data points.</span>
+                <span class="c1"># With such outlier, the fit doesn't sense residual of other data points.</span>
                 <span class="n">maximum_weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">raw_weights</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
                 <span class="n">weights_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">raw_weights</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">maximum_weight</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1036,7 +1036,7 @@
             <span class="n">partial_weighted_residuals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_weighted_residual</span><span class="p">)</span>
 
             <span class="c1"># adding weights to weights_list for residuals</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_residuals"</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">weights_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">residual_weights_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -1058,7 +1058,7 @@
                 <span class="p">)</span>
 
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
                     <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
                         <span class="c1"># Temporary workaround to avoid lmfit generate an</span>
                         <span class="c1"># Uncertainties warning about std_dev==0 when there are</span>
@@ -1068,8 +1068,8 @@
                         <span class="c1"># https://github.com/lmfit/lmfit-py/pull/1000 is</span>
                         <span class="c1"># released.</span>
                         <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
-                            <span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
-                            <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Using UFloat objects with std_dev==0.*&quot;</span><span class="p">,</span>
+                            <span class="s2">"ignore"</span><span class="p">,</span>
+                            <span class="n">message</span><span class="o">=</span><span class="s2">"Using UFloat objects with std_dev==0.*"</span><span class="p">,</span>
                         <span class="p">)</span>
                         <span class="n">new</span> <span class="o">=</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
                             <span class="n">fcn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
@@ -1078,7 +1078,7 @@
                             <span class="n">params</span><span class="o">=</span><span class="n">guess_params</span><span class="p">,</span>
                             <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fit_method</span><span class="p">,</span>
                             <span class="n">scale_covar</span><span class="o">=</span><span class="ow">not</span> <span class="n">valid_uncertainty</span><span class="p">,</span>
-                            <span class="n">nan_policy</span><span class="o">=</span><span class="s2">&quot;omit&quot;</span><span class="p">,</span>
+                            <span class="n">nan_policy</span><span class="o">=</span><span class="s2">"omit"</span><span class="p">,</span>
                             <span class="o">**</span><span class="n">fit_option</span><span class="o">.</span><span class="n">fitter_opts</span><span class="p">,</span>
                         <span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
@@ -1092,9 +1092,9 @@
                 <span class="n">res</span> <span class="o">=</span> <span class="n">new</span>
 
         <span class="c1"># if `plot_residuals` is ``False`` I would like the `residuals_model` be None to emphasize it</span>
-        <span class="c1"># wasn&#39;t calculated.</span>
-        <span class="n">residuals_model</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">res</span> <span class="ow">and</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+        <span class="c1"># wasn't calculated.</span>
+        <span class="n">residuals_model</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_residuals"</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="ow">and</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_residuals"</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">weights</span> <span class="ow">in</span> <span class="n">residual_weights_list</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">residuals_model</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">residual</span><span class="p">)</span>
@@ -1120,20 +1120,20 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_figures</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">ScatterTable</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a list of figures from the curve data.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"matplotlib.figure.Figure"</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Create a list of figures from the curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            curve_data: Scatter data table containing all data points.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of figures.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">series_id</span><span class="p">,</span> <span class="n">sub_data</span> <span class="ow">in</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">iter_by_series_id</span><span class="p">():</span>
             <span class="n">model_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_names</span><span class="p">()[</span><span class="n">series_id</span><span class="p">]</span>
             <span class="c1"># Plot raw data scatters</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot_raw_data</span><span class="p">:</span>
-                <span class="n">raw_data</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span>
+                <span class="n">raw_data</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">"raw"</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
                     <span class="n">series_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
                     <span class="n">x</span><span class="o">=</span><span class="n">raw_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
@@ -1148,7 +1148,7 @@
                 <span class="n">y_formatted_err</span><span class="o">=</span><span class="n">formatted_data</span><span class="o">.</span><span class="n">y_err</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="c1"># Plot fit lines</span>
-            <span class="n">line_data</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;fitted&quot;</span><span class="p">)</span>
+            <span class="n">line_data</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">"fitted"</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
@@ -1163,8 +1163,8 @@
                     <span class="n">y_interp_err</span><span class="o">=</span><span class="n">fit_stdev</span><span class="p">,</span>
                 <span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
-                <span class="n">residuals_data</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;residuals&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_residuals"</span><span class="p">):</span>
+                <span class="n">residuals_data</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">"residuals"</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_series_data</span><span class="p">(</span>
                     <span class="n">series_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
                     <span class="n">x_residuals</span><span class="o">=</span><span class="n">residuals_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
@@ -1181,14 +1181,14 @@
         <span class="n">result_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span> <span class="o">|</span> <span class="n">ArtifactData</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">artifacts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ArtifactData</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="c1"># Flag for plotting can be &quot;always&quot;, &quot;never&quot;, or &quot;selective&quot;</span>
+        <span class="c1"># Flag for plotting can be "always", "never", or "selective"</span>
         <span class="c1"># the analysis option overrides self._generate_figures if set</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="n">plot</span> <span class="o">=</span> <span class="s2">&quot;always&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="n">plot</span> <span class="o">=</span> <span class="s2">&quot;never&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">plot</span> <span class="o">=</span> <span class="s2">"always"</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">plot</span> <span class="o">=</span> <span class="s2">"never"</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">plot</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_generate_figures&quot;</span><span class="p">,</span> <span class="s2">&quot;always&quot;</span><span class="p">)</span>
+            <span class="n">plot</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_generate_figures"</span><span class="p">,</span> <span class="s2">"always"</span><span class="p">)</span>
 
         <span class="c1"># Prepare for fitting</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">)</span>
@@ -1200,11 +1200,11 @@
         <span class="k">if</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
             <span class="n">quality</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_quality</span><span class="p">(</span><span class="n">fit_data</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">quality</span> <span class="o">=</span> <span class="s2">&quot;bad&quot;</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="s2">"bad"</span>
 
         <span class="c1"># After the quality is determined, plot can become a boolean flag for whether</span>
         <span class="c1"># to generate the figure</span>
-        <span class="n">plot_bool</span> <span class="o">=</span> <span class="n">plot</span> <span class="o">==</span> <span class="s2">&quot;always&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">plot</span> <span class="o">==</span> <span class="s2">&quot;selective&quot;</span> <span class="ow">and</span> <span class="n">quality</span> <span class="o">==</span> <span class="s2">&quot;bad&quot;</span><span class="p">)</span>
+        <span class="n">plot_bool</span> <span class="o">=</span> <span class="n">plot</span> <span class="o">==</span> <span class="s2">"always"</span> <span class="ow">or</span> <span class="p">(</span><span class="n">plot</span> <span class="o">==</span> <span class="s2">"selective"</span> <span class="ow">and</span> <span class="n">quality</span> <span class="o">==</span> <span class="s2">"bad"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
             <span class="c1"># Add fit data to curve data table</span>
@@ -1234,11 +1234,11 @@
                         <span class="n">yerr</span><span class="o">=</span><span class="n">yerr</span><span class="p">,</span>
                         <span class="n">series_name</span><span class="o">=</span><span class="n">model_names</span><span class="p">[</span><span class="n">series_id</span><span class="p">],</span>
                         <span class="n">series_id</span><span class="o">=</span><span class="n">series_id</span><span class="p">,</span>
-                        <span class="n">category</span><span class="o">=</span><span class="s2">&quot;fitted&quot;</span><span class="p">,</span>
+                        <span class="n">category</span><span class="o">=</span><span class="s2">"fitted"</span><span class="p">,</span>
                         <span class="n">analysis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="p">)</span>
 
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plot_residuals&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"plot_residuals"</span><span class="p">):</span>
                     <span class="c1"># need to add here the residuals plot.</span>
                     <span class="n">xval_residual</span> <span class="o">=</span> <span class="n">sub_data</span><span class="o">.</span><span class="n">x</span>
                     <span class="n">yval_residuals</span> <span class="o">=</span> <span class="n">unp</span><span class="o">.</span><span class="n">nominal_values</span><span class="p">(</span><span class="n">fit_data</span><span class="o">.</span><span class="n">residuals</span><span class="p">[</span><span class="n">series_id</span><span class="p">])</span>
@@ -1249,7 +1249,7 @@
                             <span class="n">yval</span><span class="o">=</span><span class="n">yval</span><span class="p">,</span>
                             <span class="n">series_name</span><span class="o">=</span><span class="n">model_names</span><span class="p">[</span><span class="n">series_id</span><span class="p">],</span>
                             <span class="n">series_id</span><span class="o">=</span><span class="n">series_id</span><span class="p">,</span>
-                            <span class="n">category</span><span class="o">=</span><span class="s2">&quot;residuals&quot;</span><span class="p">,</span>
+                            <span class="n">category</span><span class="o">=</span><span class="s2">"residuals"</span><span class="p">,</span>
                             <span class="n">analysis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                         <span class="p">)</span>
 
@@ -1263,13 +1263,13 @@
 
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">ArtifactData</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;curve_data&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"curve_data"</span><span class="p">,</span>
                 <span class="n">data</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">ArtifactData</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;fit_summary&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"fit_summary"</span><span class="p">,</span>
                 <span class="n">data</span><span class="o">=</span><span class="n">fit_data</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
@@ -1278,7 +1278,7 @@
             <span class="k">if</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_supplementary_data</span><span class="p">(</span>
                     <span class="n">fit_red_chi</span><span class="o">=</span><span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span><span class="p">,</span>
-                    <span class="n">primary_results</span><span class="o">=</span><span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">result_data</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">r</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)],</span>
+                    <span class="n">primary_results</span><span class="o">=</span><span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">result_data</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">r</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"@"</span><span class="p">)],</span>
                 <span class="p">)</span>
             <span class="n">figures</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_figures</span><span class="p">(</span><span class="n">curve_data</span><span class="o">=</span><span class="n">table</span><span class="p">))</span>
 
@@ -1288,13 +1288,13 @@
         <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="c1"># Convert models into JSON str.</span>
         <span class="c1"># This object includes local function and cannot be pickled.</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">dumps</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;_models&quot;</span><span class="p">]]</span>
-        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;_models&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">dumps</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s2">"_models"</span><span class="p">]]</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">"_models"</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span>
         <span class="k">return</span> <span class="n">state</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="n">model_objs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;_models&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"_models"</span><span class="p">):</span>
             <span class="n">tmp_mod</span> <span class="o">=</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
             <span class="n">mod</span> <span class="o">=</span> <span class="n">tmp_mod</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="n">source</span><span class="p">)</span>
             <span class="n">model_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
@@ -1319,7 +1319,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -1334,7 +1334,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

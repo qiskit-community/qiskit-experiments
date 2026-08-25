@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.fine_frequency - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.characterization.fine_frequency - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Fine frequency characterization experiment.&quot;&quot;&quot;</span>
+<span class="sd">"""Fine frequency characterization experiment."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -571,7 +571,7 @@
 <div class="viewcode-block" id="FineFrequency">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.FineFrequency.html#qiskit_experiments.library.characterization.FineFrequency">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FineFrequency</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;An experiment to make a fine measurement of the qubit frequency.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""An experiment to make a fine measurement of the qubit frequency.</span>
 
 <span class="sd">    # section: overview</span>
 
@@ -616,7 +616,7 @@
 <span class="sd">            exp_data = exp.run().block_for_results()</span>
 <span class="sd">            display(exp_data.figure(0))</span>
 <span class="sd">            exp_data.analysis_results(dataframe=True)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -625,7 +625,7 @@
         <span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">repetitions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup a fine frequency experiment on the given qubit.</span>
+<span class="w">        </span><span class="sd">"""Setup a fine frequency experiment on the given qubit.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            physical_qubits: List containing the qubit on which to run the fine</span>
@@ -634,13 +634,13 @@
 <span class="sd">            backend: Optional, the backend to run the experiment on.</span>
 <span class="sd">            repetitions: The number of repetitions, if not given then the default value</span>
 <span class="sd">                from the experiment default options will be used.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">analysis</span> <span class="o">=</span> <span class="n">ErrorAmplificationAnalysis</span><span class="p">()</span>
         <span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span>
             <span class="n">normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">fixed_parameters</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;angle_per_gate&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
-                <span class="s2">&quot;phase_offset&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">"angle_per_gate"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="s2">"phase_offset"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -653,14 +653,14 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Default values for the fine frequency experiment.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Default values for the fine frequency experiment.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            repetitions (List[int]): A list of the number of times that the delay is repeated.</span>
 <span class="sd">            delay_duration (int): The duration of the delay as the number of ``dt`` s it contains.</span>
 <span class="sd">                The total length of the delay in units of ``dt`` will be n times ``delay_duration``</span>
 <span class="sd">                where n also  determines the rotation angle of the ``RZGate`` by :math:`n \pi/2`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">repetitions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">40</span><span class="p">))</span>
         <span class="n">options</span><span class="o">.</span><span class="n">delay_duration</span> <span class="o">=</span> <span class="kc">None</span>
@@ -668,13 +668,13 @@
         <span class="k">return</span> <span class="n">options</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_pre_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A method that subclasses can override to perform gates before the main sequence.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A method that subclasses can override to perform gates before the main sequence."""</span>
         <span class="k">return</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FineFrequency.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.FineFrequency.html#qiskit_experiments.library.characterization.FineFrequency.circuits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the list of quantum circuits to run.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the list of quantum circuits to run."""</span>
 
         <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -683,13 +683,13 @@
             <span class="n">circuit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_circuit</span><span class="p">()</span>
             <span class="n">circuit</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-            <span class="n">circuit</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">delay_duration</span> <span class="o">*</span> <span class="n">repetition</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;dt&quot;</span><span class="p">)</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">delay_duration</span> <span class="o">*</span> <span class="n">repetition</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"dt"</span><span class="p">)</span>
 
             <span class="n">circuit</span><span class="o">.</span><span class="n">rz</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">repetition</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="n">circuit</span><span class="o">.</span><span class="n">sx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">circuit</span><span class="o">.</span><span class="n">measure_all</span><span class="p">()</span>
 
-            <span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="n">repetition</span><span class="p">}</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"xval"</span><span class="p">:</span> <span class="n">repetition</span><span class="p">}</span>
 
             <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
 
@@ -700,7 +700,7 @@
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
         <span class="c1"># Store measurement level and meas return if they have been</span>
         <span class="c1"># set for the experiment</span>
-        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="s2">&quot;meas_return&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"meas_level"</span><span class="p">,</span> <span class="s2">"meas_return"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">):</span>
                 <span class="n">metadata</span><span class="p">[</span><span class="n">run_opt</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metadata</span></div>
@@ -723,7 +723,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -738,7 +738,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.framework.analysis_result_table - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.framework.analysis_result_table - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;A table-like dataset for analysis results.&quot;&quot;&quot;</span>
+<span class="sd">"""A table-like dataset for analysis results."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
@@ -573,7 +573,7 @@
 <div class="viewcode-block" id="AnalysisResultTable">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResultTable.html#qiskit_experiments.framework.AnalysisResultTable">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AnalysisResultTable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A table-like dataset for analysis results.</span>
+<span class="w">    </span><span class="sd">"""A table-like dataset for analysis results.</span>
 
 <span class="sd">    Default table columns are defined in the class attribute :attr:`.DEFAULT_COLUMNS`.</span>
 <span class="sd">    The table is automatically expanded when an extra key is included in the</span>
@@ -584,41 +584,41 @@
 <span class="sd">    is missing in the input data.</span>
 
 <span class="sd">    Any operation on the table value via the instance methods guarantees thread safety.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">VALID_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\A(?P&lt;short_id&gt;\w</span><span class="si">{8}</span><span class="s2">)-\w</span><span class="si">{4}</span><span class="s2">-\w</span><span class="si">{4}</span><span class="s2">-\w</span><span class="si">{4}</span><span class="s2">-\w</span><span class="si">{12}</span><span class="s2">\Z&quot;</span><span class="p">)</span>
+    <span class="n">VALID_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\A(?P&lt;short_id&gt;\w</span><span class="si">{8}</span><span class="s2">)-\w</span><span class="si">{4}</span><span class="s2">-\w</span><span class="si">{4}</span><span class="s2">-\w</span><span class="si">{4}</span><span class="s2">-\w</span><span class="si">{12}</span><span class="s2">\Z"</span><span class="p">)</span>
 
     <span class="n">DEFAULT_COLUMNS</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;experiment&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;components&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;value&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;quality&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;experiment_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;result_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;tags&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;backend&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;run_time&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_time&quot;</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">,</span>
+        <span class="s2">"experiment"</span><span class="p">,</span>
+        <span class="s2">"components"</span><span class="p">,</span>
+        <span class="s2">"value"</span><span class="p">,</span>
+        <span class="s2">"quality"</span><span class="p">,</span>
+        <span class="s2">"experiment_id"</span><span class="p">,</span>
+        <span class="s2">"result_id"</span><span class="p">,</span>
+        <span class="s2">"tags"</span><span class="p">,</span>
+        <span class="s2">"backend"</span><span class="p">,</span>
+        <span class="s2">"run_time"</span><span class="p">,</span>
+        <span class="s2">"created_time"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new dataset.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create new dataset."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_COLUMNS</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AnalysisResultTable.from_dataframe">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResultTable.html#qiskit_experiments.framework.AnalysisResultTable.from_dataframe">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_dataframe</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnalysisResultTable&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new dataset with existing dataframe.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dataframe</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"AnalysisResultTable"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Create new dataset with existing dataframe.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: Bare dataframe object.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new AnalysisResults instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">instance</span> <span class="o">=</span> <span class="n">AnalysisResultTable</span><span class="p">()</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">instance</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">data</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">instance</span></div>
@@ -626,19 +626,19 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dataframe object of analysis results.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Dataframe object of analysis results."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">result_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Result IDs in current dataset.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Result IDs in current dataset."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">result_id</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;All columns in current dataset.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""All columns in current dataset."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
 
@@ -650,7 +650,7 @@
         <span class="n">result_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">data</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add new data to this dataset.</span>
+<span class="w">        </span><span class="sd">"""Add new data to this dataset.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            result_id: A unique UUID-4 string for this data entry.</span>
@@ -661,17 +661,17 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Assigned analysis result ID.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">result_id</span> <span class="o">=</span> <span class="n">result_id</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_unique_hash</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">matched</span> <span class="o">:=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">VALID_ID_REGEX</span><span class="p">,</span> <span class="n">result_id</span><span class="p">):</span>
             <span class="c1"># Short unique index is generated from result id.</span>
             <span class="c1"># Showing full result id unnecessary occupies horizontal space of the html table.</span>
             <span class="c1"># This mechanism is inspired by the github commit hash.</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="n">matched</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;short_id&quot;</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">matched</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"short_id"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Result ID of </span><span class="si">{</span><span class="n">result_id</span><span class="si">}</span><span class="s2"> is not a valid UUID-4 string. &quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"Result ID of </span><span class="si">{</span><span class="n">result_id</span><span class="si">}</span><span class="s2"> is not a valid UUID-4 string. "</span><span class="p">,</span>
                 <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">index</span> <span class="o">=</span> <span class="n">result_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span>
@@ -679,8 +679,8 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Table entry index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> already exists. &quot;</span>
-                    <span class="s2">&quot;Please use another ID to avoid index collision.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Table entry index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> already exists. "</span>
+                    <span class="s2">"Please use another ID to avoid index collision."</span>
                 <span class="p">)</span>
 
             <span class="c1"># Add missing columns to the table</span>
@@ -700,7 +700,7 @@
             <span class="c1"># Also see test.framework.test_data_table.TestBaseTable.test_type_*</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
             <span class="n">template</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">template</span><span class="p">[</span><span class="s2">&quot;result_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_id</span>
+            <span class="n">template</span><span class="p">[</span><span class="s2">"result_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_id</span>
             <span class="n">template</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
 
@@ -712,9 +712,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">columns</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">columns</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"default"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get matched entries from this dataset.</span>
+<span class="w">        </span><span class="sd">"""Get matched entries from this dataset.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            key: Identifier of the entry of interest.</span>
@@ -723,7 +723,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Matched entries in a single data frame or series.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
                 <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -731,7 +731,7 @@
             <span class="n">uids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
                 <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">items</span><span class="o">=</span><span class="n">uids</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">columns</span> <span class="o">!=</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">columns</span> <span class="o">!=</span> <span class="s2">"all"</span><span class="p">:</span>
             <span class="n">valid_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_columns</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
             <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">valid_columns</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">out</span></div>
@@ -743,14 +743,14 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete matched entries from this dataset.</span>
+<span class="w">        </span><span class="sd">"""Delete matched entries from this dataset.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            key: Identifier of the entry of interest.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Deleted analysis result IDs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">uids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">uids</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -761,7 +761,7 @@
 <div class="viewcode-block" id="AnalysisResultTable.clear">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResultTable.html#qiskit_experiments.framework.AnalysisResultTable.clear">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all table entries.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Clear all table entries."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_COLUMNS</span><span class="p">)</span></div>
 
@@ -769,11 +769,11 @@
 <div class="viewcode-block" id="AnalysisResultTable.copy">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResultTable.html#qiskit_experiments.framework.AnalysisResultTable.copy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new thread-safe instance with the same data.</span>
+<span class="w">        </span><span class="sd">"""Create new thread-safe instance with the same data.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            This returns a new object with shallow copied data frame.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="c1"># Hold the lock so that no data can be added</span>
             <span class="n">new_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">()</span>
@@ -789,29 +789,29 @@
                 <span class="k">if</span> <span class="n">tmp_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">tmp_id</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-            <span class="s2">&quot;Unique result_id string cannot be prepared for this table within 1000 trials. &quot;</span>
-            <span class="s2">&quot;Reduce number of entries, or manually provide a unique result_id.&quot;</span>
+            <span class="s2">"Unique result_id string cannot be prepared for this table within 1000 trials. "</span>
+            <span class="s2">"Reduce number of entries, or manually provide a unique result_id."</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="n">extra_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_COLUMNS</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">columns</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">columns</span> <span class="o">==</span> <span class="s2">"default"</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">[</span>
-                    <span class="s2">&quot;name&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;experiment&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;components&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;value&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;quality&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;backend&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;run_time&quot;</span><span class="p">,</span>
+                    <span class="s2">"name"</span><span class="p">,</span>
+                    <span class="s2">"experiment"</span><span class="p">,</span>
+                    <span class="s2">"components"</span><span class="p">,</span>
+                    <span class="s2">"value"</span><span class="p">,</span>
+                    <span class="s2">"quality"</span><span class="p">,</span>
+                    <span class="s2">"backend"</span><span class="p">,</span>
+                    <span class="s2">"run_time"</span><span class="p">,</span>
                 <span class="p">]</span> <span class="o">+</span> <span class="n">extra_columns</span>
-            <span class="k">if</span> <span class="n">columns</span> <span class="o">==</span> <span class="s2">&quot;minimal&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">columns</span> <span class="o">==</span> <span class="s2">"minimal"</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">[</span>
-                    <span class="s2">&quot;name&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;components&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;value&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;quality&quot;</span><span class="p">,</span>
+                    <span class="s2">"name"</span><span class="p">,</span>
+                    <span class="s2">"components"</span><span class="p">,</span>
+                    <span class="s2">"value"</span><span class="p">,</span>
+                    <span class="s2">"quality"</span><span class="p">,</span>
                 <span class="p">]</span> <span class="o">+</span> <span class="n">extra_columns</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
@@ -820,35 +820,35 @@
                         <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Specified column </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> does not exist in this table.&quot;</span><span class="p">,</span>
+                            <span class="sa">f</span><span class="s2">"Specified column </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> does not exist in this table."</span><span class="p">,</span>
                             <span class="ne">UserWarning</span><span class="p">,</span>
                         <span class="p">)</span>
                 <span class="k">return</span> <span class="n">out</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Column group </span><span class="si">{</span><span class="n">columns</span><span class="si">}</span><span class="s2"> is not valid name. Use either &#39;all&#39;, &#39;default&#39;, &#39;minimal&#39;.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Column group </span><span class="si">{</span><span class="n">columns</span><span class="si">}</span><span class="s2"> is not valid name. Use either 'all', 'default', 'minimal'."</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Analysis result </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Analysis result </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> not found."</span><span class="p">)</span>
                 <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
                 <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span><span class="n">key</span><span class="p">]</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Analysis result </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Analysis result </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> not found."</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">keys</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
                     <span class="k">return</span> <span class="p">[</span><span class="n">key</span><span class="p">]</span>
                 <span class="c1"># This key is name of entry</span>
-                <span class="n">loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span>
+                <span class="n">loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">loc</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Analysis result </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">ExperimentEntryNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Analysis result </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> not found."</span><span class="p">)</span>
                 <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">loc</span><span class="p">])</span>
 
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid key type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="si">}</span><span class="s2">. The key must be either int, slice, or str.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid key type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="si">}</span><span class="s2">. The key must be either int, slice, or str."</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AnalysisResultTable.__len__">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.AnalysisResultTable.html#qiskit_experiments.framework.AnalysisResultTable.__len__">[docs]</a>
@@ -862,26 +862,26 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_encode__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{</span>
-                <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;AnalysisResultTable&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">),</span>
+                <span class="s2">"class"</span><span class="p">:</span> <span class="s2">"AnalysisResultTable"</span><span class="p">,</span>
+                <span class="s2">"data"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">"index"</span><span class="p">),</span>
             <span class="p">}</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnalysisResultTable&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;AnalysisResultTable&quot;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;JSON decoded value for AnalysisResultTable is not valid class type.&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"AnalysisResultTable"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"class"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"AnalysisResultTable"</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"JSON decoded value for AnalysisResultTable is not valid class type."</span><span class="p">)</span>
 
         <span class="n">instance</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">{}),</span>
-            <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data"</span><span class="p">,</span> <span class="p">{}),</span>
+            <span class="n">orient</span><span class="o">=</span><span class="s2">"index"</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">instance</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">del</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;_lock&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">state</span><span class="p">[</span><span class="s2">"_lock"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">state</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
@@ -906,7 +906,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -921,7 +921,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

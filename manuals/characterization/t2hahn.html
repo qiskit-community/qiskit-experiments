@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="T2* Ramsey Characterization" href="t2ramsey.html"><link rel="prev" title="T1 Characterization" href="t1.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>T2 Hahn Characterization - Qiskit Experiments 0.14.1</title>
+        <title>T2 Hahn Characterization - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -615,7 +615,7 @@ and can analytically extract the desired values.</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qubit</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">conversion_factor</span> <span class="o">=</span> <span class="mf">1e-6</span> <span class="c1"># our delay will be in micro-sec</span>
 <span class="n">delays</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="p">)</span>
-<span class="c1"># Round so that the delay gates in the circuit display does not have trailing 9999&#39;s</span>
+<span class="c1"># Round so that the delay gates in the circuit display does not have trailing 9999's</span>
 <span class="n">delays</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="o">*</span> <span class="n">conversion_factor</span><span class="p">,</span> <span class="n">ndigits</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">delays</span><span class="p">]</span>
 <span class="n">number_of_echoes</span> <span class="o">=</span> <span class="mi">1</span>
 
@@ -718,7 +718,7 @@ specifically for this experiment.</p>
   </thead>
   <tbody>
     <tr>
-      <th>ce91d704</th>
+      <th>78cf143e</th>
       <td>T2</td>
       <td>T2Hahn</td>
       <td>[Q0]</td>
@@ -749,7 +749,7 @@ computed for other qubits.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp_with_p0</span> <span class="o">=</span> <span class="n">T2Hahn</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="n">qubit</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span> <span class="n">num_echoes</span><span class="o">=</span><span class="n">number_of_echoes</span><span class="p">)</span>
-<span class="n">exp_with_p0</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="n">estimated_t2hahn</span><span class="p">,</span> <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
+<span class="n">exp_with_p0</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="p">{</span><span class="s2">"amp"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">"tau"</span><span class="p">:</span> <span class="n">estimated_t2hahn</span><span class="p">,</span> <span class="s2">"base"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
 <span class="n">expdata_with_p0</span> <span class="o">=</span> <span class="n">exp_with_p0</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
 <span class="n">expdata_with_p0</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 
@@ -801,7 +801,7 @@ computed for other qubits.</p>
   </thead>
   <tbody>
     <tr>
-      <th>b8312c2b</th>
+      <th>0aa3a16e</th>
       <td>T2</td>
       <td>T2Hahn</td>
       <td>[Q0]</td>
@@ -839,14 +839,14 @@ frequency to the qubit and see how it affect the estimated <span class="math not
 
 <span class="c1"># Create a T2Hahn experiment with 0 echoes</span>
 <span class="n">exp2_0echoes</span> <span class="o">=</span> <span class="n">T2Hahn</span><span class="p">((</span><span class="n">qubit2</span><span class="p">,),</span> <span class="n">delays</span><span class="p">,</span> <span class="n">num_echoes</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">exp2_0echoes</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="n">estimated_t2hahn2</span><span class="p">,</span> <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The second circuit of hahn echo experiment with 0 echoes:&quot;</span><span class="p">)</span>
+<span class="n">exp2_0echoes</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="p">{</span><span class="s2">"amp"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">"tau"</span><span class="p">:</span> <span class="n">estimated_t2hahn2</span><span class="p">,</span> <span class="s2">"base"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"The second circuit of hahn echo experiment with 0 echoes:"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">exp2_0echoes</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
 
 <span class="c1"># Create a T2Hahn experiment with 1 echo. Print the first circuit as an example</span>
 <span class="n">exp2_1echoes</span> <span class="o">=</span> <span class="n">T2Hahn</span><span class="p">((</span><span class="n">qubit2</span><span class="p">,),</span> <span class="n">delays</span><span class="p">,</span> <span class="n">num_echoes</span><span class="o">=</span><span class="n">num_echoes</span><span class="p">)</span>
-<span class="n">exp2_1echoes</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="n">estimated_t2hahn2</span><span class="p">,</span> <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The second circuit of hahn echo experiment with 1 echo:&quot;</span><span class="p">)</span>
+<span class="n">exp2_1echoes</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="p">{</span><span class="s2">"amp"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">"tau"</span><span class="p">:</span> <span class="n">estimated_t2hahn2</span><span class="p">,</span> <span class="s2">"base"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"The second circuit of hahn echo experiment with 1 echo:"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">exp2_1echoes</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -896,9 +896,9 @@ c: 1/═════════════════════════
 <span class="n">expdata2_1echoes</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>  <span class="c1"># Wait for job/analysis to finish.</span>
 
 <span class="c1"># Display the figure</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hahn Echo with 0 echoes:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Hahn Echo with 0 echoes:"</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">expdata2_0echoes</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hahn Echo with 1 echo:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Hahn Echo with 1 echo:"</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">expdata2_1echoes</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -961,7 +961,7 @@ is close to the estimate of the one echo experiment.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -998,7 +998,7 @@ is close to the estimate of the one echo experiment.</p>
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

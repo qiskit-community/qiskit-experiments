@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="ExperimentDecoder" href="qiskit_experiments.framework.ExperimentDecoder.html"><link rel="prev" title="AnalysisConfig" href="qiskit_experiments.framework.AnalysisConfig.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>ExperimentEncoder - Qiskit Experiments 0.14.1</title>
+        <title>ExperimentEncoder - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -611,8 +611,8 @@ This method should have signature</p>
 <p>Additionally, the custom class’s package metadata must register the top
 level import package as a <code class="docutils literal notranslate"><span class="pre">qiskit_experiments.def</span></code> Python entry point. In
 <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> the entry point registration would like this:</p>
-<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project.entry-points.</span><span class="s2">&quot;qiskit_experiments.deserialization_packages&quot;</span><span class="k">]</span>
-<span class="n">custom-package-name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;custom_package&quot;</span>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project.entry-points.</span><span class="s2">"qiskit_experiments.deserialization_packages"</span><span class="k">]</span>
+<span class="n">custom-package-name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"custom_package"</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">custom_package</span></code> is the Python import module that the custom class
@@ -712,8 +712,8 @@ implement default like this:</p>
 <span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">o</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_experiments.framework.ExperimentEncoder.encode" title="Link to this definition">¶</a></dt>
 <dd><p>Return a JSON string representation of a Python data structure.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">json.encoder</span><span class="w"> </span><span class="kn">import</span> <span class="n">JSONEncoder</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">JSONEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">({</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="s2">&quot;baz&quot;</span><span class="p">]})</span>
-<span class="go">&#39;{&quot;foo&quot;: [&quot;bar&quot;, &quot;baz&quot;]}&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">JSONEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">({</span><span class="s2">"foo"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"bar"</span><span class="p">,</span> <span class="s2">"baz"</span><span class="p">]})</span>
+<span class="go">'{"foo": ["bar", "baz"]}'</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -769,7 +769,7 @@ representation as available.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -810,7 +810,7 @@ representation as available.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

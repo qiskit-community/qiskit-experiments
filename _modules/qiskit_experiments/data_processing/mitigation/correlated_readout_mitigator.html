@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.data_processing.mitigation.correlated_readout_mitigator - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.data_processing.mitigation.correlated_readout_mitigator - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Readout mitigator class based on the A-matrix inversion method</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Callable</span>
@@ -574,17 +574,17 @@
 <div class="viewcode-block" id="CorrelatedReadoutMitigator">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html#qiskit_experiments.data_processing.CorrelatedReadoutMitigator">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CorrelatedReadoutMitigator</span><span class="p">(</span><span class="n">BaseReadoutMitigator</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;N-qubit readout error mitigator.</span>
+<span class="w">    </span><span class="sd">"""N-qubit readout error mitigator.</span>
 
 <span class="sd">    Mitigates :meth:`expectation_value` and :meth:`quasi_probabilities`.</span>
 <span class="sd">    The mitigation_matrix should be calibrated using qiskit experiments.</span>
 <span class="sd">    This mitigation method should be used in case the readout errors of the qubits</span>
 <span class="sd">    are assumed to be correlated. The mitigation_matrix of *N* qubits is of size</span>
 <span class="sd">    :math:`2^N x 2^N` so the mitigation complexity is :math:`O(4^N)`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assignment_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a CorrelatedReadoutMitigator</span>
+<span class="w">        </span><span class="sd">"""Initialize a CorrelatedReadoutMitigator</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            assignment_matrix: readout error assignment matrix.</span>
@@ -592,9 +592,9 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitError: matrix size does not agree with number of qubits</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">assignment_matrix</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">assignment_matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Assignment matrix columns must be valid probability distributions&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"Assignment matrix columns must be valid probability distributions"</span><span class="p">)</span>
         <span class="n">assignment_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">assignment_matrix</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">matrix_qubits_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">assignment_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="k">if</span> <span class="n">qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -603,8 +603,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span> <span class="o">!=</span> <span class="n">matrix_qubits_num</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;The number of given qubits (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span><span class="si">}</span><span class="s2">) is different than the number of &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;qubits inferred from the matrices (</span><span class="si">{</span><span class="n">matrix_qubits_num</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="sa">f</span><span class="s2">"The number of given qubits (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span><span class="si">}</span><span class="s2">) is different than the number of "</span>
+                    <span class="sa">f</span><span class="s2">"qubits inferred from the matrices (</span><span class="si">{</span><span class="n">matrix_qubits_num</span><span class="si">}</span><span class="s2">)"</span>
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_qubits</span> <span class="o">=</span> <span class="n">qubits</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_num_qubits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qubits</span><span class="p">)</span>
@@ -614,8 +614,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return settings.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;assignment_matrix&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assignment_mat</span><span class="p">,</span> <span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubits</span><span class="p">}</span>
+<span class="w">        </span><span class="sd">"""Return settings."""</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"assignment_matrix"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assignment_mat</span><span class="p">,</span> <span class="s2">"qubits"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubits</span><span class="p">}</span>
 
 <div class="viewcode-block" id="CorrelatedReadoutMitigator.expectation_value">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html#qiskit_experiments.data_processing.CorrelatedReadoutMitigator.expectation_value">[docs]</a>
@@ -627,7 +627,7 @@
         <span class="n">clbits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the mitigated expectation value of a diagonal observable.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Compute the mitigated expectation value of a diagonal observable.</span>
 
 <span class="sd">        This computes the mitigated estimator of</span>
 <span class="sd">        :math:`\langle O \rangle = \mbox{Tr}[\rho. O]` of a diagonal observable</span>
@@ -656,7 +656,7 @@
 <span class="sd">            over the specified bit-values, and the ``qubits`` kwarg is used to specify</span>
 <span class="sd">            which physical qubits these bit-values correspond to as</span>
 <span class="sd">            ``circuit.measure(qubits, clbits)``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">qubits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubits</span>
@@ -690,7 +690,7 @@
         <span class="n">clbits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuasiDistribution</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute mitigated quasi probabilities value.</span>
+<span class="w">        </span><span class="sd">"""Compute mitigated quasi probabilities value.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: counts object</span>
@@ -700,11 +700,11 @@
 <span class="sd">                be calculated as the sum of all counts.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            QuasiDistribution: A dictionary containing pairs of [output, mean] where &quot;output&quot;</span>
+<span class="sd">            QuasiDistribution: A dictionary containing pairs of [output, mean] where "output"</span>
 <span class="sd">                is the key in the dictionaries,</span>
 <span class="sd">                which is the length-N bitstring of a measured standard basis state,</span>
-<span class="sd">                and &quot;mean&quot; is the mean of non-zero quasi-probability estimates.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">                and "mean" is the mean of non-zero quasi-probability estimates.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">qubits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubits</span>
         <span class="n">probs_vec</span><span class="p">,</span> <span class="n">calculated_shots</span> <span class="o">=</span> <span class="n">counts_probability_vector</span><span class="p">(</span>
@@ -732,7 +732,7 @@
 <div class="viewcode-block" id="CorrelatedReadoutMitigator.mitigation_matrix">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html#qiskit_experiments.data_processing.CorrelatedReadoutMitigator.mitigation_matrix">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">mitigation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the readout mitigation matrix for the specified qubits.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Return the readout mitigation matrix for the specified qubits.</span>
 
 <span class="sd">        The mitigation matrix :math:`A^{-1}` is defined as the inverse of the</span>
 <span class="sd">        :meth:`assignment_matrix` :math:`A`.</span>
@@ -742,7 +742,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            np.ndarray: the measurement error mitigation matrix :math:`A^{-1}`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">qubits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubits</span>
         <span class="n">qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">qubits</span><span class="p">))</span>
@@ -764,7 +764,7 @@
 <div class="viewcode-block" id="CorrelatedReadoutMitigator.assignment_matrix">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html#qiskit_experiments.data_processing.CorrelatedReadoutMitigator.assignment_matrix">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">assignment_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the readout assignment matrix for specified qubits.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Return the readout assignment matrix for specified qubits.</span>
 
 <span class="sd">        The assignment matrix is the stochastic matrix :math:`A` which assigns</span>
 <span class="sd">        a noisy readout probability distribution to an ideal input</span>
@@ -775,7 +775,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            np.ndarray: the assignment matrix A.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">qubits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubits</span>
         <span class="k">if</span> <span class="n">qubits</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_qubits</span><span class="p">:</span>
@@ -808,28 +808,28 @@
         <span class="k">return</span> <span class="n">indexes</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_compute_gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute gamma for N-qubit mitigation&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Compute gamma for N-qubit mitigation"""</span>
         <span class="n">mitmat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mitigation_matrix</span><span class="p">(</span><span class="n">qubits</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_qubits</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mitmat</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
 
 <div class="viewcode-block" id="CorrelatedReadoutMitigator.stddev_upper_bound">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.data_processing.CorrelatedReadoutMitigator.html#qiskit_experiments.data_processing.CorrelatedReadoutMitigator.stddev_upper_bound">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">stddev_upper_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an upper bound on standard deviation of expval estimator.</span>
+<span class="w">        </span><span class="sd">"""Return an upper bound on standard deviation of expval estimator.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            shots: Number of shots used for expectation value measurement.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            float: the standard deviation upper bound.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_gamma</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">gamma</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">shots</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The device qubits for this mitigator&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The device qubits for this mitigator"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubits</span></div>
 
 </pre></div>
@@ -850,7 +850,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -865,7 +865,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

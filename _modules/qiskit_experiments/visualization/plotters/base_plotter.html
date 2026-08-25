@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.visualization.plotters.base_plotter - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.visualization.plotters.base_plotter - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,7 +555,7 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;Base plotter abstract class&quot;&quot;&quot;</span>
+<span class="sd">"""Base plotter abstract class"""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -574,7 +574,7 @@
 <div class="viewcode-block" id="BasePlotter">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BasePlotter</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An abstract class for the serializable figure plotters.</span>
+<span class="w">    </span><span class="sd">"""An abstract class for the serializable figure plotters.</span>
 
 <span class="sd">    # section: overview</span>
 
@@ -625,8 +625,8 @@
 <span class="sd">    plotter.</span>
 
 <span class="sd">    .. note::</span>
-<span class="sd">        If a figure option called &quot;foo&quot; is not set in the drawer&#39;s figure options</span>
-<span class="sd">        (:attr:`BaseDrawer.figure_options`) but is set in the plotter&#39;s figure options</span>
+<span class="sd">        If a figure option called "foo" is not set in the drawer's figure options</span>
+<span class="sd">        (:attr:`BaseDrawer.figure_options`) but is set in the plotter's figure options</span>
 <span class="sd">        (:attr:`figure_options`), it will not be copied over to the drawer when the</span>
 <span class="sd">        :meth:`figure` method is called. This means that some figure options from the</span>
 <span class="sd">        plotter may be unused by the drawer. :class:`BasePlotter` and its subclasses</span>
@@ -652,15 +652,15 @@
 
 <span class="sd">        # If we set the following figure options, they will be set in the drawer as</span>
 <span class="sd">        # they are defined in `plotter.drawer.figure_options`.</span>
-<span class="sd">        plotter.set_figure_options(xlabel=&quot;Frequency&quot;, ylabel=&quot;Fidelity&quot;)</span>
+<span class="sd">        plotter.set_figure_options(xlabel="Frequency", ylabel="Fidelity")</span>
 
-<span class="sd">        # During a call to `plotter.figure()`, the drawer&#39;s figure options are updated.</span>
+<span class="sd">        # During a call to `plotter.figure()`, the drawer's figure options are updated.</span>
 <span class="sd">        # The following values would then be returned from the drawer.</span>
-<span class="sd">        plotter.drawer.figure_options.xlabel                # returns &quot;Frequency&quot;</span>
-<span class="sd">        plotter.drawer.figure_options.ylabel                # returns &quot;Fidelity&quot;</span>
+<span class="sd">        plotter.drawer.figure_options.xlabel                # returns "Frequency"</span>
+<span class="sd">        plotter.drawer.figure_options.ylabel                # returns "Fidelity"</span>
 
 <span class="sd">        # If we set the following option and figure option, they will NOT be set in the</span>
-<span class="sd">        # drawer as the drawer doesn&#39;t contain default values for these option names.</span>
+<span class="sd">        # drawer as the drawer doesn't contain default values for these option names.</span>
 <span class="sd">        plotter.set_options(plot_fit=False)                 # Example plotter option</span>
 <span class="sd">        plotter.set_figure_options(unknown_variable=5e9)    # Example figure option</span>
 
@@ -669,7 +669,7 @@
 <span class="sd">                                            # exists, or return a different value to</span>
 <span class="sd">                                            # `plotter.options.plot_fit`.</span>
 
-<span class="sd">        # As `unknown_variable` is not set in the drawer&#39;s figure options, it is not set</span>
+<span class="sd">        # As `unknown_variable` is not set in the drawer's figure options, it is not set</span>
 <span class="sd">        # during a # call to the `figure()` method.</span>
 <span class="sd">        # plotter.drawer.figure_options.unknown_variable    # Raises an error as it</span>
 <span class="sd">                                                            # does not exist in</span>
@@ -677,17 +677,17 @@
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        drawer (BaseDrawer): The drawer to use when plotting.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drawer</span><span class="p">:</span> <span class="n">BaseDrawer</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new plotter instance.</span>
+<span class="w">        </span><span class="sd">"""Create a new plotter instance.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            drawer: The drawer to use when creating the figure.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Data to be plotted, such as scatter points, interpolated fits, and confidence intervals</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_series_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="c1"># Data that isn&#39;t directly associated with a single series, such as text or fit reports.</span>
+        <span class="c1"># Data that isn't directly associated with a single series, such as text or fit reports.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_supplementary_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Options for the plotter</span>
@@ -704,18 +704,18 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">supplementary_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Additional data for the figure being plotted, that isn&#39;t associated with a</span>
+<span class="w">        </span><span class="sd">"""Additional data for the figure being plotted, that isn't associated with a</span>
 <span class="sd">        series.</span>
 
 <span class="sd">        Supplementary data includes text, fit reports, or other data that is associated</span>
 <span class="sd">        with the figure but not an individual series. It is typically data additional to</span>
 <span class="sd">        the direct results of an experiment.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supplementary_data</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">series_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Data for series being plotted.</span>
+<span class="w">        </span><span class="sd">"""Data for series being plotted.</span>
 
 <span class="sd">        Series data includes data such as scatter points, interpolated fit values, and</span>
 <span class="sd">        standard deviations. Series data is grouped by series name (``Union[str, int,</span>
@@ -726,18 +726,18 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A dictionary containing series data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series_data</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">series</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Series names that have been added to this plotter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Series names that have been added to this plotter."""</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_series_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
 <div class="viewcode-block" id="BasePlotter.data_keys_for">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.data_keys_for">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">data_keys_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a list of data keys for the given series.</span>
+<span class="w">        </span><span class="sd">"""Returns a list of data keys for the given series.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            series_name: The series name for which to return the data keys, i.e., the</span>
@@ -747,28 +747,28 @@
 <span class="sd">            The list of data keys for data in the plotter associated with the given</span>
 <span class="sd">            series. If the series has not been added to the plotter, an empty list is</span>
 <span class="sd">            returned.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_series_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">series_name</span><span class="p">,</span> <span class="p">[]))</span></div>
 
 
 <div class="viewcode-block" id="BasePlotter.data_for">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.data_for">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">data_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">,</span> <span class="n">data_keys</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns data associated with the given series.</span>
+<span class="w">        </span><span class="sd">"""Returns data associated with the given series.</span>
 
 <span class="sd">        The returned tuple contains the data, associated with ``data_keys``, in the same</span>
 <span class="sd">        orders as they are provided. For example,</span>
 
 <span class="sd">        .. code-block:: python</span>
 
-<span class="sd">            plotter.set_series_data(&quot;seriesA&quot;, x=data.x, y=data.y, yerr=data.yerr)</span>
+<span class="sd">            plotter.set_series_data("seriesA", x=data.x, y=data.y, yerr=data.yerr)</span>
 
 <span class="sd">            # The following calls are equivalent.</span>
-<span class="sd">            x, y, yerr = plotter.data_for(&quot;seriesA&quot;, [&quot;x&quot;, &quot;y&quot;, &quot;yerr&quot;])</span>
+<span class="sd">            x, y, yerr = plotter.data_for("seriesA", ["x", "y", "yerr"])</span>
 <span class="sd">            x, y, yerr = data.x, data.y, data.yerr</span>
 
 <span class="sd">            # Retrieving a single data key returns a tuple. Note the comma after ``x``.</span>
-<span class="sd">            x, = plotter.data_for(&quot;seriesA&quot;, &quot;x&quot;)</span>
+<span class="sd">            x, = plotter.data_for("seriesA", "x")</span>
 
 <span class="sd">        :meth:`data_for` is intended to be used by sub-classes of :class:`BasePlotter`</span>
 <span class="sd">        when plotting in the :meth:`_plot_figure` method.</span>
@@ -782,13 +782,13 @@
 <span class="sd">            A tuple of data associated with the given series, identified by</span>
 <span class="sd">            ``data_keys``. If no data has been set for a data key, None is returned for</span>
 <span class="sd">            the associated tuple entry.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># We may be given a single data key, but we need a list for the rest of the function.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_keys</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">data_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_keys</span><span class="p">]</span>
 
-        <span class="c1"># The series doesn&#39;t exist in the plotter data, return None for each data key in the output.</span>
+        <span class="c1"># The series doesn't exist in the plotter data, return None for each data key in the output.</span>
         <span class="k">if</span> <span class="n">series_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series_data</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_keys</span><span class="p">)</span>
 
@@ -798,7 +798,7 @@
 <div class="viewcode-block" id="BasePlotter.set_series_data">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.set_series_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_series_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">,</span> <span class="o">**</span><span class="n">data_kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets data for the given series.</span>
+<span class="w">        </span><span class="sd">"""Sets data for the given series.</span>
 
 <span class="sd">        Note that if data has already been assigned for the given series and data key,</span>
 <span class="sd">        it will be overwritten with the new values. ``set_series_data`` will warn if the</span>
@@ -808,15 +808,15 @@
 <span class="sd">        Args:</span>
 <span class="sd">            series_name: The name of the given series.</span>
 <span class="sd">            data_kwargs: The data to be added, where the keyword is the data key.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Warn if the data keys are not expected.</span>
         <span class="n">unknown_data_keys</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">data_key</span> <span class="k">for</span> <span class="n">data_key</span> <span class="ow">in</span> <span class="n">data_kwargs</span> <span class="k">if</span> <span class="n">data_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_series_data_keys</span><span class="p">()</span>
         <span class="p">]</span>
         <span class="k">for</span> <span class="n">unknown_data_key</span> <span class="ow">in</span> <span class="n">unknown_data_keys</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> encountered an unknown data key </span><span class="si">{</span><span class="n">unknown_data_key</span><span class="si">}</span><span class="s2">. It may &quot;</span>
-                <span class="s2">&quot;not be used by the plotter class.&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> encountered an unknown data key </span><span class="si">{</span><span class="n">unknown_data_key</span><span class="si">}</span><span class="s2">. It may "</span>
+                <span class="s2">"not be used by the plotter class."</span>
             <span class="p">)</span>
 
         <span class="c1"># Set data</span>
@@ -828,12 +828,12 @@
 <div class="viewcode-block" id="BasePlotter.clear_series_data">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.clear_series_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">clear_series_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">SeriesName</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear series data for this plotter.</span>
+<span class="w">        </span><span class="sd">"""Clear series data for this plotter.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            series_name: The series name identifying which data should be cleared. If</span>
 <span class="sd">                None, all series data is cleared. Defaults to None.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">series_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_series_data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">elif</span> <span class="n">series_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series_data</span><span class="p">:</span>
@@ -843,18 +843,18 @@
 <div class="viewcode-block" id="BasePlotter.set_supplementary_data">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.set_supplementary_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_supplementary_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data_kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets supplementary data for the plotter.</span>
+<span class="w">        </span><span class="sd">"""Sets supplementary data for the plotter.</span>
 
 <span class="sd">        Supplementary data differs from series data in that it is not associate with a</span>
 <span class="sd">        series name. Fit reports are examples of supplementary data as they contain fit</span>
-<span class="sd">        results from an analysis class, such as the &quot;goodness&quot; of a curve fit.</span>
+<span class="sd">        results from an analysis class, such as the "goodness" of a curve fit.</span>
 
 <span class="sd">        Note that if data has already been assigned for the given data key, it will be</span>
 <span class="sd">        overwritten with the new values. ``set_supplementary_data`` will warn if the</span>
 <span class="sd">        data key is unexpected; i.e., not within those returned by</span>
 <span class="sd">        :meth:`expected_supplementary_data_keys`.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># Warn if any data keys are not expected.</span>
         <span class="n">unknown_data_keys</span> <span class="o">=</span> <span class="p">[</span>
@@ -864,8 +864,8 @@
         <span class="p">]</span>
         <span class="k">for</span> <span class="n">unknown_data_key</span> <span class="ow">in</span> <span class="n">unknown_data_keys</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> encountered an unknown data key </span><span class="si">{</span><span class="n">unknown_data_key</span><span class="si">}</span><span class="s2">. It may &quot;</span>
-                <span class="s2">&quot;not be used by the plotter class.&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> encountered an unknown data key </span><span class="si">{</span><span class="n">unknown_data_key</span><span class="si">}</span><span class="s2">. It may "</span>
+                <span class="s2">"not be used by the plotter class."</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_supplementary_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">data_kwargs</span><span class="p">)</span></div>
@@ -874,14 +874,14 @@
 <div class="viewcode-block" id="BasePlotter.clear_supplementary_data">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.clear_supplementary_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">clear_supplementary_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clears supplementary data.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Clears supplementary data."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_supplementary_data</span> <span class="o">=</span> <span class="p">{}</span></div>
 
 
 <div class="viewcode-block" id="BasePlotter.data_exists_for">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.data_exists_for">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">data_exists_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series_name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">,</span> <span class="n">data_keys</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns whether the given data keys exist for the given series.</span>
+<span class="w">        </span><span class="sd">"""Returns whether the given data keys exist for the given series.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            series_name: The name of the given series.</span>
@@ -890,7 +890,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            True if all data keys have values assigned for the given series. False if at</span>
 <span class="sd">            least one does not have a value assigned.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_keys</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">data_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_keys</span><span class="p">]</span>
 
@@ -903,17 +903,17 @@
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_plot_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates a figure using :attr:`drawer` and :meth:`data`.</span>
+<span class="w">        </span><span class="sd">"""Generates a figure using :attr:`drawer` and :meth:`data`.</span>
 
 <span class="sd">        Sub-classes must override this function to plot data using the drawer. This</span>
 <span class="sd">        function is called by :meth:`figure` when :attr:`drawer` can be used to draw on</span>
 <span class="sd">        the canvas.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
 <div class="viewcode-block" id="BasePlotter.figure">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.figure">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates and returns a figure for the already provided series and</span>
+<span class="w">        </span><span class="sd">"""Generates and returns a figure for the already provided series and</span>
 <span class="sd">        supplementary data.</span>
 
 <span class="sd">        :meth:`figure` calls :meth:`_plot_figure`, which is overridden by sub-classes.</span>
@@ -923,7 +923,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A figure generated by :attr:`drawer`, of the same type as ``drawer.figure``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Initialize drawer, to copy axis, subplots, style, and figure options across.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_configure_drawer</span><span class="p">()</span>
 
@@ -945,7 +945,7 @@
     <span class="nd">@classmethod</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">expected_series_data_keys</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the expected series data keys supported by this plotter.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Returns the expected series data keys supported by this plotter."""</span></div>
 
 
 <div class="viewcode-block" id="BasePlotter.expected_supplementary_data_keys">
@@ -953,33 +953,33 @@
     <span class="nd">@classmethod</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">expected_supplementary_data_keys</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the expected supplementary data keys supported by this plotter.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Returns the expected supplementary data keys supported by this plotter."""</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Options for the plotter.</span>
+<span class="w">        </span><span class="sd">"""Options for the plotter.</span>
 
 <span class="sd">        Options for a plotter modify how the class generates a figure. This includes an</span>
 <span class="sd">        optional axis object, being the drawer canvas. Make sure verify whether the</span>
 <span class="sd">        option you want to set is in :attr:`options` or :attr:`figure_options`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">figure_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Figure options for the plotter and its drawer.</span>
+<span class="w">        </span><span class="sd">"""Figure options for the plotter and its drawer.</span>
 
 <span class="sd">        Figure options differ from normal options (:attr:`options`) in that the plotter</span>
 <span class="sd">        passes figure options on to the drawer when creating a figure (when</span>
 <span class="sd">        :meth:`figure` is called). This way :attr:`drawer` can draw an appropriate</span>
 <span class="sd">        figure. An example of a figure option is the x-axis label.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default plotter options.</span>
+<span class="w">        </span><span class="sd">"""Return default plotter options.</span>
 
 <span class="sd">        Options:</span>
 <span class="sd">            axis (Any): Arbitrary object that can be used as a drawing canvas.</span>
@@ -989,7 +989,7 @@
 <span class="sd">                This overwrites figure option `custom_style` set in :attr:`drawer`. The</span>
 <span class="sd">                default is an empty style object, and such the default :attr:`drawer`</span>
 <span class="sd">                plotting style will be used.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">Options</span><span class="p">(</span>
             <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">subplots</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
@@ -998,7 +998,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_figure_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return default figure options.</span>
+<span class="w">        </span><span class="sd">"""Return default figure options.</span>
 
 <span class="sd">        Figure Options:</span>
 <span class="sd">            xlabel (Union[str, List[str]]): X-axis label string of the output figure. If</span>
@@ -1021,8 +1021,8 @@
 <span class="sd">                If there are multiple rows in the canvas, this could be a list of yval_units.</span>
 <span class="sd">            xval_unit_scale (Union[bool, List[bool]]): Whether to add an SI unit prefix to</span>
 <span class="sd">                ``xval_unit`` if needed. For example, when the x values represent time and</span>
-<span class="sd">                ``xval_unit=&quot;s&quot;``, ``xval_unit_scale=True`` adds an SI unit prefix to</span>
-<span class="sd">                ``&quot;s&quot;`` based on X values of plotted data. In the output figure, the</span>
+<span class="sd">                ``xval_unit="s"``, ``xval_unit_scale=True`` adds an SI unit prefix to</span>
+<span class="sd">                ``"s"`` based on X values of plotted data. In the output figure, the</span>
 <span class="sd">                prefix is automatically selected based on the maximum value in this</span>
 <span class="sd">                axis. If your x values are in [1e-3, 1e-4], they are displayed as [1 ms,</span>
 <span class="sd">                10 ms]. By default, this option is set to ``True``. If ``False`` is</span>
@@ -1039,12 +1039,12 @@
 <span class="sd">            sharey (bool): Set True to share y-axis ticks among sub-plots.</span>
 <span class="sd">            series_params (Dict[str, Dict[str, Any]]): A dictionary of parameters for</span>
 <span class="sd">                each series. This is keyed on the name for each series. Sub-dictionary</span>
-<span class="sd">                is expected to have the following three configurations, &quot;canvas&quot;,</span>
-<span class="sd">                &quot;color&quot;, &quot;symbol&quot; and &quot;label&quot;; &quot;canvas&quot; is the integer index of axis</span>
-<span class="sd">                (when multi-canvas plot is set), &quot;color&quot; is the color of the drawn</span>
-<span class="sd">                graphics, &quot;symbol&quot; is the series marker style for scatter plots, and</span>
-<span class="sd">                &quot;label&quot; is a user provided series label that appears in the legend.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">                is expected to have the following three configurations, "canvas",</span>
+<span class="sd">                "color", "symbol" and "label"; "canvas" is the integer index of axis</span>
+<span class="sd">                (when multi-canvas plot is set), "color" is the color of the drawn</span>
+<span class="sd">                graphics, "symbol" is the series marker style for scatter plots, and</span>
+<span class="sd">                "label" is a user provided series label that appears in the legend.</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">(</span>
             <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1061,26 +1061,26 @@
             <span class="n">figure_title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">series_params</span><span class="o">=</span><span class="p">{},</span>
         <span class="p">)</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="s2">&quot;xscale&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;symlog&quot;</span><span class="p">,</span> <span class="s2">&quot;logit&quot;</span><span class="p">,</span> <span class="s2">&quot;quadratic&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="s2">&quot;yscale&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;symlog&quot;</span><span class="p">,</span> <span class="s2">&quot;logit&quot;</span><span class="p">,</span> <span class="s2">&quot;quadratic&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="s2">"xscale"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"linear"</span><span class="p">,</span> <span class="s2">"log"</span><span class="p">,</span> <span class="s2">"symlog"</span><span class="p">,</span> <span class="s2">"logit"</span><span class="p">,</span> <span class="s2">"quadratic"</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">set_validator</span><span class="p">(</span><span class="s2">"yscale"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"linear"</span><span class="p">,</span> <span class="s2">"log"</span><span class="p">,</span> <span class="s2">"symlog"</span><span class="p">,</span> <span class="s2">"logit"</span><span class="p">,</span> <span class="s2">"quadratic"</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">options</span>
 
 <div class="viewcode-block" id="BasePlotter.set_options">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.set_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the plotter options.</span>
+<span class="w">        </span><span class="sd">"""Set the plotter options.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fields: The fields to update in options.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AttributeError: If an unknown option is encountered.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Options field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> is not valid for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Options field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> is not valid for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_options</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
@@ -1089,22 +1089,22 @@
 <div class="viewcode-block" id="BasePlotter.set_figure_options">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.set_figure_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_figure_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the figure options.</span>
+<span class="w">        </span><span class="sd">"""Set the figure options.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fields: The fields to update in figure options.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Don&#39;t check if any option in fields already exists (like with `set_options`), as figure options</span>
-        <span class="c1"># are passed to `.drawer` which may have other figure options. Any figure option that isn&#39;t set</span>
-        <span class="c1"># in `.drawer.figure_options` won&#39;t be set anyway. Setting `.drawer.figure_options` only occurs</span>
-        <span class="c1"># in `.figure()`, so we can&#39;t compare to `.drawer.figure_options` now as `.drawer` may be changed</span>
+<span class="sd">        """</span>
+        <span class="c1"># Don't check if any option in fields already exists (like with `set_options`), as figure options</span>
+        <span class="c1"># are passed to `.drawer` which may have other figure options. Any figure option that isn't set</span>
+        <span class="c1"># in `.drawer.figure_options` won't be set anyway. Setting `.drawer.figure_options` only occurs</span>
+        <span class="c1"># in `.figure()`, so we can't compare to `.drawer.figure_options` now as `.drawer` may be changed</span>
         <span class="c1"># between now and the call to `.figure()`.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_figure_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_figure_options</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_configure_drawer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configures :attr:`drawer` before plotting.</span>
+<span class="w">        </span><span class="sd">"""Configures :attr:`drawer` before plotting.</span>
 
 <span class="sd">        The following actions are taken:</span>
 
@@ -1118,7 +1118,7 @@
 <span class="sd">        :attr:`options`) passed to :attr:`drawer` in :meth:`_configure_drawer`. This is</span>
 <span class="sd">        done as these options make more sense as an option for a plotter, given the</span>
 <span class="sd">        interface of :class:`BasePlotter`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1">## Axis, subplots, and style</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">axis</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">axis</span><span class="p">)</span>
@@ -1130,7 +1130,7 @@
         <span class="n">_drawer_figure_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="vm">__dict__</span>
         <span class="n">_plotter_figure_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="vm">__dict__</span>
 
-        <span class="c1"># If an option exists in drawer.figure_options AND in self.figure_options, set the drawer&#39;s</span>
+        <span class="c1"># If an option exists in drawer.figure_options AND in self.figure_options, set the drawer's</span>
         <span class="c1"># figure option value to that from the plotter.</span>
         <span class="k">for</span> <span class="n">opt_key</span> <span class="ow">in</span> <span class="n">_drawer_figure_options</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">opt_key</span> <span class="ow">in</span> <span class="n">_plotter_figure_options</span><span class="p">:</span>
@@ -1142,7 +1142,7 @@
 <div class="viewcode-block" id="BasePlotter.config">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.BasePlotter.html#qiskit_experiments.visualization.BasePlotter.config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the config dictionary for this drawing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the config dictionary for this drawing."""</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_options</span><span class="p">)</span>
         <span class="n">figure_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_options</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_figure_options</span>
@@ -1150,10 +1150,10 @@
         <span class="n">drawer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">__json_encode__</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;cls&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
-            <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
-            <span class="s2">&quot;figure_options&quot;</span><span class="p">:</span> <span class="n">figure_options</span><span class="p">,</span>
-            <span class="s2">&quot;drawer&quot;</span><span class="p">:</span> <span class="n">drawer</span><span class="p">,</span>
+            <span class="s2">"cls"</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="s2">"options"</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
+            <span class="s2">"figure_options"</span><span class="p">:</span> <span class="n">figure_options</span><span class="p">,</span>
+            <span class="s2">"drawer"</span><span class="p">:</span> <span class="n">drawer</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 
@@ -1162,18 +1162,18 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">__json_decode__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-        <span class="c1">## Process drawer as it&#39;s needed to create a plotter</span>
-        <span class="n">drawer_values</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;drawer&quot;</span><span class="p">]</span>
+        <span class="c1">## Process drawer as it's needed to create a plotter</span>
+        <span class="n">drawer_values</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">"drawer"</span><span class="p">]</span>
         <span class="c1"># We expect a subclass of BaseDrawer</span>
-        <span class="n">drawer_cls</span><span class="p">:</span> <span class="n">BaseDrawer</span> <span class="o">=</span> <span class="n">drawer_values</span><span class="p">[</span><span class="s2">&quot;cls&quot;</span><span class="p">]</span>
+        <span class="n">drawer_cls</span><span class="p">:</span> <span class="n">BaseDrawer</span> <span class="o">=</span> <span class="n">drawer_values</span><span class="p">[</span><span class="s2">"cls"</span><span class="p">]</span>
         <span class="n">drawer</span> <span class="o">=</span> <span class="n">drawer_cls</span><span class="o">.</span><span class="n">__json_decode__</span><span class="p">(</span><span class="n">drawer_values</span><span class="p">)</span>
 
         <span class="c1"># Create plotter instance</span>
         <span class="n">instance</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">drawer</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;options&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
-            <span class="n">instance</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="s2">&quot;figure_options&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
-            <span class="n">instance</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;figure_options&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">"options"</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">[</span><span class="s2">"options"</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">"figure_options"</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">[</span><span class="s2">"figure_options"</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">instance</span></div>
 
 </pre></div>
@@ -1194,7 +1194,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -1209,7 +1209,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

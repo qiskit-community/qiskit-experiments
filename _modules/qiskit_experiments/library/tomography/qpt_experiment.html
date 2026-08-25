@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.tomography.qpt_experiment - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.tomography.qpt_experiment - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Quantum Process Tomography experiment</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -575,7 +575,7 @@
 <div class="viewcode-block" id="ProcessTomography">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.tomography.ProcessTomography.html#qiskit_experiments.library.tomography.ProcessTomography">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProcessTomography</span><span class="p">(</span><span class="n">TomographyExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An experiment to reconstruct the quantum channel from measurement data.</span>
+<span class="w">    </span><span class="sd">"""An experiment to reconstruct the quantum channel from measurement data.</span>
 
 <span class="sd">    # section: overview</span>
 <span class="sd">        Quantum process tomography (QPT) is a method for experimentally</span>
@@ -622,7 +622,7 @@
 <span class="sd">            qptdata = qptexp.run(backend=backend,</span>
 <span class="sd">                                 shots=1000,</span>
 <span class="sd">                                 seed_simulator=100,).block_for_results()</span>
-<span class="sd">            choi_out = qptdata.analysis_results(&quot;state&quot;, dataframe=True).iloc[0].value</span>
+<span class="sd">            choi_out = qptdata.analysis_results("state", dataframe=True).iloc[0].value</span>
 
 <span class="sd">            # extracting a densitymatrix from choi_out</span>
 <span class="sd">            from qiskit.visualization import plot_state_city</span>
@@ -638,8 +638,8 @@
 <span class="sd">                    _rho_exp_00[i][j] = choi_out.data[i][j]</span>
 
 <span class="sd">            rho_exp_00 = qinfo.DensityMatrix(_rho_exp_00)</span>
-<span class="sd">            display(plot_state_city(rho_exp_00, title=&quot;Density Matrix&quot;))</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">            display(plot_state_city(rho_exp_00, title="Density Matrix"))</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -652,10 +652,10 @@
         <span class="n">preparation_indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">basis_indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">conditional_circuit_clbits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Clbit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">analysis</span><span class="p">:</span> <span class="n">BaseAnalysis</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
-        <span class="n">target</span><span class="p">:</span> <span class="n">Statevector</span> <span class="o">|</span> <span class="n">DensityMatrix</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">analysis</span><span class="p">:</span> <span class="n">BaseAnalysis</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"default"</span><span class="p">,</span>
+        <span class="n">target</span><span class="p">:</span> <span class="n">Statevector</span> <span class="o">|</span> <span class="n">DensityMatrix</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"default"</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a quantum process tomography experiment.</span>
+<span class="w">        </span><span class="sd">"""Initialize a quantum process tomography experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circuit: the quantum process circuit. If not a quantum circuit</span>
@@ -683,15 +683,15 @@
 <span class="sd">                clbits will be conditioned on. Enabling this will return a list of</span>
 <span class="sd">                reconstructed channel components conditional on the values of these clbit</span>
 <span class="sd">                values.</span>
-<span class="sd">            analysis: Optional, a custom analysis instance to use. If ``&quot;default&quot;``</span>
+<span class="sd">            analysis: Optional, a custom analysis instance to use. If ``"default"``</span>
 <span class="sd">                :class:`~.ProcessTomographyAnalysis` will be used. If None no analysis</span>
 <span class="sd">                instance will be set.</span>
 <span class="sd">            target: Optional, a custom quantum state target for computing the</span>
 <span class="sd">                state fidelity of the fitted density matrix during analysis.</span>
-<span class="sd">                If &quot;default&quot; the state will be inferred from the input circuit</span>
+<span class="sd">                If "default" the state will be inferred from the input circuit</span>
 <span class="sd">                if it contains no classical instructions.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">analysis</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">analysis</span> <span class="o">==</span> <span class="s2">"default"</span><span class="p">:</span>
             <span class="n">analysis</span> <span class="o">=</span> <span class="n">ProcessTomographyAnalysis</span><span class="p">()</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -709,26 +709,26 @@
 
         <span class="c1"># Set target quantum channel</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="p">,</span> <span class="n">TomographyAnalysis</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">"default"</span><span class="p">:</span>
                 <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_quantum_channel</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_target_quantum_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Choi</span> <span class="o">|</span> <span class="n">Operator</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the process tomography target&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the process tomography target"""</span>
         <span class="c1"># Check if circuit contains measure instructions</span>
         <span class="c1"># If so we cannot return target state</span>
         <span class="n">circuit_ops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">count_ops</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;measure&quot;</span> <span class="ow">in</span> <span class="n">circuit_ops</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"measure"</span> <span class="ow">in</span> <span class="n">circuit_ops</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">circuit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_permute_circuit</span><span class="p">()</span>
-            <span class="k">if</span> <span class="s2">&quot;reset&quot;</span> <span class="ow">in</span> <span class="n">circuit_ops</span> <span class="ow">or</span> <span class="s2">&quot;kraus&quot;</span> <span class="ow">in</span> <span class="n">circuit_ops</span> <span class="ow">or</span> <span class="s2">&quot;superop&quot;</span> <span class="ow">in</span> <span class="n">circuit_ops</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"reset"</span> <span class="ow">in</span> <span class="n">circuit_ops</span> <span class="ow">or</span> <span class="s2">"kraus"</span> <span class="ow">in</span> <span class="n">circuit_ops</span> <span class="ow">or</span> <span class="s2">"superop"</span> <span class="ow">in</span> <span class="n">circuit_ops</span><span class="p">:</span>
                 <span class="n">channel</span> <span class="o">=</span> <span class="n">Choi</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">channel</span> <span class="o">=</span> <span class="n">Operator</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">QiskitError</span><span class="p">:</span>
-            <span class="c1"># Circuit couldn&#39;t be simulated</span>
+            <span class="c1"># Circuit couldn't be simulated</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="n">total_qubits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">num_qubits</span>
@@ -742,7 +742,7 @@
         <span class="c1"># Convert channel to a state to project and trace out non-tomography</span>
         <span class="c1"># input and output qubits</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">Operator</span><span class="p">):</span>
-            <span class="n">chan_state</span> <span class="o">=</span> <span class="n">Statevector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">))</span>
+            <span class="n">chan_state</span> <span class="o">=</span> <span class="n">Statevector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">chan_state</span> <span class="o">=</span> <span class="n">DensityMatrix</span><span class="p">(</span><span class="n">channel</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 
@@ -780,7 +780,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -795,7 +795,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

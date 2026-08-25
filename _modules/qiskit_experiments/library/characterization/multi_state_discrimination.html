@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.multi_state_discrimination - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.characterization.multi_state_discrimination - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Multi state discrimination experiment.&quot;&quot;&quot;</span>
+<span class="sd">"""Multi state discrimination experiment."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
@@ -573,7 +573,7 @@
 <div class="viewcode-block" id="MultiStateDiscrimination">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.MultiStateDiscrimination.html#qiskit_experiments.library.characterization.MultiStateDiscrimination">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MultiStateDiscrimination</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;An experiment that discriminates between the first :math:`n` energy states.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""An experiment that discriminates between the first :math:`n` energy states.</span>
 
 <span class="sd">    # section: overview</span>
 
@@ -625,11 +625,11 @@
 <span class="sd">        `Qiskit Textbook\</span>
 <span class="sd">        &lt;https://github.com/Qiskit/textbook/blob/main/notebooks/quantum-hardware-pulses/accessing_higher_energy_states.ipynb&gt;`_</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_run_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default option values for the experiment :meth:`run` method.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default option values for the experiment :meth:`run` method."""</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_run_options</span><span class="p">()</span>
 
         <span class="n">options</span><span class="o">.</span><span class="n">meas_level</span> <span class="o">=</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span>
@@ -639,12 +639,12 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default values for the number of states if none is given.</span>
+<span class="w">        </span><span class="sd">"""Default values for the number of states if none is given.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            n_states (int): The number of states to discriminate.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">n_states</span> <span class="o">=</span> <span class="mi">2</span>
 
@@ -657,7 +657,7 @@
         <span class="n">n_states</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">schedules</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup an experiment to prepare different energy states on a given qubit.</span>
+<span class="w">        </span><span class="sd">"""Setup an experiment to prepare different energy states on a given qubit.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            physical_qubits: A single-element sequence containing the qubit on which to run the</span>
@@ -665,14 +665,14 @@
 <span class="sd">            backend: Optional, the backend to run the experiment on.</span>
 <span class="sd">            n_states: The number of energy levels to prepare.</span>
 <span class="sd">            schedules: Deprecated and unused</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">MultiStateDiscriminationAnalysis</span><span class="p">(),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">schedules</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;MultiStateDiscrimination no longer supports custom pulse schedules.&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"MultiStateDiscrimination no longer supports custom pulse schedules."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">n_states</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">n_states</span><span class="o">=</span><span class="n">n_states</span><span class="p">)</span>
@@ -680,12 +680,12 @@
 <div class="viewcode-block" id="MultiStateDiscrimination.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.MultiStateDiscrimination.html#qiskit_experiments.library.characterization.MultiStateDiscrimination.circuits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the circuits for the multi state discrimination experiment.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of circuits preparing the different energy states.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">n_states</span><span class="p">):</span>
             <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -697,12 +697,12 @@
             <span class="c1"># Prepare higher energy states</span>
             <span class="k">if</span> <span class="n">level</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
-                    <span class="n">gate_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;x</span><span class="si">{</span><span class="n">idx</span><span class="si">}{</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">gate_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"x</span><span class="si">{</span><span class="n">idx</span><span class="si">}{</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">"</span>
                     <span class="n">gate</span> <span class="o">=</span> <span class="n">Gate</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">gate_name</span><span class="p">,</span> <span class="n">num_qubits</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">[])</span>
                     <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gate</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
 
             <span class="c1"># label the circuit</span>
-            <span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">level</span><span class="p">}</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"label"</span><span class="p">:</span> <span class="n">level</span><span class="p">}</span>
 
             <span class="n">circuit</span><span class="o">.</span><span class="n">measure_all</span><span class="p">()</span>
             <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
@@ -728,7 +728,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -743,7 +743,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

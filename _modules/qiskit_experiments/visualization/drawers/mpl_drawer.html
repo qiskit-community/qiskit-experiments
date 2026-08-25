@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.visualization.drawers.mpl_drawer - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.visualization.drawers.mpl_drawer - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Curve drawer for matplotlib backend.&quot;&quot;&quot;</span>
+<span class="sd">"""Curve drawer for matplotlib backend."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numbers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
@@ -581,29 +581,29 @@
 <div class="viewcode-block" id="MplDrawer">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MplDrawer</span><span class="p">(</span><span class="n">BaseDrawer</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Drawer for MatplotLib backend.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Drawer for MatplotLib backend."""</span>
 
     <span class="n">DefaultMarkers</span> <span class="o">=</span> <span class="n">MarkerStyle</span><span class="o">.</span><span class="n">filled_markers</span>
     <span class="n">DefaultColors</span> <span class="o">=</span> <span class="n">tab10</span><span class="o">.</span><span class="n">colors</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">PrefixFormatter</span><span class="p">(</span><span class="n">Formatter</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Matplotlib axis formatter to detach prefix.</span>
+<span class="w">        </span><span class="sd">"""Matplotlib axis formatter to detach prefix.</span>
 
 <span class="sd">        If a value is, e.g., x=1000.0 and the factor is 1000, then it will be shown</span>
-<span class="sd">        as 1.0 in the ticks and its unit will be shown with the prefactor &#39;k&#39;</span>
+<span class="sd">        as 1.0 in the ticks and its unit will be shown with the prefactor 'k'</span>
 <span class="sd">        in the axis label.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Create a PrefixFormatter instance.</span>
+<span class="w">            </span><span class="sd">"""Create a PrefixFormatter instance.</span>
 
 <span class="sd">            Args:</span>
 <span class="sd">                factor: factor by which to scale tick values.</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="n">factor</span>
 
         <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Returns the formatted string for tick position ``pos`` and value ``x``.</span>
+<span class="w">            </span><span class="sd">"""Returns the formatted string for tick position ``pos`` and value ``x``.</span>
 
 <span class="sd">            Args:</span>
 <span class="sd">                x: the tick value to format.</span>
@@ -611,8 +611,8 @@
 
 <span class="sd">            Returns:</span>
 <span class="sd">                The formatted tick label.</span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_minus</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">factor</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">            """</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_minus</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">factor</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -627,7 +627,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">axis</span><span class="p">:</span>
             <span class="n">axis</span> <span class="o">=</span> <span class="n">get_non_gui_ax</span><span class="p">()</span>
             <span class="n">figure</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
-            <span class="n">figure</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;figsize&quot;</span><span class="p">])</span>
+            <span class="n">figure</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"figsize"</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">axis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">axis</span>
 
@@ -643,34 +643,34 @@
             <span class="c1"># Inset axis is experimental implementation of matplotlib 3.0 so maybe unstable API.</span>
             <span class="c1"># This draws inset axes with shared x and y axis.</span>
             <span class="k">if</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;custom_style&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;style_name&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;residuals&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"custom_style"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"style_name"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"residuals"</span>
                 <span class="ow">and</span> <span class="n">n_subplots</span> <span class="o">!=</span> <span class="mi">2</span>
             <span class="p">):</span>
-                <span class="c1"># raising an error for residual plotting that isn&#39;t on individual plot per figure.</span>
+                <span class="c1"># raising an error for residual plotting that isn't on individual plot per figure.</span>
                 <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                    <span class="s2">&quot;Residual plots and residual plotting style is supported for &quot;</span>
-                    <span class="s2">&quot;figures with one sub-plot only.&quot;</span>
+                    <span class="s2">"Residual plots and residual plotting style is supported for "</span>
+                    <span class="s2">"figures with one sub-plot only."</span>
                 <span class="p">)</span>
 
             <span class="n">inset_ax_h_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">custom_style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s2">&quot;sub_plot_heights_list&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n_rows</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_rows</span>
+                <span class="s2">"sub_plot_heights_list"</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n_rows</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_rows</span>
             <span class="p">)</span>
             <span class="n">inset_ax_w_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">custom_style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s2">&quot;sub_plot_widths_list&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n_cols</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_cols</span>
+                <span class="s2">"sub_plot_widths_list"</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n_cols</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_cols</span>
             <span class="p">)</span>
 
             <span class="c1"># Check that the heights and widths are lists.</span>
             <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inset_ax_h_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inset_ax_w_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
                 <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                    <span class="s2">&quot;Sub-plots heights and widths list need to be a list of floats that sum&quot;</span>
-                    <span class="s2">&quot; up to 1&quot;</span>
+                    <span class="s2">"Sub-plots heights and widths list need to be a list of floats that sum"</span>
+                    <span class="s2">" up to 1"</span>
                 <span class="p">)</span>
 
             <span class="c1"># adding a check for correct sizes of subplots.</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">inset_ax_h_list</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">inset_ax_w_list</span><span class="p">),</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span>
-                    <span class="s2">&quot;The subplots aren&#39;t covering all the figure. &quot;</span>
-                    <span class="s2">&quot;Check subplots heights and widths configurations.&quot;</span>
+                    <span class="s2">"The subplots aren't covering all the figure. "</span>
+                    <span class="s2">"Check subplots heights and widths configurations."</span>
                 <span class="p">)</span>
 
             <span class="c1"># setting the row tracker.</span>
@@ -702,7 +702,7 @@
                             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                                 <span class="c1"># Y label can be given as a list for each sub axis</span>
                                 <span class="n">label</span> <span class="o">=</span> <span class="n">label</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                            <span class="n">sub_ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;axis_label_size&quot;</span><span class="p">])</span>
+                            <span class="n">sub_ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"axis_label_size"</span><span class="p">])</span>
                     <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">n_rows</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">sharex</span><span class="p">:</span>
                         <span class="c1"># remove x axis except for most-bottom plot</span>
                         <span class="n">sub_ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">labelleft</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -713,21 +713,21 @@
                             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                                 <span class="c1"># X label can be given as a list for each sub axis</span>
                                 <span class="n">label</span> <span class="o">=</span> <span class="n">label</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-                            <span class="n">sub_ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;axis_label_size&quot;</span><span class="p">])</span>
+                            <span class="n">sub_ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"axis_label_size"</span><span class="p">])</span>
                     <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">==</span> <span class="n">n_rows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="c1"># Set label size for outer axes where labels are drawn</span>
-                        <span class="n">sub_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;tick_label_size&quot;</span><span class="p">])</span>
+                        <span class="n">sub_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"tick_label_size"</span><span class="p">])</span>
                     <span class="n">sub_ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
 
                     <span class="c1"># updating where we are on the grid.</span>
                     <span class="n">sum_widths</span> <span class="o">+=</span> <span class="n">inset_ax_w</span>
 
             <span class="c1"># Remove original axis frames</span>
-            <span class="n">axis</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;axis_label_size&quot;</span><span class="p">])</span>
-            <span class="n">axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;axis_label_size&quot;</span><span class="p">])</span>
-            <span class="n">axis</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;tick_label_size&quot;</span><span class="p">])</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"axis_label_size"</span><span class="p">])</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"axis_label_size"</span><span class="p">])</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"tick_label_size"</span><span class="p">])</span>
             <span class="n">axis</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span> <span class="o">=</span> <span class="n">axis</span></div>
@@ -752,27 +752,27 @@
         <span class="k">def</span><span class="w"> </span><span class="nf">signed_square</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span>
 
-        <span class="k">for</span> <span class="n">ax_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">ax_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">sub_ax</span> <span class="ow">in</span> <span class="n">all_axes</span><span class="p">:</span>
-                <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ax_type</span><span class="si">}</span><span class="s2">scale&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">ax_type</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ax_type</span><span class="si">}</span><span class="s2">scale"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ax_type</span> <span class="o">==</span> <span class="s2">"x"</span><span class="p">:</span>
                     <span class="n">mpl_setscale</span> <span class="o">=</span> <span class="n">sub_ax</span><span class="o">.</span><span class="n">set_xscale</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">mpl_setscale</span> <span class="o">=</span> <span class="n">sub_ax</span><span class="o">.</span><span class="n">set_yscale</span>
 
                 <span class="c1"># Apply non linear axis spacing</span>
                 <span class="k">if</span> <span class="n">scale</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">scale</span> <span class="o">==</span> <span class="s2">&quot;quadratic&quot;</span><span class="p">:</span>
-                        <span class="n">mpl_setscale</span><span class="p">(</span><span class="s2">&quot;function&quot;</span><span class="p">,</span> <span class="n">functions</span><span class="o">=</span><span class="p">(</span><span class="n">signed_square</span><span class="p">,</span> <span class="n">signed_sqrt</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">scale</span> <span class="o">==</span> <span class="s2">"quadratic"</span><span class="p">:</span>
+                        <span class="n">mpl_setscale</span><span class="p">(</span><span class="s2">"function"</span><span class="p">,</span> <span class="n">functions</span><span class="o">=</span><span class="p">(</span><span class="n">signed_square</span><span class="p">,</span> <span class="n">signed_sqrt</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">mpl_setscale</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
 
         <span class="c1"># Get axis formatter from drawing options</span>
         <span class="n">formatter_opts</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">ax_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">):</span>
-            <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ax_type</span><span class="si">}</span><span class="s2">lim&quot;</span><span class="p">)</span>
-            <span class="n">unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ax_type</span><span class="si">}</span><span class="s2">val_unit&quot;</span><span class="p">)</span>
-            <span class="n">unit_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ax_type</span><span class="si">}</span><span class="s2">val_unit_scale&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ax_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">):</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ax_type</span><span class="si">}</span><span class="s2">lim"</span><span class="p">)</span>
+            <span class="n">unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ax_type</span><span class="si">}</span><span class="s2">val_unit"</span><span class="p">)</span>
+            <span class="n">unit_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ax_type</span><span class="si">}</span><span class="s2">val_unit_scale"</span><span class="p">)</span>
 
             <span class="c1"># Format options to a list for each axis</span>
             <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">limit</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
@@ -786,7 +786,7 @@
             <span class="n">min_vals</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">max_vals</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">sub_ax</span> <span class="ow">in</span> <span class="n">all_axes</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">ax_type</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ax_type</span> <span class="o">==</span> <span class="s2">"x"</span><span class="p">:</span>
                     <span class="n">min_v</span><span class="p">,</span> <span class="n">max_v</span> <span class="o">=</span> <span class="n">sub_ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">min_v</span><span class="p">,</span> <span class="n">max_v</span> <span class="o">=</span> <span class="n">sub_ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
@@ -794,33 +794,33 @@
                 <span class="n">max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">max_v</span><span class="p">)</span>
 
             <span class="n">formatter_opts</span><span class="p">[</span><span class="n">ax_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span>
-                <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="n">unit</span><span class="p">,</span>
-                <span class="s2">&quot;unit_scale&quot;</span><span class="p">:</span> <span class="n">unit_scale</span><span class="p">,</span>
-                <span class="s2">&quot;min_ax_vals&quot;</span><span class="p">:</span> <span class="n">min_vals</span><span class="p">,</span>
-                <span class="s2">&quot;max_ax_vals&quot;</span><span class="p">:</span> <span class="n">max_vals</span><span class="p">,</span>
+                <span class="s2">"limit"</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span>
+                <span class="s2">"unit"</span><span class="p">:</span> <span class="n">unit</span><span class="p">,</span>
+                <span class="s2">"unit_scale"</span><span class="p">:</span> <span class="n">unit_scale</span><span class="p">,</span>
+                <span class="s2">"min_ax_vals"</span><span class="p">:</span> <span class="n">min_vals</span><span class="p">,</span>
+                <span class="s2">"max_ax_vals"</span><span class="p">:</span> <span class="n">max_vals</span><span class="p">,</span>
             <span class="p">}</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sub_ax</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_axes</span><span class="p">):</span>
             <span class="c1"># Add data labels if there are multiple labels registered per sub_ax.</span>
             <span class="n">_</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">sub_ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">sub_ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;legend_loc&quot;</span><span class="p">])</span>
+                <span class="n">sub_ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"legend_loc"</span><span class="p">])</span>
 
-            <span class="k">for</span> <span class="n">ax_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">):</span>
-                <span class="n">limit</span> <span class="o">=</span> <span class="n">formatter_opts</span><span class="p">[</span><span class="n">ax_type</span><span class="p">][</span><span class="s2">&quot;limit&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">unit</span> <span class="o">=</span> <span class="n">formatter_opts</span><span class="p">[</span><span class="n">ax_type</span><span class="p">][</span><span class="s2">&quot;unit&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">unit_scale</span> <span class="o">=</span> <span class="n">formatter_opts</span><span class="p">[</span><span class="n">ax_type</span><span class="p">][</span><span class="s2">&quot;unit_scale&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">min_ax_vals</span> <span class="o">=</span> <span class="n">formatter_opts</span><span class="p">[</span><span class="n">ax_type</span><span class="p">][</span><span class="s2">&quot;min_ax_vals&quot;</span><span class="p">]</span>
-                <span class="n">max_ax_vals</span> <span class="o">=</span> <span class="n">formatter_opts</span><span class="p">[</span><span class="n">ax_type</span><span class="p">][</span><span class="s2">&quot;max_ax_vals&quot;</span><span class="p">]</span>
-                <span class="n">share_axis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;share</span><span class="si">{</span><span class="n">ax_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ax_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">):</span>
+                <span class="n">limit</span> <span class="o">=</span> <span class="n">formatter_opts</span><span class="p">[</span><span class="n">ax_type</span><span class="p">][</span><span class="s2">"limit"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">unit</span> <span class="o">=</span> <span class="n">formatter_opts</span><span class="p">[</span><span class="n">ax_type</span><span class="p">][</span><span class="s2">"unit"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">unit_scale</span> <span class="o">=</span> <span class="n">formatter_opts</span><span class="p">[</span><span class="n">ax_type</span><span class="p">][</span><span class="s2">"unit_scale"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">min_ax_vals</span> <span class="o">=</span> <span class="n">formatter_opts</span><span class="p">[</span><span class="n">ax_type</span><span class="p">][</span><span class="s2">"min_ax_vals"</span><span class="p">]</span>
+                <span class="n">max_ax_vals</span> <span class="o">=</span> <span class="n">formatter_opts</span><span class="p">[</span><span class="n">ax_type</span><span class="p">][</span><span class="s2">"max_ax_vals"</span><span class="p">]</span>
+                <span class="n">share_axis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"share</span><span class="si">{</span><span class="n">ax_type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="n">ax_type</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
-                    <span class="n">mpl_axis_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_ax</span><span class="p">,</span> <span class="s2">&quot;xaxis&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ax_type</span> <span class="o">==</span> <span class="s2">"x"</span><span class="p">:</span>
+                    <span class="n">mpl_axis_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_ax</span><span class="p">,</span> <span class="s2">"xaxis"</span><span class="p">)</span>
                     <span class="n">mpl_setlimit</span> <span class="o">=</span> <span class="n">sub_ax</span><span class="o">.</span><span class="n">set_xlim</span>
                     <span class="n">mpl_share</span> <span class="o">=</span> <span class="n">sub_ax</span><span class="o">.</span><span class="n">sharex</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">mpl_axis_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_ax</span><span class="p">,</span> <span class="s2">&quot;yaxis&quot;</span><span class="p">)</span>
+                    <span class="n">mpl_axis_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_ax</span><span class="p">,</span> <span class="s2">"yaxis"</span><span class="p">)</span>
                     <span class="n">mpl_setlimit</span> <span class="o">=</span> <span class="n">sub_ax</span><span class="o">.</span><span class="n">set_ylim</span>
                     <span class="n">mpl_share</span> <span class="o">=</span> <span class="n">sub_ax</span><span class="o">.</span><span class="n">sharey</span>
 
@@ -839,16 +839,16 @@
                         <span class="n">scaled_maxv</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="n">detach_prefix</span><span class="p">(</span><span class="n">maxv</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
                         <span class="n">prefactor</span> <span class="o">=</span> <span class="n">scaled_maxv</span> <span class="o">/</span> <span class="n">maxv</span>
                     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                        <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                        <span class="n">prefix</span> <span class="o">=</span> <span class="s2">""</span>
                         <span class="n">prefactor</span> <span class="o">=</span> <span class="mi">1</span>
                     <span class="n">formatter</span> <span class="o">=</span> <span class="n">MplDrawer</span><span class="o">.</span><span class="n">PrefixFormatter</span><span class="p">(</span><span class="n">prefactor</span><span class="p">)</span>
-                    <span class="n">units_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; [</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">unit</span><span class="si">}</span><span class="s2">]&quot;</span>
+                    <span class="n">units_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">" [</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">unit</span><span class="si">}</span><span class="s2">]"</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Use scientific notation with 3 digits, 1000 -&gt; 1e3</span>
                     <span class="n">formatter</span> <span class="o">=</span> <span class="n">ScalarFormatter</span><span class="p">()</span>
                     <span class="n">formatter</span><span class="o">.</span><span class="n">set_scientific</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
                     <span class="n">formatter</span><span class="o">.</span><span class="n">set_powerlimits</span><span class="p">((</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-                    <span class="n">units_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; [</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="n">unit</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">units_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">" [</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">]"</span> <span class="k">if</span> <span class="n">unit</span> <span class="k">else</span> <span class="s2">""</span>
                 <span class="n">mpl_axis_obj</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
 
                 <span class="c1"># Add units to axis label if both exist</span>
@@ -875,12 +875,12 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">figure_title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
                 <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">figure_title</span><span class="p">,</span>
-                <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;axis_label_size&quot;</span><span class="p">],</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"axis_label_size"</span><span class="p">],</span>
             <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper method to get inset axis.</span>
+<span class="w">        </span><span class="sd">"""A helper method to get inset axis.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            index: Index of inset axis. If nothing is provided, it returns the entire</span>
@@ -891,30 +891,30 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            IndexError: When axis index is specified but no inset axis is found.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">child_axes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">IndexError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Canvas index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> is out of range. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Only </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">child_axes</span><span class="p">)</span><span class="si">}</span><span class="s2"> subplots are initialized.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Canvas index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> is out of range. "</span>
+                    <span class="sa">f</span><span class="s2">"Only </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">child_axes</span><span class="p">)</span><span class="si">}</span><span class="s2"> subplots are initialized."</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_default_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper method to get default color for the series.</span>
+<span class="w">        </span><span class="sd">"""A helper method to get default color for the series.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            name: Name of the series.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Default color available in matplotlib.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;custom_style&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;style_name&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;residuals&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">name</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;_residuals&quot;</span><span class="p">)]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="p">:</span>
-                <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;_residuals&quot;</span><span class="p">)]</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"custom_style"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"style_name"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"residuals"</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s2">"_residuals"</span><span class="p">)]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s2">"_residuals"</span><span class="p">)]</span>
 
         <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
@@ -923,14 +923,14 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">DefaultColors</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_default_marker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">SeriesName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A helper method to get default marker for the scatter plot.</span>
+<span class="w">        </span><span class="sd">"""A helper method to get default marker for the scatter plot.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            name: Name of the series.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Default marker available in matplotlib.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
@@ -944,12 +944,12 @@
         <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function to set the label entry in ``options`` based on given</span>
+<span class="w">        </span><span class="sd">"""Helper function to set the label entry in ``options`` based on given</span>
 <span class="sd">        arguments.</span>
 
 <span class="sd">        This method uses :meth:`label_for` to get the label for the series identified by</span>
 <span class="sd">        ``name``. If :meth:`label_for` returns ``None``, then</span>
-<span class="sd">        ``_update_label_in_options`` doesn&#39;t add a `&quot;label&quot;` entry into ``options``.</span>
+<span class="sd">        ``_update_label_in_options`` doesn't add a `"label"` entry into ``options``.</span>
 <span class="sd">        I.e., a label entry is added to ``options`` only if it is not ``None``.</span>
 
 <span class="sd">        Args:</span>
@@ -960,11 +960,11 @@
 <span class="sd">            label: Optional legend label to override ``name`` and ``series_params``.</span>
 <span class="sd">            legend: Whether a label entry should be added to ``options``. Used as an</span>
 <span class="sd">                easy toggle to disable adding a label entry. Defaults to False.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">legend</span><span class="p">:</span>
             <span class="n">_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_for</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">_label</span><span class="p">:</span>
-                <span class="n">options</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_label</span>
+                <span class="n">options</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_label</span>
 
 <div class="viewcode-block" id="MplDrawer.scatter">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.visualization.MplDrawer.html#qiskit_experiments.visualization.MplDrawer.scatter">[docs]</a>
@@ -981,15 +981,15 @@
     <span class="p">):</span>
 
         <span class="n">series_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">marker</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;symbol&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_marker</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_color</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
-        <span class="n">axis</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;canvas&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">marker</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"symbol"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_marker</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"color"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_color</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"canvas"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="n">draw_options</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span>
-            <span class="s2">&quot;marker&quot;</span><span class="p">:</span> <span class="n">marker</span><span class="p">,</span>
-            <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
-            <span class="s2">&quot;zorder&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">"color"</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span>
+            <span class="s2">"marker"</span><span class="p">:</span> <span class="n">marker</span><span class="p">,</span>
+            <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+            <span class="s2">"zorder"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_label_in_options</span><span class="p">(</span><span class="n">draw_options</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">legend</span><span class="p">)</span>
         <span class="n">draw_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
@@ -999,8 +999,8 @@
             <span class="c1"># `draw_options`, if not set to the default style. Square the `symbol_size` as `s` for MPL</span>
             <span class="c1"># scatter is proportional to the width and not the area of the marker, but `symbol_size` is</span>
             <span class="c1"># proportional to the area.</span>
-            <span class="k">if</span> <span class="s2">&quot;s&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">draw_options</span><span class="p">:</span>
-                <span class="n">draw_options</span><span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;symbol_size&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="s2">"s"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">draw_options</span><span class="p">:</span>
+                <span class="n">draw_options</span><span class="p">[</span><span class="s2">"s"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"symbol_size"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span><span class="p">,</span> <span class="o">**</span><span class="n">draw_options</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Check for invalid error values.</span>
@@ -1012,10 +1012,10 @@
             <span class="c1"># `errorbar` has extra default draw_options to set, but we want to accept any overrides from</span>
             <span class="c1"># `options`, and thus draw_options.</span>
             <span class="n">errorbar_options</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;linestyle&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">"linestyle"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
                 <span class="c1"># `markersize` is equivalent to `symbol_size`.</span>
-                <span class="s2">&quot;markersize&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;symbol_size&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;capsize&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;errorbar_capsize&quot;</span><span class="p">],</span>
+                <span class="s2">"markersize"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"symbol_size"</span><span class="p">],</span>
+                <span class="s2">"capsize"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"errorbar_capsize"</span><span class="p">],</span>
             <span class="p">}</span>
             <span class="n">errorbar_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">draw_options</span><span class="p">)</span>
 
@@ -1036,13 +1036,13 @@
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">series_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">axis</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;canvas&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_color</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"canvas"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"color"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_color</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
 
         <span class="n">draw_ops</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span>
-            <span class="s2">&quot;linestyle&quot;</span><span class="p">:</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;linestyle&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;linewidth&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s2">"color"</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span>
+            <span class="s2">"linestyle"</span><span class="p">:</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"linestyle"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">),</span>
+            <span class="s2">"linewidth"</span><span class="p">:</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"linewidth"</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_label_in_options</span><span class="p">(</span><span class="n">draw_ops</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">legend</span><span class="p">)</span>
         <span class="n">draw_ops</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
@@ -1060,13 +1060,13 @@
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">series_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">axis</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;canvas&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_color</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"canvas"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"color"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_color</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
 
         <span class="n">draw_ops</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span>
-            <span class="s2">&quot;linestyle&quot;</span><span class="p">:</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;linestyle&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;linewidth&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s2">"color"</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span>
+            <span class="s2">"linestyle"</span><span class="p">:</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"linestyle"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">),</span>
+            <span class="s2">"linewidth"</span><span class="p">:</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"linewidth"</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_label_in_options</span><span class="p">(</span><span class="n">draw_ops</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">legend</span><span class="p">)</span>
         <span class="n">draw_ops</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
@@ -1086,12 +1086,12 @@
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">series_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">axis</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;canvas&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_color</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"canvas"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"color"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_color</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
 
         <span class="n">draw_ops</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
-            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span>
+            <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="s2">"color"</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_label_in_options</span><span class="p">(</span><span class="n">draw_ops</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">legend</span><span class="p">)</span>
         <span class="n">draw_ops</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
@@ -1111,12 +1111,12 @@
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">series_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">axis</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;canvas&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_color</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"canvas"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"color"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_color</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
 
         <span class="n">draw_ops</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
-            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span>
+            <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="s2">"color"</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_label_in_options</span><span class="p">(</span><span class="n">draw_ops</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">legend</span><span class="p">)</span>
         <span class="n">draw_ops</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
@@ -1132,23 +1132,23 @@
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">bbox_props</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;boxstyle&quot;</span><span class="p">:</span> <span class="s2">&quot;square, pad=0.3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fc&quot;</span><span class="p">:</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ec&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lw&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+            <span class="s2">"boxstyle"</span><span class="p">:</span> <span class="s2">"square, pad=0.3"</span><span class="p">,</span>
+            <span class="s2">"fc"</span><span class="p">:</span> <span class="s2">"white"</span><span class="p">,</span>
+            <span class="s2">"ec"</span><span class="p">:</span> <span class="s2">"black"</span><span class="p">,</span>
+            <span class="s2">"lw"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">bbox_props</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">rel_pos</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">rel_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;textbox_rel_pos&quot;</span><span class="p">]</span>
+            <span class="n">rel_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"textbox_rel_pos"</span><span class="p">]</span>
 
         <span class="n">text_box_handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
             <span class="o">*</span><span class="n">rel_pos</span><span class="p">,</span>
             <span class="n">s</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
-            <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
-            <span class="n">va</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
-            <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;textbox_text_size&quot;</span><span class="p">],</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="s2">"textbox_text_size"</span><span class="p">],</span>
             <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
             <span class="n">zorder</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>  <span class="c1"># Very large zorder to draw over other graphics.</span>
         <span class="p">)</span>
@@ -1158,13 +1158,13 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_series_names_to_cmap</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">series_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SeriesName</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Colormap</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a :class:`Colormap` instance of series colours.</span>
+<span class="w">        </span><span class="sd">"""Create a :class:`Colormap` instance of series colours.</span>
 
 <span class="sd">        This method creates a :class:`Colormap` instance that can be used to plot an</span>
 <span class="sd">        image of series classifications: i.e., a 2D array of series names. The returned</span>
 <span class="sd">        Colormap positions the series colours, from :meth:`_get_default_color`, along</span>
 <span class="sd">        the range :math:`0` to :math:`1`. The returned dictionary contains mappings from</span>
-<span class="sd">        series names (``Union[str, int, float]``) to floats which are used to &quot;sample&quot;</span>
+<span class="sd">        series names (``Union[str, int, float]``) to floats which are used to "sample"</span>
 <span class="sd">        from the Colormap.</span>
 
 <span class="sd">        Example:</span>
@@ -1191,8 +1191,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A tuple ``(cmap, map)`` where ``cmap`` is a Matplotlib Colormap instance and</span>
 <span class="sd">            ``map`` is a dictionary that maps series names (dictionary keys) to floats</span>
-<span class="sd">            (dictionary values) that identify the series names&#39; colours in ``cmap``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            (dictionary values) that identify the series names' colours in ``cmap``.</span>
+<span class="sd">        """</span>
         <span class="c1"># Remove duplicates from series_names, just in-case. Use dict.fromkeys to preserve order and</span>
         <span class="c1"># remove duplicates.</span>
         <span class="n">unique_series_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">series_names</span><span class="p">))</span>
@@ -1201,12 +1201,12 @@
         <span class="n">colours</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">series_name</span> <span class="ow">in</span> <span class="n">unique_series_names</span><span class="p">:</span>
             <span class="n">series_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">series_name</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="n">colour</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_color</span><span class="p">(</span><span class="n">series_name</span><span class="p">))</span>
+            <span class="n">colour</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"color"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_color</span><span class="p">(</span><span class="n">series_name</span><span class="p">))</span>
             <span class="n">colours</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">colour</span><span class="p">)</span>
 
         <span class="c1"># Create CMap.</span>
         <span class="n">cmap</span> <span class="o">=</span> <span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span>
-            <span class="s2">&quot;SeriesMap&quot;</span><span class="p">,</span>
+            <span class="s2">"SeriesMap"</span><span class="p">,</span>
             <span class="n">colours</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -1231,15 +1231,15 @@
         <span class="o">**</span><span class="n">options</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">series_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_options</span><span class="o">.</span><span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">axis</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;canvas&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"canvas"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">&quot;Image data is three-dimensional but is not RGB/A data.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">QiskitError</span><span class="p">(</span><span class="s2">"Image data is three-dimensional but is not RGB/A data."</span><span class="p">)</span>
 
         <span class="c1"># Register extent in ops.</span>
         <span class="n">image_ops</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;extent&quot;</span><span class="p">:</span> <span class="n">extent</span><span class="p">,</span>
+            <span class="s2">"extent"</span><span class="p">:</span> <span class="n">extent</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="c1"># Apply cmap and get image data to be plotted.</span>
@@ -1247,11 +1247,11 @@
             <span class="n">series_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
             <span class="n">_cmap</span><span class="p">,</span> <span class="n">cmap_series_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series_names_to_cmap</span><span class="p">(</span><span class="n">series_names</span><span class="p">)</span>
             <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cmap_series_map</span><span class="p">[</span><span class="n">x</span><span class="p">])(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">image_ops</span><span class="p">[</span><span class="s2">&quot;cmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_cmap</span>
+            <span class="n">image_ops</span><span class="p">[</span><span class="s2">"cmap"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_cmap</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">img</span> <span class="o">=</span> <span class="n">data</span>
             <span class="k">if</span> <span class="n">cmap</span><span class="p">:</span>
-                <span class="n">image_ops</span><span class="p">[</span><span class="s2">&quot;cmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmap</span>
+                <span class="n">image_ops</span><span class="p">[</span><span class="s2">"cmap"</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmap</span>
 
         <span class="c1"># Apply kwargs passed in options.</span>
         <span class="n">image_ops</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
@@ -1260,13 +1260,13 @@
 
         <span class="c1"># Create colorbar if requested.</span>
         <span class="k">if</span> <span class="n">colorbar</span><span class="p">:</span>
-            <span class="n">colorbar_label</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">colorbar_label</span> <span class="o">=</span> <span class="n">series_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"label"</span><span class="p">,</span> <span class="n">label</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Figure</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return figure object handler to be saved in the database.</span>
+<span class="w">        </span><span class="sd">"""Return figure object handler to be saved in the database.</span>
 
 <span class="sd">        In the MatplotLib the ``Figure`` and ``Axes`` are different object. User can</span>
 <span class="sd">        pass a part of the figure (i.e. multi-axes) to the drawer option ``axis``. For</span>
@@ -1278,7 +1278,7 @@
 <span class="sd">        Note that this method returns the entire figure object, rather than a single</span>
 <span class="sd">        axis. Thus, the experiment data saved in the database might have a figure</span>
 <span class="sd">        collecting all child axes drawings.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axis</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span></div>
 
 </pre></div>
@@ -1299,7 +1299,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -1314,7 +1314,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

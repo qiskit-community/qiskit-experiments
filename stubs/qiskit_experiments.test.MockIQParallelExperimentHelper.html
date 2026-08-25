@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Characterization Experiments (qiskit_experiments.library.characterization)" href="../apidocs/mod_characterization.html"><link rel="prev" title="MockIQExperimentHelper" href="qiskit_experiments.test.MockIQExperimentHelper.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>MockIQParallelExperimentHelper - Qiskit Experiments 0.14.1</title>
+        <title>MockIQParallelExperimentHelper - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -593,8 +593,8 @@ instances of <cite>SpectroscopyHelper</cite> objects (for each experiment) and a
     <span class="n">experiment_helper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">rng_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">parallel_backend</span><span class="o">.</span><span class="n">_configuration</span><span class="o">.</span><span class="n">basis_gates</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
-<span class="n">parallel_backend</span><span class="o">.</span><span class="n">_configuration</span><span class="o">.</span><span class="n">timing_constraints</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;granularity&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">}</span>
+<span class="n">parallel_backend</span><span class="o">.</span><span class="n">_configuration</span><span class="o">.</span><span class="n">basis_gates</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">]</span>
+<span class="n">parallel_backend</span><span class="o">.</span><span class="n">_configuration</span><span class="o">.</span><span class="n">timing_constraints</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"granularity"</span><span class="p">:</span> <span class="mi">16</span><span class="p">}</span>
 
 <span class="c1"># experiment parameters</span>
 <span class="n">qubit1</span> <span class="o">=</span> <span class="mi">0</span>
@@ -621,7 +621,7 @@ instances of <cite>SpectroscopyHelper</cite> objects (for each experiment) and a
 
 <span class="c1"># initializing the parallel experiment</span>
 <span class="n">par_experiment</span> <span class="o">=</span> <span class="n">ParallelExperiment</span><span class="p">(</span><span class="n">exp_list</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">parallel_backend</span><span class="p">)</span>
-<span class="n">par_experiment</span><span class="o">.</span><span class="n">set_run_options</span><span class="p">(</span><span class="n">meas_level</span><span class="o">=</span><span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span><span class="p">,</span> <span class="n">meas_return</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">)</span>
+<span class="n">par_experiment</span><span class="o">.</span><span class="n">set_run_options</span><span class="p">(</span><span class="n">meas_level</span><span class="o">=</span><span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span><span class="p">,</span> <span class="n">meas_return</span><span class="o">=</span><span class="s2">"single"</span><span class="p">)</span>
 
 <span class="n">par_data</span> <span class="o">=</span> <span class="n">par_experiment</span><span class="o">.</span><span class="n">run</span><span class="p">()</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 </pre></div>
@@ -646,7 +646,7 @@ instances of <cite>SpectroscopyHelper</cite> objects (for each experiment) and a
 <dd><p>Run the compute_probabilities for each helper.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>circuits</strong> (<em>list</em><em>[</em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.4)"><em>QuantumCircuit</em></a><em>]</em>) – The quantum circuits for which the probabilities should be computed.</p>
+<dd class="field-odd"><p><strong>circuits</strong> (<em>list</em><em>[</em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.5)"><em>QuantumCircuit</em></a><em>]</em>) – The quantum circuits for which the probabilities should be computed.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
@@ -678,7 +678,7 @@ list and in the returned tuples, must match the format of <a class="reference in
 <a class="reference internal" href="#qiskit_experiments.test.MockIQParallelExperimentHelper.iq_cluster_width" title="qiskit_experiments.test.MockIQParallelExperimentHelper.iq_cluster_width"><code class="xref py py-attr docutils literal notranslate"><span class="pre">iq_cluster_width</span></code></a> in <code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit_experiments.test.MockIQExperimentHelper.__init__()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>circuits</strong> (<em>list</em><em>[</em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.4)"><em>QuantumCircuit</em></a><em>]</em>) – The quantum circuits for which the clusters should be modified.</p>
+<dd class="field-odd"><p><strong>circuits</strong> (<em>list</em><em>[</em><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.5)"><em>QuantumCircuit</em></a><em>]</em>) – The quantum circuits for which the clusters should be modified.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
@@ -745,7 +745,7 @@ plane has a frequency-dependent phase rotation.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -786,7 +786,7 @@ plane has a frequency-dependent phase rotation.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

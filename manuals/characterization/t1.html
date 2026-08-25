@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="T2 Hahn Characterization" href="t2hahn.html"><link rel="prev" title="Quantum State Tomography" href="../verification/state_tomography.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>T1 Characterization - Qiskit Experiments 0.14.1</title>
+        <title>T1 Characterization - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -614,7 +614,7 @@ packages to run simulations.  You can install them with <code class="docutils li
 <span class="n">exp</span> <span class="o">=</span> <span class="n">T1</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">)</span>
 
 <span class="c1"># Set scheduling method so circuit is scheduled for delay noise simulation</span>
-<span class="n">exp</span><span class="o">.</span><span class="n">set_transpile_options</span><span class="p">(</span><span class="n">scheduling_method</span><span class="o">=</span><span class="s1">&#39;asap&#39;</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">set_transpile_options</span><span class="p">(</span><span class="n">scheduling_method</span><span class="o">=</span><span class="s1">'asap'</span><span class="p">)</span>
 
 <span class="c1"># Run the experiment circuits and analyze the result</span>
 <span class="n">exp_data</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
@@ -628,10 +628,10 @@ packages to run simulations.  You can install them with <code class="docutils li
 <div class="cell_output docutils container">
 <img alt="../../_images/t1_0_0.png" src="../../_images/t1_0_0.png" />
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>         name experiment components              value quality  \
-e28bed64   T1         T1       [Q0]  (5.86+/-0.28)e-05    good   
+63c29791   T1         T1       [Q0]  (5.86+/-0.28)e-05    good   
 
                                  backend run_time     chisq unit  
-e28bed64  aer_simulator_from(fake_perth)     None  0.669797    s  
+63c29791  aer_simulator_from(fake_perth)     None  0.669797    s  
 </pre></div>
 </div>
 </div>
@@ -662,7 +662,7 @@ that is close to a logical value ‘0’.</p>
 <span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 <span class="n">delays</span> <span class="o">*=</span> <span class="n">ns</span>
 
-<span class="c1"># Adding circuits with delay=0 and long delays so the centers in the IQ plane won&#39;t be misplaced.</span>
+<span class="c1"># Adding circuits with delay=0 and long delays so the centers in the IQ plane won't be misplaced.</span>
 <span class="c1"># Without this, the fitting can provide wrong results.</span>
 <span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">delays</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 <span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delays</span><span class="p">,</span> <span class="p">[</span><span class="n">t1</span><span class="o">*</span><span class="mi">3</span><span class="p">])</span>
@@ -681,11 +681,11 @@ that is close to a logical value ‘0’.</p>
 <span class="c1"># Creating a T1 experiment</span>
 <span class="n">expT1_kerneled</span> <span class="o">=</span> <span class="n">T1</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">delays</span><span class="p">)</span>
 <span class="n">expT1_kerneled</span><span class="o">.</span><span class="n">analysis</span> <span class="o">=</span> <span class="n">T1KerneledAnalysis</span><span class="p">()</span>
-<span class="n">expT1_kerneled</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;amp&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="n">t1</span> <span class="o">+</span> <span class="n">t1_estimated_shift</span><span class="p">,</span> <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="n">expT1_kerneled</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="p">{</span><span class="s2">"amp"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"tau"</span><span class="p">:</span> <span class="n">t1</span> <span class="o">+</span> <span class="n">t1_estimated_shift</span><span class="p">,</span> <span class="s2">"base"</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
 
 <span class="c1"># Running the experiment</span>
 <span class="n">expdataT1_kerneled</span> <span class="o">=</span> <span class="n">expT1_kerneled</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-    <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">meas_return</span><span class="o">=</span><span class="s2">&quot;avg&quot;</span><span class="p">,</span> <span class="n">meas_level</span><span class="o">=</span><span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">num_shots</span>
+    <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">meas_return</span><span class="o">=</span><span class="s2">"avg"</span><span class="p">,</span> <span class="n">meas_level</span><span class="o">=</span><span class="n">MeasLevel</span><span class="o">.</span><span class="n">KERNELED</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">num_shots</span>
 <span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
 
 <span class="c1"># Displaying results</span>
@@ -727,7 +727,7 @@ that is close to a logical value ‘0’.</p>
   </thead>
   <tbody>
     <tr>
-      <th>2b16a327</th>
+      <th>7d7975bc</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -786,7 +786,7 @@ that is close to a logical value ‘0’.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -822,7 +822,7 @@ that is close to a logical value ‘0’.</p>
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

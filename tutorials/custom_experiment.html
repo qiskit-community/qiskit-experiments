@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="How-To Guides" href="../howtos/index.html"><link rel="prev" title="Visualization: Creating figures" href="visualization.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Writing your own experiment - Qiskit Experiments 0.14.1</title>
+        <title>Writing your own experiment - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -561,7 +561,7 @@ the <a class="reference internal" href="../stubs/qiskit_experiments.framework.Ba
 <p>In general, to subclass the <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment" title="qiskit_experiments.framework.BaseExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExperiment</span></code></a> class, you should:</p>
 <ul class="simple">
 <li><p>Implement the abstract <a class="reference internal" href="../stubs/qiskit_experiments.framework.BaseExperiment.html#qiskit_experiments.framework.BaseExperiment.circuits" title="qiskit_experiments.framework.BaseExperiment.circuits"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment.circuits()</span></code></a> method.
-This should return a list of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> objects defining
+This should return a list of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> objects defining
 the experiment payload.</p></li>
 <li><p>Call the <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment.__init__()</span></code> method during the subclass
 constructor with a list of physical qubits. The length of this list must
@@ -575,7 +575,7 @@ be initialized with some experiment configuration.</p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment._default_experiment_options()</span></code>
 to set default values for configurable option parameters for the experiment.</p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment._default_transpile_options()</span></code>
-to set custom default values for the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/compiler#qiskit.compiler.transpile" title="(in Qiskit v2.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit.compiler.transpile()</span></code></a> method used to
+to set custom default values for the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/compiler#qiskit.compiler.transpile" title="(in Qiskit v2.5)"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit.compiler.transpile()</span></code></a> method used to
 transpile the generated circuits before execution.</p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseExperiment._default_run_options()</span></code>
 to set default backend options for running the transpiled circuits on a backend.</p></li>
@@ -598,9 +598,9 @@ an example for an experiment that takes in <a class="reference internal" href=".
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.database_service</span><span class="w"> </span><span class="kn">import</span> <span class="n">Resonator</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add the custom resonator components to the metadata.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Add the custom resonator components to the metadata."""</span>
     <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
-    <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;device_components&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Resonator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">))</span>
+    <span class="n">metadata</span><span class="p">[</span><span class="s2">"device_components"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Resonator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">physical_qubits</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">metadata</span>
 </pre></div>
 </div>
@@ -622,7 +622,7 @@ after instantiating the experiment object <code class="docutils literal notransl
 <p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseAnalysis._run_analysis()</span></code> method should return a pair
 <code class="code docutils literal notranslate"><span class="pre">(results,</span> <span class="pre">figures)</span></code>, where <code class="docutils literal notranslate"><span class="pre">results</span></code> is a list of
 <a class="reference internal" href="../stubs/qiskit_experiments.framework.AnalysisResultData.html#qiskit_experiments.framework.AnalysisResultData" title="qiskit_experiments.framework.AnalysisResultData"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisResultData</span></code></a> objects and <code class="docutils literal notranslate"><span class="pre">figures</span></code> is a list of
-<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> objects.</p>
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.11.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> objects.</p>
 <p>The <a class="reference internal" href="data_processor.html"><span class="doc">Data Processor</span></a> module contains classes for
 building data processor workflows to help with advanced analysis of
 experiment data.</p>
@@ -640,18 +640,18 @@ experiment data.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseExperiment</span><span class="p">,</span> <span class="n">Options</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CustomExperiment</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom experiment class template.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Custom experiment class template."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">physical_qubits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
                  <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the experiment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the experiment."""</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span>
                          <span class="n">analysis</span> <span class="o">=</span> <span class="n">CustomAnalysis</span><span class="p">(),</span>
                          <span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the list of circuits to be run.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Generate the list of circuits to be run."""</span>
         <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># Generate circuits and populate metadata here</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">loops</span><span class="p">:</span>
@@ -662,7 +662,7 @@ experiment data.</p>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set default experiment options here.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set default experiment options here."""</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">update_options</span><span class="p">(</span>
             <span class="n">dummy_option</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -690,11 +690,11 @@ by the user at this stage.</p>
 <span class="p">)</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CustomAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom analysis class template.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Custom analysis class template."""</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set default analysis options. Plotting is on by default.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set default analysis options. Plotting is on by default."""</span>
 
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">dummy_analysis_option</span> <span class="o">=</span> <span class="kc">None</span>
@@ -705,13 +705,13 @@ by the user at this stage.</p>
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_analysis</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;matplotlib.figure.Figure&quot;</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the analysis.&quot;&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="s2">"matplotlib.figure.Figure"</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">"""Run the analysis."""</span>
 
         <span class="c1"># Process the data here</span>
 
         <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">AnalysisResultData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;dummy result&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">AnalysisResultData</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"dummy result"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="n">figures</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">plot</span><span class="p">:</span>
@@ -755,7 +755,7 @@ to 10.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseExperiment</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">RandomizedMeasurement</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="sd">&quot;&quot;&quot;Randomized measurement experiment.&quot;&quot;&quot;</span>
+<span class="sd">"""Randomized measurement experiment."""</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">circuit</span><span class="p">,</span>
@@ -765,12 +765,12 @@ to 10.</p>
         <span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Basic randomized Z-basis measurement experiment via a Pauli frame transformation</span>
+<span class="w">        </span><span class="sd">"""Basic randomized Z-basis measurement experiment via a Pauli frame transformation</span>
 
 <span class="sd">        Note this will just append a new set of measurements at the end of a circuit.</span>
 <span class="sd">        A more advanced version of this experiment would be to use a transpiler pass to</span>
 <span class="sd">        replace all existing measurements in a circuit with randomized measurements.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">physical_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">physical_qubits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">measured_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -861,7 +861,7 @@ classical registers. Note that the circuits themselves are always built on qubit
 </div>
 </div>
 <p>In the last line of the above code block, we used the
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/quantum_info#qiskit.quantum_info.random_pauli_list" title="(in Qiskit v2.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">random_pauli_list()</span></code></a> function from the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/quantum_info#module-qiskit.quantum_info" title="(in Qiskit v2.4)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit.quantum_info</span></code></a>
+<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/quantum_info#qiskit.quantum_info.random_pauli_list" title="(in Qiskit v2.5)"><code class="xref py py-func docutils literal notranslate"><span class="pre">random_pauli_list()</span></code></a> function from the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/quantum_info#module-qiskit.quantum_info" title="(in Qiskit v2.5)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit.quantum_info</span></code></a>
 module to generate random Paulis. This returns <code class="docutils literal notranslate"><span class="pre">num_samples</span></code> Paulis, each
 across <code class="docutils literal notranslate"><span class="pre">meas_nc</span></code> qubits.</p>
 <p>Now we construct the circuits by composing the original circuit with a Pauli frame then
@@ -880,7 +880,7 @@ so we know whether to apply a bit flip to each bit of the result
     <span class="n">circuits</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">orig_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">metadata</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">pauli</span> <span class="ow">in</span> <span class="n">paulis</span><span class="p">:</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">pauli</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">pauli</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">circ</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">,</span> <span class="n">circ_nc</span> <span class="o">+</span> <span class="n">meas_nc</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span>
@@ -897,9 +897,9 @@ so we know whether to apply a bit flip to each bit of the result
         <span class="n">circ</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="n">meas_qubits</span><span class="p">,</span> <span class="n">meas_clbits</span><span class="p">)</span>
 
         <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">orig_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rm_bits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meas_clbits</span>
-        <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rm_frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pauli</span><span class="p">)</span>
-        <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rm_sig&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pauli</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">"rm_bits"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meas_clbits</span>
+        <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">"rm_frame"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pauli</span><span class="p">)</span>
+        <span class="n">circ</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">"rm_sig"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pauli</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">circuits</span>
 </pre></div>
@@ -932,20 +932,20 @@ or irrelevant to the analysis, use the experiment metadata instead.</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_experiments.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseAnalysis</span><span class="p">,</span> <span class="n">AnalysisResultData</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">RandomizedMeasurementAnalysis</span><span class="p">(</span><span class="n">BaseAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Analysis for randomized measurement experiment.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Analysis for randomized measurement experiment."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">):</span>
 
         <span class="n">combined_counts</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">experiment_data</span><span class="o">.</span><span class="n">data</span><span class="p">():</span>
             <span class="c1"># Get counts</span>
-            <span class="n">counts</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">]</span>
+            <span class="n">counts</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">"counts"</span><span class="p">]</span>
             <span class="n">num_bits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">counts</span><span class="p">)))</span>
 
             <span class="c1"># Get metadata</span>
-            <span class="n">metadata</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
-            <span class="n">clbits</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rm_bits&quot;</span><span class="p">]</span>
-            <span class="n">sig</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rm_sig&quot;</span><span class="p">]</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">datum</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">]</span>
+            <span class="n">clbits</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">"rm_bits"</span><span class="p">]</span>
+            <span class="n">sig</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">"rm_sig"</span><span class="p">]</span>
 
             <span class="c1"># Construct full signature</span>
             <span class="n">full_sig</span> <span class="o">=</span> <span class="n">num_bits</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -960,7 +960,7 @@ or irrelevant to the analysis, use the experiment metadata instead.</p>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">combined_counts</span><span class="p">[</span><span class="n">bitstring</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
 
-        <span class="n">result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span><span class="s2">&quot;counts&quot;</span><span class="p">,</span> <span class="n">combined_counts</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span><span class="s2">"counts"</span><span class="p">,</span> <span class="n">combined_counts</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">],</span> <span class="p">[]</span>
 </pre></div>
 </div>
@@ -974,13 +974,13 @@ output if the Pauli corresponding to that bit has a nonzero signature.</p>
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
     <span class="c1"># Helper dict to swap a clbit value</span>
-    <span class="n">_swap_bit</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">}</span>
+    <span class="n">_swap_bit</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"0"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">}</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_swap_bitstring</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">bitstring</span><span class="p">,</span> <span class="n">sig</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Swap a bitstring based signature to flip bits at.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Swap a bitstring based signature to flip bits at."""</span>
         <span class="c1"># This is very inefficient but demonstrates the basic idea</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span>
+        <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span>
             <span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">_swap_bit</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="k">if</span> <span class="n">sig</span><span class="p">[</span><span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">]</span> <span class="k">else</span> <span class="n">b</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bitstring</span><span class="p">)]</span>
         <span class="p">))</span>
 </pre></div>
@@ -1027,7 +1027,7 @@ You can install it with <code class="docutils literal notranslate"><span class="
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nq</span><span class="p">):</span>
     <span class="n">qc</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
 
-<span class="n">qc</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;iqp&quot;</span><span class="p">)</span>
+<span class="n">qc</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">"mpl"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"iqp"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1045,7 +1045,7 @@ You can install it with <code class="docutils literal notranslate"><span class="
 
 <span class="c1"># Run ideal randomized meas experiment</span>
 <span class="n">exp</span> <span class="o">=</span> <span class="n">RandomizedMeasurement</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
-<span class="n">exp</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;iqp&quot;</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">"mpl"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"iqp"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1058,13 +1058,13 @@ perfect symmetrical results between <span class="math notranslate nohighlight">\
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">expdata_ideal</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend_ideal</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">)</span>
-<span class="n">counts_ideal</span> <span class="o">=</span> <span class="n">expdata_ideal</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;counts&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+<span class="n">counts_ideal</span> <span class="o">=</span> <span class="n">expdata_ideal</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">"counts"</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">counts_ideal</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;1111&#39;: 49969, &#39;0000&#39;: 50031}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{'1111': 49941, '0000': 50059}
 </pre></div>
 </div>
 </div>
@@ -1075,7 +1075,7 @@ from running GHZ circuit itself:</p>
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run noisy randomized meas experiment with readout error</span>
 <span class="n">expdata_noise</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">noise_backend</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">)</span>
-<span class="n">counts_noise</span> <span class="o">=</span> <span class="n">expdata_noise</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;counts&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+<span class="n">counts_noise</span> <span class="o">=</span> <span class="n">expdata_noise</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">"counts"</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
 <span class="c1"># Run noisy simulation of the original circuit without randomization</span>
 <span class="n">meas_circ</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -1088,9 +1088,9 @@ from running GHZ circuit itself:</p>
 <span class="c1"># Plot counts, ideally randomized one should be more symmetric in noise</span>
 <span class="c1"># than direct one with asymmetric readout error</span>
 <span class="n">plot_histogram</span><span class="p">([</span><span class="n">counts_ideal</span><span class="p">,</span> <span class="n">counts_direct</span><span class="p">,</span> <span class="n">counts_noise</span><span class="p">],</span>
-            <span class="n">legend</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Ideal&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;Asymmetric meas error (Direct)&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;Asymmetric meas error (Randomized)&quot;</span><span class="p">])</span>
+            <span class="n">legend</span><span class="o">=</span><span class="p">[</span><span class="s2">"Ideal"</span><span class="p">,</span>
+                    <span class="s2">"Asymmetric meas error (Direct)"</span><span class="p">,</span>
+                    <span class="s2">"Asymmetric meas error (Randomized)"</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -1115,7 +1115,7 @@ unaffected by the added randomized measurements, which use its own classical reg
     <span class="n">qc</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
 
 <span class="n">exp</span> <span class="o">=</span> <span class="n">RandomizedMeasurement</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
-<span class="n">exp</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;iqp&quot;</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">"mpl"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"iqp"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1161,7 +1161,7 @@ unaffected by the added randomized measurements, which use its own classical reg
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -1198,7 +1198,7 @@ unaffected by the added randomized measurements, which use its own classical reg
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

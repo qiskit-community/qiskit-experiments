@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.database_service.db_analysis_result_data - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.database_service.db_analysis_result_data - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Dataclass for analysis result data in the database&quot;&quot;&quot;</span>
+<span class="sd">"""Dataclass for analysis result data in the database"""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
@@ -577,7 +577,7 @@
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.database_service.DbAnalysisResultData.html#qiskit_experiments.database_service.DbAnalysisResultData">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">DbAnalysisResultData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataclass for experiment analysis results in the database.</span>
+<span class="w">    </span><span class="sd">"""Dataclass for experiment analysis results in the database.</span>
 
 <span class="sd">    .. note::</span>
 
@@ -588,7 +588,7 @@
 
 <span class="sd">        This class is named DbAnalysisResultData to avoid confusion with the</span>
 <span class="sd">        :class:`~qiskit_experiments.framework.AnalysisResult` class.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">result_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()))</span>
     <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -613,28 +613,28 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Result </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_type</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Result ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_id</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Experiment ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Backend: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">backend_name</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Quality: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quality</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Verified: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">verified</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Device components: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">device_components</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Data: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_data</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Result </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_type</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Result ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_id</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Experiment ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Backend: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">backend_name</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Quality: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quality</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Verified: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">verified</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Device components: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">device_components</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Data: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_data</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Chi Square: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Chi Square: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Tags: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Tags: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">creation_datetime</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Created at: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">creation_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Created at: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">creation_datetime</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updated_datetime</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Updated at: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">updated_datetime</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Updated at: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">updated_datetime</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">return</span> <span class="n">ret</span>
 
 <div class="viewcode-block" id="DbAnalysisResultData.copy">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.database_service.DbAnalysisResultData.html#qiskit_experiments.database_service.DbAnalysisResultData.copy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a deep copy of the data&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Creates a deep copy of the data"""</span>
         <span class="k">return</span> <span class="n">DbAnalysisResultData</span><span class="p">(</span>
             <span class="n">result_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
             <span class="n">experiment_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">,</span>
@@ -669,7 +669,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -684,7 +684,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

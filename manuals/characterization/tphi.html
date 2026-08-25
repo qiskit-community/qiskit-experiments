@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="Readout Mitigation" href="../measurement/readout_mitigation.html"><link rel="prev" title="T2* Ramsey Characterization" href="t2ramsey.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Tφ Characterization - Qiskit Experiments 0.14.1</title>
+        <title>Tφ Characterization - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -607,7 +607,7 @@ relaxation time estimate. We can see that the component experiments of the batch
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span> <span class="o">=</span> <span class="n">Tphi</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">delays_t1</span><span class="o">=</span><span class="n">delays_t1</span><span class="p">,</span> <span class="n">delays_t2</span><span class="o">=</span><span class="n">delays_t2</span><span class="p">,</span> <span class="n">num_echoes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">exp</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;iqp&quot;</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">"mpl"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"iqp"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -617,7 +617,7 @@ relaxation time estimate. We can see that the component experiments of the batch
 </div>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;iqp&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">"mpl"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"iqp"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -629,7 +629,7 @@ relaxation time estimate. We can see that the component experiments of the batch
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">expdata</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
-<span class="n">display</span><span class="p">(</span><span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;T_phi&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="n">display</span><span class="p">(</span><span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">"T_phi"</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -665,7 +665,7 @@ relaxation time estimate. We can see that the component experiments of the batch
   </thead>
   <tbody>
     <tr>
-      <th>1d821e5a</th>
+      <th>26bf6379</th>
       <td>T_phi</td>
       <td>Tphi</td>
       <td>[Q0]</td>
@@ -683,7 +683,7 @@ relaxation time estimate. We can see that the component experiments of the batch
 <p>You can also retrieve the results and figures of the constituent experiments. <a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.T1.html#qiskit_experiments.library.characterization.T1" title="qiskit_experiments.library.characterization.T1"><code class="xref py py-class docutils literal notranslate"><span class="pre">T1</span></code></a>:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">"T1"</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 <span class="n">display</span><span class="p">(</span><span class="n">expdata</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -720,7 +720,7 @@ relaxation time estimate. We can see that the component experiments of the batch
   </thead>
   <tbody>
     <tr>
-      <th>d410409b</th>
+      <th>ce29e486</th>
       <td>T1</td>
       <td>T1</td>
       <td>[Q0]</td>
@@ -739,7 +739,7 @@ relaxation time estimate. We can see that the component experiments of the batch
 <p>And <a class="reference internal" href="../../stubs/qiskit_experiments.library.characterization.T2Hahn.html#qiskit_experiments.library.characterization.T2Hahn" title="qiskit_experiments.library.characterization.T2Hahn"><code class="xref py py-class docutils literal notranslate"><span class="pre">T2Hahn</span></code></a>:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;T2&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">"T2"</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 <span class="n">display</span><span class="p">(</span><span class="n">expdata</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -776,7 +776,7 @@ relaxation time estimate. We can see that the component experiments of the batch
   </thead>
   <tbody>
     <tr>
-      <th>e490713b</th>
+      <th>ce0e1e38</th>
       <td>T2</td>
       <td>T2Hahn</td>
       <td>[Q0]</td>
@@ -801,10 +801,10 @@ experiment:</p>
 <span class="n">exp</span> <span class="o">=</span> <span class="n">Tphi</span><span class="p">(</span><span class="n">physical_qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span>
            <span class="n">delays_t1</span><span class="o">=</span><span class="n">delays_t1</span><span class="p">,</span>
            <span class="n">delays_t2</span><span class="o">=</span><span class="n">delays_t2ramsey</span><span class="p">,</span>
-           <span class="n">t2type</span><span class="o">=</span><span class="s2">&quot;ramsey&quot;</span><span class="p">,</span>
+           <span class="n">t2type</span><span class="o">=</span><span class="s2">"ramsey"</span><span class="p">,</span>
            <span class="n">osc_freq</span><span class="o">=</span><span class="mf">15e3</span><span class="p">)</span>
 
-<span class="n">exp</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;mpl&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;iqp&quot;</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">component_experiment</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">circuits</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">"mpl"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"iqp"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -816,7 +816,7 @@ experiment:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">expdata</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span><span class="o">.</span><span class="n">block_for_results</span><span class="p">()</span>
-<span class="n">display</span><span class="p">(</span><span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">&quot;T_phi&quot;</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="n">display</span><span class="p">(</span><span class="n">expdata</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">(</span><span class="s2">"T_phi"</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 <span class="n">display</span><span class="p">(</span><span class="n">expdata</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -853,7 +853,7 @@ experiment:</p>
   </thead>
   <tbody>
     <tr>
-      <th>2ec325cc</th>
+      <th>38f226dc</th>
       <td>T_phi</td>
       <td>Tphi</td>
       <td>[Q0]</td>
@@ -926,7 +926,7 @@ echo experiment is used.</p>
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -961,7 +961,7 @@ echo experiment is used.</p>
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

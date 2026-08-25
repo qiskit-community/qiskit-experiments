@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.characterization.ramsey_xy - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.characterization.ramsey_xy - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -556,7 +556,7 @@
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
 
-<span class="sd">&quot;&quot;&quot;Ramsey XY frequency characterization experiment.&quot;&quot;&quot;</span>
+<span class="sd">"""Ramsey XY frequency characterization experiment."""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -570,7 +570,7 @@
 <div class="viewcode-block" id="RamseyXY">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.RamseyXY.html#qiskit_experiments.library.characterization.RamseyXY">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RamseyXY</span><span class="p">(</span><span class="n">BaseExperiment</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A sign-sensitive experiment to measure the frequency of a qubit.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A sign-sensitive experiment to measure the frequency of a qubit.</span>
 
 <span class="sd">    # section: overview</span>
 
@@ -648,17 +648,17 @@
 <span class="sd">            exp_data = exp.run().block_for_results()</span>
 <span class="sd">            display(exp_data.figure(0))</span>
 <span class="sd">            exp_data.analysis_results(dataframe=True)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_experiment_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default values for the Ramsey XY experiment.</span>
+<span class="w">        </span><span class="sd">"""Default values for the Ramsey XY experiment.</span>
 
 <span class="sd">        Experiment Options:</span>
 <span class="sd">            delays (list): The list of delays that will be scanned in the experiment, in seconds.</span>
 <span class="sd">            osc_freq (float): A frequency shift in Hz that will be applied by means of</span>
 <span class="sd">                a virtual Z rotation to increase the frequency of the measured oscillation.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_experiment_options</span><span class="p">()</span>
         <span class="n">options</span><span class="o">.</span><span class="n">delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0e-6</span><span class="p">,</span> <span class="mi">51</span><span class="p">)</span>
         <span class="n">options</span><span class="o">.</span><span class="n">osc_freq</span> <span class="o">=</span> <span class="mf">2e6</span>
@@ -672,7 +672,7 @@
         <span class="n">delays</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">osc_freq</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2e6</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new experiment.</span>
+<span class="w">        </span><span class="sd">"""Create new experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            physical_qubits: List containing the qubit on which to run the</span>
@@ -681,7 +681,7 @@
 <span class="sd">            delays: The delays to scan, in seconds.</span>
 <span class="sd">            osc_freq: the oscillation frequency induced by the user through a virtual</span>
 <span class="sd">                Rz rotation. This quantity is given in Hz.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">,</span> <span class="n">analysis</span><span class="o">=</span><span class="n">RamseyXYAnalysis</span><span class="p">(),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">delays</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -689,28 +689,28 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_experiment_options</span><span class="p">(</span><span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span> <span class="n">osc_freq</span><span class="o">=</span><span class="n">osc_freq</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_pre_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantumCircuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a preparation circuit.</span>
+<span class="w">        </span><span class="sd">"""Return a preparation circuit.</span>
 
 <span class="sd">        This method can be overridden by subclasses e.g. to run on transitions other</span>
 <span class="sd">        than the 0 &lt;-&gt; 1 transition.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="RamseyXY.circuits">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.characterization.RamseyXY.html#qiskit_experiments.library.characterization.RamseyXY.circuits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the circuits for the Ramsey XY characterization experiment.</span>
+<span class="w">        </span><span class="sd">"""Create the circuits for the Ramsey XY characterization experiment.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of circuits with a variable delay.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">timing</span> <span class="o">=</span> <span class="n">BackendTiming</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
 
-        <span class="n">p_delay</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;delay&quot;</span><span class="p">)</span>
+        <span class="n">p_delay</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">"delay"</span><span class="p">)</span>
 
         <span class="n">rotation_angle</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_options</span><span class="o">.</span><span class="n">osc_freq</span> <span class="o">*</span> <span class="n">p_delay</span>
 
-        <span class="k">if</span> <span class="n">timing</span><span class="o">.</span><span class="n">delay_unit</span> <span class="o">==</span> <span class="s2">&quot;dt&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">timing</span><span class="o">.</span><span class="n">delay_unit</span> <span class="o">==</span> <span class="s2">"dt"</span><span class="p">:</span>
             <span class="n">rotation_angle</span> <span class="o">=</span> <span class="n">rotation_angle</span> <span class="o">*</span> <span class="n">timing</span><span class="o">.</span><span class="n">dt</span>
 
         <span class="c1"># Create the X and Y circuits.</span>
@@ -735,13 +735,13 @@
 
             <span class="n">assigned_x</span> <span class="o">=</span> <span class="n">ram_x</span><span class="o">.</span><span class="n">assign_parameters</span><span class="p">({</span><span class="n">p_delay</span><span class="p">:</span> <span class="n">delay_dt</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">assigned_x</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;series&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="n">delay_sec</span><span class="p">,</span>
+                <span class="s2">"series"</span><span class="p">:</span> <span class="s2">"X"</span><span class="p">,</span>
+                <span class="s2">"xval"</span><span class="p">:</span> <span class="n">delay_sec</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="n">assigned_y</span> <span class="o">=</span> <span class="n">ram_y</span><span class="o">.</span><span class="n">assign_parameters</span><span class="p">({</span><span class="n">p_delay</span><span class="p">:</span> <span class="n">delay_dt</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">assigned_y</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;series&quot;</span><span class="p">:</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;xval&quot;</span><span class="p">:</span> <span class="n">delay_sec</span><span class="p">,</span>
+                <span class="s2">"series"</span><span class="p">:</span> <span class="s2">"Y"</span><span class="p">,</span>
+                <span class="s2">"xval"</span><span class="p">:</span> <span class="n">delay_sec</span><span class="p">,</span>
             <span class="p">}</span>
 
             <span class="n">circs</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">assigned_x</span><span class="p">,</span> <span class="n">assigned_y</span><span class="p">])</span>
@@ -753,18 +753,18 @@
         <span class="c1"># Set initial guess for sinusoidal offset when meas level is 2.</span>
         <span class="c1"># This returns probability P1 thus offset=0.5 is obvious.</span>
         <span class="c1"># This guarantees reasonable fit especially when data contains only less than half cycle.</span>
-        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">)</span>
+        <span class="n">meas_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"meas_level"</span><span class="p">,</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">meas_level</span> <span class="o">==</span> <span class="n">MeasLevel</span><span class="o">.</span><span class="n">CLASSIFIED</span><span class="p">:</span>
-            <span class="n">init_guess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;p0&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="k">if</span> <span class="s2">&quot;base&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">init_guess</span><span class="p">:</span>
-                <span class="n">init_guess</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+            <span class="n">init_guess</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"p0"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="s2">"base"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">init_guess</span><span class="p">:</span>
+                <span class="n">init_guess</span><span class="p">[</span><span class="s2">"base"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">p0</span><span class="o">=</span><span class="n">init_guess</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
         <span class="c1"># Store measurement level and meas return if they have been</span>
         <span class="c1"># set for the experiment</span>
-        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;meas_level&quot;</span><span class="p">,</span> <span class="s2">&quot;meas_return&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">run_opt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"meas_level"</span><span class="p">,</span> <span class="s2">"meas_return"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">):</span>
                 <span class="n">metadata</span><span class="p">[</span><span class="n">run_opt</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_options</span><span class="p">,</span> <span class="n">run_opt</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metadata</span></div>
@@ -787,7 +787,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -802,7 +802,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

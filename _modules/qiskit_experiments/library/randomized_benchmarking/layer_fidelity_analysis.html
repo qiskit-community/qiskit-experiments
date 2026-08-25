@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.library.randomized_benchmarking.layer_fidelity_analysis - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.library.randomized_benchmarking.layer_fidelity_analysis - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,9 +555,9 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Analysis classes for Layer Fidelity RB.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
@@ -574,7 +574,7 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_ProcessFidelityAnalysis</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">CurveAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A class to estimate process fidelity from one of 1Q/2Q simultaneous direct RB experiments</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A class to estimate process fidelity from one of 1Q/2Q simultaneous direct RB experiments</span>
 
 <span class="sd">    # section: overview</span>
 <span class="sd">        This analysis takes only a single series.</span>
@@ -603,48 +603,48 @@
 
 <span class="sd">    # section: reference</span>
 <span class="sd">        .. ref_arxiv:: 1 2311.05933</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">,</span> <span class="n">benchmark_suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">,</span> <span class="n">benchmark_suffix</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">models</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">lmfit</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ExpressionModel</span><span class="p">(</span>
-                    <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;a * alpha ** x + b&quot;</span><span class="p">,</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;rb_decay&quot;</span><span class="p">,</span>
+                    <span class="n">expr</span><span class="o">=</span><span class="s2">"a * alpha ** x + b"</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"rb_decay"</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span> <span class="o">=</span> <span class="n">physical_qubits</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span>
-            <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;0&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">),</span>
-            <span class="n">figure_names</span><span class="o">=</span><span class="s2">&quot;DirectRB_Q&quot;</span> <span class="o">+</span> <span class="s2">&quot;_Q&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;.svg&quot;</span><span class="p">,</span>
+            <span class="n">outcome</span><span class="o">=</span><span class="s2">"0"</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">physical_qubits</span><span class="p">),</span>
+            <span class="n">figure_names</span><span class="o">=</span><span class="s2">"DirectRB_Q"</span> <span class="o">+</span> <span class="s2">"_Q"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">physical_qubits</span><span class="p">))</span> <span class="o">+</span> <span class="s2">".svg"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
-            <span class="n">figure_title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Simultaneous Direct RB on Qubit</span><span class="si">{</span><span class="n">physical_qubits</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">figure_title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Simultaneous Direct RB on Qubit</span><span class="si">{</span><span class="n">physical_qubits</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_benchmark_suffix</span> <span class="o">=</span> <span class="n">benchmark_suffix</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">benchmark_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Getter function for benchmark suffix parameter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Getter function for benchmark suffix parameter."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_benchmark_suffix</span>
 
     <span class="nd">@benchmark_suffix</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">benchmark_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setter function for benchmark suffix parameter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Setter function for benchmark suffix parameter."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_benchmark_suffix</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default analysis options.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Default analysis options."""</span>
         <span class="n">default_options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_default_options</span><span class="p">()</span>
         <span class="n">default_options</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">set_figure_options</span><span class="p">(</span>
-            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Layers&quot;</span><span class="p">,</span>
-            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Ground State Population&quot;</span><span class="p">,</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">"Layers"</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">"Ground State Population"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">default_options</span><span class="o">.</span><span class="n">plot_raw_data</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">default_options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span>
-        <span class="n">default_options</span><span class="o">.</span><span class="n">average_method</span> <span class="o">=</span> <span class="s2">&quot;sample&quot;</span>
+        <span class="n">default_options</span><span class="o">.</span><span class="n">result_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"alpha"</span><span class="p">]</span>
+        <span class="n">default_options</span><span class="o">.</span><span class="n">average_method</span> <span class="o">=</span> <span class="s2">"sample"</span>
 
         <span class="k">return</span> <span class="n">default_options</span>
 
@@ -653,7 +653,7 @@
         <span class="n">user_opt</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">,</span>
         <span class="n">curve_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">ScatterTable</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">curve</span><span class="o">.</span><span class="n">FitOptions</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create algorithmic initial fit guess from analysis options and curve data.</span>
+<span class="w">        </span><span class="sd">"""Create algorithmic initial fit guess from analysis options and curve data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            user_opt: Fit options filled with user provided guess and bounds.</span>
@@ -661,7 +661,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of fit options that are passed to the fitter function.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">user_opt</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">set_if_empty</span><span class="p">(</span>
             <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
             <span class="n">alpha</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
@@ -671,7 +671,7 @@
         <span class="n">b_guess</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">**</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span><span class="p">)</span>
         <span class="n">alpha_guess</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">guess</span><span class="o">.</span><span class="n">rb_decay</span><span class="p">(</span><span class="n">curve_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b_guess</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">alpha_guess</span> <span class="o">&lt;</span> <span class="mf">0.6</span><span class="p">:</span>
-            <span class="c1"># Don&#39;t account for decay in estimating a if decay appears to be</span>
+            <span class="c1"># Don't account for decay in estimating a if decay appears to be</span>
             <span class="c1"># very strong</span>
             <span class="n">a_guess</span> <span class="o">=</span> <span class="n">curve_data</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">b_guess</span>
         <span class="k">else</span><span class="p">:</span>
@@ -693,7 +693,7 @@
         <span class="n">quality</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">**</span><span class="n">metadata</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create analysis results for important fit parameters.</span>
+<span class="w">        </span><span class="sd">"""Create analysis results for important fit parameters.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fit_data: Fit outcome.</span>
@@ -701,13 +701,13 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of analysis result data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">outcomes</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_analysis_results</span><span class="p">(</span><span class="n">fit_data</span><span class="p">,</span> <span class="n">quality</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span>
         <span class="n">num_qubits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span><span class="p">)</span>
         <span class="n">d</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">num_qubits</span>
 
         <span class="c1"># Calculate process fidelity</span>
-        <span class="n">alpha</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">ufloat_params</span><span class="p">[</span><span class="s2">"alpha"</span><span class="p">]</span>
         <span class="n">pf</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">d</span> <span class="o">*</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">d</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span>
 
         <span class="c1"># calculate error per layer</span>
@@ -715,12 +715,12 @@
 
         <span class="n">quality</span><span class="p">,</span> <span class="n">reason</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_quality_with_reason</span><span class="p">(</span><span class="n">fit_data</span><span class="p">)</span>
 
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;qubits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reason</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"qubits"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"reason"</span><span class="p">]</span> <span class="o">=</span> <span class="n">reason</span>
         <span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">fit_data</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
         <span class="n">outcomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">AnalysisResultData</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ProcessFidelity&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"ProcessFidelity"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">pf</span><span class="p">,</span>
                 <span class="n">chisq</span><span class="o">=</span><span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span><span class="p">,</span>
                 <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
@@ -729,7 +729,7 @@
         <span class="p">)</span>
         <span class="n">outcomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">AnalysisResultData</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;EPL&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"EPL"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">epl</span><span class="p">,</span>
                 <span class="n">chisq</span><span class="o">=</span><span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span><span class="p">,</span>
                 <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
@@ -745,62 +745,62 @@
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_run_analysis</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
             <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">) failed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"</span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">) failed: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span><span class="p">),</span>
                 <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">(),</span>
             <span class="p">)</span>
             <span class="n">failed_result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ProcessFidelity&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"ProcessFidelity"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">quality</span><span class="o">=</span><span class="s2">&quot;bad&quot;</span><span class="p">,</span>
-                <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;analysis_failure&quot;</span><span class="p">},</span>
+                <span class="n">quality</span><span class="o">=</span><span class="s2">"bad"</span><span class="p">,</span>
+                <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"qubits"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span><span class="p">,</span> <span class="s2">"reason"</span><span class="p">:</span> <span class="s2">"analysis_failure"</span><span class="p">},</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">failed_result</span><span class="p">],</span> <span class="p">[]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_experiment_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set physical qubits to the experiment components.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set physical qubits to the experiment components."""</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">device</span><span class="o">.</span><span class="n">Qubit</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span> <span class="k">for</span> <span class="n">qubit</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_quality_with_reason</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">fit_data</span><span class="p">:</span> <span class="n">curve</span><span class="o">.</span><span class="n">CurveFitResult</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate quality of the fit result and the reason if it is no good.</span>
+<span class="w">        </span><span class="sd">"""Evaluate quality of the fit result and the reason if it is no good.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fit_data: Fit outcome.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Pair of strings that represent quality (&quot;good&quot; or &quot;bad&quot;) and its reason if &quot;bad&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            Pair of strings that represent quality ("good" or "bad") and its reason if "bad".</span>
+<span class="sd">        """</span>
         <span class="c1"># Too large SPAM</span>
-        <span class="n">y_intercept</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">]</span>
+        <span class="n">y_intercept</span> <span class="o">=</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">"a"</span><span class="p">]</span> <span class="o">+</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">"b"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">y_intercept</span> <span class="o">&lt;</span> <span class="mf">0.7</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;bad&quot;</span><span class="p">,</span> <span class="s2">&quot;large_spam&quot;</span>
+            <span class="k">return</span> <span class="s2">"bad"</span><span class="p">,</span> <span class="s2">"large_spam"</span>
         <span class="c1"># Convergence to a bad value (probably due to bad readout)</span>
         <span class="n">ideal_limit</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_physical_qubits</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">fit_data</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">ideal_limit</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.3</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;bad&quot;</span><span class="p">,</span> <span class="s2">&quot;biased_tail&quot;</span>
+        <span class="k">if</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">"b"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">fit_data</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">"b"</span><span class="p">]</span> <span class="o">-</span> <span class="n">ideal_limit</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"bad"</span><span class="p">,</span> <span class="s2">"biased_tail"</span>
         <span class="c1"># Too good fidelity (negative decay)</span>
-        <span class="k">if</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;bad&quot;</span><span class="p">,</span> <span class="s2">&quot;negative_decay&quot;</span>
+        <span class="k">if</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">"alpha"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"bad"</span><span class="p">,</span> <span class="s2">"negative_decay"</span>
         <span class="c1"># Large residual errors in terms of reduced Chi-square</span>
         <span class="k">if</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span> <span class="o">&gt;</span> <span class="mf">3.0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;bad&quot;</span><span class="p">,</span> <span class="s2">&quot;large_chisq&quot;</span>
+            <span class="k">return</span> <span class="s2">"bad"</span><span class="p">,</span> <span class="s2">"large_chisq"</span>
         <span class="c1"># Too good Chi-square</span>
         <span class="k">if</span> <span class="n">fit_data</span><span class="o">.</span><span class="n">reduced_chisq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;bad&quot;</span><span class="p">,</span> <span class="s2">&quot;zero_chisq&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;good&quot;</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="s2">"bad"</span><span class="p">,</span> <span class="s2">"zero_chisq"</span>
+        <span class="k">return</span> <span class="s2">"good"</span><span class="p">,</span> <span class="kc">None</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_SingleLayerFidelityAnalysis</span><span class="p">(</span><span class="n">CompositeAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to estimate a process fidelity per disjoint layer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A class to estimate a process fidelity per disjoint layer."""</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">analyses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">benchmark_suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">analyses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">benchmark_suffix</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">analyses</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">analyses</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">&quot;&#39;analyses&#39; must have the same length with &#39;layer&#39;&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">"'analyses' must have the same length with 'layer'"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">analyses</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">_ProcessFidelityAnalysis</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="n">benchmark_suffix</span><span class="o">=</span><span class="n">benchmark_suffix</span><span class="p">)</span>
@@ -814,18 +814,18 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">benchmark_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Getter function for benchmark suffix parameter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Getter function for benchmark suffix parameter."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_benchmark_suffix</span>
 
     <span class="nd">@benchmark_suffix</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">benchmark_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setter function for benchmark suffix parameter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Setter function for benchmark suffix parameter."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_benchmark_suffix</span> <span class="o">=</span> <span class="n">value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_benchmark_suffix_on_subanalyses</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_benchmark_suffix_on_subanalyses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">subanalysis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">subanalysis</span><span class="p">,</span> <span class="s2">&quot;benchmark_suffix&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">subanalysis</span><span class="p">,</span> <span class="s2">"benchmark_suffix"</span><span class="p">):</span>
                 <span class="n">subanalysis</span><span class="o">.</span><span class="n">benchmark_suffix</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_analysis</span><span class="p">(</span>
@@ -838,42 +838,42 @@
             <span class="n">pf_results</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">res</span>
                 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">analysis_results</span>
-                <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;ProcessFidelity&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span>
+                <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"ProcessFidelity"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span>
             <span class="p">]</span>
             <span class="n">pfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">res</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">pf_results</span><span class="p">]</span>
             <span class="n">slf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">pfs</span><span class="p">)</span>
-            <span class="n">quality_slf</span> <span class="o">=</span> <span class="s2">&quot;good&quot;</span> <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">quality</span> <span class="o">==</span> <span class="s2">&quot;good&quot;</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">pf_results</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;bad&quot;</span>
+            <span class="n">quality_slf</span> <span class="o">=</span> <span class="s2">"good"</span> <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">quality</span> <span class="o">==</span> <span class="s2">"good"</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">pf_results</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"bad"</span>
             <span class="n">slf_result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SingleLF&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"SingleLF"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">slf</span><span class="p">,</span>
                 <span class="n">quality</span><span class="o">=</span><span class="n">quality_slf</span><span class="p">,</span>
-                <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">qubits</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qubits</span><span class="p">]},</span>
+                <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"qubits"</span><span class="p">:</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">qubits</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qubits</span><span class="p">]},</span>
             <span class="p">)</span>
             <span class="c1"># Return combined results</span>
             <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">slf_result</span><span class="p">]</span> <span class="o">+</span> <span class="n">analysis_results</span>
             <span class="k">return</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="n">figures</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
-            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> failed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2"> failed: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
             <span class="n">failed_result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SingleLF&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"SingleLF"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">quality</span><span class="o">=</span><span class="s2">&quot;bad&quot;</span><span class="p">,</span>
+                <span class="n">quality</span><span class="o">=</span><span class="s2">"bad"</span><span class="p">,</span>
                 <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">qubits</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qubits</span><span class="p">],</span>
-                    <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;analysis_failure&quot;</span><span class="p">,</span>
+                    <span class="s2">"qubits"</span><span class="p">:</span> <span class="p">[</span><span class="n">q</span> <span class="k">for</span> <span class="n">qubits</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qubits</span><span class="p">],</span>
+                    <span class="s2">"reason"</span><span class="p">:</span> <span class="s2">"analysis_failure"</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">failed_result</span><span class="p">]</span> <span class="o">+</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="n">figures</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_experiment_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set physical qubits to the experiment components.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set physical qubits to the experiment components."""</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">device</span><span class="o">.</span><span class="n">Qubit</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="n">qubits</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qubits</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="LayerFidelityAnalysis">
 <a class="viewcode-back" href="../../../../stubs/qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis.html#qiskit_experiments.library.randomized_benchmarking.LayerFidelityAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LayerFidelityAnalysis</span><span class="p">(</span><span class="n">CompositeAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A class to analyze layer fidelity experiments.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A class to analyze layer fidelity experiments.</span>
 
 <span class="sd">    # section: overview</span>
 <span class="sd">        It estimates Layer Fidelity and EPLG (error per layered gate)</span>
@@ -883,12 +883,12 @@
 
 <span class="sd">    # section: reference</span>
 <span class="sd">        .. ref_arxiv:: 1 2311.05933</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">analyses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">benchmark_suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">analyses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">benchmark_suffix</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">analyses</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">analyses</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">&quot;&#39;analyses&#39; must have the same length with &#39;layers&#39;&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">AnalysisError</span><span class="p">(</span><span class="s2">"'analyses' must have the same length with 'layers'"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">analyses</span> <span class="o">=</span> <span class="p">[</span><span class="n">_SingleLayerFidelityAnalysis</span><span class="p">(</span><span class="n">a_layer</span><span class="p">)</span> <span class="k">for</span> <span class="n">a_layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">]</span>
 
@@ -899,24 +899,24 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">benchmark_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Getter function for benchmark suffix parameter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Getter function for benchmark suffix parameter."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_benchmark_suffix</span>
 
     <span class="nd">@benchmark_suffix</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">benchmark_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setter function for benchmark suffix parameter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Setter function for benchmark suffix parameter."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_benchmark_suffix</span> <span class="o">=</span> <span class="n">value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_benchmark_suffix_on_subanalyses</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_benchmark_suffix_on_subanalyses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">subanalysis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyses</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">subanalysis</span><span class="p">,</span> <span class="s2">&quot;benchmark_suffix&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">subanalysis</span><span class="p">,</span> <span class="s2">"benchmark_suffix"</span><span class="p">):</span>
                 <span class="n">subanalysis</span><span class="o">.</span><span class="n">benchmark_suffix</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_analysis</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">:</span> <span class="n">ExperimentData</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AnalysisResultData</span> <span class="o">|</span> <span class="n">ArtifactData</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">FigureType</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Run analysis for Layer Fidelity experiment.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Run analysis for Layer Fidelity experiment.</span>
 
 <span class="sd">        It invokes :meth:`CompositeAnalysis._run_analysis` that will recursively invoke</span>
 <span class="sd">        ``_run_analysis`` of the sub-experiments (1Q/2Q simultaneous direct RBs for each layer).</span>
@@ -930,25 +930,25 @@
 <span class="sd">            is a list of :class:`AnalysisResultData` objects, and ``figures``</span>
 <span class="sd">            is a list of any figures for the experiment.</span>
 <span class="sd">            If an analysis fails, an analysis result with ``None`` value will be returned.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Run composite analysis and extract sub-experiments results</span>
             <span class="n">analysis_results</span><span class="p">,</span> <span class="n">figures</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_run_analysis</span><span class="p">(</span><span class="n">experiment_data</span><span class="p">)</span>
             <span class="c1"># Calculate full layer fidelity from single layer fidelities</span>
             <span class="n">slf_results</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">res</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">analysis_results</span> <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;SingleLF&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span>
+                <span class="n">res</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">analysis_results</span> <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"SingleLF"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span>
             <span class="p">]</span>
             <span class="n">slfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">res</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">slf_results</span><span class="p">]</span>
             <span class="n">lf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">slfs</span><span class="p">)</span>
-            <span class="n">quality_lf</span> <span class="o">=</span> <span class="s2">&quot;good&quot;</span> <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">quality</span> <span class="o">==</span> <span class="s2">&quot;good&quot;</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">slf_results</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;bad&quot;</span>
+            <span class="n">quality_lf</span> <span class="o">=</span> <span class="s2">"good"</span> <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">quality</span> <span class="o">==</span> <span class="s2">"good"</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">slf_results</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"bad"</span>
             <span class="n">lf_result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LF&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"LF"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">lf</span><span class="p">,</span>
                 <span class="n">quality</span><span class="o">=</span><span class="n">quality_lf</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">eplg</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">lf</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_2q_gates</span><span class="p">))</span>
             <span class="n">eplg_result</span> <span class="o">=</span> <span class="n">AnalysisResultData</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;EPLG&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"EPLG"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">eplg</span><span class="p">,</span>
                 <span class="n">quality</span><span class="o">=</span><span class="n">quality_lf</span><span class="p">,</span>
             <span class="p">)</span>
@@ -956,19 +956,19 @@
             <span class="n">analysis_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">lf_result</span><span class="p">,</span> <span class="n">eplg_result</span><span class="p">]</span> <span class="o">+</span> <span class="n">analysis_results</span>
             <span class="k">return</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="n">figures</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
-            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> failed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2"> failed: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
             <span class="n">failed_results</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">AnalysisResultData</span><span class="p">(</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LF&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"LF"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
                     <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                    <span class="n">quality</span><span class="o">=</span><span class="s2">&quot;bad&quot;</span><span class="p">,</span>
-                    <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;analysis_failure&quot;</span><span class="p">},</span>
+                    <span class="n">quality</span><span class="o">=</span><span class="s2">"bad"</span><span class="p">,</span>
+                    <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"reason"</span><span class="p">:</span> <span class="s2">"analysis_failure"</span><span class="p">},</span>
                 <span class="p">),</span>
                 <span class="n">AnalysisResultData</span><span class="p">(</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;EPLG&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"EPLG"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_suffix</span><span class="p">,</span>
                     <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                    <span class="n">quality</span><span class="o">=</span><span class="s2">&quot;bad&quot;</span><span class="p">,</span>
-                    <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;analysis_failure&quot;</span><span class="p">},</span>
+                    <span class="n">quality</span><span class="o">=</span><span class="s2">"bad"</span><span class="p">,</span>
+                    <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">"reason"</span><span class="p">:</span> <span class="s2">"analysis_failure"</span><span class="p">},</span>
                 <span class="p">),</span>
             <span class="p">]</span>
             <span class="k">return</span> <span class="n">failed_results</span> <span class="o">+</span> <span class="n">analysis_results</span><span class="p">,</span> <span class="n">figures</span></div>
@@ -991,7 +991,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -1006,7 +1006,7 @@
       
     </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>qiskit_experiments.framework.backend_partition - Qiskit Experiments 0.14.1</title>
+        <title>qiskit_experiments.framework.backend_partition - Qiskit Experiments 0.14.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit Experiments 0.14.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit Experiments 0.14.1</span>
+  <span class="sidebar-brand-text">Qiskit Experiments 0.14.2</span>
   
 </a>
 
@@ -555,14 +555,14 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Functions to partition nodes and edges into groups, such that nodes/edges</span>
 <span class="sd">in a group are distant from each other.</span>
 
 <span class="sd">These utilities are used to create groups of qubits or qubit pairs for</span>
-<span class="sd">tiled experiments, ensuring that experiments in the same group don&#39;t</span>
+<span class="sd">tiled experiments, ensuring that experiments in the same group don't</span>
 <span class="sd">interfere with each other due to proximity.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">rustworkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rx</span>
@@ -572,19 +572,19 @@
 <div class="viewcode-block" id="build_coupling_graph">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.build_coupling_graph.html#qiskit_experiments.framework.build_coupling_graph">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_coupling_graph</span><span class="p">(</span><span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">,</span> <span class="n">multigraph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">rx</span><span class="o">.</span><span class="n">PyGraph</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Build a rustworkx undirected graph from the backend&#39;s coupling map.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build a rustworkx undirected graph from the backend's coupling map.</span>
 
 <span class="sd">    If multigraph=True then parallel edges in the coupling map will produce parallel edges in the</span>
 <span class="sd">    constructed graph.</span>
 <span class="sd">    For example, if both [1, 2] and [2, 1] are in the coupling map, then the graph will contain two</span>
 <span class="sd">    edges between the nodes labeled 1 and 2.</span>
 
-<span class="sd">    The graph&#39;s edges are labeled with the coupling edge. So, the two edges from the previous</span>
+<span class="sd">    The graph's edges are labeled with the coupling edge. So, the two edges from the previous</span>
 <span class="sd">    example will be labeled [1, 2] and [2, 1].</span>
 
 <span class="sd">    If multigraph=False then parallel edges will produce a single edge in the graph; the node order</span>
-<span class="sd">    in the edge&#39;s label will be arbitrary.</span>
+<span class="sd">    in the edge's label will be arbitrary.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        backend: A Qiskit backend instance</span>
@@ -592,7 +592,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Undirected graph representing the coupling map</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">graph</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">PyGraph</span><span class="p">(</span><span class="n">multigraph</span><span class="o">=</span><span class="n">multigraph</span><span class="p">)</span>
     <span class="n">graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">()</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)))</span>
     <span class="k">for</span> <span class="n">coupling_edge</span> <span class="ow">in</span> <span class="n">backend</span><span class="o">.</span><span class="n">configuration</span><span class="p">()</span><span class="o">.</span><span class="n">coupling_map</span><span class="p">:</span>
@@ -605,11 +605,11 @@
 <div class="viewcode-block" id="build_line_graph">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.build_line_graph.html#qiskit_experiments.framework.build_line_graph">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_line_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">rx</span><span class="o">.</span><span class="n">PyGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">rx</span><span class="o">.</span><span class="n">PyGraph</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the line graph of the given graph.</span>
 
 <span class="sd">    The line graph contains a node for each edge in the original graph.</span>
-<span class="sd">    The node&#39;s label is the original graph&#39;s edge.</span>
+<span class="sd">    The node's label is the original graph's edge.</span>
 <span class="sd">    Nodes in the line graph are connected by an (unlabeled) edge if the original edges share a node</span>
 <span class="sd">    in the original graph.</span>
 
@@ -623,7 +623,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The line graph</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">line_graph</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">PyGraph</span><span class="p">()</span>
 
     <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
@@ -643,7 +643,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">build_distance_graph</span><span class="p">(</span>
     <span class="n">graph</span><span class="p">:</span> <span class="n">rx</span><span class="o">.</span><span class="n">PyGraph</span><span class="p">,</span> <span class="n">distance</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node_subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">rx</span><span class="o">.</span><span class="n">PyGraph</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build a graph where nodes are connected if their distance is less than a threshold.</span>
 
 <span class="sd">    The nodes of the distance graph are the same as in the original graph.</span>
@@ -662,7 +662,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The distance graph</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
     <span class="n">dist_graph</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">PyGraph</span><span class="p">()</span>
     <span class="n">map_node_labels_to_dist_matrix_indices</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># pylint: disable=invalid-name</span>
@@ -687,10 +687,10 @@
 <div class="viewcode-block" id="partition_qubits">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.partition_qubits.html#qiskit_experiments.framework.partition_qubits">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">partition_qubits</span><span class="p">(</span><span class="n">backend</span><span class="p">:</span> <span class="n">Backend</span><span class="p">,</span> <span class="n">distance</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node_subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Partition the backend&#39;s qubits into groups with minimum distance between them.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Partition the backend's qubits into groups with minimum distance between them.</span>
 
-<span class="sd">    Partitions the nodes of the backend&#39;s coupling graph into groups such that</span>
+<span class="sd">    Partitions the nodes of the backend's coupling graph into groups such that</span>
 <span class="sd">    qubits in the same group are separated by at least `distance` edges.</span>
 
 <span class="sd">    Args:</span>
@@ -705,7 +705,7 @@
 <span class="sd">    Example:</span>
 <span class="sd">        &gt;&gt;&gt; groups = partition_qubits(backend, distance=3)</span>
 <span class="sd">        &gt;&gt;&gt; # groups might be: [[[0], [3], [6]], [[1], [4], [7]], [[2], [5], [8]]]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">graph</span> <span class="o">=</span> <span class="n">build_coupling_graph</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">partition_nodes</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">node_subset</span><span class="p">)</span></div>
 
@@ -720,10 +720,10 @@
     <span class="n">edge_subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">node_subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Partition the backend&#39;s qubit pairs (edges) into groups with minimum distance.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Partition the backend's qubit pairs (edges) into groups with minimum distance.</span>
 
-<span class="sd">    Partitions the edges of the backend&#39;s coupling graph into groups such that</span>
+<span class="sd">    Partitions the edges of the backend's coupling graph into groups such that</span>
 <span class="sd">    edges in the same group are separated by at least `distance`.</span>
 
 <span class="sd">    The `multigraph` parameter is for the graph construction.</span>
@@ -740,7 +740,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        List of groups, where each group is a list of qubit pairs (edges).</span>
 <span class="sd">        Format: [[[q1, q2], [q3, q4], ...], [[q5, q6], ...], ...]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">graph</span> <span class="o">=</span> <span class="n">build_coupling_graph</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">multigraph</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">partition_edges</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">edge_subset</span><span class="p">,</span> <span class="n">node_subset</span><span class="p">)</span></div>
 
@@ -749,7 +749,7 @@
 <div class="viewcode-block" id="partition_nodes">
 <a class="viewcode-back" href="../../../stubs/qiskit_experiments.framework.partition_nodes.html#qiskit_experiments.framework.partition_nodes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">partition_nodes</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">rx</span><span class="o">.</span><span class="n">PyGraph</span><span class="p">,</span> <span class="n">distance</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node_subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Partition graph nodes into groups with minimum distance between nodes in each group.</span>
 
 <span class="sd">    Partitions the graph nodes into groups, such that in each group the</span>
@@ -775,15 +775,15 @@
 
 <span class="sd">    Note:</span>
 <span class="sd">        This uses a greedy graph coloring algorithm. It may not produce the optimal</span>
-<span class="sd">        (minimum number of groups) partitioning, but it&#39;s simple and fast.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        (minimum number of groups) partitioning, but it's simple and fast.</span>
+<span class="sd">    """</span>
 
-    <span class="c1"># A very naive algorithm, which was chosen (at least for now) because it&#39;s easy</span>
-    <span class="c1"># to implement. I didn&#39;t check if it has any guarantees about performance, number of node</span>
+    <span class="c1"># A very naive algorithm, which was chosen (at least for now) because it's easy</span>
+    <span class="c1"># to implement. I didn't check if it has any guarantees about performance, number of node</span>
     <span class="c1"># groups, or equitability (if we want the groups to be more-or-less of</span>
     <span class="c1"># equal size). The literature is filled with algorithms for node colorings,</span>
     <span class="c1"># including for the case of the distance&gt;2 constraint. In particular,</span>
-    <span class="c1"># we don&#39;t exploit information that we may have about the structure of the graph, like</span>
+    <span class="c1"># we don't exploit information that we may have about the structure of the graph, like</span>
     <span class="c1"># an upper-bounded degree.</span>
 
     <span class="c1"># Construct the distance graph: an edge between two nodes</span>
@@ -810,14 +810,14 @@
     <span class="n">edge_subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">node_subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Partition graph edges into groups with minimum distance between edges in each group.</span>
 
 <span class="sd">    Partitions the edges in the graph into groups, such that in each group the</span>
 <span class="sd">    minimum distance (one plus number of edges in the shortest path) between edges is at least</span>
 <span class="sd">    `distance`.</span>
 
-<span class="sd">    Note that &quot;distance 1&quot; for edges means that the two edges share a qubit. So two edges that</span>
+<span class="sd">    Note that "distance 1" for edges means that the two edges share a qubit. So two edges that</span>
 <span class="sd">    are next to each other but do not share a qubit (they have qubits that are distance 1 apart)</span>
 <span class="sd">    are distance 2 apart. For example, to partition into groups of edges with adjacent qubits,</span>
 <span class="sd">    distance should be set to 2.</span>
@@ -843,8 +843,8 @@
 
 <span class="sd">    Note:</span>
 <span class="sd">        This uses a greedy graph coloring algorithm on the line graph. It may not</span>
-<span class="sd">        produce the optimal partitioning, but it&#39;s simple and fast.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        produce the optimal partitioning, but it's simple and fast.</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Algorithm:</span>
     <span class="c1"># - We construct the line graph of the input graph. In the line graph,</span>
@@ -858,12 +858,12 @@
     <span class="c1">#   nodes are assigned different colors). This induces a coloring to the edges of the</span>
     <span class="c1">#   original graph that satisfies the distance constraint.</span>
     <span class="c1">#</span>
-    <span class="c1"># This is a very naive algorithm, and it was chosen (at least for now) because it&#39;s easy</span>
-    <span class="c1"># to implement. I didn&#39;t check if it has any guarantees about performance, number of edge</span>
+    <span class="c1"># This is a very naive algorithm, and it was chosen (at least for now) because it's easy</span>
+    <span class="c1"># to implement. I didn't check if it has any guarantees about performance, number of edge</span>
     <span class="c1"># groups, or equitability (if we want the groups to be more-or-less of</span>
     <span class="c1"># equal size). The literature is filled with algorithms for node and edge colorings,</span>
     <span class="c1"># including for the case of the distance&gt;2 constraint. In particular,</span>
-    <span class="c1"># we don&#39;t exploit information that we may have about the structure of the graph, like</span>
+    <span class="c1"># we don't exploit information that we may have about the structure of the graph, like</span>
     <span class="c1"># an upper-bounded degree.</span>
 
     <span class="k">if</span> <span class="n">edge_subset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -874,7 +874,7 @@
                 <span class="n">edge</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span> <span class="k">if</span> <span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">node_subset</span> <span class="ow">and</span> <span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">node_subset</span>
             <span class="p">]</span>
     <span class="k">elif</span> <span class="n">node_subset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Impossible to set both edge_subset and node_subset&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Impossible to set both edge_subset and node_subset"</span><span class="p">)</span>
 
     <span class="n">line_graph</span> <span class="o">=</span> <span class="n">build_line_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
 
@@ -907,7 +907,7 @@
             
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026/06/02</div>
+              Last updated on 2026/08/25</div>
           </div>
           <div class="right-details">
             
@@ -922,7 +922,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=3a3a8e7f"></script>
+</div><script src="../../../_static/documentation_options.js?v=0dc20415"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
