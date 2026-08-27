@@ -15,6 +15,7 @@
 
 import unittest
 from collections import Counter
+from unittest.mock import patch
 from test.base import QiskitExperimentsTestCase
 
 import numpy as np
@@ -475,6 +476,23 @@ class TestReadoutMitigation(QiskitExperimentsTestCase):
         # custom number of shots
         quasi_dist = mitigator.quasi_probabilities(counts, shots=1025)
         self.assertEqual(quasi_dist.shots, 1025)
+
+    def test_local_readout_uses_optimized_einsum(self):
+        """Test local mitigation uses an optimized einsum contraction path."""
+        assignment_matrices = self.assignment_matrices()
+        mitigator = LocalReadoutMitigator(assignment_matrices)
+        counts = Counts({"000": 500, "111": 500})
+
+        with patch(
+            "qiskit_experiments.data_processing.mitigation.local_readout_mitigator.np.einsum",
+            wraps=np.einsum,
+        ) as mock_einsum:
+            mitigator.expectation_value(counts)
+            mitigator.quasi_probabilities(counts)
+
+        self.assertEqual(mock_einsum.call_count, 2)
+        for einsum_call in mock_einsum.call_args_list:
+            self.assertEqual(einsum_call.kwargs["optimize"], "greedy")
 
     def test_local_readout_assignment_matrix(self):
         """Tests that the local mitigator generates the full assignment matrix correctly"""

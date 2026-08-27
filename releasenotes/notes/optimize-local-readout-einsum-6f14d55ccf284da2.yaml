@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    Improved the performance of
+    :meth:`.LocalReadoutMitigator.expectation_value` and
+    :meth:`.LocalReadoutMitigator.quasi_probabilities` by using an optimized
+    tensor contraction path. This avoids unnecessary computational overhead
+    as the number of mitigated qubits increases. Refer to
+    `#1649 <https://github.com/qiskit-community/qiskit-experiments/issues/1649>`__
+    for more details.
