@@ -161,7 +161,7 @@ class LocalReadoutMitigator(BaseReadoutMitigator):
         for i, ainv in enumerate(reversed(ainvs)):
             einsum_args += [ainv.T, [num_qubits + i, i]]
         einsum_args += [list(range(num_qubits, 2 * num_qubits))]
-        coeffs = np.einsum(*einsum_args).ravel()
+        coeffs = np.einsum(*einsum_args, optimize="greedy").ravel()
 
         expval = coeffs.dot(probs_vec)
         stddev_upper_bound = self.stddev_upper_bound(shots, qubits)
@@ -214,7 +214,7 @@ class LocalReadoutMitigator(BaseReadoutMitigator):
         for i, ainv in enumerate(reversed(ainvs)):
             einsum_args += [ainv, [num_qubits + i, i]]
         einsum_args += [list(range(num_qubits, 2 * num_qubits))]
-        probs_vec = np.einsum(*einsum_args).ravel()
+        probs_vec = np.einsum(*einsum_args, optimize="greedy").ravel()
 
         probs_dict = {}
         for index, _ in enumerate(probs_vec):
