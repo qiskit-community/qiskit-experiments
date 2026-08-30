@@ -86,6 +86,16 @@ Initial Guess Estimators
     guess.min_height
     guess.oscillation_exp_decay
 
+Separability Diagnostics
+========================
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    separability.peak_separability
+    separability.SeparabilityReport
+
+
 Utilities
 =========
 .. autosummary::
@@ -112,6 +122,7 @@ from .curve_data import (
     ParameterRepr,
 )
 from . import guess
+from . import separability
 from . import fit_function
 from . import utils
 

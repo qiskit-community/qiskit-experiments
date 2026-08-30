@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Added :func:`~qiskit_experiments.curve_analysis.separability.peak_separability`,
+    a diagnostic for fits with two nearly overlapping spectral features,
+    such as resonance doublets near qubit and two-level-system anticrossings.
+    Given the feature separation and linewidth it reports a qualitative
+    regime and the expected error amplification for three estimation
+    tasks: amplitudes with fixed frequencies (inverse ratio to the first
+    power), the frequencies themselves (second power), and amplitudes
+    with free frequencies (third power).
