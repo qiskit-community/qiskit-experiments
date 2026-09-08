@@ -93,6 +93,7 @@ docs = [
     "sphinx-copybutton",
     "sphinx-design",
     "sphinx-remove-toctrees",
+    "traitlets",
 ]
 linting = [
     # Linters
