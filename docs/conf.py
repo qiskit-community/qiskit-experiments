@@ -18,6 +18,8 @@ import os
 import sys
 import datetime
 
+import traitlets.config
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -226,8 +228,43 @@ def convert_type_alias_docstrings(app, what, name, obj, options, lines):
     lines.append(description)
 
 
+def _enable_kernel_encryption(app, config):
+    # jupyter has added optional encryption between the notebook kernel and
+    # client as outlined in https://github.com/jupyter/enhancement-proposals/pull/145
+    #
+    # jupyter_client sets a default transport_encryption of "disabled" and
+    # ipykernel warns if the encryption is not enabled. Leaving encryption
+    # disabled leads to every tutorial and docstring with a jupyter-execute
+    # directive emitting its own warning which clutters the docs build output.
+    #
+    # jupyter-sphinx uses nbclient to control the jupyter kernel. So the layers
+    # between us here and ipykernel include jupyter-sphinx, nbclient, and
+    # jupyter_client. To turn encryption on, we need to set
+    # `transport_encryption` in the config that gets passed to jupyter_execute
+    # which jupyter-sphinx exposes as a Sphinx config value. We set this in
+    # config-inited so that we can work from jupyter-sphinx's default kwargs
+    # which get set earlier at extension registration.
+
+    # Start from the default config
+    kernel_config = traitlets.config.Config()
+    # Turn on encryption
+    kernel_config.KernelManager.transport_encryption = "auto"
+
+    # Start from default kwargs set by jupyter-sphinx
+    kwargs = dict(config.jupyter_execute_kwargs)
+    if "config" in kwargs:
+        raise ValueError(
+            "jupyter-sphinx set a jupyter config value. "
+            "Investigate how to merge it with our config in docs/conf.py!"
+        )
+    # Add the config
+    kwargs["config"] = kernel_config
+    config.jupyter_execute_kwargs = kwargs
+
+
 def setup(app):
     app.connect("config-inited", _get_versions)
+    app.connect("config-inited", _enable_kernel_encryption)
     app.connect("autodoc-skip-member", maybe_skip_member)
     app.connect("autodoc-process-docstring", convert_type_alias_docstrings)
     # Explicitly add nbsphinx-gallery.css to the app because it otherwise does
