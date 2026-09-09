@@ -493,6 +493,9 @@ class TestStateTomography(QiskitExperimentsTestCase):
             with self.subTest(fitter=fitter):
                 if fitter:
                     exp.analysis.set_options(fitter=fitter)
+                    if "cvxpy" in fitter:
+                        # Increaes from default tolerance of 1e-5 to avoid cvxpy warnings.
+                        exp.analysis.set_options(fitter_options={"eps_abs": 3e-4})
                 fitdata = exp.analysis.run(expdata)
                 states = fitdata.analysis_results("state", dataframe=True)
                 self.assertEqual(len(states), 2 ** len(circuit_clbits))
